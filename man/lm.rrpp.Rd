@@ -26,7 +26,7 @@ which might be of interest for advanced users.}
 \item{SS.type}{A choice between type I (sequential), type II (hierarchical), or type III (marginal)
 sums of squares and cross-products computations.}
 
-\item{data}{A data frame for the function environment, see \code{\link{RRPP.data.frame}}}
+\item{data}{A data frame for the function environment, see \code{\link{rrpp.data.frame}}}
 
 \item{Cov}{An optional argument for including a covariance matrix to address the non-independence
 of error in the estimation of coefficients (via GLS).}

@@ -49,7 +49,7 @@
 #'  the number of parameters to 1.  Otherwise, the number of parameters will be p(p+1)/2,
 #' assuming an unstructured covariance matrix.  This argument will have no influence on the estimation of coefficients
 #' or SS, but could have impact for downstream model comparisons, using \code{\link{compare.models}}.
-#' @param data A data frame for the function environment, see \code{\link{RRPP.data.frame}}
+#' @param data A data frame for the function environment, see \code{\link{rrpp.data.frame}}
 #' @param print.progress A logical value to indicate whether a progress bar should be printed to the screen.
 #' This is helpful for long-running analyses.
 #' @param Parallel A logical value to indicate whether parallel processing should be used.  If TRUE, this argument
