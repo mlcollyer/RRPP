@@ -834,14 +834,12 @@ anova.parts <- function(fit, SS){
     cohenf <- etas/unexp
   }
   if(k == 1) {
-    P.val <- pval(Fs)
     SS.effect <- effect.size(log(SS[1,]))
     MS.effect <- effect.size(log(MS[1,]))
     Rsq.effect <- effect.size(log(Rsq[1,]))
     F.effect <- effect.size(log(Fs))
     cohenf.effect <- effect.size(log(cohenf))
   } else{
-    P.val <- apply(Fs, 1, pval)
     SS.effect <- apply(log(SS[1:k,]), 1, effect.size)
     MS.effect <- apply(log(MS[1:k,]), 1, effect.size)
     Rsq.effect <- apply(log(Rsq[1:k,]), 1, effect.size)
@@ -852,7 +850,7 @@ anova.parts <- function(fit, SS){
   cohenf <- rbind(cohenf, NA, NA)
   rownames(Fs) <- rownames(cohenf) <- rownames(SS)
   out <- list(SS.type = SS.type, SS = SS, MS = MS, Rsq = Rsq,
-              Fs = Fs, cohenf = cohenf, P.val = P.val, SS.effect = SS.effect,
+              Fs = Fs, cohenf = cohenf, SS.effect = SS.effect,
               MS.effect = MS.effect, Rsq.effect = Rsq.effect, F.effect = F.effect,
               cohenf.effect = cohenf.effect,
               n = n, p = p, df=df

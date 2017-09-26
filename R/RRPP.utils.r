@@ -106,49 +106,51 @@ anova.lm.rrpp <- function(object, ...,
   } else MSEmatch <- NULL
   if(length(SS) > 1) {
     Fs <- x$Fs
-    P.val <- x$P.val
     if(!is.null(MSEmatch)){
       Fs[1:k,] <- MS[1:k,]/MS[MSEmatch,]
-      P.val <- apply(Fs[1:k,], 1, pval)
       F.effect.adj <- apply(Fs[1:k,], 1, effect.size)
     }
-    Fs <- Fs[,1]
-    SS <- SS[,1]
-    MS <- MS[,1]
-    MS[length(MS)] <- NA
-    Rsq <- x$Rsq[,1]
-    Rsq[length(Rsq)] <- NA
-    P.val <- c(P.val, NA, NA)
     effect.type <- match.arg(effect.type)
     if(effect.type == "F") {
       if(!is.null(error)) Z <- F.effect.adj else Z <- x$F.effect
-      }
-    if(effect.type == "SS") Z <- x$SS.effect
-    if(effect.type == "MS") Z <- x$MS.effect
-    if(effect.type == "Rsq") Z <- x$Rsq.effect
-    if(effect.type == "cohenf") Z <- x$cohenf.effect
-    if(effect.type == "Rsq") effect.type = "R-squared"
-    if(effect.type == "cohenf") effect.type = "Cohen's f-squared"
+    }
     if(object$LM$gls) {
       est <- "Generalized Least-Squares (via OLS projection)"
       if(effect.type == "SS") {
         cat("\nWarning: calculating effect size on SS is illogical with GLS.
             Effect type has been changed to F distributions.\n\n")
         effect.type = "F"
-        Z <- x$F.effect
       }
       if(effect.type == "MS") {
         cat("\nWarning: calculating effect size on MS is illogical with GLS.
             Effect type has been changed to F distributions.\n\n")
         effect.type = "F"
-        Z <- x$F.effect
       }
     }
     else
       est <- "Ordinary Least Squares"
-    Z <- c(Z, NA, NA)
+    if(effect.type == "F") Z <- Fs
+    if(effect.type == "SS") Z <- x$SS
+    if(effect.type == "MS") Z <- x$MS
+    if(effect.type == "Rsq") Z <- x$Rsq
+    if(effect.type == "cohenf") Z <- x$cohenf
+    if(effect.type == "Rsq") effect.type = "R-squared"
+    if(effect.type == "cohenf") effect.type = "Cohen's f-squared"
+    if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
+    Fs <- Fs[,1]
+    SS <- SS[,1]
+    MS <- MS[,1]
+    MS[length(MS)] <- NA
+    Rsq <- x$Rsq
+    cohenf <- x$cohenf
+    P.val <- apply(Z, 1, pval)
+    Z <- apply(Z, 1, effect.size)
+    P.val[-(1:k)] <- NA
+    Z[-(1:k)] <- NA
+    Rsq <- Rsq[,1]
+    Rsq[length(Rsq)] <- NA
     tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F=Fs, Z=Z, P.val=P.val)
-    colnames(tab)[NCOL(tab)] <- "Pr(>F)"
+    colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
     if(object$LM$gls)
       est <- "Generalized Least-Squares (via OLS projection)" else
