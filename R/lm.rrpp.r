@@ -145,6 +145,10 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   SS.args <- list(fit = fit, ind = ind, P = NULL,
                   RRPP = RRPP, print.progress = print.progress)
   if(!is.null(Cov)){
+    Cov.name <- deparse(substitute(Cov))
+    Cov.match <- match(Cov.name, names(data))
+    if(length(Cov.match) > 1) stop("More than one object matches covariance matrix name")
+    if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
     if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
     dimsC <- dim(Cov)
     if(!all(dimsC == n))

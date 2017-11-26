@@ -1187,6 +1187,7 @@ beta.lm.rrpp <- function(fit){
   })
   d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
   rownames(d.stitched) <- beta.names[[k]]
+  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
   coef.obs <- beta.mats[[k]][[1]]
   if(p > 1) colnames(coef.obs) <- colnames(Y) else {
     coef.obs <- as.vector(coef.obs)

@@ -41,7 +41,8 @@ coef.lm.rrpp <- function(object, confidence = 0.95, ...) {
               random.distances = rd,
               n = n, p=p, k.terms = k, confidence = confidence,
               model.terms = model.terms, nperms = perms,
-              RRPP = RRPP, gls=gls, stat.table = stat.tab)
+              RRPP = RRPP, gls=gls, SS.type = SS.type,
+              stat.table = stat.tab)
   class(out) <- "coef.lm.rrpp"
   out
 }
