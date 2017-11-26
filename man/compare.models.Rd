@@ -4,7 +4,7 @@
 \alias{compare.models}
 \title{Compare Linear Models via Randomized Residual Permutation Procedure}
 \usage{
-compare.models(refModel, ..., confidence = 0.95, print.progress = TRUE)
+compare.models(refModel, ..., print.progress = TRUE)
 }
 \arguments{
 \item{refModel}{A class \code{lm.rrpp} object with more than one random permutation.}
@@ -16,15 +16,12 @@ for hypothesis test statistics.  It is assumed that the same seed was used in \c
 and that the same number of iterations were used.  Failure to ensure this prerequisite could result in spurious outcomes.
 See \code{\link{lm.rrpp}} for further details.}
 
-\item{confidence}{The level for confidence intervals on Delta-aRsq measures.}
-
 \item{print.progress}{A logical value to indicate whether a progress bar should be printed to the screen.
 This is helpful for long-running analyses.}
 }
 \value{
 An object of class \code{compare.models} is a list containing the following
 \item{AIC.table}{A table of model comparison statistics using AIC.}
-\item{aRsq.table}{A table of model comparison statistics using aRsq}
 \item{LRT.table}{A table for LRT test stats for models compared to the reference model.  logLR is
 calculated as twice the difference in log-likelihoods between null and comapred models.  Note that 
 statistics will be generated, even if the comparisons are not nested or do not make much sense.}
@@ -35,6 +32,9 @@ statistics will be generated, even if the comparisons are not nested or do not m
 likelihood ratio test.  These values are differences in deviances for all RRPP permutations.
 If a complex model is chosen as the reference model comapre to subsequent models, SS can be negative, 
 and the test will not make much sense.}
+\item{n}{The number of data observations.}
+\item{p}{The number of data variables.}
+\item{k}{The number of models compared.}
 }
 \description{
 Function performs various "model selection" procedures and a non-parametric likelihood

@@ -621,50 +621,58 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   if(!is.null(P)) gls = TRUE else gls = FALSE
   perms <- length(ind)
-  fitted <- fit$fitted.reduced
-  res <- fit$residuals.reduced
-  Y <- fit$Y
+  fitted <- fit$wFitted.reduced
+  res <- fit$wResiduals.reduced
+  Y <- fit$wY
   dims <- dim(as.matrix(Y))
   n <- dims[1]; p <- dims[2]
   trms <- fit$term.labels
   k <- length(trms)
-  fF <- fit$fitted.full[[k]]
-  rF <- fit$residuals.full[[k]]
-  if(!RRPP) {
-    fitted <- lapply(fitted, function(.) matrix(0, n, p))
-    res <- lapply(res, function(.) Y)
-  }
   w <- sqrt(fit$weights)
   o <- fit$offset
-  if(sum(w) != n) weighted = TRUE else weighted = FALSE
   if(sum(o) != 0) offset = TRUE else offset = FALSE
   rrpp.args <- list(fitted = fitted, residuals = res,
                     ind.i = NULL, w = NULL, o = NULL)
-  if(weighted) rrpp.args$w <- w
   if(offset) rrpp.args$o <- o
   if(print.progress){
     cat(paste("\n\nSums of Squares calculations:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   if(gls){
+    Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) crossprod(P,qr.Q(qr(x))))
-    Uf <- lapply(Xf, function(x) crossprod(P,qr.Q(qr(x))))
+    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
+    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
     Ufull <- Uf[[k]]
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
+      res <- lapply(fitted, function(f) Y - f)
+    }
+    rrpp.args$fitted <- fitted
+    rrpp.args$residuals <- res
     SS <- lapply(1: perms, function(j){
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      if(weighted) y <- (fF + rF[x,])*w else y <- fF + rF[x,]
-      py <- crossprod(P,y); pyy <- sum(py^2)
+      y <- Yi[[1]]
+      pyy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
-        pyy - sum(crossprod(Ufull, y)^2), pyy - SS.mean(py, n))
+        pyy - sum(crossprod(Ufull, y)^2), pyy - SS.mean(y, n))
     })
   } else {
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+      rrpp.args$fitted <- fitted
+      rrpp.args$residuals <- res
+    }
     Ur <- lapply(fit$wQRs.reduced, qr.Q)
     Uf <- lapply(fit$wQRs.full, qr.Q)
     Ufull <- Uf[[k]]
@@ -674,7 +682,7 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      if(weighted) y <- (fF + rF[x,])*w else y <- fF + rF[x,]
+      y <- Yi[[1]]
       yy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
@@ -704,53 +712,61 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     cat(paste("\n\nSums of Squares calculations:", perms, "permutations.\n"))
     cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
   }
-  fitted <- fit$fitted.reduced
-  res <- fit$residuals.reduced
-  Y <- fit$Y
+  fitted <- fit$wFitted.reduced
+  res <- fit$wResiduals.reduced
+  Y <- fit$wY
   dims <- dim(as.matrix(Y))
   n <- dims[1]; p <- dims[2]
   trms <- fit$term.labels
   k <- length(trms)
-  fF <- fit$fitted.full[[k]]
-  rF <- fit$residuals.full[[k]]
-  if(!RRPP) {
-    fitted <- lapply(fitted, function(.) matrix(0, n, p))
-    res <- lapply(res, function(.) Y)
-  }
   w <- sqrt(fit$weights)
   o <- fit$offset
-  if(sum(w) != n) weighted = TRUE else weighted = FALSE
   if(sum(o) != 0) offset = TRUE else offset = FALSE
   rrpp.args <- list(fitted = fitted, residuals = res,
                     ind.i = NULL, w = NULL, o = NULL)
-  if(weighted) rrpp.args$w <- w
   if(offset) rrpp.args$o <- o
   step <- 2
   if(gls){
+    Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) crossprod(P,qr.Q(qr(x))))
-    Uf <- lapply(Xf, function(x) crossprod(P,qr.Q(qr(x))))
+    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
+    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
     Ufull <- Uf[[k]]
-    Unull <- matrix(rowSums(crossprod(P,qr.Q(qr(matrix(rowSums(P))))))*w)
+    Unull <- Ufull[,1]
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
+      res <- lapply(fitted, function(f) Y - f)
+    }
+    rrpp.args$fitted <- fitted
+    rrpp.args$residuals <- res
     SS <- mclapply(1: perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      if(weighted) y <- (fF + rF[x,])*w else y <- fF + rF[x,]
-      py <- crossprod(P,y); pyy <- sum(py^2)
+      y <- Yi[[1]]
+      pyy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
-        pyy - sum(crossprod(Ufull, y)^2), pyy - SS.mean(py, n))
+        pyy - sum(crossprod(Ufull, y)^2), pyy - SS.mean(y, n))
     }, mc.cores = cl)
   } else {
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+      rrpp.args$fitted <- fitted
+      rrpp.args$residuals <- res
+    }
     Ur <- lapply(fit$wQRs.reduced, qr.Q)
     Uf <- lapply(fit$wQRs.full, qr.Q)
     SS <- mclapply(1: perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      if(weighted) y <- (fF + rF[x,])*w else y <- fF + rF[x,]; yy <- sum(y^2)
+      y <- Yi[[1]]; yy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
         yy - sum(crossprod(Uf[[k]], y)^2), yy - SS.mean(y, n))
@@ -762,33 +778,42 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   SS
 }
 
-SS.iter.null <- function(fit, ind, P = NULL, print.progress = TRUE) {
+SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
   if(!is.null(P)) gls = TRUE else gls = FALSE
   perms <- length(ind)
   if(print.progress){
     cat(paste("\n\nSums of Squares calculations:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
-  fitted <- fit$fitted.reduced
-  res <- fit$residuals.reduced
-  Y <- fit$Y
+  fitted <- fit$wFitted.full
+  res <- fit$wResiduals.full
+  Y <- fit$wY
   dims <- dim(as.matrix(Y))
   n <- dims[1]; p <- dims[2]
   k <- 1
   w <- sqrt(fit$weights)
   o <- fit$offset
   if(gls){
+    Y <- crossprod(P, Y)
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      U <- qr.Q(qr(crossprod(P, matrix(1, n))))
+      fitted <- crossprod(tcrossprod(U), Y)
+      res <- lapply(fitted, function(f) Y - f)
+    }
     SS <- lapply(1:perms, function(j){
       x <-ind[[j]]
-      y <- Y[x,]*w; py <- crossprod(P,y); pyy <- sum(py^2)
+      y <- fitted + res[x,]; pyy <- sum(y^2)
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
-      pyy - SS.mean(py, n)
+      pyy - SS.mean(y, n)
     })
   } else {
     SS <- lapply(1:perms, function(j){
       x <-ind[[j]]
-      y <- Y[x,]*w; yy <- sum(y^2)
+      y <- Y[x,]; yy <- sum(y^2)
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
       yy - SS.mean(y, n)
@@ -896,9 +921,10 @@ fastPC <- function(y, p){
 # used in compare.models
 
 detPC <- function(Sig){
-  s <- svd(Sig)
+  s <- La.svd(Sig)
   d <- s$d
-  dp <- d[which(cumsum(d/sum(d)) <= 0.999)]
+  if(length(d) > 1) dp <- d[which(cumsum(d/sum(d)) <= 0.99)] else dp <- d
+  if(length(dp) == 0) dp <- zapsmall(d)
   prod(dp)
 }
 
@@ -983,38 +1009,49 @@ DevianceOLS<- function(fit){
   ind <- fit$PermInfo$perm.schedule
   perms <- length(ind)
   n <- length(ind[[1]])
+  indb <- boot.index(n, perms)
   fit.args <- remodel.set(refit(fit))
   U <- fit.args$U
-  fit.args$r <- res <- as.matrix(fit.args$r)
-  wRes <- res*fit.args$w
   k <- fit$LM$QR$rank
+  p <- qr(center(fit$LM$Y))$rank
+  pA <- p*k + p*(p+1)/2
+  ones <- matrix(1, n)
   d <- sapply(1:perms, function(j){
-    fit.args$ind.i <- ind[[j]]
+    fit.args$ind.i <- indb[[j]]
     nM <- do.call(remodel, fit.args)
     dev <- sum(nM$r^2)
-    ss <- sum(nM$f^2)
-    c(deviance = dev, SS = ss)
+    sst <- sum(center(nM$y)^2)
+    lL <- remodel.logL(nM$r)
+    yCov <- crossprod(center(nM$y))/n
+    rCov <- crossprod(center(nM$r))/n
+    fCov <- crossprod(center(nM$f))/n
+    dy1 <- La.svd(yCov)$d[1]
+    dz1 <- La.svd(fCov)$d[1] + La.svd(rCov)$d[1]
+    c(deviance = dev, SS = sst-dev, 
+      pcRsq = (dz1-dy1)/dy1,
+      logL=lL,
+      AIC = -2*lL + 2*pA)
   })
   SS <- d[2,]
   Dev <- d[1,]
   eta.sq <- SS/(SS + Dev)
   eta.sq.a <- eta.sq - (1-eta.sq)*(k-1)/(n-k)
-  p <- qr(center(fit$LM$Y))$rank
-  pA <- p*k + p*(p+1)/2
-  logL.obs <- remodel.logL(wRes)
-  AIC <-  -2*logL.obs + 2*pA
-  list(Deviance = Dev, Eta.sq = eta.sq, Eta.sq.a = eta.sq.a, logL=logL.obs, AIC=AIC,
-       p = p, k = k, n = n)
+  list(Deviance = Dev, Eta.sq = eta.sq, Eta.sq.a = eta.sq.a, 
+       logL=d[4,], AIC=d[5,],
+       pcRsq = d[3,], p = p, k = k, n = n)
 }
 
 # DevianceGLS
 # calculates Deviances from RSS output in lm.rrpp, based on GLS
 # used in compare.models
 
+#### Need to update this!!!!
+
 DevianceGLS <- function(fit){
   ind <- fit$PermInfo$perm.schedule
   perms <- length(ind)
   n <- length(ind[[1]])
+  indb <- boot.index(n, perms)
   fit.args <- remodel.set(refit(fit))
   P <- fit$LM$Pcov
   C <- fit$LM$Cov
@@ -1027,7 +1064,7 @@ DevianceGLS <- function(fit){
   wRes <- Y - fastFit(U, Y, n, fit.args$p)
   k <- fit$LM$QR$rank
   d <- sapply(1:perms, function(j){
-    fit.args$ind.i <- ind[[j]]
+    fit.args$ind.i <- indb[[j]]
     nM <- do.call(remodel, fit.args)
     dev <- sum(nM$r^2)
     ss <- sum(nM$f^2)
@@ -1045,3 +1082,125 @@ DevianceGLS <- function(fit){
   list(Deviance = Dev, Eta.sq = eta.sq, Eta.sq.a = eta.sq.a, logL=logL.obs, AIC=AIC,
        p = p, k = k, n = n)
 }
+
+
+# beta.lm.rrpp
+# gets appropriate beta vectors for random permutations in lm.rrpp
+# gnerates distances as statistics for summary
+beta.lm.rrpp <- function(fit){
+  ind <- fit$PermInfo$perm.schedule
+  perms <- length(ind)
+  if(fit$PermInfo$perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
+  gls <- fit$LM$gls
+  dat <- fit$LM$data
+  pdf.args <- list(data=dat,
+                   x = model.matrix(fit$LM$Terms, data = dat),
+                   w = fit$LM$weights,
+                   offset = fit$LM$offset,
+                   terms = fit$LM$Terms,
+                   formula = NULL,
+                   SS.type = fit$ANOVA$SS.type)
+  form <- formula(deparse(fit$call[[2]]))
+  form[[2]] <- "Y"
+  pdf.args$formula <- form
+  if(sum(attr(pdf.args$x, "assign")) == 0)
+    rfit <- rrpp.fit.int(pdf.args) else
+      rfit <- rrpp.fit.lm(pdf.args)
+  fitted <- rfit$wFitted.reduced
+  res <- rfit$wResiduals.reduced
+  Y <- rfit$wY
+  dims <- dim(as.matrix(Y))
+  n <- dims[1]; p <- dims[2]
+  trms <- rfit$term.labels
+  k <- length(trms)
+  w <- sqrt(rfit$weights)
+  o <- rfit$offset
+  if(sum(o) != 0) offset = TRUE else offset = FALSE
+  rrpp.args <- list(fitted = fitted, residuals = res,
+                    ind.i = NULL, w = NULL, o = NULL)
+  if(offset) rrpp.args$o <- o
+  if(gls){
+    P <- fit$LM$Pcov
+    Y <- crossprod(P, Y)
+    Xr <- lapply(rfit$wXrs, function(x) crossprod(P, as.matrix(x)))
+    Xf <- lapply(rfit$wXfs, function(x) crossprod(P, as.matrix(x)))
+    Qr <- lapply(Xr, qr)
+    Qf <- lapply(Xf, qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
+      res <- lapply(fitted, function(f) Y - f)
+    }
+    rrpp.args$fitted <- fitted
+    rrpp.args$residuals <- res
+    betas <- lapply(1:perms, function(j){
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      Map(function(h,y) h%*%y, Hf, Yi)
+    })
+  } else {
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+      rrpp.args$fitted <- fitted
+      rrpp.args$residuals <- res
+    }
+    Qf <- lapply(rfit$wXfs, qr)
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    betas <- lapply(1:perms, function(j){
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      Map(function(h,y) h%*%y, Hf, Yi)
+    })
+  }
+  beta.mats <- lapply(1:k, function(j){
+  result <- lapply(betas, function(x) x[[j]])
+  result
+  })
+  beta.mat.d <- lapply(1:k, function(j){
+    b <- beta.mats[[j]]
+    kk <- length(b)
+    result <- sapply(1:kk, function(jj){
+      bb <- b[[jj]]
+      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
+    })
+    rownames(result) <- rownames(b[[1]])
+    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+    result
+  })
+  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
+  names(beta.mats) <- names(beta.mat.d) <- trms
+  beta.hyp <- list()
+  beta.hyp[[1]] <- beta.names[[1]]
+  if(k > 1) for(i in 2:k) 
+    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
+  d.stitched <- lapply(1:k, function(j){
+    b <- beta.mat.d[[j]]
+    b <- b[match(beta.hyp[[j]], row.names(b)),]
+    if(is.matrix(b)) t(b) else b
+  })
+  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
+  rownames(d.stitched) <- beta.names[[k]]
+  coef.obs <- beta.mats[[k]][[1]]
+  if(p > 1) colnames(coef.obs) <- colnames(Y) else {
+    coef.obs <- as.vector(coef.obs)
+    names(coef.obs) <- beta.names[[k]]
+  }
+    
+  out <- list(coef.obs = coef.obs,
+              random.coef = beta.mats,
+              random.distances = d.stitched,
+              n = n, p=p, k.terms = k,
+              model.terms = trms, nperms = perms,
+              RRPP = RRPP, gls=gls, SS.type = pdf.args$SS.type)
+  out
+}
+
+
+

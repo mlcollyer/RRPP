@@ -109,7 +109,6 @@
 #' for hypothesis test statistics.  It is assumed that the same seed was used in \code{\link{lm.rrpp}} for the random permutations,
 #' and that the same number of iterations were used.  Failure to ensure this prerequisite could result in spurious outcomes.
 #' See \code{\link{lm.rrpp}} for further details.
-#' @param confidence The level for confidence intervals on Delta-aRsq measures.
 #' @param print.progress A logical value to indicate whether a progress bar should be printed to the screen.
 #' This is helpful for long-running analyses.
 #' @keywords analysis
@@ -117,7 +116,6 @@
 #' @author Michael Collyer
 #' @return An object of class \code{compare.models} is a list containing the following
 #' \item{AIC.table}{A table of model comparison statistics using AIC.}
-#' \item{aRsq.table}{A table of model comparison statistics using aRsq}
 #' \item{LRT.table}{A table for LRT test stats for models compared to the reference model.  logLR is
 #' calculated as twice the difference in log-likelihoods between null and comapred models.  Note that 
 #' statistics will be generated, even if the comparisons are not nested or do not make much sense.}
@@ -128,6 +126,9 @@
 #' likelihood ratio test.  These values are differences in deviances for all RRPP permutations.
 #' If a complex model is chosen as the reference model comapre to subsequent models, SS can be negative, 
 #' and the test will not make much sense.}
+#' \item{n}{The number of data observations.}
+#' \item{p}{The number of data variables.}
+#' \item{k}{The number of models compared.}
 #'
 #' @references Bedrick, E.J., and C.L. Tsai.  1994. Model selection for multivariate regression in small samples.
 #' Biometrics 50:226–231.
@@ -173,7 +174,7 @@
 
 # NEED BETTER EXAMPLES
 
-compare.models <- function(refModel, ..., confidence = 0.95, print.progress = TRUE){
+compare.models <- function(refModel, ..., print.progress = TRUE){
   dots <- list(...)
   if(length(dots) == 0) stop("This function requires multiple lm.rrpp objects")
 
@@ -198,7 +199,7 @@ compare.models <- function(refModel, ..., confidence = 0.95, print.progress = TR
   rank.check <- sapply(1:k, function(j) is.null(ranks[[j]]))
   ranks[rank.check == TRUE] <- 1
   if(print.progress){
-    cat("\n\nCalculating model deviances for the number of 
+    cat("\n\nObtaining bootstrapped model selection criteria for the number of 
         lm.rrpp permutations for", k, "models\n")
     pb <- txtProgressBar(min = 0, max = k+1, initial = 0, style=3)
   }
@@ -215,42 +216,19 @@ compare.models <- function(refModel, ..., confidence = 0.95, print.progress = TR
     setTxtProgressBar(pb,step)
     close(pb)
   }
-  
   Dev <- lapply(1:k, function(j) deviances[[j]]$Deviance)
   Dev.obs <- unlist(lapply(1:k, function(j) (Dev[[j]])[[1]]))
   
   # AIC
   AIC <- sapply(1:k, function(j) deviances[[j]]$AIC)
+  AIC.obs <- unlist(lapply(1:k, function(j) (AIC[[j]])[[1]]))
   logL <-sapply(1:k, function(j) deviances[[j]]$logL)
-  delAIC <- AIC - min(AIC)
-  AICw <- round(exp(-0.5*delAIC/p)/sum(exp(-0.5*delAIC/p)), 4)
-  atab <- data.frame(Deviance = Dev.obs,
-                    logL = logL, AIC = AIC, 
-                    delAIC = delAIC, AICw = AICw)
-  dotnms <- substitute(list(...))[-1]
-  dotnms <- c(deparse(substitute(refModel)), sapply(substitute(dotnms), deparse))
-  colnames(atab)[1] <- "Deviance (RSS)"
-  rownames(atab) <- names(Dev) <- dotnms
-  rownames(atab)[1] <- paste(rownames(atab)[1], "(ref)")
+  logL.obs <- unlist(lapply(1:k, function(j) (logL[[j]])[[1]]))
+  delAIC <- AIC.obs - min(AIC.obs)
   
   # eta-sq
   Rsq <- sapply(1:k, function(j) deviances[[j]]$Eta.sq.a)
-  Rsq.obs <- Rsq[1,]
-  Rsq.mean <-colMeans(Rsq)
-  etamax <- max(Rsq.mean)
-  delRsq <- etamax - Rsq.mean
-  Rsq.c <- etamax - Rsq
-  eLCL <- apply(Rsq.c, 2, function(x) quantile(x, (1-confidence)/2))
-  eUCL <- apply(Rsq.c, 2, function(x) quantile(x, confidence + (1-confidence)/2))
-  Rsq.mean <- zapsmall(Rsq.mean)
-  etab <- data.frame(Deviance = Dev.obs,
-                     aRsq.mean = Rsq.mean, delRsq = delRsq, 
-                     LCL = eLCL, UCL = eUCL, CI.Range = eUCL - eLCL)
-  
-  rownames(etab) <- rownames(atab)
-  colnames(etab)[1] <- "Deviance (RSS)"
-  colnames(etab)[4] <- paste((1-confidence)/2*100, "% LC", sep="")
-  colnames(etab)[5] <- paste((confidence + (1-confidence)/2)*100, "% UC", sep="")
+  pcRsq <- sapply(1:k, function(j) deviances[[j]]$pcRsq)
 
   # LRT
   ind.list <- lapply(1:k, function(j) dots[[j]]$PermInfo$perm.schedule)
@@ -267,7 +245,6 @@ compare.models <- function(refModel, ..., confidence = 0.95, print.progress = TR
           perms, "permutations\n")
       pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
     }
-    
     refFit <- refit(refModel)
     refFit.set <- remodel.set(refFit)
     if(refModel$LM$gls) {
@@ -300,21 +277,22 @@ compare.models <- function(refModel, ..., confidence = 0.95, print.progress = TR
     SS <- cbind(1, t(matrix(unlist(SS), k-1, perms)))
     pvals <- apply(SS, 2, pval)
     Z <- apply(log(SS), 2, effect.size)
-    logLR <- 2*(logL - rep(logL[1],k))
+    logLR <- 2*(logL.obs - rep(logL.obs[1],k))
     ltab <- data.frame(Deviance = Dev.obs,
                        logLR = logLR, SS = SS[1,], 
                        Z = Z, P = pvals)
     ltab[1,-1] <- NA
     colnames(ltab)[NCOL(ltab)] <- "Pr(>SS)"
     colnames(ltab)[1] <- "Deviance (RSS)"
-    rownames(ltab) <- colnames(SS) <- rownames(atab)
+    dotnms <- substitute(list(...))[-1]
+    dotnms <- c(deparse(substitute(refModel)), sapply(substitute(dotnms), deparse))
+    rownames(ltab) <- colnames(SS) <- dotnms
     class(ltab) <- c("anova", class(ltab))
   }
-  out <- list(AIC.table = atab, 
-              aRsq.table = etab,
-              LRT.table = ltab, 
-              logL = logL, Deviance = Dev, 
-              aRsq = Rsq, LRT.SS = SS[,-1])
+  out <- list(logL = logL, Deviance = Dev, AIC=AIC,
+              aRsq = Rsq, pcRsq = pcRsq, LRT.table = ltab,
+              LRT.SS = SS[,-1],
+              n = n, p = p, k = k)
   class(out) <- "compare.models"
   out
 }

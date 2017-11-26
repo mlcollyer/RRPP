@@ -94,7 +94,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                     print.progress = TRUE, Parallel = FALSE, ...) {
 
   if(int.first) ko = TRUE else ko = FALSE
-  if(!is.null(data)) data <- droplevels(data)
+  if(!is.null(data)) data <- droplevels.rrpp.data.frame(data)
   if(print.progress){
     cat("\nPreliminary Model Fit...\n")
     pb <- txtProgressBar(min = 0, max = 4, initial = 0, style=3)
@@ -182,9 +182,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       out$LM$Cov <- Cov
       out$LM$Pcov <- Pcov
       out$LM$Cov.par <- Cov.par
-      PY <- Pcov%*%fit.o$Y; PX <- Pcov%*%fit.o$X
+      PY <- crossprod(Pcov, fit.o$wY); PX <- crossprod(Pcov, fit.o$wX)
       w <- fit.o$weights
-      fit.cov <- lm.wfit(PX, PY, w)
+      fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients
       out$LM$gls.fitted = fit.o$X%*%fit.cov$coefficients
@@ -194,8 +194,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   } else
   {
     if(print.progress) cat("\n No terms for ANOVA; only RSS calculated in each permutation\n")
-    if(!is.null(Cov)) SS <- SS.iter.null(fit,  P = Pcov, ind = ind,  print.progress = print.progress) else
-       SS <- SS.iter.null(fit, ind = ind, print.progress = print.progress)
+    if(!is.null(Cov)) SS <- SS.iter.null(fit,  P = Pcov, ind = ind,  
+                                         RRPP = RRPP, print.progress = print.progress) else
+       SS <- SS.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
     SSY <- SS[1]
     n <- NROW(Y)
     df <- n - fit$wQRs.full[[1]]$rank
@@ -218,9 +219,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       out$LM$Cov <- Cov
       out$LM$Pcov <- Pcov
       out$LM$Cov.par <- Cov.par
-      PY <- Pcov%*%fit.o$Y; PX <- Pcov%*%fit.o$X
+      PY <- Pcov%*%fit.o$wY; PX <- Pcov%*%fit.o$wX
       w <- fit.o$weights
-      fit.cov <- lm.wfit(PX, PY, w)
+      fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients
       out$LM$gls.fitted = fit.o$X%*%fit.cov$coefficients
