@@ -16,23 +16,33 @@
 #' @author Michael Collyer
 #' @keywords utilities
 coef.lm.rrpp <- function(object, confidence = 0.95, ...) {
-  x <- beta.lm.rrpp(object)
-  coef.obs = x$coef.obs
-  rc = x$random.coef
-  rd = x$random.distances
-  n = x$n; p = x$p; k = x$k.terms
-  model.terms = x$model.terms
-  perms = x$nperms
-  SS.type <- x$SS.type
-  RRPP <- x$RRPP
-  gls <- x$gls
-  PV <- apply(rd, 1, pval)
-  Z <- apply(rd, 1, effect.size)
+  x <- object
+  rc <- x$LM$random.coef
+  rd <- x$LM$random.coef.distances
+  n <- x$LM$n; p <- x$LM$p
+  model.terms <- x$LM$Terms
+  k <- length(x$LM$term.labels)
+  coef.obs <- rc[[k]][[1]]
+  perms <- x$PermInfo$perms
+  SS.type <- x$ANOVA$SS.type
+  RRPP <- x$PermInfo$perm.method
+  gls <- x$L$gls
   alpha = 1 - confidence
   if(alpha < 0) stop("Confidence level should be between 0 and 1")
-  lcl <- apply(rd, 1, function(x) quantile(x, alpha/2))
-  ucl <- apply(rd, 1, function(x) quantile(x, (1 - alpha/2)))
-  stat.tab <- data.frame(d.obs = rd[,1], lcl=lcl, ucl=ucl, Z=Z, P=PV)
+  if(k > 0) {
+    PV <- apply(rd, 1, pval)
+    Z <- apply(rd, 1, effect.size)
+    lcl <- apply(rd, 1, function(x) quantile(x, alpha/2))
+    ucl <- apply(rd, 1, function(x) quantile(x, (1 - alpha/2)))
+    stat.tab <- data.frame(d.obs = rd[,1], lcl=lcl, ucl=ucl, Z=Z, P=PV)
+  } else {
+    PV <- pval(rd)
+    Z <- pval(rd)
+    lcl <- quantile(rd, alpha/2)
+    ucl <- quantile(rd, (1 - alpha/2))
+    stat.tab <- data.frame(d.obs = rd[1], lcl=lcl, ucl=ucl, Z=Z, P=PV)
+  }
+  
   colnames(stat.tab)[2] <- paste("LCL (", alpha/2*100,"%)", sep = "")
   colnames(stat.tab)[3] <- paste("UCL (", (1 -alpha/2)*100,"%)", sep = "")
   colnames(stat.tab)[5] <- "Pr(>d)"

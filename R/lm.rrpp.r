@@ -141,6 +141,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   if(print.progress) {
     step <- 4
     setTxtProgressBar(pb,step)
+    close(pb)
   }
   SS.args <- list(fit = fit, ind = ind, P = NULL,
                   RRPP = RRPP, print.progress = print.progress)
@@ -164,6 +165,10 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   if(k > 0){
     if(Parallel) {
+      if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, SS.args)
+      else betas <- do.call(beta.iterPP, SS.args)
+    } else betas <- do.call(beta.iter, SS.args)
+    if(Parallel) {
       if(.Platform$OS.type == "windows") SS <- do.call(SS.iter, SS.args)
       else SS <- do.call(SS.iterPP, SS.args)
       } else SS <- do.call(SS.iter, SS.args)
@@ -178,7 +183,10 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                wFitted = fit.o$wFitted.full[[k]],
                wResiduals = fit.o$wResiduals.full[[k]],
                Terms = fit.o$Terms, term.labels = fit.o$term.labels,
-               data = fit.o$data, ols = TRUE, gls = FALSE)
+               data = fit.o$data, 
+               random.coef = betas$random.coef,
+               random.coef.distances = betas$random.coef.distances,
+               ols = TRUE, gls = FALSE)
     PermInfo <- list(perms = perms,
                      perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), perm.schedule = ind)
     out <- list(call = match.call(), LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
@@ -198,9 +206,15 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   } else
   {
     if(print.progress) cat("\n No terms for ANOVA; only RSS calculated in each permutation\n")
-    if(!is.null(Cov)) SS <- SS.iter.null(fit,  P = Pcov, ind = ind,  
-                                         RRPP = RRPP, print.progress = print.progress) else
-       SS <- SS.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
+    if(!is.null(Cov)){
+      betas <- beta.iter.null(fit,  P = Pcov, ind = ind,  
+                              RRPP = RRPP, print.progress = print.progress)
+      SS <- SS.iter.null(fit,  P = Pcov, ind = ind,  
+                         RRPP = RRPP, print.progress = print.progress)
+    }  else {
+      betas <- beta.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
+      SS <- SS.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
+    }
     SSY <- SS[1]
     n <- NROW(Y)
     df <- n - fit$wQRs.full[[1]]$rank
@@ -214,7 +228,10 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                wResiduals = fit.o$wResiduals.full[[1]],
                Terms = fit$Terms,
                term.labels = fit$term.labels, 
-               data = fit.o$data, ols = TRUE, gls = FALSE)
+               data = fit.o$data, 
+               random.coef = betas$random.coef,
+               random.coef.distances = betas$random.coef.distances,
+               ols = TRUE, gls = FALSE)
     ANOVA <- list(df = df, SS = SS, MS = SS/df)
     PermInfo <- list(perms = perms,
                      perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), perm.schedule = ind)

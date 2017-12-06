@@ -91,7 +91,7 @@ print.coef.lm.rrpp <- function(x,...){
   cat(paste("\nNumber of permutations:", x$nperms))
   cat("\n\nObserved coefficients\n\n")
   print(x$coef.obs)
-  rrpp.type <- ifelse(x$RRPP, "RRPP", "FRPP")
+  rrpp.type <- x$RRPP
   cat("\n\nStatistics (distances) of coefficients with ")
   cat(x$confidence*100, "percent confidence intervals,") 
   cat("\neffect sizes, and probabilities of exceeding observed values based on\n") 
