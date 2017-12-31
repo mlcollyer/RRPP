@@ -15,6 +15,9 @@
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+#' 
 coef.lm.rrpp <- function(object, confidence = 0.95, ...) {
   x <- object
   rc <- x$LM$random.coef

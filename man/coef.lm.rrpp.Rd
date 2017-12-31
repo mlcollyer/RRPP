@@ -23,6 +23,10 @@ described.  Random coefficients are based on either RRPP or FRPP, as defined by 
 \code{\link{lm.rrpp}} model fit.  If RRPP is used, all distributions of coefficient vector distances are 
 based on appropriate null models as defined by SS type.
 }
+\examples{
+# See examples for lm.rrpp
+
+}
 \author{
 Michael Collyer
 }
