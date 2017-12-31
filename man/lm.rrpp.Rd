@@ -6,7 +6,7 @@
 \usage{
 lm.rrpp(f1, iter = 999, seed = NULL, int.first = FALSE, RRPP = TRUE,
   SS.type = c("I", "II", "III"), data = NULL, Cov = NULL,
-  Cov.par = NULL, print.progress = TRUE, Parallel = FALSE, ...)
+  print.progress = TRUE, Parallel = FALSE, ...)
 }
 \arguments{
 \item{f1}{A formula for the linear model (e.g., y~x1+x2).  Can also be a linear model fit
@@ -30,17 +30,6 @@ sums of squares and cross-products computations.}
 
 \item{Cov}{An optional argument for including a covariance matrix to address the non-independence
 of error in the estimation of coefficients (via GLS).}
-
-\item{Cov.par}{An optional argument to override the number of parameters required for an optional
-covariance matrix argument.  This argument would be used if the correlation structure of the covariance
-matrix is not obvious but should be structured.  For example, if an autoregressive correlation structure
-is used to estimate the covariance matrix with the \code{\link{corClasses}} set of functions, 
-and the number of parameters should be 1, it is not possible to detect this with a p x p matrix for p variables.
-(It is also not feasible to generate covariance matrices outside of the \code{nlme} package.  Users would have to do this
-prior to using \code{lm.rrpp}.)  In an example like this, one should set
- the number of parameters to 1.  Otherwise, the number of parameters will be p(p+1)/2,
-assuming an unstructured covariance matrix.  This argument will have no influence on the estimation of coefficients
-or SS, but could have impact for downstream model comparisons, using \code{\link{compare.models}}.}
 
 \item{print.progress}{A logical value to indicate whether a progress bar should be printed to the screen.
 This is helpful for long-running analyses.}

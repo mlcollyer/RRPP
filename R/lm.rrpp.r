@@ -39,16 +39,6 @@
 #' sums of squares and cross-products computations.
 #' @param Cov An optional argument for including a covariance matrix to address the non-independence
 #' of error in the estimation of coefficients (via GLS).
-#' @param Cov.par An optional argument to override the number of parameters required for an optional
-#' covariance matrix argument.  This argument would be used if the correlation structure of the covariance
-#' matrix is not obvious but should be structured.  For example, if an autoregressive correlation structure
-#' is used to estimate the covariance matrix with the \code{\link{corClasses}} set of functions, 
-#' and the number of parameters should be 1, it is not possible to detect this with a p x p matrix for p variables.
-#' (It is also not feasible to generate covariance matrices outside of the \code{nlme} package.  Users would have to do this
-#' prior to using \code{lm.rrpp}.)  In an example like this, one should set
-#'  the number of parameters to 1.  Otherwise, the number of parameters will be p(p+1)/2,
-#' assuming an unstructured covariance matrix.  This argument will have no influence on the estimation of coefficients
-#' or SS, but could have impact for downstream model comparisons, using \code{\link{compare.models}}.
 #' @param data A data frame for the function environment, see \code{\link{rrpp.data.frame}}
 #' @param print.progress A logical value to indicate whether a progress bar should be printed to the screen.
 #' This is helpful for long-running analyses.
@@ -190,7 +180,7 @@
 
 lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                     RRPP = TRUE, SS.type = c("I", "II", "III"),
-                    data = NULL, Cov = NULL, Cov.par = NULL,
+                    data = NULL, Cov = NULL,
                     print.progress = TRUE, Parallel = FALSE, ...) {
 
   if(int.first) ko = TRUE else ko = FALSE
@@ -256,13 +246,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       stop("Either one or both of the dimensions of the covariance matrix do not match the number of observations.")
     Pcov <- Cov.proj(Cov, id)
     SS.args$P <- Pcov
-    if(is.null(Cov.par)){
-        r <- qr(Cov)$rank
-        Cov.par <- r*(r + 1)/2
-      }
-  } else {
-    Pcov <- Cov <- Cov.par <- NULL
-  }
+  } else Pcov <- NULL 
   if(k > 0){
     if(Parallel) {
       if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, SS.args)
