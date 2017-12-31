@@ -9,7 +9,9 @@
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}.}
 
-\item{newdata}{Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.}
+\item{newdata}{Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.  If null,
+the data frame from the lm.rrpp fit will be used, effectively calculating all fitted values and
+their confidence intervals.}
 
 \item{confidence}{The desired confidence interval level for prediction.}
 
