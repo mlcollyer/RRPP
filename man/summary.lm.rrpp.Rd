@@ -4,10 +4,12 @@
 \alias{summary.lm.rrpp}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{summary}{lm.rrpp}(object, ...)
+\method{summary}{lm.rrpp}(object, formula = TRUE, ...)
 }
 \arguments{
 \item{object}{print/summary object (from \code{\link{lm.rrpp}})}
+
+\item{formula}{Logical argument for whether to include formula in summary table}
 
 \item{...}{other arguments passed to print/summary}
 }

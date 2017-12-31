@@ -85,10 +85,109 @@
 #' datasets. Evolution. 70:2623-2631.
 #' @seealso \code{procD.lm} and \code{procD.pgls} within \code{geomorph}; \code{\link[stats]{lm}} for more on linear model fits.
 #' @examples
-#' ### Example of OLS/GLS plus SS.type options
-#' # Create a phylogenetic covariance matrix plus data from a random phylogeny,
-#' # and perform OLS and GLS analyses
-#' # UPDATE EXAMPLE
+#' 
+#' # Examples use geometric morphometric data
+#' # See the package, geomorph, for details about obtaining such data
+#'
+#' data("PupfishHeads")
+#' names(PupfishHeads)
+#' 
+#' # Head Size Analysis (Univariate)-------------------------------------------------------
+#'
+#' # Note: lm.rrpp works best if one avoids functions within formulas
+#' # Thus,
+#' 
+#' PupfishHeads$logHeadSize <- log(PupfishHeads$headSize)
+#' names(PupfishHeads)
+#'
+#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", data = PupfishHeads)
+#' summary(fit)
+#' anova(fit, effect.type = "F") # Maybe not most appropriate
+#' anova(fit, effect.type = "Rsq") # Change effect type, but still not most appropriate
+#'
+#' # Mixed-model approach (most appropriate, as year sampled is a random effect:
+#' 
+#' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals"))
+#'
+#' # Change to Type III SS
+#' 
+#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", data = PupfishHeads)
+#' summary(fit)
+#' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals"))
+#'
+#' # Coefficients Test
+#' 
+#' coef(fit)
+#'
+#' # Predictions (holding alternative effects constant)
+#' 
+#' sizeDF <- data.frame(sex = c("Female", "Male"))
+#' rownames(sizeDF) <- c("Female", "Male")
+#' sizePreds <- predict(fit, sizeDF)
+#' plot(sizePreds)
+#' 
+#' # Diagnostics plots of residuals
+#' 
+#' plot(fit)
+#' 
+#' # Body Shape Analysis (Mulivariate)----------------------------------------------------
+#' 
+#' data(Pupfish)
+#' names(Pupfish)
+#' 
+#' # Note:
+#' 
+#' dim(Pupfish$coords) # highly multivariate!
+#' 
+#' Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
+#' names(Pupfish)
+#'
+#' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+#' summary(fit, formula = FALSE)
+#' anova(fit) 
+#' coef(fit)
+#'
+#' # Predictions (holding alternative effects constant)
+#' 
+#' shapeDF <- expand.grid(Sex = levels(Pupfish$Sex), Pop = levels(Pupfish$Pop))
+#' rownames(shapeDF) <- paste(shapeDF$Sex, shapeDF$Pop, sep = ".")
+#' shapeDF
+#' 
+#' shapePreds <- predict(fit, shapeDF)
+#' 
+#' # Plot prediction
+#' 
+#' plot(shapePreds, PC = TRUE)
+#' plot(shapePreds, PC = TRUE, ellipse = TRUE)
+#' 
+#' # Diagnostics plots of residuals
+#' 
+#' plot(fit)
+#' 
+#' # PC-plot of fitted values
+#' 
+#' groups <- interaction(Pupfish$Sex, Pupfish$Pop)
+#' plot(fit, type = "PC", pch = 19, col = as.numeric(groups))
+#' 
+#' # Regression-like plot
+#' 
+#' plot(fit, type = "regression", reg.type = "PredLine", 
+#'     predictor = Pupfish$logSize, pch=19,
+#'     col = as.numeric(groups))
+#'
+#' # Body Shape Analysis (Distances)----------------------------------------------------
+#' 
+#' D <- dist(Pupfish$coords) # inter-observation distances
+#' length(D)
+#' Pupfish$D <- D
+#' 
+#' fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+#' 
+#' # These should be the same:
+#' summary(fitD, formula = FALSE)
+#' summary(fit, formula = FALSE) 
+#'
+
 lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                     RRPP = TRUE, SS.type = c("I", "II", "III"),
                     data = NULL, Cov = NULL, Cov.par = NULL,
@@ -217,7 +316,6 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       SS <- SS.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
     }
     SSY <- SS[1]
-    n <- NROW(Y)
     df <- n - fit$wQRs.full[[1]]$rank
     LM <- list(coefficients=fit$wCoefficients.full[[1]],
                Y=fit$Y,  X=fit$X, n = n, p = p,

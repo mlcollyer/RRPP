@@ -21,8 +21,19 @@
 #' @importFrom stats sd
 #' @importFrom stats terms
 #' @importFrom stats update
+#' @importFrom stats lm
+#' @importFrom stats loess
+#' @importFrom stats model.frame
+#' @importFrom stats na.omit
+#' @importFrom stats qnorm
+#' @importFrom graphics arrows
+#' @importFrom graphics par
+#' @importFrom graphics plot
+#' @importFrom graphics points
+#' @importFrom graphics text
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar
+
 #' @section RRPP TOC:
 #' RRPP-package
 NULL
@@ -30,7 +41,7 @@ NULL
 
 #' Landmarks on pupfish
 #'
-#' @name pupfish
+#' @name Pupfish
 #' @docType data
 #' @author Michael Collyer
 #' @keywords datasets
@@ -40,6 +51,22 @@ NULL
 #' with GPA.  Centroid size (CS) is also provided.
 #' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic
 #' change for phenotypes described by high-dimensional data. Heredity. 113: doi:10.1038/hdy.2014.75.
+NULL
+
+#' Landmarks on pupfish heads
+#'
+#' @name PupfishHeads
+#' @docType data
+#' @author Michael Collyer
+#' @keywords datasets
+#' @description Landmark data from Cyprindon pecosensis head shapes, with variables for 
+#' sex, month and year sampled, locality, head size, and coordinates of landmarks for head shape,
+#' per specimen.  These data are a subset of a larger data set.
+#' @details The variable, "coords", are data that were previously aligned
+#' with GPA.  The variable, "headSize", is the Centroid size of each vector of coordinates.
+#' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
+#' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
+
 NULL
 #####----------------------------------------------------------------------------------------------------
 
@@ -145,7 +172,7 @@ pcoa <- function(D){
   if(class(D) != "dist") stop("function only works with distance matrices")
   cmd <- cmdscale(D, k=attr(D, "Size") -1, eig=TRUE)
   options(warn=0)
-  p <- length(cmd$eig[zapsmall(cmd$eig) > 0])
+  p <- length(cmd$eig[zapsmall(cmd$eig) != 0])
   Yp <- cmd$points[,1:p]
   Yp
 }
@@ -525,7 +552,7 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
   if(sum(attr(pdf.args$x, "assign")) == 0)
     out <- rrpp.fit.int(pdf.args) else
       out <- rrpp.fit.lm(pdf.args)
-  out
+    out
 }
 
 rrpp.fit.from.lm.rrpp <- function(fit){
@@ -593,7 +620,7 @@ Cov.proj <- function(Cov, id){
   eigC <- eigen(Cov)
   lambda <- zapsmall(eigC$values)
   if(any(lambda == 0)){
-    warning("Singular covariance matrix. Proceed with caution")
+    cat("\nWarning: singular covariance matrix. Proceed with caution\n")
     lambda = lambda[lambda > 0]
   }
   eigC.vect = eigC$vectors[,1:(length(lambda))]
@@ -884,7 +911,7 @@ anova.parts <- function(fit, SS){
               MS.effect = MS.effect, Rsq.effect = Rsq.effect, F.effect = F.effect,
               cohenf.effect = cohenf.effect,
               n = n, p = p, df=df
-              )
+  )
   out
 }
 
@@ -894,460 +921,43 @@ anova.parts <- function(fit, SS){
 
 SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
-# generate U matrices
-# makes a U matrix based on model design
-# not used bt was used in compare.models, dureing development.  Retained
-# in case it is useful down the road.
+# beta.boot
+# for calculating confidence intervals for predicted values
+# used in predcit.lm.rrpp
 
-cm.U <- function(x){
-  X <- x$LM$X
-  w <- sqrt(x$LM$weights)
-  if(x$LM$ols) out <- qr.Q(qr(X*w))
-  if(x$LM$gls){
-    P <- x$LM$Pcov
-    out <- crossprod(P, qr.Q(qr(crossprod(P,X*w))))
-  }
-  out
+beta.boot <- function(f, r, h, ind.i){
+  y <- f + r[ind.i,]
+  h %*% y
 }
 
-# fastPC
-# get PC scores in p dimensions faster than going through prcomp.  Good for HD data
-# used in compare.models
+# ellipse.points
+# A helper function for plotting elipses from non-parametric CI data
+# Used in predict.lm.rrpp
 
-fastPC <- function(y, p){
-  y <- center(y)
-  s <-La.svd(y, p, p)
-  tcrossprod(y, s$vt)
-}
-
-# detPC
-# finds determinant of singular covariance matrix.  Finds the relevant eigenvalues for computation.
-# 99.9% is used as a cutoff to prevent singular dimensions
-# used in compare.models
-
-detPC <- function(Sig){
-  s <- La.svd(Sig)
-  d <- s$d
-  if(length(d) > 1) dp <- d[which(cumsum(d/sum(d)) <= 0.99)] else dp <- d
-  if(length(dp) == 0) dp <- zapsmall(d)
-  prod(dp)
-}
-
-
-
-# DevianceOLS
-# calculates Deviances from RSS output in lm.rrpp, based on OLS
-# used in compare.models
-
-# refit
-# finds rrpp.fit from lm.rrpp object
-# used in Deviance
-refit <- function(fit){
-  dat <- fit$LM$data
-  dims <- dim(dat$Y)
-  dat$Y <- prcomp(dat$Y)$x[,1:min(dims)]
-  pdf.args <- list(data=dat,
-                   x = model.matrix(fit$LM$Terms, data = dat),
-                   w = fit$LM$weights,
-                   offset = fit$LM$offset,
-                   terms = fit$LM$Terms,
-                   formula = NULL,
-                   SS.type = fit$ANOVA$SS.type)
-  form <- formula(deparse(fit$call[[2]]))
-  form[[2]] <- "Y"
-  pdf.args$formula <- form
-  if(sum(attr(pdf.args$x, "assign")) == 0)
-    out <- rrpp.fit.int(pdf.args) else
-      out <- rrpp.fit.lm(pdf.args)
-  out
-}
-
-# remodel.set
-# set up for remodel.SS, from bootstrap iterations
-# used in Deviance
-remodel.set <- function(fit){
-    k <- length(fit$term.labels)
-    if(k == 0) k = 1
-    f <- fit$fitted.full[[k]]
-    r <- fit$residuals.full[[k]]
-    w <- sqrt(fit$weights)
-    o <- fit$offset
-    U <- qr.Q(fit$wQRs.full[[k]])
-  list(f = f, r =r, w = w, o = o, 
-       n = NROW(r), p = NCOL(r), U = U, ind.i = NULL)
-}
-
-
-remodel.res<- function(f, r, w, o, n, p, U, ind.i){
-  y <- f + r[ind.i,] - o
-  y - fastFit(U, (y * w), n, p)
-}
-
-remodel <- function(f, r, w, o, n, p, U, ind.i){
-  y <- f + r[ind.i,] - o
-  f <- fastFit(U, (y * w), n, p)
-  r <- y - f
-  list(y = y + o, f = f + o, r = r)
-}
-
-
-remodel.Y<- function(f, r, w, o, n, p, U, ind.i){
-  (f + r[ind.i,])*w - o
-}
-
-remodel.logL <- function(res){ # n and p part of Deviance function
-  n <- NROW(res)
-  p <- qr(res)$rank
-  Sig <- crossprod(res)/n
-  -0.5*n*(log(detPC(Sig)) + p*log(2*pi))
-}
-
-remodel.logL.GLS <- function(res, C){ # n and p part of Deviance function
-  n <- NROW(res)
-  p <- qr(res)$rank
-  Sig <- crossprod(res)/n
-  -0.5*n*(log(detPC(Sig)) + p*log(2*pi)) -0.5*log(detPC(C))
-}
-
-
-DevianceOLS<- function(fit){
-  ind <- fit$PermInfo$perm.schedule
-  perms <- length(ind)
-  n <- length(ind[[1]])
-  indb <- boot.index(n, perms)
-  fit.args <- remodel.set(refit(fit))
-  U <- fit.args$U
-  k <- fit$LM$QR$rank
-  p <- qr(center(fit$LM$Y))$rank
-  pA <- p*k + p*(p+1)/2
-  ones <- matrix(1, n)
-  d <- sapply(1:perms, function(j){
-    fit.args$ind.i <- indb[[j]]
-    nM <- do.call(remodel, fit.args)
-    dev <- sum(nM$r^2)
-    sst <- sum(center(nM$y)^2)
-    lL <- remodel.logL(nM$r)
-    yCov <- crossprod(center(nM$y))/n
-    rCov <- crossprod(center(nM$r))/n
-    fCov <- crossprod(center(nM$f))/n
-    dy1 <- La.svd(yCov)$d[1]
-    dz1 <- La.svd(fCov)$d[1] + La.svd(rCov)$d[1]
-    c(deviance = dev, SS = sst-dev, 
-      pcRsq = (dz1-dy1)/dy1,
-      logL=lL,
-      AIC = -2*lL + 2*pA)
-  })
-  SS <- d[2,]
-  Dev <- d[1,]
-  eta.sq <- SS/(SS + Dev)
-  eta.sq.a <- eta.sq - (1-eta.sq)*(k-1)/(n-k)
-  list(Deviance = Dev, Eta.sq = eta.sq, Eta.sq.a = eta.sq.a, 
-       logL=d[4,], AIC=d[5,],
-       pcRsq = d[3,], p = p, k = k, n = n)
-}
-
-# DevianceGLS
-# calculates Deviances from RSS output in lm.rrpp, based on GLS
-# used in compare.models
-
-#### Need to update this!!!!
-
-DevianceGLS <- function(fit){
-  ind <- fit$PermInfo$perm.schedule
-  perms <- length(ind)
-  n <- length(ind[[1]])
-  indb <- boot.index(n, perms)
-  fit.args <- remodel.set(refit(fit))
-  P <- fit$LM$Pcov
-  C <- fit$LM$Cov
-  X <- fit$LM$X
-  X <- crossprod(P, X*fit.args$w)
-  U <- crossprod(P, qr.Q(qr(X)))
-  fit.args$U <- U
-  fit.args$r <- as.matrix(fit.args$r)
-  Y <- (fit.args$f + fit.args$r)*fit.args$w
-  wRes <- Y - fastFit(U, Y, n, fit.args$p)
-  k <- fit$LM$QR$rank
-  d <- sapply(1:perms, function(j){
-    fit.args$ind.i <- indb[[j]]
-    nM <- do.call(remodel, fit.args)
-    dev <- sum(nM$r^2)
-    ss <- sum(nM$f^2)
-    c(deviance = dev, SS = ss)
-  })
-  SS <- d[2,]
-  Dev <- d[1,]
-  eta.sq <- SS/(SS + Dev)
-  eta.sq.a <- eta.sq - (1-eta.sq)*(k-1)/(n-k)
-  p <- qr(center(Y))$rank
-  r <- fit$LM$Cov.par
-  pA <- p*k + p*(p+1)/2 + r
-  logL.obs <- remodel.logL.GLS(wRes, C)
-  AIC <-  -2*logL.obs + 2*pA
-  list(Deviance = Dev, Eta.sq = eta.sq, Eta.sq.a = eta.sq.a, logL=logL.obs, AIC=AIC,
-       p = p, k = k, n = n)
-}
-
-# beta.lm.iter
-# gets appropriate beta vectors for random permutations in lm.rrpp
-# generates distances as statistics for summary
-
-beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  fitted <- fit$wFitted.reduced
-  res <- fit$wResiduals.reduced
-  Y <- fit$wY
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  trms <- fit$term.labels
-  k <- length(trms)
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  rrpp.args <- list(fitted = fitted, residuals = res,
-                    ind.i = NULL, w = NULL, o = NULL)
-  if(offset) rrpp.args$o <- o
-  if(print.progress){
-    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-  }
-  if(gls){
-    Y <- crossprod(P, Y)
-    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
-    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Qr <- lapply(Xr, qr)
-    Qf <- lapply(Xf, qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-    rrpp.args$fitted <- fitted
-    rrpp.args$residuals <- res
-    betas <- lapply(1:perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h %*% y, Hf, Yi)
+ellipse.points <- function(m, pr, conf) {
+  m <- as.matrix(m)
+  p <- NCOL(m)
+  z <- qnorm((1 - conf)/2, lower.tail = FALSE)
+  angles <- seq(0, 2*pi, length.out=200)
+  ell    <- z* cbind(cos(angles), sin(angles))
+  del <- lapply(pr, function(x) x[,1:p] - m)
+  vcv <- lapply(1:NROW(m), function(j){
+    x <- sapply(1:length(del), function(jj){
+      del[[jj]][j,]
     })
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-      rrpp.args$fitted <- fitted
-      rrpp.args$residuals <- res
-    }
-    Qf <- lapply(fit$wXfs, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    betas <- lapply(1:perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h%*%y, Hf, Yi)
-    })
-  }
-  beta.mats <- lapply(1:k, function(j){
-    result <- lapply(betas, function(x) x[[j]])
-    result
+    tcrossprod(x)/ncol(x)
   })
-  beta.mat.d <- lapply(1:k, function(j){
-    b <- beta.mats[[j]]
-    kk <- length(b)
-    result <- sapply(1:kk, function(jj){
-      bb <- b[[jj]]
-      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
-    })
-    rownames(result) <- rownames(b[[1]])
-    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-    result
+  R <- lapply(vcv, chol)
+  ellP <- lapply(R, function(x) ell %*% x)
+  np <- NROW(ellP[[1]])
+  ellP <- lapply(1:length(ellP), function(j){
+    x <- m[j,]
+    mm <- matrix(rep(x, each = np), np, length(x))
+    mm + ellP[[j]]
   })
-  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
-  names(beta.mats) <- names(beta.mat.d) <- trms
-  beta.hyp <- list()
-  beta.hyp[[1]] <- beta.names[[1]]
-  if(k > 1) for(i in 2:k) 
-    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
-  d.stitched <- lapply(1:k, function(j){
-    b <- beta.mat.d[[j]]
-    b <- b[match(beta.hyp[[j]], row.names(b)),]
-    if(is.matrix(b)) t(b) else b
-  })
-  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
-  rownames(d.stitched) <- beta.names[[k]]
-  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
-  out <- list(random.coef = beta.mats,
-              random.coef.distances = d.stitched)
-  out
+  ellP <- simplify2array(ellP)
+  pc1lim <- c(min(ellP[,1,]), max(ellP[,1,]))
+  pc2lim <- c(min(ellP[,2,]), max(ellP[,2,]))
+  list(ellP = ellP, pc1lim = pc1lim, pc2lim = pc2lim,
+       means = m)
 }
-
-beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  cl <- detectCores()-1
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  if(print.progress){
-    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
-  }
-  perms <- length(ind)
-  fitted <- fit$wFitted.reduced
-  res <- fit$wResiduals.reduced
-  Y <- fit$wY
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  trms <- fit$term.labels
-  k <- length(trms)
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  rrpp.args <- list(fitted = fitted, residuals = res,
-                    ind.i = NULL, w = NULL, o = NULL)
-  if(offset) rrpp.args$o <- o
-  if(gls){
-    Y <- crossprod(P, Y)
-    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
-    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Qr <- lapply(Xr, qr)
-    Qf <- lapply(Xf, qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-    rrpp.args$fitted <- fitted
-    rrpp.args$residuals <- res
-    betas <- mclapply(1:perms, function(j){
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h %*% y, Hf, Yi)
-    }, mc.cores = cl)
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-      rrpp.args$fitted <- fitted
-      rrpp.args$residuals <- res
-    }
-    Qf <- lapply(fit$wXfs, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    betas <- mclapply(1:perms, function(j){
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h%*%y, Hf, Yi)
-    }, mc.cores = cl)
-  }
-  beta.mats <- lapply(1:k, function(j){
-    result <- lapply(betas, function(x) x[[j]])
-    result
-  })
-  beta.mat.d <- lapply(1:k, function(j){
-    b <- beta.mats[[j]]
-    kk <- length(b)
-    result <- sapply(1:kk, function(jj){
-      bb <- b[[jj]]
-      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
-    })
-    rownames(result) <- rownames(b[[1]])
-    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-    result
-  })
-  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
-  names(beta.mats) <- names(beta.mat.d) <- trms
-  beta.hyp <- list()
-  beta.hyp[[1]] <- beta.names[[1]]
-  if(k > 1) for(i in 2:k) 
-    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
-  d.stitched <- lapply(1:k, function(j){
-    b <- beta.mat.d[[j]]
-    b <- b[match(beta.hyp[[j]], row.names(b)),]
-    if(is.matrix(b)) t(b) else b
-  })
-  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
-  rownames(d.stitched) <- beta.names[[k]]
-  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
-  out <- list(random.coef = beta.mats,
-              random.coef.distances = d.stitched)
-  out
-}
-
-
-beta.iter.null <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  fitted <- fit$wFitted.full
-  res <- fit$wResiduals.full
-  Y <- fit$wY
-  X <- fit$wX
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  k <- 1
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  if(print.progress){
-    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-  }
-  if(gls){
-    Y <- crossprod(P, Y)
-    X <- crossprod(P, X)
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      U <- qr.Q(qr(crossprod(P, matrix(1, n))))
-      fitted <- crossprod(tcrossprod(U), Y)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    }
-  }    
-  Q <- qr(X)
-  H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
-  betas <- lapply(1:perms, function(j){
-    step <- j
-    if(print.progress) setTxtProgressBar(pb,step)
-    x <-ind[[j]]
-    y <- fitted[[1]] + res[[1]][x,]
-    H %*% y
-  })
-  coef.d <- function(b) sqrt(sum(b^2))
-  beta.d <- sapply(betas, coef.d)
-  betas <- lapply(1:perms, function(j){
-    names(betas[[j]]) <- "Intercept"
-  })
-  iter.names <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-  names(betas) <- iter.names
-  names(beta.d) <- iter.names
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
-  out <- list(random.coef = betas,
-              random.coef.distances = beta.d)
-  out
-}
-

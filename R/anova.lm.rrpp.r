@@ -12,6 +12,9 @@
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+#' 
 anova.lm.rrpp <- function(object, ...,
                           effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
                           error = NULL) {
@@ -68,7 +71,7 @@ anova.lm.rrpp <- function(object, ...,
     Rsq <- x$Rsq
     cohenf <- x$cohenf
     P.val <- apply(Z, 1, pval)
-    Z <- apply(Z, 1, effect.size)
+    Z <- apply(log(Z), 1, effect.size)
     P.val[-(1:k)] <- NA
     Z[-(1:k)] <- NA
     Rsq <- Rsq[,1]

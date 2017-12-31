@@ -28,11 +28,12 @@ print.lm.rrpp <- function(x, ...){
 #' Print/Summary Function for RRPP
 #'
 #' @param object print/summary object (from \code{\link{lm.rrpp}})
+#' @param formula Logical argument for whether to include formula in summary table
 #' @param ... other arguments passed to print/summary
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
-summary.lm.rrpp <- function(object, ...){
+summary.lm.rrpp <- function(object, formula = TRUE, ...){
   cat("\nLinear Model fit with lm.rrpp\n")
   x <- object
   LM <- x$LM
@@ -50,10 +51,10 @@ summary.lm.rrpp <- function(object, ...){
   SSE <- unlist(SS[k+1,])
   SST <- unlist(SS[k+2,])
   SSM <- SST - SSE
-  dfM <- LM$QR$rank
   df <- AN$df
   dfe <- df[k+1]
-  Fs <- (SSM/df)/(SSE/dfe)
+  dfM <- sum(df[1:k])
+  Fs <- (SSM/dfM)/(SSE/dfe)
   P <- pval(log(Fs))
   Z <- effect.size(Fs)
   Rsq <- SSM[1]/SST[1]
@@ -68,7 +69,8 @@ summary.lm.rrpp <- function(object, ...){
                      "F",
                      "Z (from F)",
                      "Pr(>F)")
-  dimnames(tab)[[1]] <- deparse(x$call[[2]])
+  if(formula) dimnames(tab)[[1]] <- deparse(x$call[[2]]) else
+    dimnames(tab)[[1]] <- deparse(substitute(object))
   print(tab)
 
   invisible(object)
@@ -237,5 +239,328 @@ print.compare.models <- function(x, confidence = 0.95,
 #' @keywords utilities
 summary.compare.models <- function(object, ...){
   print.compare.models(object, ...)
+}
+
+## plot functions
+
+#' Plot Function for RRPP
+#' 
+#' @param x plot object (from \code{\link{lm.rrpp}})
+#' @param type Indicates which type of plot, choosing among diagnostics,
+#' regression, or principal component plots.  Diagnostic plots are similar to 
+#' \code{\link{lm}} diagnostic plots, but for multivariate data.  Regression plots
+#' plot multivariate dispersion in some fashion against predictor values. PC plots
+#' project data onto the eigenvectors of the coavriance matrix for fitted values.
+#' @param predictor An optional vector if "regression" plot type is chosen, 
+#' and is a variable likely used in \code{\link{lm.rrpp}}.
+#' This vector is a vector of covariate values equal to the number of observations.
+#' @param reg.type If "regression" is chosen for plot type, this argument
+#' indicates whether a common regression component (CRC) plot, prediction line 
+#' (Predline) plot, or regression score (RegScore) plotting is performed.  
+#' For explanation of CRC, see Mitteroeker et al. (2004).  For exaplantion of prediction line,
+#' see Adams and Nistri (2010).  For explanation of regression score, see 
+#' Drake and Klingenberg (2008).
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' \code{\link{plot.default}} and \code{\link{par}}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+#' @references Mitteroecker, P., P. Gunz, M. Bernhard, K. Schaefer, and F. L. Bookstein. 2004. 
+#' Comparison of cranial ontogenetic trajectories among great apes and humans. J. Hum. Evol. 46:679-698.
+#' @references Drake, A. G., and C. P. Klingenberg. 2008. The pace of morphological change: Historical 
+#' transformation of skull shape in St Bernard dogs. Proc. R. Soc. B. 275:71-76.
+#' @references Adams, D. C., and A. Nistri. 2010. Ontogenetic convergence and evolution of foot morphology 
+#' in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
+plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
+                                      "PC"), predictor = NULL,
+                          reg.type = c("CRC", "PredLine", "RegScore"), ...){
+  r <- as.matrix(x$LM$wResiduals)
+  f <- as.matrix(x$LM$wFitted)
+  if(!is.null(x$Pcov)) {
+    r <- as.matrix(x$LM$gls.residuals)
+    f <- as.matrix(x$LM$pgls.fitted)
+  }
+  type <- match.arg(type)
+  if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
+    type <- "diagnostics"
+  CRC <- PL <- Reg.proj <- NULL
+  if(type == "diagnostics") {
+    pca.r <- prcomp(r)
+    var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
+    plot(pca.r$x, pch=19, asp =1,
+         xlab = paste("PC 1", var.r[1],"%"),
+         ylab = paste("PC 2", var.r[2],"%"),
+         main = "PCA Residuals")
+    pca.f <- prcomp(f)
+    var.f <- round(pca.f$sdev^2/sum(pca.f$sdev^2)*100,2)
+    dr <- sqrt(diag(tcrossprod(center(r))))
+    plot.QQ(r)
+    plot(pca.f$x[,1], dr, pch=19, asp =1,
+         xlab = paste("PC 1", var.f[1],"%"),
+         ylab = "Euclidean Distance Residuals",
+         main = "Residuals vs. PC 1 fitted")
+    lfr <- loess(dr~pca.f$x[,1])
+    lfr <- cbind(lfr$x, lfr$fitted); lfr <- lfr[order(lfr[,1]),]
+    points(lfr, type="l", col="red")
+    plot.het(r,f)
+    p <- ncol(r)
+  }
+  if(type == "regression"){
+    reg.type <- match.arg(reg.type)
+    if(is.na(match(reg.type, c("CRC", "PredLine", "RegScore")))) 
+      if(is.null(predictor))
+        stop("This plot type is not available without a predictor.")
+    n <- NROW(r); p <- NCOL(r)
+    if(!is.vector(predictor)) stop("Predictor must be a vector")
+    if(length(predictor) != n) 
+      stop("Observations in predictor must equal observations if procD.lm fit")
+    X <- x$LM$X * sqrt(x$LM$weights)
+    if(!is.null(x$LM$Pcov)) B <- x$LM$gls.coefficients else B <- x$LM$coefficients
+    xc <- predictor
+    pred.match <- match(xc, X)
+    if(any(is.na(pred.match))) {
+      b <- lm(f ~ xc)$coefficients
+      if(is.matrix(b)) b <- b[2,] else b <- b[2]
+    } else {
+      Xcrc <- as.matrix(X)
+      Xcrc[pred.match] <- 0
+      f <- Xcrc %*% B
+      r <- x$LM$Y - f
+      b <- lm(f ~ xc)$coefficients
+      if(is.matrix(b)) b <- b[2,] else b <- b[2]
+    }
+    a <- crossprod(r, xc)/sum(xc^2)
+    a <- a/sqrt(sum(a^2))
+    CRC <- r%*%a  
+    resid <- r%*%(diag(p) - matrix(crossprod(a),p,p))
+    RSC <- prcomp(resid)$x
+    Reg.proj <- x$LM$Y%*%b%*%sqrt(solve(crossprod(b)))
+    PL <- prcomp(f)$x[,1]
+    if(reg.type == "CRC"){
+      par(mfcol = c(1,2))
+      par(mar = c(4,4,1,1))
+      plot(predictor, CRC,  ...)
+      plot(CRC, RSC[,1], asp=1, xlab = "CRC", ylab = "RSC 1", ...)
+      par(mar = c(5,4,4,2) + 0.1)
+      par(mfcol=c(1,1))
+    } else if(reg.type == "RegScore") {
+      plot(predictor, Reg.proj, 
+           ylab = "Regression Score", ...)
+    } else {
+      plot(predictor, PL, 
+           ylab = "PC 1 for fitted values", ...)
+    }
+  }
+  if(type == "PC"){
+    eigs <- prcomp(f)$rotation
+    P <- x$LM$Y%*%eigs
+    plot(P, asp=1,
+         xlab = "PC 1 for fitted values",
+         ylab = "PC 2 for fitted values", ...)
+  }
+  out <- list(CRC = CRC, PredLine = PL, RegScore = Reg.proj)
+  invisible(out)
+}
+
+plot.het <- function(r,f){
+  r <- center(r)
+  f <- center(f)
+  r <- sqrt(diag(tcrossprod(r)))
+  f <- sqrt(diag(tcrossprod(f)))
+  lfr <- loess(r~f)
+  lfr <- cbind(lfr$x, lfr$y, lfr$fitted)
+  lfr <- lfr[order(lfr[,1]),]
+  plot(lfr, pch=19, asp=1, 
+       xlab = "Euclidean Distance Fitted Values",
+       ylab = "Euclidean Distance Residuals", 
+       main = "Residuals vs. Fitted")
+  points(lfr[,1], lfr[,3], type="l", col="red")
+}
+
+plot.QQ <- function(r){
+  r <- center(r)
+  r <- sqrt(diag(tcrossprod(r)))
+  r <- sort(r)
+  n <- length(r)
+  tq <- (seq(1,n)-0.5)/n
+  tq <- qnorm(tq)
+  plot(tq, r, pch=19, xlab = "Theoretical Quantiles",
+       ylab = "Euclidean Distance Residuals", 
+       main = "Q-Q plot")
+}
+
+#' Plot Function for RRPP
+#' 
+#' @param x plot object (from \code{\link{lm.rrpp}})
+#' @param PC A logical argument for whether the data space should be rotated to its 
+#' principal components
+#' @param ellipse A logical argument to change error bards to ellipses in multivariate plots.  
+#' It has not function for univariate plots.
+#' @param label A logical argument for whether points should be labled 
+#' (in multivariate plots).
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' \code{\link{plot.default}} and \code{\link{par}}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
+                                 label = TRUE, ...){
+  if(is.matrix(x$mean)) m <- rbind(x$mean, x$lcl, x$ucl) else 
+    m <- c(x$mean, x$lcl, x$ucl)
+  if(is.matrix(x$pc.mean)) mpc <- rbind(x$pc.mean, x$pc.lcl, x$pc.ucl) else 
+    mpc <- c(x$pc.mean, x$pc.lcl, x$pc.ucl)
+  conf <- x$confidence
+    
+  if(NCOL(m) == 1) {
+    k <- length(x$mean)
+    xx <- seq(1:k)
+    xf <- as.factor(rownames(x$mean))
+    plot(xf, x$mean, lty = "blank",
+         xlab = "Predicted values", 
+         ylab = x$data.name,
+         ylim = c(min(m), max(m)),
+         main = paste("Predicted Values, +/-", conf*100, "percent confidence levels",
+         sep = " "), pch=19,
+         cex.main = 0.7, ...
+         )
+    arrows(xx, x$mean, xx, x$lcl, lty = 1, angle = 90, length = 0.10, ...)
+    arrows(xx, x$mean, xx, x$ucl, lty = 1, angle = 90, length = 0.10, ...)
+    dots <- list(...)
+    if(length(dots) == 0) points(xx, x$mean, pch = 19, cex = 0.7)
+    else points(xx, x$mean, ...)
+  }
+  if(NCOL(m) > 1) {
+    k <- NROW(x$mean)
+    if(PC){
+      pca <- x$pca
+      d <-length(which(zapsmall(pca$sdev) > 0))
+      if(d == 1) mr <- as.matrix(cbind(mpc[,1],0)) else mr <- mpc[,1:2]
+      v <- pca$sdev^2
+      ve <- round(v/sum(v)*100, 2)[1:2]
+      xlb <- paste("PC1: ", ve[1], "%", sep = "")
+      ylb <- paste("PC2: ", ve[2], "%", sep = "")
+    } else {
+      mr <- m[,1:2]
+      cn <- colnames(x$mean)
+      if(is.null(cn)) cn <- paste("V", 1:2, sep=".")
+      xlb <- cn[1]
+      ylb <- cn[2]
+    }
+    xlm <- c(min(mr[,1]), max(mr[,1]))
+    ylm <- c(min(mr[,2]), max(mr[,2]))
+    mt <- if(PC) "Among-prediction PC rotation" else 
+      "Plot of first two variables"
+    mt <- paste(mt, "; ", conf*100, "% confidence limits", sep = "")
+    if(ellipse){
+      if(PC){
+        eP <- ellipse.points(m = x$pc.mean[,1:2],
+                             pr = x$random.predicted.pc,
+                             conf)
+        plot(eP$pc1lim, eP$pc2lim, asp = 1, type = "n",
+             main = mt, xlab = xlb, ylab = ylb, ...)
+        for(i in 1:(dim(eP$ellP)[[3]])){
+          points(eP$ellP[,,i], type = "l", ...)
+        }
+        dots <- list(...)
+        if(length(dots) == 0) points(eP$means, pch=19, cex = 0.7) else
+          points(eP$means, ...)
+      } else {
+        eP <- ellipse.points(m = x$mean[,1:2],
+                             pr = x$random.predicted,
+                             conf)
+        plot(eP$pc1lim, eP$pc2lim, asp = 1, type = "n",
+             main = mt, xlab = xlb, ylab = ylb, ...)
+        for(i in 1:(dim(eP$ellP)[[3]])){
+          points(eP$ellP[,,i], type = "l", ...)
+        }
+        if(length(dots) == 0) points(eP$means, pch=19, cex = 0.7) else
+          points(eP$means, ...)
+      }
+      if(label) text(eP$means, rownames(x$mean), 
+                     pos=1)
+      
+    } else {
+      plot(mr[1:k, 1], mr[1:k, 2], type = "n",
+           xlim = xlm, ylim = ylm, main = mt,
+           asp = 1, xlab = xlb, ylab = ylb, ...)
+      la <- (k + 1):(2 * k)
+      ua <- (2 * k +1):(3 * k)
+      arrows(mr[1:k, 1], mr[1:k, 2],
+             mr[la, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
+      arrows(mr[1:k, 1], mr[1:k, 2],
+             mr[ua, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
+      arrows(mr[1:k, 1], mr[1:k, 2],
+             mr[1:k, 1], mr[la, 2], lty = 1, length = 0.10, angle = 90, ...)
+      arrows(mr[1:k, 1], mr[1:k, 2],
+             mr[1:k, 1], mr[ua, 2], lty = 1, length = 0.10, angle = 90, ...)
+      
+      if(label) text(mr[1:k, 1], mr[1:k, 2], rownames(x$mean), 
+                     pos=1)
+      
+      dots <- list(...)
+      if(length(dots) == 0) points(mr[1:k, 1], mr[1:k, 2], pch = 19, cex = 0.7)
+      else points(mr[1:k, 1], mr[1:k, 2], ...)
+    }
+  }
+}
+
+## resid and fitted
+
+# residuals.lm.rrpp
+# S3 generic for lm.rrpp
+
+#' Extract residuals
+#' 
+#' @param object plot object (from \code{\link{lm.rrpp}})
+#' @param weighted A logical argument to return weighted or unweighted residuals.
+#' @param ... Arguments passed to other functions 
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
+  if(!weighted) out <- object$LM$residuals else 
+    out <- object$LM$wResiduals
+  out
+}
+
+# residuals.lm.rrpp
+# S3 generic for lm.rrpp
+
+#' Extract fitted values
+#' 
+#' @param object plot object (from \code{\link{lm.rrpp}})
+#' @param weighted A logical argument to return weighted or unweighted fitted values.
+#' @param ... Arguments passed to other functions 
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+fitted.values.lm.rrpp<- function(object, weighted = TRUE, ...) {
+  if(!weighted) out <- object$LM$fitted else 
+    out <- object$LM$wFitted
+  out
+}
+
+#' Extract fitted values
+#' 
+#' @param object plot object (from \code{\link{lm.rrpp}})
+#' @param weighted A logical argument to return weighted or unweighted fitted values.
+#' @param ... Arguments passed to other functions 
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+fitted.lm.rrpp<- function(object, weighted = TRUE, ...) {
+  if(!weighted) out <- object$LM$fitted else 
+    out <- object$LM$wFitted
+  out
 }
 

@@ -22,6 +22,10 @@ See \code{\link{lm.rrpp}} for examples.}
 Computes an analysis of variance table using distributions of random
 statistics from \code{\link{lm.rrpp}}.
 }
+\examples{
+# See examples for lm.rrpp
+
+}
 \author{
 Michael Collyer
 }
