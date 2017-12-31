@@ -48,7 +48,7 @@ NULL
 #' @description Landmark data from Cyprindon pecosensis body shapes, with indication of Sex and
 #' Population from which fish were sampled (Marsh or Sinkhole).
 #' @details These data were previously aligned with GPA.  Centroid size (CS) is also provided.  
-#' See the \link{geomorph} package for details.
+#' See the \link[geomorph]{geomorph} package for details.
 #' 
 #' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic
 #' change for phenotypes described by high-dimensional data. Heredity. 113: doi:10.1038/hdy.2014.75.
@@ -65,7 +65,7 @@ NULL
 #' per specimen.  These data are a subset of a larger data set.
 #' @details The variable, "coords", are data that were previously aligned
 #' with GPA.  The variable, "headSize", is the Centroid size of each vector of coordinates.
-#' See the \link{geomorph} package for details.
+#' See the \link[geomorph]{geomorph} package for details.
 #' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
 #' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
 

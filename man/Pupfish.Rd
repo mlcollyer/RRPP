@@ -10,7 +10,7 @@ Population from which fish were sampled (Marsh or Sinkhole).
 }
 \details{
 These data were previously aligned with GPA.  Centroid size (CS) is also provided.  
-See the \link{geomorph} package for details.
+See the \link[geomorph]{geomorph} package for details.
 }
 \references{
 Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic
