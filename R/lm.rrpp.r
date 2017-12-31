@@ -277,7 +277,6 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     if(!is.null(Cov)) {
       out$LM$Cov <- Cov
       out$LM$Pcov <- Pcov
-      out$LM$Cov.par <- Cov.par
       PY <- crossprod(Pcov, fit.o$wY); PX <- crossprod(Pcov, fit.o$wX)
       w <- fit.o$weights
       fit.cov <- lm.fit(PX, PY)
@@ -322,7 +321,6 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     if(!is.null(Cov)){
       out$LM$Cov <- Cov
       out$LM$Pcov <- Pcov
-      out$LM$Cov.par <- Cov.par
       PY <- Pcov%*%fit.o$wY; PX <- Pcov%*%fit.o$wX
       w <- fit.o$weights
       fit.cov <- lm.fit(PX, PY)
