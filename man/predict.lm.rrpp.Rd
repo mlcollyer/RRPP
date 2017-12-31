@@ -4,7 +4,7 @@
 \alias{predict.lm.rrpp}
 \title{predict for lm.rrpp model fits}
 \usage{
-\method{predict}{lm.rrpp}(object, newdata, confidence = 0.95)
+\method{predict}{lm.rrpp}(object, newdata, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}.}

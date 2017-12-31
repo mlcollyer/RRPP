@@ -16,7 +16,7 @@
 #' @keywords utilities
 #' @examples 
 #' # See examples for lm.rrpp
-predict.lm.rrpp <- function(object, newdata, confidence = 0.95) {
+predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
   if(!inherits(object, "lm.rrpp")) stop("Object is not class lm.rrpp")
   Terms <- object$LM$Terms
   if (missing(newdata) || is.null(newdata)) {
