@@ -9,8 +9,8 @@ Landmark data from Cyprindon pecosensis body shapes, with indication of Sex and
 Population from which fish were sampled (Marsh or Sinkhole).
 }
 \details{
-These data were previously aligned
-with GPA.  Centroid size (CS) is also provided.
+These data were previously aligned with GPA.  Centroid size (CS) is also provided.  
+See the \code{\link{data.frame}} package for details.
 }
 \references{
 Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic

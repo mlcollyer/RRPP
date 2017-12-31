@@ -12,8 +12,8 @@ d9e6bd2935117a0e333732cb0399e95b *man/predict.lm.rrpp.Rd
 1354129612f4c784fabcfb8a081e11d5 *man/print.coef.lm.rrpp.Rd
 0f2cfaf58f46d178bbaf817247c74996 *man/print.compare.models.Rd
 3aff928928deb0f0d62d68d0f262a44b *man/print.lm.rrpp.Rd
-0b5289b54b34eced9cfbeda06e02704a *man/Pupfish.Rd
-430a42149a0ae76ad53f7712eb28baa5 *man/PupfishHeads.Rd
+cb0524bf3c781929de66b7e5fe834e99 *man/Pupfish.Rd
+a5fa32131689c8f5af4a0cf90e1fb1ea *man/PupfishHeads.Rd
 2a130e557cf5e6d783bef526c8dcfcb7 *man/residuals.lm.rrpp.Rd
 a5ec522b3e2b3a9cd06e51d818f0290d *man/RRPP-package.Rd
 06ab45aa6aad742260526b2b2050ca02 *man/rrpp.data.frame.Rd
@@ -25,6 +25,6 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 1675bf389177de6423ecd8d1b99aa30a *R/coef.lm.rrpp.r
 c6b33c05163c0aebbca9f78e0bce9595 *R/lm.rrpp.r
 413e8761cae218fc3e507c4b450fde3b *R/predict.lm.rrpp.r
-9242c41dc8f2d8d8b6baeb4ea1a4fd3f *R/RRPP.support.code.r
+c67986bf1c8fba2d1c5653712d7eed7c *R/RRPP.support.code.r
 61857c5552855acee30b02d294e1c7e3 *R/RRPP.utils.r
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
