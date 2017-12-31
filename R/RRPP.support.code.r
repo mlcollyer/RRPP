@@ -921,6 +921,285 @@ anova.parts <- function(fit, SS){
 
 SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
+# generate U matrices
+# makes a U matrix based on model design
+# not used bt was used in compare.models, dureing development.  Retained
+# in case it is useful down the road.
+
+cm.U <- function(x){
+  X <- x$LM$X
+  w <- sqrt(x$LM$weights)
+  if(x$LM$ols) out <- qr.Q(qr(X*w))
+  if(x$LM$gls){
+    P <- x$LM$Pcov
+    out <- crossprod(P, qr.Q(qr(crossprod(P,X*w))))
+  }
+  out
+}
+
+# beta.lm.iter
+# gets appropriate beta vectors for random permutations in lm.rrpp
+# generates distances as statistics for summary
+
+beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
+  if(!is.null(P)) gls = TRUE else gls = FALSE
+  perms <- length(ind)
+  fitted <- fit$wFitted.reduced
+  res <- fit$wResiduals.reduced
+  Y <- fit$wY
+  dims <- dim(as.matrix(Y))
+  n <- dims[1]; p <- dims[2]
+  trms <- fit$term.labels
+  k <- length(trms)
+  w <- sqrt(fit$weights)
+  o <- fit$offset
+  if(sum(o) != 0) offset = TRUE else offset = FALSE
+  rrpp.args <- list(fitted = fitted, residuals = res,
+                    ind.i = NULL, w = NULL, o = NULL)
+  if(offset) rrpp.args$o <- o
+  if(print.progress){
+    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
+    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+  }
+  if(gls){
+    Y <- crossprod(P, Y)
+    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
+    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
+    Qr <- lapply(Xr, qr)
+    Qf <- lapply(Xf, qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
+      res <- lapply(fitted, function(f) Y - f)
+    }
+    rrpp.args$fitted <- fitted
+    rrpp.args$residuals <- res
+    betas <- lapply(1:perms, function(j){
+      step <- j
+      if(print.progress) setTxtProgressBar(pb,step)
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      Map(function(h,y) h %*% y, Hf, Yi)
+    })
+  } else {
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+      rrpp.args$fitted <- fitted
+      rrpp.args$residuals <- res
+    }
+    Qf <- lapply(fit$wXfs, qr)
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    betas <- lapply(1:perms, function(j){
+      step <- j
+      if(print.progress) setTxtProgressBar(pb,step)
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      Map(function(h,y) h%*%y, Hf, Yi)
+    })
+  }
+  beta.mats <- lapply(1:k, function(j){
+    result <- lapply(betas, function(x) x[[j]])
+    result
+  })
+  beta.mat.d <- lapply(1:k, function(j){
+    b <- beta.mats[[j]]
+    kk <- length(b)
+    result <- sapply(1:kk, function(jj){
+      bb <- b[[jj]]
+      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
+    })
+    rownames(result) <- rownames(b[[1]])
+    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+    result
+  })
+  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
+  names(beta.mats) <- names(beta.mat.d) <- trms
+  beta.hyp <- list()
+  beta.hyp[[1]] <- beta.names[[1]]
+  if(k > 1) for(i in 2:k) 
+    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
+  d.stitched <- lapply(1:k, function(j){
+    b <- beta.mat.d[[j]]
+    b <- b[match(beta.hyp[[j]], row.names(b)),]
+    if(is.matrix(b)) t(b) else b
+  })
+  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
+  rownames(d.stitched) <- beta.names[[k]]
+  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
+  step <- perms + 1
+  if(print.progress) {
+    setTxtProgressBar(pb,step)
+    close(pb)
+  }
+  out <- list(random.coef = beta.mats,
+              random.coef.distances = d.stitched)
+  out
+}
+
+beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
+  cl <- detectCores()-1
+  if(!is.null(P)) gls = TRUE else gls = FALSE
+  perms <- length(ind)
+  if(print.progress){
+    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
+    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
+  }
+  perms <- length(ind)
+  fitted <- fit$wFitted.reduced
+  res <- fit$wResiduals.reduced
+  Y <- fit$wY
+  dims <- dim(as.matrix(Y))
+  n <- dims[1]; p <- dims[2]
+  trms <- fit$term.labels
+  k <- length(trms)
+  w <- sqrt(fit$weights)
+  o <- fit$offset
+  if(sum(o) != 0) offset = TRUE else offset = FALSE
+  rrpp.args <- list(fitted = fitted, residuals = res,
+                    ind.i = NULL, w = NULL, o = NULL)
+  if(offset) rrpp.args$o <- o
+  if(gls){
+    Y <- crossprod(P, Y)
+    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
+    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
+    Qr <- lapply(Xr, qr)
+    Qf <- lapply(Xf, qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
+      res <- lapply(fitted, function(f) Y - f)
+    }
+    rrpp.args$fitted <- fitted
+    rrpp.args$residuals <- res
+    betas <- mclapply(1:perms, function(j){
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      Map(function(h,y) h %*% y, Hf, Yi)
+    }, mc.cores = cl)
+  } else {
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+      rrpp.args$fitted <- fitted
+      rrpp.args$residuals <- res
+    }
+    Qf <- lapply(fit$wXfs, qr)
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    betas <- mclapply(1:perms, function(j){
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      Map(function(h,y) h%*%y, Hf, Yi)
+    }, mc.cores = cl)
+  }
+  beta.mats <- lapply(1:k, function(j){
+    result <- lapply(betas, function(x) x[[j]])
+    result
+  })
+  beta.mat.d <- lapply(1:k, function(j){
+    b <- beta.mats[[j]]
+    kk <- length(b)
+    result <- sapply(1:kk, function(jj){
+      bb <- b[[jj]]
+      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
+    })
+    rownames(result) <- rownames(b[[1]])
+    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+    result
+  })
+  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
+  names(beta.mats) <- names(beta.mat.d) <- trms
+  beta.hyp <- list()
+  beta.hyp[[1]] <- beta.names[[1]]
+  if(k > 1) for(i in 2:k) 
+    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
+  d.stitched <- lapply(1:k, function(j){
+    b <- beta.mat.d[[j]]
+    b <- b[match(beta.hyp[[j]], row.names(b)),]
+    if(is.matrix(b)) t(b) else b
+  })
+  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
+  rownames(d.stitched) <- beta.names[[k]]
+  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
+  out <- list(random.coef = beta.mats,
+              random.coef.distances = d.stitched)
+  out
+}
+
+
+beta.iter.null <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
+  if(!is.null(P)) gls = TRUE else gls = FALSE
+  perms <- length(ind)
+  fitted <- fit$wFitted.full
+  res <- fit$wResiduals.full
+  Y <- fit$wY
+  X <- fit$wX
+  dims <- dim(as.matrix(Y))
+  n <- dims[1]; p <- dims[2]
+  k <- 1
+  w <- sqrt(fit$weights)
+  o <- fit$offset
+  if(sum(o) != 0) offset = TRUE else offset = FALSE
+  if(print.progress){
+    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
+    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+  }
+  if(gls){
+    Y <- crossprod(P, Y)
+    X <- crossprod(P, X)
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    } else {
+      U <- qr.Q(qr(crossprod(P, matrix(1, n))))
+      fitted <- crossprod(tcrossprod(U), Y)
+      res <- lapply(fitted, function(f) Y - f)
+    }
+  } else {
+    if(!RRPP) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) Y)
+    }
+  }    
+  Q <- qr(X)
+  H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
+  betas <- lapply(1:perms, function(j){
+    step <- j
+    if(print.progress) setTxtProgressBar(pb,step)
+    x <-ind[[j]]
+    y <- fitted[[1]] + res[[1]][x,]
+    H %*% y
+  })
+  coef.d <- function(b) sqrt(sum(b^2))
+  beta.d <- sapply(betas, coef.d)
+  betas <- lapply(1:perms, function(j){
+    names(betas[[j]]) <- "Intercept"
+  })
+  iter.names <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+  names(betas) <- iter.names
+  names(beta.d) <- iter.names
+  step <- perms + 1
+  if(print.progress) {
+    setTxtProgressBar(pb,step)
+    close(pb)
+  }
+  out <- list(random.coef = betas,
+              random.coef.distances = beta.d)
+  out
+}
+
 # beta.boot
 # for calculating confidence intervals for predicted values
 # used in predcit.lm.rrpp
