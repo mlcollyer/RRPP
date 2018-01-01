@@ -325,7 +325,6 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       out$LM$Cov <- Cov
       out$LM$Pcov <- Pcov
       PY <- Pcov%*%fit.o$wY; PX <- Pcov%*%fit.o$wX
-      w <- fit.o$weights
       fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients

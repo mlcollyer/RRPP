@@ -48,22 +48,34 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   cat("\n\nFull Model Analysis of Variance\n\n")
   SS <- AN$SS
   k <- length(LM$term.labels)
-  SSE <- unlist(SS[k+1,])
-  SST <- unlist(SS[k+2,])
-  SSM <- SST - SSE
-  df <- AN$df
-  dfe <- df[k+1]
-  dfM <- sum(df[1:k])
-  Fs <- (SSM/dfM)/(SSE/dfe)
-  P <- pval(log(Fs))
-  Z <- effect.size(Fs)
-  Rsq <- SSM[1]/SST[1]
+  
+  if(k > 0) {
+    SSE <- unlist(SS[k+1,])
+    SST <- unlist(SS[k+2,])
+    SSM <- SST - SSE
+    df <- AN$df
+    dfe <- df[k+1]
+    dfM <- sum(df[1:k])
+    Fs <- (SSM/dfM)/(SSE/dfe)
+    P <- pval(log(Fs))
+    Z <- effect.size(Fs)
+    Rsq <- SSM[1]/SST[1]
+    SSM.obs <- SSM[1]
+    Fs.obs <- Fs[1]
+  } else {
+      df <- 0
+      dfe <- AN$df
+      dfM <- 1
+      SST <- SSE <- unlist(SS)
+      SSM <- Fs <- Z <- Rsq <- SSM.obs <- Fs.obs <- P <- ""
+    }
+
   tab <- data.frame(dfM = dfM, dfe = dfe,
-                    SSM = SSM[1], RSS = SSE[1], Rsq = Rsq,
-                    F = Fs[1], Z = Z, P = P)
+                    SSM = SSM.obs, RSS = SSE[1], Rsq = Rsq,
+                    F = Fs.obs, Z = Z, P = P)
   dimnames(tab)[[2]] <- c("Df",
                           "Residual Df",
-                          " SS",
+                          "SS",
                           "Residual SS",
                           "Rsq",
                           "F",

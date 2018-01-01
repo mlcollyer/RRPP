@@ -93,29 +93,68 @@ NULL
 #' @keywords utilities
 #' @export
 #' @author Michael Collyer
+#' @examples
+#' # Why use a rrpp.data.frame?
+#' y <- matrix(rnorm(30), 10, 3)
+#' x <- rnorm(10)
+#' df <- data.frame(x = x, y = y)
+#' df
+#' rdf <- rrpp.data.frame(x = x, y = y)
+#' rdf # looks more like a list
+#' 
+#' is.list(df)
+#' is.list(rdf)
+#' 
+#' d <- dist(y) # distance matrix as data
+#' 
+#' # One can try this but it will result in an error
+#' # df <- data.frame(df, d = d) 
+#' rdf <- rrpp.data.frame(rdf, d = d) # works
+#' 
+#' fit <- lm.rrpp(d ~ x, data = rdf)
+#' summary(fit)
 
 rrpp.data.frame<- function(...){
   dots <- list(...)
-  N <- length(dots)
-  dots.ns <- array(NA,N)
-  for(i in 1:N){
-    if(is.array(dots[[i]])) {
-      if(length(dim(dots[[i]])) == 3) dots.ns[i] <- dim(dots[[i]])[[3]]
-      if(length(dim(dots[[i]])) == 2) dots.ns[i] <- dim(dots[[i]])[[2]]
-      if(length(dim(dots[[i]])) == 1) dots.ns[i] <- dim(dots[[i]])[[1]]
+  if(length(dots) == 1 && is.data.frame(dots[[1]])) {
+    dots <- dots[[1]]
+    class(dots) <- "rrpp.data.frame"
+  } else if(length(dots) == 1 && inherits(dots[[1]], "geomorph.data.frame")) {
+    dots <- dots[[1]]
+    cat("\nWarning: Some geomorph.data.frame objects might not be compatible with RRPP functions.")
+    cat("\nIf any part of the geomorph.data.frame conatins a 3D array,")
+    cat("\nconsider converting it to a matrix before attempting to make an rrpp.data.frame.")
+    class(dots) <- "rrpp.data.frame"
+  } else if(length(dots) == 1 && inherits(dots[[1]], "rrpp.data.frame")) {
+    dots <- dots[[1]]
+  } else {
+    if(length(dots) > 1 && inherits(dots[[1]], "rrpp.data.frame")) {
+      dots1 <- dots[[1]]
+      dots2 <- dots[-1]
+      dots <- c(dots1, dots2)
     }
-    if(is.matrix(dots[[i]])) dots.ns[i] <- dim(dots[[i]])[[1]]
-    if(class(dots[[i]]) == "dist") dots.ns[i] <- attr(dots[[i]], "Size")
-    if(is.data.frame(dots[[i]])) dots.ns[i] <- dim(dots[[i]])[[2]]
-    if(is.vector(dots[[i]])) dots.ns[i] <- length(dots[[i]])
-    if(is.factor(dots[[i]])) dots.ns[i] <- length(dots[[i]])
-    if(is.logical(dots[[i]])) dots.ns[i] <- length(dots[[i]])
+    N <- length(dots)
+    dots.ns <- array(NA,N)
+    for(i in 1:N){
+      if(is.array(dots[[i]])) {
+        if(length(dim(dots[[i]])) == 3) dots.ns[i] <- dim(dots[[i]])[[3]]
+        if(length(dim(dots[[i]])) == 2) dots.ns[i] <- dim(dots[[i]])[[2]]
+        if(length(dim(dots[[i]])) == 1) dots.ns[i] <- dim(dots[[i]])[[1]]
+      }
+      if(is.matrix(dots[[i]])) dots.ns[i] <- dim(dots[[i]])[[1]]
+      if(class(dots[[i]]) == "dist") dots.ns[i] <- attr(dots[[i]], "Size")
+      if(is.data.frame(dots[[i]])) dots.ns[i] <- dim(dots[[i]])[[2]]
+      if(is.vector(dots[[i]])) dots.ns[i] <- length(dots[[i]])
+      if(is.factor(dots[[i]])) dots.ns[i] <- length(dots[[i]])
+      if(is.logical(dots[[i]])) dots.ns[i] <- length(dots[[i]])
+    }
+    if(any(is.na(dots.ns))) stop("Some input is either dimensionless or inappropriate for data frames")
+    if(length(unique(dots.ns)) > 1) stop("Inputs have different numbers of observations")
+    class(dots) <- c("rrpp.data.frame")
   }
-  if(any(is.na(dots.ns))) stop("Some input is either dimensionless or inappropriate for data frames")
-  if(length(unique(dots.ns)) > 1) stop("Inputs have different numbers of observations")
-  class(dots) <- c("rrpp.data.frame")
   dots
 }
+
 #####----------------------------------------------------------------------------------------------------
 
 # SUPPORT FUNCTIONS
@@ -840,7 +879,7 @@ SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
     } else {
       U <- qr.Q(qr(crossprod(P, matrix(1, n))))
       fitted <- crossprod(tcrossprod(U), Y)
-      res <- lapply(fitted, function(f) Y - f)
+      res <- Y - fitted
     }
     SS <- lapply(1:perms, function(j){
       x <-ind[[j]]
