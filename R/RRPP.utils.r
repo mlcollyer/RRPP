@@ -354,11 +354,15 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     }
   }
   if(type == "PC"){
-    eigs <- prcomp(f)$rotation
+    pca <- prcomp(f)
+    eigs <- pca$rotation
     P <- x$LM$Y%*%eigs
+    v <- pca$sdev^2
+    ev <- round(v[1:2]/sum(v)*100, 2)
     plot(P, asp=1,
-         xlab = "PC 1 for fitted values",
-         ylab = "PC 2 for fitted values", ...)
+         xlab = paste("PC 1 for fitted values: ",ev[1],"%", sep = ""),
+         ylab = paste("PC 2 for fitted values: ",ev[2],"%", sep = ""),
+                      ...)
   }
   out <- list(CRC = CRC, PredLine = PL, RegScore = Reg.proj)
   invisible(out)
