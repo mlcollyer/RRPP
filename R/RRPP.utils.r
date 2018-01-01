@@ -62,17 +62,17 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                     SSM = SSM[1], RSS = SSE[1], Rsq = Rsq,
                     F = Fs[1], Z = Z, P = P)
   dimnames(tab)[[2]] <- c("Df",
-                     "Residual Df",
-                     " SS",
-                     "Residual SS",
-                     "Rsq",
-                     "F",
-                     "Z (from F)",
-                     "Pr(>F)")
+                          "Residual Df",
+                          " SS",
+                          "Residual SS",
+                          "Rsq",
+                          "F",
+                          "Z (from F)",
+                          "Pr(>F)")
   if(formula) dimnames(tab)[[1]] <- deparse(x$call[[2]]) else
     dimnames(tab)[[1]] <- deparse(substitute(object))
   print(tab)
-
+  
   invisible(object)
 }
 
@@ -100,6 +100,7 @@ print.coef.lm.rrpp <- function(x,...){
   cat(x$nperms, "random permutations using", rrpp.type, "\n\n")
   print(x$stat.tab)
   cat("\n\n")
+  invisible(x)
 }
 
 #' Print/Summary Function for RRPP
@@ -111,6 +112,44 @@ print.coef.lm.rrpp <- function(x,...){
 #' @keywords utilities
 summary.coef.lm.rrpp <- function(object, ...){
   print.coef.lm.rrpp(object, ...)
+}
+
+## predict.lm.rrpp
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{predict.lm.rrpp}}
+#' @param PC Logical argumnet for whether to use predicted values 
+#' rotated to their PCs
+#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.predict.lm.rrpp <- function(x, PC = FALSE, ...){
+  cat("\nLinear Model fit with lm.rrpp\n")
+  cat(paste("\nNumber of predictions:", NROW(x$mean)))
+  cat(paste("\nConfidence level:", x$confidence*100, "%"))
+      cat(paste("\nNumber of bootstrap permutations:", length(x$random.predictions)))
+      if(PC)  cat(paste("\nPredicted values are rotated to their PCs"))
+      cat("\n\nPredicted values:\n\n")
+      if(PC) print(x$pc.mean) else print(x$mean)
+      cat("\n\n", x$confidence*100, "% Lower confidence limits,") 
+      if(PC) print(x$pc.lcl) else print(x$lcl)
+      cat("\n\n", x$confidence*100, "% Upper confidence limits,") 
+      if(PC) print(x$pc.ucl) else  print(x$ucl) 
+      cat("\n\n")
+      invisible(x)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{predict.lm.rrpp}}
+#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.predict.lm.rrpp <- function(object, ...){
+  print.predict.lm.rrpp(object, ...)
 }
 
 
