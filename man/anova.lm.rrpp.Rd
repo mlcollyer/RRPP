@@ -23,7 +23,20 @@ Computes an analysis of variance table using distributions of random
 statistics from \code{\link{lm.rrpp}}.
 }
 \examples{
-# See examples for lm.rrpp
+# See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
+# with other functions
+
+data(Pupfish)
+names(Pupfish)
+Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
+
+fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+anova(fit)
+anova(fit, effect.type = "MS")
+anova(fit, effect.type = "Rsq")
+anova(fit, effect.type = "cohenf")
+
+# see lm.rrpp examples for mixed model ANOVA example and how to vary SS type
 
 }
 \author{

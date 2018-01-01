@@ -126,6 +126,7 @@ coef(fit)
 sizeDF <- data.frame(sex = c("Female", "Male"))
 rownames(sizeDF) <- c("Female", "Male")
 sizePreds <- predict(fit, sizeDF)
+summary(sizePreds)
 plot(sizePreds)
 
 # Diagnostics plots of residuals
@@ -156,6 +157,8 @@ rownames(shapeDF) <- paste(shapeDF$Sex, shapeDF$Pop, sep = ".")
 shapeDF
 
 shapePreds <- predict(fit, shapeDF)
+summary(shapePreds)
+summary(shapePreds, PC = TRUE)
 
 # Plot prediction
 

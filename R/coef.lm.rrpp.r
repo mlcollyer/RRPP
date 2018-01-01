@@ -16,8 +16,17 @@
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
-#' # See examples for lm.rrpp
+#' # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
+#' # with other functions
 #' 
+#' data(Pupfish)
+#' names(Pupfish)
+#' Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
+#'
+#' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+#' 
+#' coef(fit)
+#' coef(fit, confidence = 0.99)
 coef.lm.rrpp <- function(object, confidence = 0.95, ...) {
   x <- object
   rc <- x$LM$random.coef
