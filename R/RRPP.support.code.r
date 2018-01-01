@@ -177,7 +177,7 @@ pcoa <- function(D){
   d <- cmd$eig
   min.d <- min(d)
   if(min.d < 0) {
-    dcor <- abs(mind.d)
+    dcor <- abs(min.d)
     Dc <- D^2 + 2*dcor
     Dc <- sqrt(Dc)
     cmd.c <- cmdscale(Dc, k=attr(Dc, "Size") -1, eig=TRUE)
