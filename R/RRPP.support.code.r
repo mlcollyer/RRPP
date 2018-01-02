@@ -723,6 +723,8 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
     Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
     Ufull <- Uf[[k]]
+    int <- attr(fit$Terms, "intercept")
+    Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
@@ -739,10 +741,10 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
       y <- Yi[[1]]
-      pyy <- sum(y^2)
+      yy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
-        pyy - sum(crossprod(Ufull, y)^2), pyy - SS.mean(y, n))
+        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
     })
   } else {
     if(!RRPP) {
@@ -754,6 +756,8 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Ur <- lapply(fit$wQRs.reduced, qr.Q)
     Uf <- lapply(fit$wQRs.full, qr.Q)
     Ufull <- Uf[[k]]
+    int <- attr(fit$Terms, "intercept")
+    Unull <- qr.Q(qr(rep(int, n)))
     SS <- lapply(1: perms, function(j){
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
@@ -764,7 +768,7 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       yy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
-        yy - sum(crossprod(Ufull, y)^2), yy - SS.mean(y, n))
+        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
     })
   }
   SS <- matrix(unlist(SS), k+2, perms)
@@ -811,7 +815,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
     Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
     Ufull <- Uf[[k]]
-    Unull <- Ufull[,1]
+    int <- attr(fit$Terms, "intercept")
+    Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
@@ -826,10 +831,10 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
       y <- Yi[[1]]
-      pyy <- sum(y^2)
+      yy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
-        pyy - sum(crossprod(Ufull, y)^2), pyy - SS.mean(y, n))
+        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
     }, mc.cores = cl)
   } else {
     if(!RRPP) {
@@ -840,6 +845,9 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     }
     Ur <- lapply(fit$wQRs.reduced, qr.Q)
     Uf <- lapply(fit$wQRs.full, qr.Q)
+    Ufull <- Uf[[k]]
+    int <- attr(fit$Terms, "intercept")
+    Unull <- qr.Q(qr(rep(int, n)))
     SS <- mclapply(1: perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
@@ -847,7 +855,7 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       y <- Yi[[1]]; yy <- sum(y^2)
       c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
             Yi, Ur, Uf),
-        yy - sum(crossprod(Uf[[k]], y)^2), yy - SS.mean(y, n))
+        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
     }, mc.cores = cl)
   }
   SS <- matrix(unlist(SS), k+2, perms)
@@ -877,29 +885,31 @@ SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
     } else {
-      U <- qr.Q(qr(crossprod(P, matrix(1, n))))
+      int <- attr(fit$Terms, "intercept")
+      U <- qr.Q(qr(crossprod(P, rep(int, n))))
       fitted <- crossprod(tcrossprod(U), Y)
       res <- Y - fitted
     }
     SS <- lapply(1:perms, function(j){
       x <-ind[[j]]
-      y <- fitted + res[x,]; pyy <- sum(y^2)
+      y <- fitted + res[x,]; yy <- sum(y^2)
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
-      pyy - SS.mean(y, n)
+      yy - sum(crossprod(U, y)^2)
     })
   } else {
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
     }
-    
+    int <- attr(fit$Terms, "intercept")
+    U <- qr.Q(qr(rep(int, n)))
     SS <- lapply(1:perms, function(j){
       x <-ind[[j]]
       y <- Y[x,]; yy <- sum(y^2)
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
-      yy - SS.mean(y, n)
+      yy - sum(crossprod(U, y)^2)
     })
   }
   SS <- matrix(unlist(SS), 1, perms)
@@ -912,7 +922,6 @@ SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
   }
   SS
 }
-
 
 # anova.parts
 # construct an ANOVA tablefrom random SS output
