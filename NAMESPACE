@@ -2,8 +2,6 @@
 
 S3method(anova,lm.rrpp)
 S3method(coef,lm.rrpp)
-S3method(fitted,lm.rrpp)
-S3method(fitted,values.lm.rrpp)
 S3method(plot,lm.rrpp)
 S3method(plot,predict.lm.rrpp)
 S3method(predict,lm.rrpp)

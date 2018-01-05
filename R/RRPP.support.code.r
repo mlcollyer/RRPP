@@ -68,7 +68,23 @@ NULL
 #' See the \link[geomorph]{geomorph} package for details.
 #' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
 #' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
+NULL
 
+#' Plethodon comaprative morphological data 
+#'
+#' @name PlethMorph
+#' @docType data
+#' @author Michael Collyer and Dean Adams
+#' @keywords datasets
+#' @description Data for 37 species of plethodontid salamanders.  Variables include snout to vent length
+#' (SVL) as species size, tail length, head length, sbout to eye length, body width, forelimb length,
+#' and hind limb length, all measured in mm.  A gruping variable is also included for functional guild size.  
+#' The data set also includes a phylogentic covariance matrix based on a Brownian model of evolution, to assist in 
+#' generalized least squares (GLS) estiamtion.
+#' @details The covariance matrix was estimated with the vcv.phylo function of the R package, ape, based on the tree
+#' described in Adams and Collyer (2018).
+#' @references Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic anova: group-clade Aggregation, biological 
+#' challenges, and a refined permutation procedure. Evolution. Submitted.
 NULL
 #####----------------------------------------------------------------------------------------------------
 

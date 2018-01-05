@@ -192,6 +192,37 @@ fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish)
 summary(fitD, formula = FALSE)
 summary(fit, formula = FALSE) 
 
+# GLS Example (Univariate) ----------------------------------------------------------
+
+data(PlethMorph)
+fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph)
+fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov)
+
+anova(fitOLS)
+anova(fitGLS)
+
+sizeDF <- data.frame(SVL = sort(PlethMorph$SVL))
+plot(predict(fitOLS, sizeDF)) # Correlated error
+plot(predict(fitGLS, sizeDF)) # Independent error
+
+#' # GLS Example (Multivariate) ----------------------------------------------------------
+
+Y <- as.matrix(cbind(PlethMorph$TailLength,
+PlethMorph$HeadLength,
+PlethMorph$TailLength,
+PlethMorph$Snout.eye,
+PlethMorph$BodyWidth,
+PlethMorph$Forelimb,
+PlethMorph$Hindlimb))
+PlethMorph <- rrpp.data.frame(PlethMorph, Y=Y)
+fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph)
+fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov)
+
+anova(fitOLSm)
+anova(fitGLSm)
+
+plot(predict(fitOLSm, sizeDF), PC= TRUE) # Correlated error
+plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
 }
 \references{
 Anderson MJ. 2001. A new method for non-parametric multivariate analysis of variance.

@@ -342,7 +342,7 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
   if(is.matrix(x$pc.mean)) mpc <- rbind(x$pc.mean, x$pc.lcl, x$pc.ucl) else 
     mpc <- c(x$pc.mean, x$pc.lcl, x$pc.ucl)
   conf <- x$confidence
-    
+
   if(NCOL(m) == 1) {
     k <- length(x$mean)
     xx <- seq(1:k)
@@ -362,29 +362,59 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
     else points(xx, x$mean, ...)
   }
   if(NCOL(m) > 1) {
+    type <- "multi"
     k <- NROW(x$mean)
     if(PC){
       pca <- x$pca
       d <-length(which(zapsmall(pca$sdev) > 0))
-      if(d == 1) mr <- as.matrix(cbind(mpc[,1],0)) else mr <- mpc[,1:2]
-      v <- pca$sdev^2
-      ve <- round(v/sum(v)*100, 2)[1:2]
-      xlb <- paste("PC1: ", ve[1], "%", sep = "")
-      ylb <- paste("PC2: ", ve[2], "%", sep = "")
+      if(d == 1) {
+        mr <- mpc
+        ve <- 100
+        ylm <- c(min(mr), max(mr))
+        ylb <- paste("PC1: ", ve, "%", sep = "")
+        type <- "uni"
+      } else {
+        mr <- mpc[,1:2]
+        v <- pca$sdev^2
+        ve <- round(v/sum(v)*100, 2)[1:2]
+        xlm <- c(min(mr[,1]), max(mr[,1]))
+        ylm <- c(min(mr[,2]), max(mr[,2]))
+        xlb <- paste("PC1: ", ve[1], "%", sep = "")
+        ylb <- paste("PC2: ", ve[2], "%", sep = "")
+        }
     } else {
       mr <- m[,1:2]
       cn <- colnames(x$mean)
       if(is.null(cn)) cn <- paste("V", 1:2, sep=".")
       xlb <- cn[1]
       ylb <- cn[2]
+      xlm <- c(min(mr[,1]), max(mr[,1]))
+      ylm <- c(min(mr[,2]), max(mr[,2]))
     }
-    xlm <- c(min(mr[,1]), max(mr[,1]))
-    ylm <- c(min(mr[,2]), max(mr[,2]))
     mt <- if(PC) "Among-prediction PC rotation" else 
       "Plot of first two variables"
     mt <- paste(mt, "; ", conf*100, "% confidence limits", sep = "")
-    if(ellipse){
-      if(PC){
+    
+    if(PC && type == "uni"){
+      xx <- seq(1:k)
+      xf <- as.factor(rownames(x$mean))
+      plot(xf, mr[1:k], lty = "blank",
+           xlab = "Predicted values", 
+           ylab = ylb,
+           ylim = c(min(mr), max(mr)),
+           main = mt, pch=19,
+           cex.main = 0.7, ...
+      )
+      la <- (k + 1):(2 * k)
+      ua <- (2 * k +1):(3 * k)
+      arrows(xx, mr[1:k], xx, mr[la], lty = 1, angle = 90, length = 0.10, ...)
+      arrows(xx, mr[1:k], xx, mr[ua], lty = 1, angle = 90, length = 0.10, ...)
+      dots <- list(...)
+      if(length(dots) == 0) points(xx, mr[1:k], pch = 19, cex = 0.7)
+      else points(xx, mr[1:k], ...)
+    }
+    if(PC && type == "multi"){
+      if(ellipse){
         eP <- ellipse.points(m = x$pc.mean[,1:2],
                              pr = x$random.predicted.pc,
                              conf)
@@ -396,7 +426,32 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
         dots <- list(...)
         if(length(dots) == 0) points(eP$means, pch=19, cex = 0.7) else
           points(eP$means, ...)
+        if(label) text(eP$means, rownames(x$mean), 
+                       pos=1)
       } else {
+        plot(mr[1:k, 1], mr[1:k, 2], type = "n",
+             xlim = xlm, ylim = ylm, main = mt,
+             asp = 1, xlab = xlb, ylab = ylb, ...)
+        la <- (k + 1):(2 * k)
+        ua <- (2 * k +1):(3 * k)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[la, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[ua, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[1:k, 1], mr[la, 2], lty = 1, length = 0.10, angle = 90, ...)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[1:k, 1], mr[ua, 2], lty = 1, length = 0.10, angle = 90, ...)
+        dots <- list(...)
+        if(length(dots) == 0) points(mr[1:k, 1], mr[1:k, 2], pch = 19, cex = 0.7)
+        else points(mr[1:k, 1], mr[1:k, 2], ...)
+        if(label) text(mr[1:k, 1], mr[1:k, 2], rownames(x$mean), 
+                       pos=1)
+      }
+    }
+    
+    if(!PC) {
+      if(ellipse) {
         eP <- ellipse.points(m = x$mean[,1:2],
                              pr = x$random.predicted,
                              conf)
@@ -407,31 +462,29 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
         }
         if(length(dots) == 0) points(eP$means, pch=19, cex = 0.7) else
           points(eP$means, ...)
+        if(label) text(eP$means, rownames(x$mean), 
+                       pos=1)
+      } else {
+        plot(mr[1:k, 1], mr[1:k, 2], type = "n",
+             xlim = xlm, ylim = ylm, main = mt,
+             asp = 1, xlab = xlb, ylab = ylb, ...)
+        la <- (k + 1):(2 * k)
+        ua <- (2 * k +1):(3 * k)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[la, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[ua, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[1:k, 1], mr[la, 2], lty = 1, length = 0.10, angle = 90, ...)
+        arrows(mr[1:k, 1], mr[1:k, 2],
+               mr[1:k, 1], mr[ua, 2], lty = 1, length = 0.10, angle = 90, ...)
+  
+        dots <- list(...)
+        if(length(dots) == 0) points(mr[1:k, 1], mr[1:k, 2], pch = 19, cex = 0.7)
+        else points(mr[1:k, 1], mr[1:k, 2], ...)
+        if(label) text(mr[1:k, 1], mr[1:k, 2], rownames(x$mean), 
+                       pos=1)
       }
-      if(label) text(eP$means, rownames(x$mean), 
-                     pos=1)
-      
-    } else {
-      plot(mr[1:k, 1], mr[1:k, 2], type = "n",
-           xlim = xlm, ylim = ylm, main = mt,
-           asp = 1, xlab = xlb, ylab = ylb, ...)
-      la <- (k + 1):(2 * k)
-      ua <- (2 * k +1):(3 * k)
-      arrows(mr[1:k, 1], mr[1:k, 2],
-             mr[la, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
-      arrows(mr[1:k, 1], mr[1:k, 2],
-             mr[ua, 1], mr[1:k, 2], lty = 1, length = 0.10, angle = 90, ...)
-      arrows(mr[1:k, 1], mr[1:k, 2],
-             mr[1:k, 1], mr[la, 2], lty = 1, length = 0.10, angle = 90, ...)
-      arrows(mr[1:k, 1], mr[1:k, 2],
-             mr[1:k, 1], mr[ua, 2], lty = 1, length = 0.10, angle = 90, ...)
-      
-      if(label) text(mr[1:k, 1], mr[1:k, 2], rownames(x$mean), 
-                     pos=1)
-      
-      dots <- list(...)
-      if(length(dots) == 0) points(mr[1:k, 1], mr[1:k, 2], pch = 19, cex = 0.7)
-      else points(mr[1:k, 1], mr[1:k, 2], ...)
     }
   }
 }
@@ -459,36 +512,3 @@ residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
 
 # residuals.lm.rrpp
 # S3 generic for lm.rrpp
-
-#' Extract fitted values
-#' 
-#' @param object plot object (from \code{\link{lm.rrpp}})
-#' @param weighted A logical argument to return weighted or unweighted fitted values.
-#' @param ... Arguments passed to other functions 
-#' @export
-#' @author Michael Collyer
-#' @keywords utilities
-#' @examples 
-#' # See examples for lm.rrpp
-fitted.values.lm.rrpp<- function(object, weighted = TRUE, ...) {
-  if(!weighted) out <- object$LM$fitted else 
-    out <- object$LM$wFitted
-  out
-}
-
-#' Extract fitted values
-#' 
-#' @param object plot object (from \code{\link{lm.rrpp}})
-#' @param weighted A logical argument to return weighted or unweighted fitted values.
-#' @param ... Arguments passed to other functions 
-#' @export
-#' @author Michael Collyer
-#' @keywords utilities
-#' @examples 
-#' # See examples for lm.rrpp
-fitted.lm.rrpp<- function(object, weighted = TRUE, ...) {
-  if(!weighted) out <- object$LM$fitted else 
-    out <- object$LM$wFitted
-  out
-}
-

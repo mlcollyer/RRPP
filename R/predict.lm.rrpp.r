@@ -111,11 +111,11 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
   H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
   if(object$LM$gls) {
     P <- object$LM$Pcov
-    PY <- crossprod(P, object$LM$wY)
+    PY <- crossprod(P, object$LM$Y * sqrt(object$LM$weights))
     PX <- crossprod(P, X)
     glsFit <- lm.fit(PX, PY)
-    fitted <- glsFit$fitted.values
-    res <- glsFit$residuals
+    fitted <- as.matrix(glsFit$fitted.values)
+    res <- as.matrix(glsFit$residuals)
     Q <- qr(PX)
     H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
   }
