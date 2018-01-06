@@ -10,27 +10,8 @@
 #' distributions for linear model effects, for high-dimensional data or distance matrices.
 #'
 #' @import parallel
-#' @importFrom stats as.dist 
-#' @importFrom stats cmdscale 
-#' @importFrom stats formula
-#' @importFrom stats lm.fit
-#' @importFrom stats lm.wfit 
-#' @importFrom stats model.matrix
-#' @importFrom stats prcomp
-#' @importFrom stats quantile
-#' @importFrom stats sd
-#' @importFrom stats terms
-#' @importFrom stats update
-#' @importFrom stats lm
-#' @importFrom stats loess
-#' @importFrom stats model.frame
-#' @importFrom stats na.omit
-#' @importFrom stats qnorm
-#' @importFrom graphics arrows
-#' @importFrom graphics par
-#' @importFrom graphics plot
-#' @importFrom graphics points
-#' @importFrom graphics text
+#' @import stats
+#' @import graphics
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar
 
