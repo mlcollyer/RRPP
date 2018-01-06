@@ -98,7 +98,7 @@ anova.lm.rrpp <- function(object, ...,
     perms <- object$PermInfo$perms
     pm <- object$PermInfo$perm.method
     if(pm == "RRPP") pm <- "Randomization of null model residuals" else
-      pm <- ("Randomization of raw values (residuals of means)")
+      pm <- ("Randomization of raw values (residuals of mean)")
     SS.type <- x$SS.type
     cat("\nAnalysis of Variance, using Residual Randomization\n")
     cat(paste("Permutation procedure:", pm, "\n"))

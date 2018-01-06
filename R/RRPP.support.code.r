@@ -232,10 +232,7 @@ pcoa <- function(D){
   d <- cmd$eig
   min.d <- min(d)
   if(min.d < 0) {
-    dcor <- abs(min.d)
-    Dc <- D^2 + 2*dcor
-    Dc <- sqrt(Dc)
-    cmd.c <- cmdscale(Dc, k=attr(Dc, "Size") -1, eig=TRUE)
+    cmd.c <- cmdscale(D, k=attr(D, "Size") -1, eig=TRUE, add= TRUE)
     options(warn=0)
     d <- cmd.c$eig
   } else cmd.c <- cmd

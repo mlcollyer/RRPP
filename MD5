@@ -21,10 +21,10 @@ ad97e4ce6e14cb92ac228d0f798d7717 *man/summary.coef.lm.rrpp.Rd
 beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 51243aba3f11cc5b49553d81227d00fa *NAMESPACE
-d44d4a78f16166cf3594f9fb9e4e4462 *R/anova.lm.rrpp.r
+e9161007c3430e9ea9caed519e4c9b62 *R/anova.lm.rrpp.r
 e94396a9f5e588f8dcf6d84a5dd03593 *R/coef.lm.rrpp.r
 90f1f22383d192725de5c0869d40f7d6 *R/lm.rrpp.r
 5640ec927f0e71e0dc4ec5029853f8f6 *R/predict.lm.rrpp.r
-679d63618c87b0a3ba1b4ce2f69df05b *R/RRPP.support.code.r
-7fa3bc21001dcfb244e80ea989c803b6 *R/RRPP.utils.r
+ed3cd66fd09f8439db2de9fe41ec2bd9 *R/RRPP.support.code.r
+8b8ecaf0cf320346cb709da050fea2b7 *R/RRPP.utils.r
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

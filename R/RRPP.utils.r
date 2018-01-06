@@ -243,13 +243,15 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     X <- x$LM$X * sqrt(x$LM$weights)
     if(!is.null(x$LM$Pcov)) B <- x$LM$gls.coefficients else B <- x$LM$coefficients
     xc <- predictor
-    pred.match <- match(xc, X)
-    if(any(is.na(pred.match))) {
+    pred.match <- sapply(1:NCOL(X), function(j){
+      any(is.na(match(xc, X[,j])))
+    })
+    if(all(pred.match)) {
       b <- lm(f ~ xc)$coefficients
       if(is.matrix(b)) b <- b[2,] else b <- b[2]
     } else {
       Xcrc <- as.matrix(X)
-      Xcrc[pred.match] <- 0
+      Xcrc[,!pred.match] <- 0
       f <- Xcrc %*% B
       r <- x$LM$Y - f
       b <- lm(f ~ xc)$coefficients
