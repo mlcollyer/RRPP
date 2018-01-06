@@ -107,7 +107,7 @@
 #'
 #' # Coefficients Test
 #' 
-#' coef(fit)
+#' coef(fit, test = TRUE)
 #'
 #' # Predictions (holding alternative effects constant)
 #' 
@@ -136,7 +136,7 @@
 #' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
 #' summary(fit, formula = FALSE)
 #' anova(fit) 
-#' coef(fit)
+#' coef(fit, test = TRUE)
 #'
 #' # Predictions (holding alternative effects constant)
 #' 

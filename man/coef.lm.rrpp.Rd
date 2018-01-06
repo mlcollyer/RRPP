@@ -4,12 +4,16 @@
 \alias{coef.lm.rrpp}
 \title{coef for lm.rrpp model fits}
 \usage{
-\method{coef}{lm.rrpp}(object, confidence = 0.95, ...)
+\method{coef}{lm.rrpp}(object, test = FALSE, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}
 
-\item{confidence}{The desired confidence interval level to print with a table of summary statistics}
+\item{test}{Logical argument that if TRUE, performs hypothesis tests (Null hypothesis is vector distance = 0)
+for the observed coefficients.  If FALSE, only the observed coefficients are returned.}
+
+\item{confidence}{The desired confidence interval level to print with a table of summary statistics,
+if test = TRUE.}
 
 \item{...}{Other arguments (currently none)}
 }

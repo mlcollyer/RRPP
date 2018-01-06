@@ -119,7 +119,7 @@ anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals
 
 # Coefficients Test
 
-coef(fit)
+coef(fit, test = TRUE)
 
 # Predictions (holding alternative effects constant)
 
@@ -148,7 +148,7 @@ names(Pupfish)
 fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
 summary(fit, formula = FALSE)
 anova(fit) 
-coef(fit)
+coef(fit, test = TRUE)
 
 # Predictions (holding alternative effects constant)
 
