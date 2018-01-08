@@ -103,15 +103,19 @@ print.coef.lm.rrpp <- function(x,...){
   cat(paste("\nNumber of dependent variables:", x$p))
   cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
   cat(paste("\nNumber of permutations:", x$nperms))
-  cat("\n\nObserved coefficients\n\n")
-  print(x$coef.obs)
-  rrpp.type <- x$RRPP
-  cat("\n\nStatistics (distances) of coefficients with ")
-  cat(x$confidence*100, "percent confidence intervals,") 
-  cat("\neffect sizes, and probabilities of exceeding observed values based on\n") 
-  cat(x$nperms, "random permutations using", rrpp.type, "\n\n")
-  print(x$stat.tab)
-  cat("\n\n")
+  if(!x$test) {
+    cat("\n\nObserved coefficients\n\n")
+    print(x$coef.obs)
+  }
+  if(x$test){
+    rrpp.type <- x$RRPP
+    cat("\n\nStatistics (distances) of coefficients with ")
+    cat(x$confidence*100, "percent confidence intervals,") 
+    cat("\neffect sizes, and probabilities of exceeding observed values based on\n") 
+    cat(x$nperms, "random permutations using", rrpp.type, "\n\n")
+    print(x$stat.tab)
+    cat("\n\n")
+  }
   invisible(x)
 }
 
@@ -163,6 +167,63 @@ print.predict.lm.rrpp <- function(x, PC = FALSE, ...){
 summary.predict.lm.rrpp <- function(object, ...){
   print.predict.lm.rrpp(object, ...)
 }
+
+## anova.lm.rrpp
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x print/summary object (from \code{\link{lm.rrpp}})
+#' @param ... other arguments passed to print/summary
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.anova.lm.rrpp <- function(x, ...) {
+  tab <- x$table
+  pm <- x$perm.method
+  perms <- x$perm.number
+  est <- x$est.method
+  SS.type <- x$SS.type
+  effect.type <- x$effect.type
+  
+  if(pm == "RRPP") pm <- "Randomization of null model residuals" else
+    pm <- ("Randomization of raw values (residuals of mean)")
+  
+  if(est == "GLS") est <- "Generalized Least-Squares (via OLS projection)" else
+    est <- "Ordinary Least Squares"
+  
+  if(!is.null(SS.type)) {
+    cat("\nAnalysis of Variance, using Residual Randomization\n")
+    cat(paste("Permutation procedure:", pm, "\n"))
+    cat(paste("Number of permutations:", perms, "\n"))
+    cat(paste("Estimation method:", est, "\n"))
+    cat(paste("Sums of Squares and Cross-products: Type", SS.type, "\n"))
+    cat(paste("Effect sizes (Z) based on", effect.type, "distributions\n\n"))
+    print(tab)
+    cat("\nCall: ")
+    cat(deparse(x$call), fill=TRUE)
+  } else {
+    cat("\nAnalysis of Variance, using Residual Randomization\n")
+    cat(paste("Permutation procedure:", pm, "\n"))
+    cat(paste("Number of permutations:", perms, "\n"))
+    cat(paste("Estimation method:", est, "\n"))
+    cat("No model effects; simple summary provided\n\n")
+    print(tab)
+    cat("\nCall: ")
+    cat(deparse(x$call), fill=TRUE)
+  }
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{predict.lm.rrpp}}
+#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.anova.lm.rrpp <- function(object, ...){
+  print.anova.lm.rrpp(object, ...)
+}
+
 
 
 ## plot functions

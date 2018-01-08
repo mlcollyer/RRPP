@@ -216,8 +216,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                     RRPP = TRUE, SS.type = c("I", "II", "III"),
                     data = NULL, Cov = NULL,
                     print.progress = TRUE, Parallel = FALSE, ...) {
-
   if(int.first) ko = TRUE else ko = FALSE
+  if(!is.null(data) && inherits(data, "data.frame")) data <- rrpp.data.frame(data)
   if(!is.null(data)) data <- droplevels.rrpp.data.frame(data)
   if(print.progress){
     cat("\nPreliminary Model Fit...\n")

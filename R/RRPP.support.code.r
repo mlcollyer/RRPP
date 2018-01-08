@@ -213,6 +213,7 @@ pcoa <- function(D){
   d <- cmd$eig
   min.d <- min(d)
   if(min.d < 0) {
+    options(warn=-1)
     cmd.c <- cmdscale(D, k=attr(D, "Size") -1, eig=TRUE, add= TRUE)
     options(warn=0)
     d <- cmd.c$eig

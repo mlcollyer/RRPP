@@ -35,7 +35,10 @@ anova.lm.rrpp <- function(object, ...,
   df <- x$df
   k <- length(df)-2
   SS <- x$SS
-  MS <- x$MS
+  MS <- x$MS    
+  perms <- object$PermInfo$perms
+  pm <- object$PermInfo$perm.method
+  
   if(!is.null(error)) {
     if(!inherits(error, "character")) stop("The error description is illogical.  It should be a string of character values matching ANOVA terms.")
     kk <- length(error)
@@ -46,29 +49,33 @@ anova.lm.rrpp <- function(object, ...,
   } else MSEmatch <- NULL
   if(length(SS) > 1) {
     Fs <- x$Fs
+    
     if(!is.null(MSEmatch)){
       Fs[1:k,] <- MS[1:k,]/MS[MSEmatch,]
       F.effect.adj <- apply(Fs[1:k,], 1, effect.size)
     }
+    
     effect.type <- match.arg(effect.type)
     if(effect.type == "F") {
       if(!is.null(error)) Z <- F.effect.adj else Z <- x$F.effect
     }
+    
     if(object$LM$gls) {
-      est <- "Generalized Least-Squares (via OLS projection)"
+      est <- "GLS"
+      
       if(effect.type == "SS") {
         cat("\nWarning: calculating effect size on SS is illogical with GLS.
             Effect type has been changed to F distributions.\n\n")
         effect.type = "F"
       }
+      
       if(effect.type == "MS") {
         cat("\nWarning: calculating effect size on MS is illogical with GLS.
             Effect type has been changed to F distributions.\n\n")
         effect.type = "F"
       }
-    }
-    else
-      est <- "Ordinary Least Squares"
+    } else est <- "OLS"
+    
     if(effect.type == "F") Z <- Fs
     if(effect.type == "SS") Z <- x$SS
     if(effect.type == "MS") Z <- x$MS
@@ -92,31 +99,26 @@ anova.lm.rrpp <- function(object, ...,
     tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F=Fs, Z=Z, P.val=P.val)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
-    if(object$LM$gls)
-      est <- "Generalized Least-Squares (via OLS projection)" else
-        est <- "Ordinary Least Squares"
-    perms <- object$PermInfo$perms
-    pm <- object$PermInfo$perm.method
-    if(pm == "RRPP") pm <- "Randomization of null model residuals" else
-      pm <- ("Randomization of raw values (residuals of mean)")
     SS.type <- x$SS.type
-    cat("\nAnalysis of Variance, using Residual Randomization\n")
-    cat(paste("Permutation procedure:", pm, "\n"))
-    cat(paste("Number of permutations:", perms, "\n"))
-    cat(paste("Estimation method:", est, "\n"))
-    cat(paste("Sums of Squares and Cross-products: Type", SS.type, "\n"))
-    cat(paste("Effect sizes (Z) based on", effect.type, "distributions\n\n"))
-    print(tab)
-    cat("\nCall: ")
-    cat(deparse(object$call), fill=TRUE)
+    
+    out <- list(table = tab, perm.method = pm, perm.number = perms,
+                est.method = est, SS.type = SS.type, effect.type = effect.type,
+                call = object$call)
+    
       } else {
-        cat("\nANOVA Table\n\n")
         Residuals <- c(df, SS, MS)
         names(Residuals) <- c("Df", "SS", "MS")
         tab <- as.data.frame(Residuals)
         class(tab) = c("anova", class(tab))
-        print(tab)
-        cat("\nCall: ")
-        cat(deparse(object$call), fill=TRUE)
+        out <- list(table = tab, perm.method = pm, perm.number = perms,
+                    est.method = est, SS.type = NULL, effect.type = NULL,
+                    call = object$call)
+
       }
+  class(out) <- "anova.lm.rrpp"
+  out
 }
+
+
+
+

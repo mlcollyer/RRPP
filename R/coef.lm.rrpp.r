@@ -68,7 +68,7 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
                 n = n, p=p, k.terms = k, confidence = confidence,
                 model.terms = model.terms, nperms = perms,
                 RRPP = RRPP, gls=gls, SS.type = SS.type,
-                stat.table = stat.tab)
+                stat.table = stat.tab, test = test)
     class(out) <- "coef.lm.rrpp"
   } else out <- coef.obs
   
