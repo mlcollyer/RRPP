@@ -597,5 +597,34 @@ residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
   out
 }
 
-# residuals.lm.rrpp
-# S3 generic for lm.rrpp
+#' Extract residuals
+#' 
+#' @param object plot object (from \code{\link{lm.rrpp}})
+#' @param weighted A logical argument to return weighted or unweighted residuals.
+#' @param ... Arguments passed to other functions 
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
+  if(!weighted) out <- object$LM$residuals else 
+    out <- object$LM$wResiduals
+  out
+}
+
+#' Extract residuals
+#' 
+#' @param object plot object (from \code{\link{lm.rrpp}})
+#' @param weighted A logical argument to return weighted or unweighted residuals.
+#' @param ... Arguments passed to other functions 
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples 
+#' # See examples for lm.rrpp
+fitted.lm.rrpp <- function(object, weighted = TRUE, ...) {
+  if(!weighted) out <- object$LM$fitted else 
+    out <- object$LM$wFitted
+  out
+}
