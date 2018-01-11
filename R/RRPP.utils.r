@@ -286,8 +286,20 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
          xlab = paste("PC 1", var.f[1],"%"),
          ylab = "Euclidean Distance Residuals",
          main = "Residuals vs. PC 1 fitted")
-    lfr <- loess(dr~pca.f$x[,1])
+    if(length(unique(round(pca.f$x[,1], 7))) <= 2) {
+      lfr <- list()
+      lfr$x <- pca.f$x[,1]
+      lfr$y <- dr
+      fit <- lm(dr ~ pca.f$x[,1])
+      lfr$fitted <- fit$fitted.values
+      lfr$residuals <- fit$residuals
+    } else {
+      options(warn = -1)
+      lfr <- loess(dr~pca.f$x[,1])
+      options(warn = 0)
+    } 
     lfr <- cbind(lfr$x, lfr$fitted); lfr <- lfr[order(lfr[,1]),]
+    lfr <- unique(round(lfr,7))
     points(lfr, type="l", col="red")
     plot.het(r,f)
     p <- ncol(r)
@@ -360,9 +372,21 @@ plot.het <- function(r,f){
   f <- center(f)
   r <- sqrt(diag(tcrossprod(r)))
   f <- sqrt(diag(tcrossprod(f)))
-  lfr <- loess(r~f)
+  if(length(unique(round(f, 7))) <= 2) {
+    lfr <- list()
+    lfr$x <- f
+    lfr$y <- r
+    fit <- lm(r ~ f)
+    lfr$fitted <- fit$fitted.values
+    lfr$residuals <- fit$residuals
+  } else {
+    options(warn = -1)
+    lfr <- loess(r~f)
+    options(warn = 0)
+  }
   lfr <- cbind(lfr$x, lfr$y, lfr$fitted)
   lfr <- lfr[order(lfr[,1]),]
+  lfr <- unique(round(lfr,7))
   plot(lfr, pch=19, asp=1, 
        xlab = "Euclidean Distance Fitted Values",
        ylab = "Euclidean Distance Residuals", 
