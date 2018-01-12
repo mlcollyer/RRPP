@@ -437,8 +437,8 @@ plot.QQ <- function(r){
 #' @param x plot object (from \code{\link{lm.rrpp}})
 #' @param PC A logical argument for whether the data space should be rotated to its 
 #' principal components
-#' @param ellipse A logical argument to change error bards to ellipses in multivariate plots.  
-#' It has not function for univariate plots.
+#' @param ellipse A logical argument to change error bars to ellipses in multivariate plots.  
+#' It has no function for univariate plots.
 #' @param label A logical argument for whether points should be labled 
 #' (in multivariate plots).
 #' @param ... other arguments passed to plot (helpful to employ
@@ -455,7 +455,7 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
   if(is.matrix(x$pc.mean)) mpc <- rbind(x$pc.mean, x$pc.lcl, x$pc.ucl) else 
     mpc <- c(x$pc.mean, x$pc.lcl, x$pc.ucl)
   conf <- x$confidence
-
+  dots <- list(...)
   if(NCOL(m) == 1) {
     k <- length(x$mean)
     xx <- seq(1:k)
@@ -470,7 +470,6 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
          )
     arrows(xx, x$mean, xx, x$lcl, lty = 1, angle = 90, length = 0.10, ...)
     arrows(xx, x$mean, xx, x$ucl, lty = 1, angle = 90, length = 0.10, ...)
-    dots <- list(...)
     if(length(dots) == 0) points(xx, x$mean, pch = 19, cex = 0.7)
     else points(xx, x$mean, ...)
   }
@@ -522,7 +521,6 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       ua <- (2 * k +1):(3 * k)
       arrows(xx, mr[1:k], xx, mr[la], lty = 1, angle = 90, length = 0.10, ...)
       arrows(xx, mr[1:k], xx, mr[ua], lty = 1, angle = 90, length = 0.10, ...)
-      dots <- list(...)
       if(length(dots) == 0) points(xx, mr[1:k], pch = 19, cex = 0.7)
       else points(xx, mr[1:k], ...)
     }
@@ -536,7 +534,6 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
         for(i in 1:(dim(eP$ellP)[[3]])){
           points(eP$ellP[,,i], type = "l", ...)
         }
-        dots <- list(...)
         if(length(dots) == 0) points(eP$means, pch=19, cex = 0.7) else
           points(eP$means, ...)
         if(label) text(eP$means, rownames(x$mean), 
@@ -591,8 +588,6 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
                mr[1:k, 1], mr[la, 2], lty = 1, length = 0.10, angle = 90, ...)
         arrows(mr[1:k, 1], mr[1:k, 2],
                mr[1:k, 1], mr[ua, 2], lty = 1, length = 0.10, angle = 90, ...)
-  
-        dots <- list(...)
         if(length(dots) == 0) points(mr[1:k, 1], mr[1:k, 2], pch = 19, cex = 0.7)
         else points(mr[1:k, 1], mr[1:k, 2], ...)
         if(label) text(mr[1:k, 1], mr[1:k, 2], rownames(x$mean), 

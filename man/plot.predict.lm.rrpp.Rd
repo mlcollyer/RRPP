@@ -13,8 +13,8 @@
 \item{PC}{A logical argument for whether the data space should be rotated to its 
 principal components}
 
-\item{ellipse}{A logical argument to change error bards to ellipses in multivariate plots.
-It has not function for univariate plots.}
+\item{ellipse}{A logical argument to change error bars to ellipses in multivariate plots.
+It has no function for univariate plots.}
 
 \item{label}{A logical argument for whether points should be labled 
 (in multivariate plots).}

@@ -8,7 +8,7 @@ d3dfda75332ec47190082c97d0113ecf *man/coef.lm.rrpp.Rd
 f16958e78c09fc2a88125de79112d02b *man/lm.rrpp.Rd
 724550436b4216cec962a774638e0d93 *man/PlethMorph.Rd
 d61f3ccf0f48d4c2147ce8115bd1bdb0 *man/plot.lm.rrpp.Rd
-ae176250a348ce61f6b1142d02226f8d *man/plot.predict.lm.rrpp.Rd
+b26afedc3c0eb31d61b21d81079f7ef2 *man/plot.predict.lm.rrpp.Rd
 c112607d499c473d15e58f2ee9421665 *man/predict.lm.rrpp.Rd
 b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
 1354129612f4c784fabcfb8a081e11d5 *man/print.coef.lm.rrpp.Rd
@@ -30,5 +30,5 @@ f49a8480ed08000d4ced2e364317d440 *NAMESPACE
 b41c84e6fed6823ff69466a92fcbde2a *R/lm.rrpp.r
 5640ec927f0e71e0dc4ec5029853f8f6 *R/predict.lm.rrpp.r
 90486fe82d43714b08025fef80477499 *R/RRPP.support.code.r
-708b075b43019a3d43d971d56ea650f4 *R/RRPP.utils.r
+174a08a6e3c2e0c2a3cbe4dc22311b78 *R/RRPP.utils.r
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
