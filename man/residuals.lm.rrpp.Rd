@@ -2,11 +2,8 @@
 % Please edit documentation in R/RRPP.utils.r
 \name{residuals.lm.rrpp}
 \alias{residuals.lm.rrpp}
-\alias{residuals.lm.rrpp}
 \title{Extract residuals}
 \usage{
-\method{residuals}{lm.rrpp}(object, weighted = TRUE, ...)
-
 \method{residuals}{lm.rrpp}(object, weighted = TRUE, ...)
 }
 \arguments{
@@ -15,25 +12,14 @@
 \item{weighted}{A logical argument to return weighted or unweighted residuals.}
 
 \item{...}{Arguments passed to other functions}
-
-\item{object}{plot object (from \code{\link{lm.rrpp}})}
-
-\item{weighted}{A logical argument to return weighted or unweighted residuals.}
-
-\item{...}{Arguments passed to other functions}
 }
 \description{
-Extract residuals
-
 Extract residuals
 }
 \examples{
 # See examples for lm.rrpp
-# See examples for lm.rrpp
 }
 \author{
-Michael Collyer
-
 Michael Collyer
 }
 \keyword{utilities}

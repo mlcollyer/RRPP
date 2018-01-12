@@ -2,7 +2,7 @@
 % Please edit documentation in R/RRPP.utils.r
 \name{fitted.lm.rrpp}
 \alias{fitted.lm.rrpp}
-\title{Extract residuals}
+\title{Extract fitted values}
 \usage{
 \method{fitted}{lm.rrpp}(object, weighted = TRUE, ...)
 }
@@ -14,7 +14,7 @@
 \item{...}{Arguments passed to other functions}
 }
 \description{
-Extract residuals
+Extract fitted values
 }
 \examples{
 # See examples for lm.rrpp
