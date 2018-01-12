@@ -1295,3 +1295,25 @@ ellipse.points <- function(m, pr, conf) {
   list(ellP = ellP, pc1lim = pc1lim, pc2lim = pc2lim,
        means = m)
 }
+
+# refit
+# finds rrpp.fit from lm.rrpp object
+# used in Deviance
+refit <- function(fit){
+  dat <- fit$LM$data
+  dims <- dim(dat$Y)
+  pdf.args <- list(data=dat,
+                   x = model.matrix(fit$LM$Terms, data = dat),
+                   w = fit$LM$weights,
+                   offset = fit$LM$offset,
+                   terms = fit$LM$Terms,
+                   formula = NULL,
+                   SS.type = fit$ANOVA$SS.type)
+  form <- formula(deparse(fit$call[[2]]))
+  form[[2]] <- "Y"
+  pdf.args$formula <- form
+  if(sum(attr(pdf.args$x, "assign")) == 0)
+    out <- rrpp.fit.int(pdf.args) else
+      out <- rrpp.fit.lm(pdf.args)
+  out
+}

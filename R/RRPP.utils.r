@@ -45,6 +45,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   SS <- AN$SS
   SS.type <- AN$SS.type
   k <- length(LM$term.labels)
+  if(LM$gls) P <- LM$Pcov
   
   if(k > 0) {
     SSE <- unlist(SS[k+1,])
@@ -80,18 +81,13 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                           "Pr(>F)")
   if(formula) dimnames(tab)[[1]] <- deparse(x$call[[2]]) else
     dimnames(tab)[[1]] <- deparse(substitute(object))
-  B <- x$LM$random.coef
-  B <- lapply(1:length(B), function(j) B[[j]][[1]])
-  X <- x$LM$X
-  Y <- x$LM$Y
-  R <- lapply(1:length(B), function(j){
-    b <- B[[j]]
-    k <- NROW(b)
-    x <- X[,1:k]
-    Y - x%*%b
-  })
-  SSCP <- lapply(R, crossprod)
+
+  rfit <-refit(x)
+  RR <- rfit$wResiduals.reduced
+  RF <- rfit$wResiduals.full
+  SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
   names(SSCP) <- LM$term.labels
+  SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[length(RF)]]))))
   out <- list(table = tab, SSCP = SSCP, n = n, p = p, k = k, 
               perms = perms, dv = dv, SS = SS, SS.type = SS.type)
   class(out) <- "summary.lm.rrpp"
