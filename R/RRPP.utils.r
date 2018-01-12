@@ -34,19 +34,16 @@ print.lm.rrpp <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 summary.lm.rrpp <- function(object, formula = TRUE, ...){
-  cat("\nLinear Model fit with lm.rrpp\n")
   x <- object
   LM <- x$LM
   PI <- x$PermInfo
   AN <- x$ANOVA
-  if(!is.null(x$LM$dist.coefficients)) dv <- "(dimensions of data after PCoA of distance matrix)" else
-    dv <- " "
-  cat(paste("\nNumber of observations:", LM$n))
-  cat(paste("\nNumber of dependent variables:", LM$p, dv))
-  if(!is.null(AN$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", AN$SS.type))
-  cat(paste("\nNumber of permutations:", PI$perms))
-  cat("\n\nFull Model Analysis of Variance\n\n")
+  perms <- PI$perms
+  dv <- LM$dist.coefficients
+  n <- LM$n
+  p <- LM$p
   SS <- AN$SS
+  SS.type <- AN$SS.type
   k <- length(LM$term.labels)
   
   if(k > 0) {
@@ -83,11 +80,44 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                           "Pr(>F)")
   if(formula) dimnames(tab)[[1]] <- deparse(x$call[[2]]) else
     dimnames(tab)[[1]] <- deparse(substitute(object))
-  print(tab)
-  
-  invisible(object)
+  B <- x$LM$random.coef
+  B <- lapply(1:length(B), function(j) B[[j]][[1]])
+  X <- x$LM$X
+  Y <- x$LM$Y
+  R <- lapply(1:length(B), function(j){
+    b <- B[[j]]
+    k <- NROW(b)
+    x <- X[,1:k]
+    Y - x%*%b
+  })
+  SSCP <- lapply(R, crossprod)
+  names(SSCP) <- LM$term.labels
+  out <- list(table = tab, SSCP = SSCP, n = n, p = p, k = k, 
+              perms = perms, dv = dv, SS = SS, SS.type = SS.type)
+  class(out) <- "summary.lm.rrpp"
+  out
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x print/summary object (from \code{\link{summary.lm.rrpp}})
+#' @param ... other arguments passed to print/summary
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.summary.lm.rrpp <- function(x, ...) {
+  cat("\nLinear Model fit with lm.rrpp\n")
+  cat(paste("\nNumber of observations:", x$n))
+  if(!is.null(x$dv)) dv <- "(dimensions of data after PCoA of distance matrix)" else
+    dv <- " "
+  cat(paste("\nNumber of dependent variables:", x$p, dv))
+  if(!is.null(x$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
+  cat(paste("\nNumber of permutations:", x$perms))
+  cat("\n\nFull Model Analysis of Variance\n\n")
+  print(x$table)
+  invisible(x)
+}
 ## coef.lm.rrpp
 
 #' Print/Summary Function for RRPP
@@ -97,7 +127,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
-print.coef.lm.rrpp <- function(x,...){
+print.coef.lm.rrpp <- function(x, ...){
   cat("\nLinear Model fit with lm.rrpp\n")
   cat(paste("\nNumber of observations:", x$n))
   cat(paste("\nNumber of dependent variables:", x$p))
