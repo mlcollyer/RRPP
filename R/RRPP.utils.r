@@ -306,12 +306,13 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
          main = "PCA Residuals")
     pca.f <- prcomp(f)
     var.f <- round(pca.f$sdev^2/sum(pca.f$sdev^2)*100,2)
-    dr <- sqrt(diag(tcrossprod(center(r))))
+    dr <- scale(sqrt(diag(tcrossprod(center(r)))))
     plot.QQ(r)
-    plot(pca.f$x[,1], dr, pch=19, asp =1,
+    plot(pca.f$x[,1], dr, pch=19, 
          xlab = paste("PC 1", var.f[1],"%"),
-         ylab = "Euclidean Distance Residuals",
+         ylab = "Standardized Euclidean Distance Residuals",
          main = "Residuals vs. PC 1 fitted")
+    abline(h = 0, col = "gray", lty =3)
     if(length(unique(round(pca.f$x[,1], 7))) <= 2) {
       lfr <- list()
       lfr$x <- pca.f$x[,1]
@@ -321,11 +322,10 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       lfr$residuals <- fit$residuals
     } else {
       options(warn = -1)
-      lfr <- loess(dr~pca.f$x[,1])
+      lfr <- loess(dr~pca.f$x[,1], span = 1)
       options(warn = 0)
     } 
     lfr <- cbind(lfr$x, lfr$fitted); lfr <- lfr[order(lfr[,1]),]
-    lfr <- unique(round(lfr,7))
     points(lfr, type="l", col="red")
     plot.het(r,f)
     p <- ncol(r)
@@ -401,22 +401,22 @@ plot.het <- function(r,f){
   if(length(unique(round(f, 7))) <= 2) {
     lfr <- list()
     lfr$x <- f
-    lfr$y <- r
-    fit <- lm(r ~ f)
+    lfr$y <- scale(r)
+    fit <- lm(scale(r) ~ f)
     lfr$fitted <- fit$fitted.values
     lfr$residuals <- fit$residuals
   } else {
     options(warn = -1)
-    lfr <- loess(r~f)
+    lfr <- loess(scale(r)~f, span = 1)
     options(warn = 0)
   }
   lfr <- cbind(lfr$x, lfr$y, lfr$fitted)
   lfr <- lfr[order(lfr[,1]),]
-  lfr <- unique(round(lfr,7))
-  plot(lfr, pch=19, asp=1, 
+  plot(lfr, pch=19,  
        xlab = "Euclidean Distance Fitted Values",
-       ylab = "Euclidean Distance Residuals", 
+       ylab = "Standardized Euclidean Distance Residuals", 
        main = "Residuals vs. Fitted")
+  abline(h = 0, col = "gray", lty =3)
   points(lfr[,1], lfr[,3], type="l", col="red")
 }
 
