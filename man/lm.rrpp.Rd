@@ -55,7 +55,7 @@ random R-squared outcomes, random F outcomes, random Cohen's f-squared outcomes,
 outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for
 model terms (df).  These objects are used to construct ANOVA tables.}
 \item{PermInfo}{Permutation procedure information, including the number of permutations (perms), The method
-of resdiual randomization (perm.method), and each permutation's sampling frame (perm.schedule), which
+of residual randomization (perm.method), and each permutation's sampling frame (perm.schedule), which
 is a list of reordered sequences of 1:n, for how residuals were randomized.}
 }
 \description{
@@ -65,7 +65,7 @@ a randomized residual permutation procedure.
 \details{
 The function fits a linear model using ordinary least squares (OLS) or generalized
 least squares (GLS) estimation of coefficients over any number of random permutations of
-the data.  A permutation procedure that randomizes vectors of residuals is emplyed.  This
+the data.  A permutation procedure that randomizes vectors of residuals is employed.  This
 procedure can randomize two types of resdiuals: residuals from null models or residuals from
 an intercept model.  The latter is the same as randomizing full values, and is referred to as
 as a full randomization permutation procedure (FRPP); the former uses the residuals from null
@@ -133,7 +133,7 @@ plot(sizePreds)
 
 plot(fit)
 
-# Body Shape Analysis (Mulivariate)----------------------------------------------------
+# Body Shape Analysis (Multivariate)----------------------------------------------------
 
 data(Pupfish)
 names(Pupfish)

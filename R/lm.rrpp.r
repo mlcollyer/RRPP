@@ -5,7 +5,7 @@
 #'
 #' The function fits a linear model using ordinary least squares (OLS) or generalized
 #' least squares (GLS) estimation of coefficients over any number of random permutations of
-#' the data.  A permutation procedure that randomizes vectors of residuals is emplyed.  This
+#' the data.  A permutation procedure that randomizes vectors of residuals is employed.  This
 #' procedure can randomize two types of resdiuals: residuals from null models or residuals from
 #' an intercept model.  The latter is the same as randomizing full values, and is referred to as
 #' as a full randomization permutation procedure (FRPP); the former uses the residuals from null
@@ -63,7 +63,7 @@
 #' outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for
 #' model terms (df).  These objects are used to construct ANOVA tables.}
 #' \item{PermInfo}{Permutation procedure information, including the number of permutations (perms), The method
-#' of resdiual randomization (perm.method), and each permutation's sampling frame (perm.schedule), which
+#' of residual randomization (perm.method), and each permutation's sampling frame (perm.schedule), which
 #' is a list of reordered sequences of 1:n, for how residuals were randomized.}
 #' @references Anderson MJ. 2001. A new method for non-parametric multivariate analysis of variance.
 #'    Austral Ecology 26: 32-46.
@@ -121,7 +121,7 @@
 #' 
 #' plot(fit)
 #' 
-#' # Body Shape Analysis (Mulivariate)----------------------------------------------------
+#' # Body Shape Analysis (Multivariate)----------------------------------------------------
 #' 
 #' data(Pupfish)
 #' names(Pupfish)
@@ -306,7 +306,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                random.coef.distances = betas$random.coef.distances,
                ols = TRUE, gls = FALSE)
     PermInfo <- list(perms = perms,
-                     perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), perm.schedule = ind)
+                     perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
+                     perm.schedule = ind, perm.seed = seed)
     out <- list(call = match.call(), LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
     if(!is.null(Cov)) {
       out$LM$Cov <- Cov
@@ -350,7 +351,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                ols = TRUE, gls = FALSE)
     ANOVA <- list(df = df, SS = SS, MS = SS/df)
     PermInfo <- list(perms = perms,
-                     perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), perm.schedule = ind)
+                     perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
+                     perm.schedule = ind, perm.seed = seed)
     out <- list(call = match.call(), LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
     if(!is.null(Cov)){
       out$LM$Cov <- Cov
