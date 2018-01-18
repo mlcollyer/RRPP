@@ -133,7 +133,11 @@
 #' Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
 #' names(Pupfish)
 #'
-#' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+#' # Note: one should increase RRPP iterations but they are truncated
+#' # here for a fast example.
+#' 
+#' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", 
+#' data = Pupfish, print.progress = FALSE, iter = 199) 
 #' summary(fit, formula = FALSE)
 #' anova(fit) 
 #' coef(fit, test = TRUE)
@@ -174,7 +178,11 @@
 #' length(D)
 #' Pupfish$D <- D
 #' 
-#' fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+#' # Note: one should increase RRPP iterations but they are truncated
+#' # here for a fast example.
+#' 
+#' fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", 
+#' data = Pupfish, print.progress = FALSE, iter = 199) 
 #' 
 #' # These should be the same:
 #' summary(fitD, formula = FALSE)
