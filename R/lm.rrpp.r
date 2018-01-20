@@ -137,7 +137,7 @@
 #' # here for a fast example.
 #' 
 #' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 199) 
+#' data = Pupfish, print.progress = FALSE, iter = 99) 
 #' summary(fit, formula = FALSE)
 #' anova(fit) 
 #' coef(fit, test = TRUE)
@@ -182,7 +182,7 @@
 #' # here for a fast example.
 #' 
 #' fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 199) 
+#' data = Pupfish, print.progress = FALSE, iter = 99) 
 #' 
 #' # These should be the same:
 #' summary(fitD, formula = FALSE)
