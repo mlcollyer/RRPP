@@ -1,8 +1,8 @@
-785e8b451edbec43689973311b419b49 *cran-comments.md
+66ed5eab8c6b3133860ac0a7dfaeec1c *cran-comments.md
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-fb11dd2aa5743778aaf0b815fd9eee51 *DESCRIPTION
+e28f6852a74a5c4d4ef91ca683a73ed4 *DESCRIPTION
 c05430813da271fa06512c4972430fe9 *man/anova.lm.rrpp.Rd
 d3dfda75332ec47190082c97d0113ecf *man/coef.lm.rrpp.Rd
 017bd97e98d3dcd432a33e32945757df *man/fitted.lm.rrpp.Rd
@@ -19,7 +19,7 @@ dee2473a6f8021b7f361ddffbb69eed6 *man/print.summary.lm.rrpp.Rd
 132aab48ed36e3b826ae947fe74e71a3 *man/Pupfish.Rd
 a0825621935b78a8a4805968af8a6ca1 *man/PupfishHeads.Rd
 2a130e557cf5e6d783bef526c8dcfcb7 *man/residuals.lm.rrpp.Rd
-a5ec522b3e2b3a9cd06e51d818f0290d *man/RRPP-package.Rd
+c1c97183f914b351876a5be28e12774e *man/RRPP-package.Rd
 b2609542adce8385f7b76da76817dc83 *man/rrpp.data.frame.Rd
 3feb50b2cd634fb9812fba13a02ff65d *man/summary.anova.lm.rrpp.Rd
 ad97e4ce6e14cb92ac228d0f798d7717 *man/summary.coef.lm.rrpp.Rd
@@ -31,7 +31,7 @@ df64c5c5b247fc620051e9bd945cac92 *NEWS
 5057da2edce8ddeee45c7407e3c6b63e *R/coef.lm.rrpp.r
 7301ad41604dafb3ea90002287829dfa *R/lm.rrpp.r
 5640ec927f0e71e0dc4ec5029853f8f6 *R/predict.lm.rrpp.r
-150c22950b37f55afe8b48029f09db5a *R/RRPP.support.code.r
+8c5bdcff172966607fb750cadaeec3b5 *R/RRPP.support.code.r
 df3471e5bedabb5e0182cfe970c39474 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

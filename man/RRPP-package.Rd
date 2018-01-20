@@ -7,7 +7,7 @@
 \title{Linear model evaluation with Randomized Residual Permutation Procedures}
 \description{
 Functions in this package allow one to evaluate linear models with residual randomization.
-The name, "RRPP", is an acronym for, "Randomized Residual Permutation Procedure."  Through
+The name, "RRPP", is an acronym for, "Randomization of Residuals in a Permutation Procedure."  Through
 the various functions in this package, one can use randomization of residuals to generate empirical probability
 distributions for linear model effects, for high-dimensional data or distance matrices.
 }

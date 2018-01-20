@@ -5,27 +5,18 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
 
-There were 3 NOTEs:
+There were 2 NOTEs:
 
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'Michael Collyer <mlcollyer@gmail.com>'
 
 New submission
 
-Possibly mis-spelled words in DESCRIPTION:
-  Evlauation (3:21)
-  radomization (8:95)
-
-** running examples for arch 'i386' ... [19s] NOTE
+** running examples for arch 'x64' ... [20s] NOTE
 Examples with CPU or elapsed time > 10s
          user system elapsed
-lm.rrpp 11.25   0.15   11.64
+lm.rrpp 10.71   0.09   11.17
 
-** running examples for arch 'x64' ... [22s] NOTE
-Examples with CPU or elapsed time > 10s
-         user system elapsed
-lm.rrpp 13.56   0.22    13.9
-  
 ## Updates
 \
-I have fixed the typos and removed on-screen printing from examples, plus reduced iterations to shorten elapsed time.
+I have shortened the number of iterations in the long example.  The new submission note I assume must remain for the first submission.
