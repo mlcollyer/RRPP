@@ -3,10 +3,10 @@
 \docType{data}
 \name{PlethMorph}
 \alias{PlethMorph}
-\title{Plethodon comaprative morphological data}
+\title{Plethodon comparative morphological data}
 \description{
 Data for 37 species of plethodontid salamanders.  Variables include snout to vent length
-(SVL) as species size, tail length, head length, sbout to eye length, body width, forelimb length,
+(SVL) as species size, tail length, head length, snout to eye length, body width, forelimb length,
 and hind limb length, all measured in mm.  A grouping variable is also included for functional guild size.  
 The data set also includes a phylogenetic covariance matrix based on a Brownian model of evolution, to assist in 
 generalized least squares (GLS) estimation.

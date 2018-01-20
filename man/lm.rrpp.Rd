@@ -38,7 +38,7 @@ This is helpful for long-running analyses.}
 invokes forking of processor cores, using the \code{parallel} library.  This option is only available to unix systems
 and should only be used for rather long analyses (that would normally take over 10 seconds on a single core).  Currently,
 parallel processing is performed on all but one core with no option to change the number of cores.  Systems with Windows
-platforms will automatically dafualt to a single-core application of this function.}
+platforms will automatically default to a single-core application of this function.}
 
 \item{...}{Arguments typically used in \code{\link{lm}}, such as weights or offset, passed on to
 \code{rrpp.fit} for estimation of coefficients.}
@@ -66,17 +66,17 @@ a randomized residual permutation procedure.
 The function fits a linear model using ordinary least squares (OLS) or generalized
 least squares (GLS) estimation of coefficients over any number of random permutations of
 the data.  A permutation procedure that randomizes vectors of residuals is employed.  This
-procedure can randomize two types of resdiuals: residuals from null models or residuals from
+procedure can randomize two types of residuals: residuals from null models or residuals from
 an intercept model.  The latter is the same as randomizing full values, and is referred to as
 as a full randomization permutation procedure (FRPP); the former uses the residuals from null
 models, which are defined by the type of sums of squares and cross-products (SSCP) sought in an
 analysis of variance (ANOVA), and is referred to as a randomized residual permutation procedure (RRPP).
 Types I, II, and III SSCPs are supported.
 
-Users define the SSCP type, the permutation proecure type, whether a covariance matrix is included
+Users define the SSCP type, the permutation procedure type, whether a covariance matrix is included
 (GLS estimation), and a few arguments related to computations.  Analytical results comprise observed linear model
 results (coefficients, fitted values, residuals, etc.), random sums of squares (SS) across permutation iterations,
-and other parameters for perfoming ANOVA and other hypothesis tests, using
+and other parameters for performing ANOVA and other hypothesis tests, using
 empirically-derived probability distributions.
 
 \code{lm.rrpp} emphasizes estimation of effect sizes with standard deviates of observed statistics

@@ -26,7 +26,7 @@ NULL
 #' @docType data
 #' @author Michael Collyer
 #' @keywords datasets
-#' @description Landmark data from Cyprindon pecosensis body shapes, with indication of Sex and
+#' @description Landmark data from Cyprinodon pecosensis body shapes, with indication of Sex and
 #' Population from which fish were sampled (Marsh or Sinkhole).
 #' @details These data were previously aligned with GPA.  Centroid size (CS) is also provided.  
 #' See the \link[geomorph]{geomorph} package for details.
@@ -40,8 +40,7 @@ NULL
 #' @name PupfishHeads
 #' @docType data
 #' @author Michael Collyer
-#' @keywords datasets
-#' @description Landmark data from Cyprindon pecosensis head shapes, with variables for 
+#' @description Landmark data from Cyprinodon pecosensis head shapes, with variables for 
 #' sex, month and year sampled, locality, head size, and coordinates of landmarks for head shape,
 #' per specimen.  These data are a subset of a larger data set.
 #' @details The variable, "coords", are data that were previously aligned
@@ -51,14 +50,14 @@ NULL
 #' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
 NULL
 
-#' Plethodon comaprative morphological data 
+#' Plethodon comparative morphological data 
 #'
 #' @name PlethMorph
 #' @docType data
 #' @author Michael Collyer and Dean Adams
 #' @keywords datasets
 #' @description Data for 37 species of plethodontid salamanders.  Variables include snout to vent length
-#' (SVL) as species size, tail length, head length, sbout to eye length, body width, forelimb length,
+#' (SVL) as species size, tail length, head length, snout to eye length, body width, forelimb length,
 #' and hind limb length, all measured in mm.  A grouping variable is also included for functional guild size.  
 #' The data set also includes a phylogenetic covariance matrix based on a Brownian model of evolution, to assist in 
 #' generalized least squares (GLS) estimation.

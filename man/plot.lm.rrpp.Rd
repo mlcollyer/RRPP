@@ -14,7 +14,7 @@
 regression, or principal component plots.  Diagnostic plots are similar to 
 \code{\link{lm}} diagnostic plots, but for multivariate data.  Regression plots
 plot multivariate dispersion in some fashion against predictor values. PC plots
-project data onto the eigenvectors of the coavriance matrix for fitted values.}
+project data onto the eigenvectors of the covariance matrix for fitted values.}
 
 \item{predictor}{An optional vector if "regression" plot type is chosen, 
 and is a variable likely used in \code{\link{lm.rrpp}}.
@@ -23,7 +23,7 @@ This vector is a vector of covariate values equal to the number of observations.
 \item{reg.type}{If "regression" is chosen for plot type, this argument
 indicates whether a common regression component (CRC) plot, prediction line 
 (Predline) plot, or regression score (RegScore) plotting is performed.  
-For explanation of CRC, see Mitteroeker et al. (2004).  For exaplantion of prediction line,
+For explanation of CRC, see Mitteroecker et al. (2004).  For explanation of prediction line,
 see Adams and Nistri (2010).  For explanation of regression score, see 
 Drake and Klingenberg (2008).}
 

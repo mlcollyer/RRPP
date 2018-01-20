@@ -261,14 +261,14 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' regression, or principal component plots.  Diagnostic plots are similar to 
 #' \code{\link{lm}} diagnostic plots, but for multivariate data.  Regression plots
 #' plot multivariate dispersion in some fashion against predictor values. PC plots
-#' project data onto the eigenvectors of the coavriance matrix for fitted values.
+#' project data onto the eigenvectors of the covariance matrix for fitted values.
 #' @param predictor An optional vector if "regression" plot type is chosen, 
 #' and is a variable likely used in \code{\link{lm.rrpp}}.
 #' This vector is a vector of covariate values equal to the number of observations.
 #' @param reg.type If "regression" is chosen for plot type, this argument
 #' indicates whether a common regression component (CRC) plot, prediction line 
 #' (Predline) plot, or regression score (RegScore) plotting is performed.  
-#' For explanation of CRC, see Mitteroeker et al. (2004).  For exaplantion of prediction line,
+#' For explanation of CRC, see Mitteroecker et al. (2004).  For explanation of prediction line,
 #' see Adams and Nistri (2010).  For explanation of regression score, see 
 #' Drake and Klingenberg (2008).
 #' @param ... other arguments passed to plot (helpful to employ
@@ -439,7 +439,7 @@ plot.QQ <- function(r){
 #' principal components
 #' @param ellipse A logical argument to change error bars to ellipses in multivariate plots.  
 #' It has no function for univariate plots.
-#' @param label A logical argument for whether points should be labled 
+#' @param label A logical argument for whether points should be labeled 
 #' (in multivariate plots).
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See

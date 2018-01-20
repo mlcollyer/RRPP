@@ -5,7 +5,7 @@
 \alias{PupfishHeads}
 \title{Landmarks on pupfish heads}
 \description{
-Landmark data from Cyprindon pecosensis head shapes, with variables for 
+Landmark data from Cyprinodon pecosensis head shapes, with variables for 
 sex, month and year sampled, locality, head size, and coordinates of landmarks for head shape,
 per specimen.  These data are a subset of a larger data set.
 }
@@ -21,4 +21,3 @@ threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky
 \author{
 Michael Collyer
 }
-\keyword{datasets}

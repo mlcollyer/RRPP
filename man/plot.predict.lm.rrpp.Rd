@@ -16,7 +16,7 @@ principal components}
 \item{ellipse}{A logical argument to change error bars to ellipses in multivariate plots.
 It has no function for univariate plots.}
 
-\item{label}{A logical argument for whether points should be labled 
+\item{label}{A logical argument for whether points should be labeled 
 (in multivariate plots).}
 
 \item{...}{other arguments passed to plot (helpful to employ
