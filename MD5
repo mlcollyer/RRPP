@@ -1,8 +1,8 @@
-876620f7b2776a3084a1dbd90ebc2394 *cran-comments.md
+f0a9ce665bb9b67086ac4b205634cf0d *cran-comments.md
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-e28f6852a74a5c4d4ef91ca683a73ed4 *DESCRIPTION
+98dbc3139bb51553909223bf3566c4dc *DESCRIPTION
 c05430813da271fa06512c4972430fe9 *man/anova.lm.rrpp.Rd
 d3dfda75332ec47190082c97d0113ecf *man/coef.lm.rrpp.Rd
 017bd97e98d3dcd432a33e32945757df *man/fitted.lm.rrpp.Rd

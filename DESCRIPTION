@@ -5,7 +5,11 @@ Title: Linear Model Evaluation with Randomized Residuals in a Permutation Proced
 Version: 0.1.0
 Author: Michael Collyer, Dean Adams
 Maintainer: Michael Collyer <mlcollyer@gmail.com>
-Description: Linear model calculations made for many random versions of data.  Using residual randomization in a permutation procedure, sums of squares are calculated over many permutations to facilitate generating empirical probability distributions for evaluating model effects.  
+Description: Linear model calculations made for many random versions of data.  
+    Using residual randomization in a permutation procedure, sums of squares 
+    are calculated over many permutations to generate empirical probability 
+    distributions for evaluating model effects.  
+    Reference: Collyer, Sekora, & Adams (2015) <doi:10.1038/hdy.2014.75>
 License: GPL (>= 2)
 URL: https://github.com/mlcollyer/RRPP
 Encoding: UTF-8

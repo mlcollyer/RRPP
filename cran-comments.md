@@ -1,3 +1,8 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Added a reference to the 'Description' field of the DESCRIPTION file, for the method used.
+
 ## Test environments
 * local OS X install, R 3.4.3
 * win-builder (devel and release)
