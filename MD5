@@ -3,7 +3,7 @@ f7d852db4dff4d35ef12c8b9e00a6112 *cran-comments.md
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 3ea3e2e9e6af309c6e6e7a2e96ee644d *DESCRIPTION
-611a63819cfe234a598a11fbad602482 *man/anova.lm.rrpp.Rd
+44132cd7643774221c82725c5110570f *man/anova.lm.rrpp.Rd
 d3dfda75332ec47190082c97d0113ecf *man/coef.lm.rrpp.Rd
 017bd97e98d3dcd432a33e32945757df *man/fitted.lm.rrpp.Rd
 5592a576b0c8bf2d2ccbcc0273f0ffb8 *man/lm.rrpp.Rd
@@ -27,7 +27,7 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 f49a8480ed08000d4ced2e364317d440 *NAMESPACE
 df64c5c5b247fc620051e9bd945cac92 *NEWS
-b9a001bb40531bc11ff150573e46dd9d *R/anova.lm.rrpp.r
+480d9043781ee81b85a87ca980181c36 *R/anova.lm.rrpp.r
 5057da2edce8ddeee45c7407e3c6b63e *R/coef.lm.rrpp.r
 3dd12aa1ff648f6d6417cd31d0bb7b26 *R/lm.rrpp.r
 5640ec927f0e71e0dc4ec5029853f8f6 *R/predict.lm.rrpp.r

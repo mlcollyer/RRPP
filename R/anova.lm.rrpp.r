@@ -10,12 +10,13 @@
 #' within the other models.  Illogical results can be generated if this is not the case.
 #'
 #' @param object Object from \code{\link{lm.rrpp}}
-#' @param ... Additional lm.rrpp model fits or other arguments passed to ANOVA 
+#' @param ... Additional lm.rrpp model fits or other arguments passed to anova. 
 #' @param effect.type One of "F", "cohenf", "SS", "MS", "Rsq" to choose from which distribution
 #' of statistics to calculate effect sizes (Z).  See \code{\link{lm.rrpp}}.
 #' @param error An optional character string to define MS error term for calculation of F values.
 #' See \code{\link{lm.rrpp}} for examples.
-#' @param print.progress A logical argument if multiple models are used
+#' @param print.progress A logical argument if multiple models are used and one wishes to view progress
+#' for sums of squares (SS) calculations.
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities

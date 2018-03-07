@@ -10,7 +10,7 @@
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}
 
-\item{...}{Additional lm.rrpp model fits or other arguments passed to ANOVA}
+\item{...}{Additional lm.rrpp model fits or other arguments passed to anova.}
 
 \item{effect.type}{One of "F", "cohenf", "SS", "MS", "Rsq" to choose from which distribution
 of statistics to calculate effect sizes (Z).  See \code{\link{lm.rrpp}}.}
@@ -18,7 +18,8 @@ of statistics to calculate effect sizes (Z).  See \code{\link{lm.rrpp}}.}
 \item{error}{An optional character string to define MS error term for calculation of F values.
 See \code{\link{lm.rrpp}} for examples.}
 
-\item{print.progress}{A logical argument if multiple models are used}
+\item{print.progress}{A logical argument if multiple models are used and one wishes to view progress
+for sums of squares (SS) calculations.}
 }
 \description{
 Computes an analysis of variance (ANOVA) table using distributions of random
