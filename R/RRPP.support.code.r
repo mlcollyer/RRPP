@@ -1316,3 +1316,264 @@ refit <- function(fit){
       out <- rrpp.fit.lm(pdf.args)
   out
 }
+
+# aov.single.model
+# performs ANOVA on a single model
+# used in anova.lm.rrpp
+aov.single.model <- function(object, ...,
+                             effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
+                             error = NULL) {
+  x <- object$ANOVA
+  df <- x$df
+  k <- length(df)-2
+  SS <- x$SS
+  MS <- x$MS    
+  perms <- object$PermInfo$perms
+  pm <- object$PermInfo$perm.method
+  
+  if(!is.null(error)) {
+    if(!inherits(error, "character")) stop("The error description is illogical.  It should be a string of character values matching ANOVA terms.")
+    kk <- length(error)
+    if(kk != k) stop("The error description should match in length the number of ANOVA terms (not including Residuals)")
+    trms <- rownames(MS)
+    MSEmatch <- match(error, trms)
+    if(any(is.na(MSEmatch))) stop("At least one of the error terms is not an ANOVA term")
+  } else MSEmatch <- NULL
+  if(length(SS) > 1) {
+    Fs <- x$Fs
+    
+    if(!is.null(MSEmatch)){
+      Fs[1:k,] <- MS[1:k,]/MS[MSEmatch,]
+      F.effect.adj <- apply(Fs[1:k,], 1, effect.size)
+    }
+    
+    effect.type <- match.arg(effect.type)
+    if(effect.type == "F") {
+      if(!is.null(error)) Z <- F.effect.adj else Z <- x$F.effect
+    }
+    
+    if(object$LM$gls) {
+      est <- "GLS"
+      
+      if(effect.type == "SS") {
+        cat("\nWarning: calculating effect size on SS is illogical with GLS.
+            Effect type has been changed to F distributions.\n\n")
+        effect.type = "F"
+      }
+      
+      if(effect.type == "MS") {
+        cat("\nWarning: calculating effect size on MS is illogical with GLS.
+            Effect type has been changed to F distributions.\n\n")
+        effect.type = "F"
+      }
+    } else est <- "OLS"
+    
+    if(effect.type == "F") Z <- Fs
+    if(effect.type == "SS") Z <- x$SS
+    if(effect.type == "MS") Z <- x$MS
+    if(effect.type == "Rsq") Z <- x$Rsq
+    if(effect.type == "cohenf") Z <- x$cohenf
+    if(effect.type == "Rsq") effect.type = "R-squared"
+    if(effect.type == "cohenf") effect.type = "Cohen's f-squared"
+    if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
+    Fs <- Fs[,1]
+    SS <- SS[,1]
+    MS <- MS[,1]
+    MS[length(MS)] <- NA
+    Rsq <- x$Rsq
+    cohenf <- x$cohenf
+    P.val <- apply(Z, 1, pval)
+    Z <- apply(log(Z), 1, effect.size)
+    P.val[-(1:k)] <- NA
+    Z[-(1:k)] <- NA
+    Rsq <- Rsq[,1]
+    Rsq[length(Rsq)] <- NA
+    tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F=Fs, Z=Z, P.val=P.val)
+    colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
+    class(tab) = c("anova", class(tab))
+    SS.type <- x$SS.type
+    
+    out <- list(table = tab, perm.method = pm, perm.number = perms,
+                est.method = est, SS.type = SS.type, effect.type = effect.type,
+                call = object$call)
+    
+      } else {
+        Residuals <- c(df, SS, MS)
+        names(Residuals) <- c("Df", "SS", "MS")
+        tab <- as.data.frame(Residuals)
+        class(tab) = c("anova", class(tab))
+        out <- list(table = tab, perm.method = pm, perm.number = perms,
+                    est.method = est, SS.type = NULL, effect.type = NULL,
+                    call = object$call)
+        
+      }
+  class(out) <- "anova.lm.rrpp"
+  out
+  }
+
+# aov.multi.model
+# performs ANOVA on multiple models
+# used in anova.lm.rrpp
+aov.multi.model <- function(object, lm.list,
+                            effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
+                            print.progress = TRUE) {
+  
+  effect.type <- match.arg(effect.type)
+  
+  if(inherits(object, "lm.rrpp")) refModel <- object else 
+    stop("The reference model is not a class lm.rrpp object")
+  ind <- refModel$PermInfo$perm.schedule
+  perms <- length(ind)
+  
+  X <- refModel$LM$X * sqrt(refModel$LM$weights)
+  B <- refModel$LM$coefficients
+  Y <- refModel$LM$Y
+  U <- qr.Q(qr(X))
+  n <- refModel$LM$n
+  p <- refModel$LM$p
+  if(refModel$LM$gls) {
+    P <- refModel$LM$Pcov
+    B <- refModel$LM$gls.coefficients
+    X <- crossprod(P, X)
+    Y <- crossprod(P, Y)
+    U <- qr.Q(qr(X))
+  }
+  Yh <- X %*% B
+  R <- Y - Yh
+  
+  rY <- function(ind.i) Yh + R[ind.i,]
+  
+  K <- length(lm.list)
+  Ulist <- lapply(1:K, function(j){
+    m <- lm.list[[j]]
+    X <- m$LM$X
+    w <- sqrt(m$LM$weights)
+    X <- X * w
+    if(m$LM$gls){
+      P <- m$LM$Pcov
+      X <- crossprod(P, X)
+    }
+    qr.Q(qr(X))
+  })
+  
+  if(print.progress){
+    cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n"))
+    pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
+  }
+  
+  RSS <- function(ind.i, U, Ul, K, n, p, Y) {
+    y <- as.matrix(rY(ind.i))
+    rss0  <- sum(y^2) - sum(crossprod(U, y)^2)
+    rss <- lapply(1:K, function(j){
+      u <- Ul[[j]]
+      sum(y^2) - sum(crossprod(u, y)^2)
+    })
+    RSSp <- c(rss0, unlist(rss))
+    
+    y <- as.matrix(Y[ind.i,])
+    rss <- lapply(1:K, function(j){
+      u <- Ul[[j]]
+      sum(y^2) - sum(crossprod(u, y)^2)
+    })
+    RSSy <- c(rss0, unlist(rss))
+    
+    c(RSSp, RSSy)
+  }
+  
+  rss.list <- list(ind.i = NULL, U = U, 
+                   Ul = Ulist, K = K, n = n , p = p, Y=Y)
+  
+  RSSp <- sapply(1:perms, function(j){
+    step <- j
+    if(print.progress) setTxtProgressBar(pb,step)
+    rss.list$ind.i <- ind[[j]]
+    do.call(RSS, rss.list)
+  })
+  
+  RSSy <- RSSp[-(1:(K+1)),]
+  RSSp <- RSSp[1:(K+1),]
+  
+  fit.names <- c(refModel$call[[2]], lapply(1:K, function(j) lm.list[[j]]$call[[2]]))
+  rownames(RSSp) <- rownames(RSSy) <- fit.names
+  
+  SS <- rep(RSSp[1,], each = K + 1) - RSSp
+  
+  int <- attr(refModel$LM$Terms, "intercept")
+  if(refModel$LM$gls) {
+    int <- crossprod(refModel$LM$Pcov, rep(int, n))
+  } else int <- rep(int, n)
+  
+  U0 <- qr.Q(qr(int * sqrt(refModel$LM$weights)))
+  yh0 <- fastFit(U0, Y, n, p)
+  r0 <- Y - yh0
+  SSY <- sapply(1:perms, function(j){
+    y <- yh0 + r0[ind[[j]],]
+    sum(y^2) - sum(crossprod(U0, y)^2)
+  })
+  
+  Rsq <-  1 - (RSSp / rep(SSY, each = K + 1))
+  dfe <- n - c(object$LM$wQR$rank, unlist(lapply(1:K, 
+                                                 function(j) lm.list[[j]]$LM$wQR$rank)))
+  df <- dfe[1] - dfe
+  df[1] <- 1
+  
+  MS <- SS/rep(df, perms)
+  MSE <- RSSy/rep(dfe, perms)
+  Fs <- MS/MSE
+  
+  if(effect.type == "SS") {
+    Pvals <- apply(SS, 1, pval)
+    Z <- apply(log(SS + 0.0000001), 1, effect.size)
+  } else   if(effect.type == "MS") {
+    Pvals <- apply(MS, 1, pval)
+    Z <- apply(log(MS + 0.0000001), 1, effect.size)
+  } else   if(effect.type == "Rsq") {
+    Pvals <- apply(Rsq, 1, pval)
+    Z <- apply(log(Rsq + 0.0000001), 1, effect.size)
+  } else{
+    Pvals <- apply(Fs, 1, pval)
+    Z <- apply(log(Fs + 0.0000001), 1, effect.size)
+  }
+  SS[1,] <- NA
+  MS[1,] <- NA
+  Fs[1,] <- NA
+  Pvals[1] <- NA
+  Z[1] <- NA
+  
+  RSS.obs <- RSSp[,1]
+  SS.obs <- SS[,1]
+  MS.obs <- MS[,1]
+  Rsq.obs <- Rsq[,1]
+  F.obs <- Fs[,1]
+  
+  tab <- data.frame(ResDf = dfe, DF = df, RSS = RSS.obs, SS = SS.obs, MS = MS.obs,
+                    Rsq = Rsq.obs, F = F.obs, Z = Z, P = Pvals)
+  tab$DF[1] <- NA
+  tab <-  rbind(tab, c(n-1, NA, SSY[1], NA, NA, NA, NA, NA, NA))
+  rownames(tab)[NROW(tab)] <- "Total"
+  
+  if(effect.type == "SS") p.type <- "Pr(>SS)" else
+    if(effect.type == "MS") p.type <- "Pr(>MS)" else
+      if(effect.type == "Rsq") p.type <- "Pr(>Rsq)" else
+        if(effect.type == "cohenf") p.type <- "Pr(>cohenf)" else p.type <- "Pr(>F)" 
+  names(tab)[length(names(tab))] <- p.type
+  rownames(tab)[1] <- paste(rownames(tab)[1], "(Null)")
+  class(tab) <- c("anova", class(tab))
+  
+  step <- perms + 5
+  if(print.progress) {
+    setTxtProgressBar(pb,step)
+    close(pb)
+  }
+  pm <- "RRPP"
+  if(refModel$LM$gls) est <- "GLS" else est <- "OLS"
+  
+  out <- list(table = tab, perm.method = pm, perm.number = perms,
+              est.method = est, SS.type = NULL, effect.type = effect.type,
+              call = object$call)
+  
+class(out) <- "anova.lm.rrpp"
+out
+
+}
+

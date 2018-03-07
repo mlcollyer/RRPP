@@ -232,10 +232,13 @@ print.anova.lm.rrpp <- function(x, ...) {
     cat(paste("Permutation procedure:", pm, "\n"))
     cat(paste("Number of permutations:", perms, "\n"))
     cat(paste("Estimation method:", est, "\n"))
-    cat("No model effects; simple summary provided\n\n")
+    if(NROW(tab) == 1) cat("No model effects; simple summary provided\n\n")
+    if(NROW(tab) > 1) cat(paste("Effect sizes (Z) based on", effect.type, "distributions\n\n"))
     print(tab)
-    cat("\nCall: ")
-    cat(deparse(x$call), fill=TRUE)
+    if(NCOL(tab) == 7) {
+      cat("\nCall: ")
+      cat(deparse(x$call), fill=TRUE)
+    }
   }
 }
 
