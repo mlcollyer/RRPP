@@ -39,8 +39,9 @@
 #' @param covariate A numeric vector for which to calculate slopes for comaprison.  If NULL, 
 #' LS means will be calculated instead of slopes.  Normally this variable would be part of the 
 #' model fit, but it is not necessary for that to be the case in order to obtain results.
-#' @param print.progress A logical value to indicate whether analytical results progress should be
-#' printed on screen.  Unless large data sets are analyzed, this argument is probably not helpful.
+#' @param print.progress If a null model fit is providdd, a logical value to indicate whether analytical 
+#' results progress should be printed on screen.  Unless large data sets are analyzed, this argument 
+#' is probably not helpful.
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
