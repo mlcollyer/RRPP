@@ -621,12 +621,14 @@ residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
   out
 }
 
+# fitted.lm.rrpp
+# S3 generic for lm.rrpp
+
 #' Extract fitted values
 #' 
 #' @param object plot object (from \code{\link{lm.rrpp}})
 #' @param weighted A logical argument to return weighted or unweighted residuals.
 #' @param ... Arguments passed to other functions 
-#' @export
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
@@ -636,3 +638,156 @@ fitted.lm.rrpp <- function(object, weighted = TRUE, ...) {
     out <- object$LM$wFitted
   out
 }
+
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{pairwise}}
+#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.pairwise <- function(x, ...){
+  if(is.null(x$LS.means)) type = "slopes"
+  if(is.null(x$slopes)) type = "means"
+  if(type == "means") {
+    means <- x$LS.means
+    perms <- length(means)
+    groups <- rownames(means[[1]])
+  }
+  if(type == "slopes") {
+    slopes <- x$slopes
+    perms <- length(x$slopes)
+    groups <- rownames(slopes[[1]])
+  }
+  perm.type <- x$PermInfo$perm.method
+  cat("\nPairwise comparisons\n")
+  cat("\nGroups:", groups, "\n\n")
+  cat(paste(perm.type,":", sep=""), perms, "permutations\n")
+}
+
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{pairwise}}
+#' @param stat.table Logical argument for whether results should be returned in one table 
+#' (if TRUE) or separate pairwise tables (if FALSE)
+#' @param test.type Whether distances or vector correlations between vectors should be used.
+#' @param angle.type If test.type = "VC", whether angle results are expressed in radians or degrees.
+#' @param confidence Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)
+#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.pairwise <- function(object, stat.table = TRUE, 
+                             test.type = c("dist", "VC"),
+                             angle.type = c("rad", "deg"),
+                             confidence = 0.95, ...){
+  test.type <- match.arg(test.type)
+  angle.type <- match.arg(angle.type)
+  x <- object
+  if(is.null(x$LS.means)) type = "slopes"
+  if(is.null(x$slopes)) type = "means"
+ 
+  print.pairwise(x)
+  cat("\n")
+  
+  if(type == "means") {
+    cat("LS means\n")
+    print(x$LS.means[[1]])
+    
+    if(test.type == "dist") {
+      L <- d.summary.from.list(x$means.dist)
+      if(stat.table) {
+        tab <- makePWDTable(L)
+        cat("\nPairwise distances between means, plus statistics\n")
+        print(tab)
+      } else {
+        cat("\nPairwise distances between means\n")
+        print(L$D)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits between means\n")
+        print(L$CL)
+        cat("\nPairwise effect sizes (Z) between means\n")
+        print(L$Z)
+        cat("\nPairwise P-values between means\n")
+        print(L$P)
+      }
+    }
+    
+    if(test.type == "VC") {
+      L <- r.summary.from.list(x$means.vec.cor)
+      if(stat.table) {
+        tab <- makePWCorTable(L)
+        cat("\nPairwise statistics based on mean vector correlations\n")
+        if(angle.type == "deg") {
+          tab$angle <- tab$angle*180/pi
+          tab[,3] <- tab[,3]*180/pi
+        }
+        print(tab)
+      } else {
+        cat("\nPairwise vector correlations between mean vectors\n")
+        print(L$r)
+        cat("\nPairwise angles between mean vectors\n")
+        if(angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
+        if(angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+        cat("\nPairwise effect sizes (Z) for angles between mean vectors\n")
+        print(L$Z)
+        cat("\nPairwise P-values for angles between mean vectors\n")
+        print(L$P)
+      }
+    }
+  }
+  
+  if(type == "slopes") {
+    cat("Slopes (vectors of variate change per one unit of covariate change, by group)\n")
+    print(x$slopes[[1]])
+    
+    if(test.type == "dist") {
+      cat("\nSlope vector lengths\n")
+      print(x$slopes.length[[1]])
+      L <- d.summary.from.list(x$slopes.dist)
+      if(stat.table) {
+        tab <- makePWDTable(L)
+        cat("\nPairwise absolute difference (d) between vector lengths, plus statistics\n")
+        print(tab)
+      } else {
+        cat("\nPairwise absolute differences (d) between slope lengths\n")
+        print(L$D)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits between slope lengths\n")
+        print(L$CL)
+        cat("\nPairwise effect sizes (Z) between slope lengths\n")
+        print(L$Z)
+        cat("\nPairwise P-values between slope lengths\n")
+        print(L$P)
+      }
+    }
+    
+    if(test.type == "VC") {
+      L <- r.summary.from.list(x$slopes.vec.cor)
+      cat("\nPairwise statistics based on slopes vector correlations (r) and angles, acos(r)")
+      cat("\nThe null hypothesis is that r = 1 (parallel vectors).")
+      cat("\nThis null hypothesis is better treated as 1 - r = 0, or the angle between vectors = 0\n\n")
+      if(stat.table) {
+        tab <- makePWCorTable(L)
+        if(angle.type == "deg") {
+          tab$angle <- tab$angle*180/pi
+          tab[,3] <- tab[,3]*180/pi
+        }
+        print(tab)
+      } else {
+        cat("\nPairwise vector correlations between slope vectors\n")
+        print(L$r)
+        cat("\nPairwise angles between slope vectors\n")
+        if(angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
+        if(angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+        cat("\nPairwise effect sizes (Z) for angles between slope vectors\n")
+        print(L$Z)
+        cat("\nPairwise P-values for angles between slope vectors\n")
+        print(L$P)
+      }
+    }
+  }
+}
+

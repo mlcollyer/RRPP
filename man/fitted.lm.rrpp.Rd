@@ -4,7 +4,7 @@
 \alias{fitted.lm.rrpp}
 \title{Extract fitted values}
 \usage{
-\method{fitted}{lm.rrpp}(object, weighted = TRUE, ...)
+fitted.lm.rrpp(object, weighted = TRUE, ...)
 }
 \arguments{
 \item{object}{plot object (from \code{\link{lm.rrpp}})}
