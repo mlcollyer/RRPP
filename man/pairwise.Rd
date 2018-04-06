@@ -11,7 +11,7 @@ pairwise(fit, fit.null = NULL, groups, covariate = NULL,
 \item{fit}{A linear model fit using \code{\link{lm.rrpp}}.}
 
 \item{fit.null}{An alternative linear model fit to use as a null model for RRPP, if the null model
-of the fit parameter is not desired.  Note, for FRPP this argument should remain NULL and FRPP
+of the fit is not desired.  Note, for FRPP this argument should remain NULL and FRPP
 must be established in the lm.rrpp fit.}
 
 \item{groups}{A factor or vector that is coercible into a factor, describing the levels of

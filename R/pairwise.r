@@ -31,7 +31,7 @@
 #' 
 #' @param fit A linear model fit using \code{\link{lm.rrpp}}.
 #' @param fit.null An alternative linear model fit to use as a null model for RRPP, if the null model
-#' of the fit parameter is not desired.  Note, for FRPP this argument should remain NULL and FRPP
+#' of the fit is not desired.  Note, for FRPP this argument should remain NULL and FRPP
 #' must be established in the lm.rrpp fit.
 #' @param groups A factor or vector that is coercible into a factor, describing the levels of
 #' the groups for which to find LS means or slopes.  Normally this factor would be part of the 
