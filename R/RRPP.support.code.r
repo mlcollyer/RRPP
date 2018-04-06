@@ -1584,6 +1584,11 @@ getSlopes <- function(fit, x, g){
   p <- fit$LM$p
   beta <- fit$LM$random.coef[[k]]
   X <- fit$LM$X
+  if(qr(X)$rank < NCOL(X)){
+    xk <- qr(X)$rank
+    if(xk != nrow(beta[[1]])) stop("The design matrix for slopes does not have appropriate rank.")
+    X <- X[, colnames(X)  %in% rownames(beta[[1]])]
+  }
   getFitted <- function(b) X %*% b
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g * x + 0)
@@ -1619,6 +1624,11 @@ getLSmeans <- function(fit, g){
   covCheck <- sapply(dat, class)
   for(i in 1:k) if(covCheck[i] == "numeric") dat[[i]] <- mean(dat[[i]])
   L <- model.matrix(fit$LM$Terms, data = dat)
+  if(qr(L)$rank < NCOL(L)){
+    lk <- qr(L)$rank
+    if(lk != nrow(beta[[1]])) stop("The design matrix for LS means does not have appropriate rank.")
+     L <- L[, colnames(L)  %in% rownames(beta[[1]])]
+  }
   getFitted <- function(b) L %*% b
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g + 0)
