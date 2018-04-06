@@ -767,7 +767,7 @@ summary.pairwise <- function(object, stat.table = TRUE,
       L <- r.summary.from.list(x$slopes.vec.cor)
       cat("\nPairwise statistics based on slopes vector correlations (r) and angles, acos(r)")
       cat("\nThe null hypothesis is that r = 1 (parallel vectors).")
-      cat("\nThis null hypothesis is better treated as 1 - r = 0, or the angle between vectors = 0\n\n")
+      cat("\nThis null hypothesis is better treated as the angle between vectors = 0\n")
       if(stat.table) {
         tab <- makePWCorTable(L)
         if(angle.type == "deg") {
