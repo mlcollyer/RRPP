@@ -21,7 +21,7 @@ dee2473a6f8021b7f361ddffbb69eed6 *man/print.summary.lm.rrpp.Rd
 b359f4a0c6a15c72d1529aae59167da8 *man/Pupfish.Rd
 9775958c42dbaf2536f7f0a444191cef *man/PupfishHeads.Rd
 2a130e557cf5e6d783bef526c8dcfcb7 *man/residuals.lm.rrpp.Rd
-906f4d131f2c1861aa479bfd2af96689 *man/RRPP-package.Rd
+b8e29642ffbd07cb4592af65be059fc6 *man/RRPP-package.Rd
 b2609542adce8385f7b76da76817dc83 *man/rrpp.data.frame.Rd
 3feb50b2cd634fb9812fba13a02ff65d *man/summary.anova.lm.rrpp.Rd
 ad97e4ce6e14cb92ac228d0f798d7717 *man/summary.coef.lm.rrpp.Rd
@@ -35,7 +35,7 @@ df64c5c5b247fc620051e9bd945cac92 *NEWS
 1ceab0af4f38befbc7a5246dc505520a *R/lm.rrpp.r
 aae36a91be2f0cde95eb887f5626f2de *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
-d46cc413b9e9056cab0cf0227196c1b5 *R/RRPP.support.code.r
+d5d6711ae2ce3ee87370841ae7a209b1 *R/RRPP.support.code.r
 7568c7577776a40032a050201ff75699 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

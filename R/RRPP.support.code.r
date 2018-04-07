@@ -3,7 +3,13 @@
 #' @aliases RRPP
 #' @title Linear model evaluation with Randomized Residual Permutation Procedures
 #' @author Michael Collyer and Dean Adams
-#'
+#' @return Key functions for this package:
+#' \item{\code{\link{lm.rrpp}}}{fits linear models, using RRPP}
+#' \item{\code{\link{anova.lm.rrpp}}}{anova on linear models, using RRPP, plus model comparisons}
+#' \item{\code{\link{coef.lm.rrpp}}}{extract coefficients or perform test on coefficients, using RRPP}
+#' \item{\code{\link{predict.lm.rrpp}}}{predict values from lm.rrpp fits and generate boostrapped confidence intervals}
+#' \item{\code{\link{pairwise}}}{perform pairwise tests, based on lm.rrpp model fits}
+#' 
 #' @description Functions in this package allow one to evaluate linear models with residual randomization.
 #' The name, "RRPP", is an acronym for, "Randomization of Residuals in a Permutation Procedure."  Through
 #' the various functions in this package, one can use randomization of residuals to generate empirical probability
@@ -13,14 +19,6 @@
 #' least squares estimation (OLS or GLS, repsectively), using theoretic covariance matrices.  Mixed linear
 #' effects can also be evaluated.
 #' 
-#' Key functions for this package:
-#' \code{\link{lm.rrpp}}: fits linear models, using RRPP
-#' \code{\link{anova.lm.rrpp}}: anova on linear models, using RRPP, plus model comparisons
-#' \code{\link{coef.lm.rrpp}}: extract coefficients or perform test on coefficients, using RRPP
-#' \code{\link{predict.lm.rrpp}}: predict values from lm.rrpp fits and generate boostrapped confidence intervals
-#' \code{\link{pairwise}}: perform pairwise tests, based on lm.rrpp model fits.
-#' 
-#'
 #' @import parallel
 #' @import stats
 #' @import graphics
