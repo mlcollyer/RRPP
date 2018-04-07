@@ -12,8 +12,8 @@
 \item{test}{Logical argument that if TRUE, performs hypothesis tests (Null hypothesis is vector distance = 0)
 for the observed coefficients.  If FALSE, only the observed coefficients are returned.}
 
-\item{confidence}{The desired confidence interval level to print with a table of summary statistics,
-if test = TRUE.}
+\item{confidence}{The desired confidence limit to print with a table of summary statistics,
+if test = TRUE.  Because distances are directionless, confidence limits are one-tailed.}
 
 \item{...}{Other arguments (currently none)}
 }
@@ -38,7 +38,7 @@ Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
 fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
 
 coef(fit)
-coef(fit, confidence = 0.99)
+coef(fit, test = TRUE, confidence = 0.99)
 }
 \author{
 Michael Collyer

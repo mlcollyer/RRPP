@@ -1689,6 +1689,9 @@ percentile.list <- function(M, confidence = 0.95){
   P
 }
 
+# d.summary.from.list
+# find distance statistics from a list
+# used in pairwise
 d.summary.from.list <- function(M, confidence = 0.95){
   P <- Pval.list(M)
   Z <- effect.list(M)
@@ -1696,6 +1699,9 @@ d.summary.from.list <- function(M, confidence = 0.95){
   list(D=M[[1]], P=P, Z=Z, CL=CL, confidence = confidence)
 }
 
+# d.summary.from.list
+# find vec correlation statistics from a list
+# used in pairwise
 r.summary.from.list <- function(M, confidence = 0.95){
   options(warn = -1)
   acos.mat <- function(x){
@@ -1715,6 +1721,9 @@ r.summary.from.list <- function(M, confidence = 0.95){
        Z=Z, aCL=aCL, confidence = confidence)
 }
 
+# makePWDTable
+# arrange distance statistics into a table
+# used in pairwise
 makePWDTable <- function(L) { # List from summary.from.list
   nms <- rownames(L$D)
   DD <- as.dist(L$D)
@@ -1731,11 +1740,14 @@ makePWDTable <- function(L) { # List from summary.from.list
                     Z = as.vector(DZ), 
                     P = as.vector(DP))
   rownames(tab) <- name.list
-  colnames(tab)[2] <- paste(L$confidence*100, "% UCL", sep = "")
+  colnames(tab)[2] <- paste("UCL (", confidence*100,"%)", sep = "")
   colnames(tab)[4] <- "Pr > d"
   tab
 }
 
+# makePWCorTable
+# arrange vec cor statistics into a table
+# used in pairwise
 makePWCorTable <- function(L){
   nms <- rownames(L$r)
   DR <- as.dist(L$r)
@@ -1754,7 +1766,7 @@ makePWCorTable <- function(L){
                     Z = as.vector(DaZ),
                     P = as.vector(DP))
   rownames(tab) <- name.list
-  colnames(tab)[3] <- paste(L$confidence*100, "% UCL", sep = "")
+  colnames(tab)[3] <- paste("UCL (", confidence*100,"%)", sep = "")
   colnames(tab)[5] <- "Pr > angle"
   tab
 
