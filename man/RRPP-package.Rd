@@ -4,14 +4,14 @@
 \name{RRPP-package}
 \alias{RRPP-package}
 \alias{RRPP}
-\title{Linear model evaluation with Randomized Residual Permutation Procedures}
+\title{Linear Model Evaluation with Randomized Residual Permutation Procedures}
 \value{
 Key functions for this package:
-\item{\code{\link{lm.rrpp}}}{fits linear models, using RRPP}
-\item{\code{\link{anova.lm.rrpp}}}{anova on linear models, using RRPP, plus model comparisons}
-\item{\code{\link{coef.lm.rrpp}}}{extract coefficients or perform test on coefficients, using RRPP}
-\item{\code{\link{predict.lm.rrpp}}}{predict values from lm.rrpp fits and generate boostrapped confidence intervals}
-\item{\code{\link{pairwise}}}{perform pairwise tests, based on lm.rrpp model fits}
+\item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
+\item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, plus model comparisons.}
+\item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test on coefficients, using RRPP.}
+\item{\code{\link{predict.lm.rrpp}}}{Predict values from lm.rrpp fits and generate boostrapped confidence intervals.}
+\item{\code{\link{pairwise}}}{Perform pairwise tests, based on lm.rrpp model fits.}
 }
 \description{
 Functions in this package allow one to evaluate linear models with residual randomization.
@@ -23,11 +23,6 @@ An especially useful option of this package is to fit models with either ordinar
 least squares estimation (OLS or GLS, repsectively), using theoretic covariance matrices.  Mixed linear
 effects can also be evaluated.
 }
-\section{RRPP TOC}{
-
-RRPP-package
-}
-
 \author{
 Michael Collyer and Dean Adams
 }

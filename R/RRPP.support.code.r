@@ -1,14 +1,14 @@
 #' @name RRPP-package
 #' @docType package
 #' @aliases RRPP
-#' @title Linear model evaluation with Randomized Residual Permutation Procedures
+#' @title Linear Model Evaluation with Randomized Residual Permutation Procedures
 #' @author Michael Collyer and Dean Adams
 #' @return Key functions for this package:
-#' \item{\code{\link{lm.rrpp}}}{fits linear models, using RRPP}
-#' \item{\code{\link{anova.lm.rrpp}}}{anova on linear models, using RRPP, plus model comparisons}
-#' \item{\code{\link{coef.lm.rrpp}}}{extract coefficients or perform test on coefficients, using RRPP}
-#' \item{\code{\link{predict.lm.rrpp}}}{predict values from lm.rrpp fits and generate boostrapped confidence intervals}
-#' \item{\code{\link{pairwise}}}{perform pairwise tests, based on lm.rrpp model fits}
+#' \item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
+#' \item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, plus model comparisons.}
+#' \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test on coefficients, using RRPP.}
+#' \item{\code{\link{predict.lm.rrpp}}}{Predict values from lm.rrpp fits and generate boostrapped confidence intervals.}
+#' \item{\code{\link{pairwise}}}{Perform pairwise tests, based on lm.rrpp model fits.}
 #' 
 #' @description Functions in this package allow one to evaluate linear models with residual randomization.
 #' The name, "RRPP", is an acronym for, "Randomization of Residuals in a Permutation Procedure."  Through
@@ -24,8 +24,6 @@
 #' @import graphics
 #' @import utils
 
-#' @section RRPP TOC:
-#' RRPP-package
 NULL
 
 
@@ -1000,7 +998,7 @@ cm.U <- function(x){
   out
 }
 
-# beta.lm.iter
+# beta.iter
 # gets appropriate beta vectors for random permutations in lm.rrpp
 # generates distances as statistics for summary
 
@@ -1082,20 +1080,28 @@ beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
     result
   })
-  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
+  
   names(beta.mats) <- names(beta.mat.d) <- trms
-  beta.hyp <- list()
-  beta.hyp[[1]] <- beta.names[[1]]
-  if(k > 1) for(i in 2:k) 
-    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
-  d.stitched <- lapply(1:k, function(j){
-    b <- beta.mat.d[[j]]
-    b <- b[match(beta.hyp[[j]], row.names(b)),]
-    if(is.matrix(b)) t(b) else b
-  })
-  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
-  rownames(d.stitched) <- beta.names[[k]]
-  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
+  
+  if(k == 1) d.stitched <- beta.mat.d[[1]]
+  
+  if(k > 1) {
+    d.stitched <- beta.mat.d[[k]]
+    
+    beta.match <- lapply(1:k, function(j){
+      cr <- colnames(fit$wQRs.reduced[[j]]$qr)
+      cf <- colnames(fit$wQRs.full[[j]]$qr)
+      cf[!(cf %in% cr)]
+    })
+    
+    for(i in 1:(k-1)){
+      beta.check <- beta.match[[i]]
+      d.check <- beta.mat.d[[i]]
+      target <- which(rownames(d.stitched) %in% beta.check)
+      d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
+    }
+  }
+  
   step <- perms + 1
   if(print.progress) {
     setTxtProgressBar(pb,step)
@@ -1182,20 +1188,27 @@ beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) 
     colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
     result
   })
-  beta.names <- lapply(1:length(beta.mats), function(j) rownames(beta.mats[[j]][[1]]))
+  
   names(beta.mats) <- names(beta.mat.d) <- trms
-  beta.hyp <- list()
-  beta.hyp[[1]] <- beta.names[[1]]
-  if(k > 1) for(i in 2:k) 
-    beta.hyp[[i]] <- beta.names[[i]][which(!beta.names[[i]]%in%beta.names[[i-1]])]
-  d.stitched <- lapply(1:k, function(j){
-    b <- beta.mat.d[[j]]
-    b <- b[match(beta.hyp[[j]], row.names(b)),]
-    if(is.matrix(b)) t(b) else b
-  })
-  d.stitched <- t(matrix(unlist(d.stitched), perms, length(beta.names[[k]])))
-  rownames(d.stitched) <- beta.names[[k]]
-  colnames(d.stitched) <- colnames(beta.mat.d[[1]])
+  
+  if(k == 1) d.stitched <- beta.mat.d[[1]]
+  
+  if(k > 1) {
+    d.stitched <- beta.mat.d[[k]]
+    
+    beta.match <- lapply(1:k, function(j){
+      cr <- colnames(fit$wQRs.reduced[[j]]$qr)
+      cf <- colnames(fit$wQRs.full[[j]]$qr)
+      cf[!(cf %in% cr)]
+    })
+    
+    for(i in 1:(k-1)){
+      beta.check <- beta.match[[i]]
+      d.check <- beta.mat.d[[i]]
+      target <- which(rownames(d.stitched) %in% beta.check)
+      d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
+    }
+  }
   out <- list(random.coef = beta.mats,
               random.coef.distances = d.stitched)
   out
