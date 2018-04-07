@@ -10,6 +10,17 @@ Functions in this package allow one to evaluate linear models with residual rand
 The name, "RRPP", is an acronym for, "Randomization of Residuals in a Permutation Procedure."  Through
 the various functions in this package, one can use randomization of residuals to generate empirical probability
 distributions for linear model effects, for high-dimensional data or distance matrices.
+
+An especially useful option of this package is to fit models with either ordinary or generalized
+least squares estimation (OLS or GLS, repsectively), using theoretic covariance matrices.  Mixed linear
+effects can also be evaluated.
+
+Key functions for this package:
+\code{\link{lm.rrpp}}: fits linear models, using RRPP
+\code{\link{anova.lm.rrpp}}: anova on linear models, using RRPP, plus model comparisons
+\code{\link{coef.lm.rrpp}}: extract coefficients or perform test on coefficients, using RRPP
+\code{\link{predict.lm.rrpp}}: predict values from lm.rrpp fits and generate boostrapped confidence intervals
+\code{\link{pairwise}}: perform pairwise tests, based on lm.rrpp model fits.
 }
 \section{RRPP TOC}{
 

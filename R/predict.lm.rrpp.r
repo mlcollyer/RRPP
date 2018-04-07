@@ -1,7 +1,9 @@
 #' predict for lm.rrpp model fits
 #'
 #' @description Computes predicted values from an \code{\link{lm.rrpp}} model fit, using bootstrapped residuals
-#' to generate confidence intervals.  The bootstrap permutations use the same number of iterations and seed as used
+#' to generate confidence intervals.  (Residuals are the residuals of the lm.rppp fit, not its null model.  The bootstrap
+#' procedure resamples residual vectors with replacement.)
+#' The bootstrap permutations use the same number of iterations and seed as used
 #' in the \code{\link{lm.rrpp}} model fit. A \code{\link{predict.lm.rrpp}} object can be plotted using various options.
 #' See \code{\link{plot.predict.lm.rrpp}}.
 #'

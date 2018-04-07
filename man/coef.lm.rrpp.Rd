@@ -26,6 +26,10 @@ in location in the data space associated with a one unit change in the model des
 described.  Random coefficients are based on either RRPP or FRPP, as defined by the 
 \code{\link{lm.rrpp}} model fit.  If RRPP is used, all distributions of coefficient vector distances are 
 based on appropriate null models as defined by SS type.
+
+This function can be used to test the specific coefficients of an lm.rrpp fit.  The test
+statistics are the distances (d), which are also standardized (Z-scores).  The Z-scores might be easier to compare,
+as the expected values for random distances can vary among coefficient vectors (Adams and Collyer 2016).
 }
 \examples{
 # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction

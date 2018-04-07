@@ -8,6 +8,10 @@
 #' described.  Random coefficients are based on either RRPP or FRPP, as defined by the 
 #' \code{\link{lm.rrpp}} model fit.  If RRPP is used, all distributions of coefficient vector distances are 
 #' based on appropriate null models as defined by SS type.
+#' 
+#' This function can be used to test the specific coefficients of an lm.rrpp fit.  The test
+#' statistics are the distances (d), which are also standardized (Z-scores).  The Z-scores might be easier to compare,
+#' as the expected values for random distances can vary among coefficient vectors (Adams and Collyer 2016).
 #'
 #' @param object Object from \code{\link{lm.rrpp}}
 #' @param test Logical argument that if TRUE, performs hypothesis tests (Null hypothesis is vector distance = 0)
@@ -49,12 +53,12 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
       PV <- apply(rd, 1, pval)
       Z <- apply(rd, 1, effect.size)
       ucl <- apply(rd, 1, function(x) quantile(x, confidence))
-      stat.tab <- data.frame(d.obs = rd[,1], ucl=ucl, Z=Z, P=PV)
+      stat.tab <- data.frame(d.obs = rd[,1], ucl=ucl, Zd=Z, P=PV)
     } else {
       PV <- pval(rd)
       Z <- pval(rd)
       ucl <- quantile(rd, confidence)
-      stat.tab <- data.frame(d.obs = rd[1],  ucl=ucl, Z=Z, P=PV)
+      stat.tab <- data.frame(d.obs = rd[1],  ucl=ucl, Zd=Z, P=PV)
     }
     
     colnames(stat.tab)[2] <- paste("UCL (", confidence*100,"%)", sep = "")

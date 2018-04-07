@@ -79,12 +79,16 @@ results (coefficients, fitted values, residuals, etc.), random sums of squares (
 and other parameters for performing ANOVA and other hypothesis tests, using
 empirically-derived probability distributions.
 
-\code{lm.rrpp} emphasizes estimation of effect sizes with standard deviates of observed statistics
+\code{lm.rrpp} emphasizes estimation of standard deviates of observed statistics as effect sizes
 from distributions of random outcomes.  When performing ANOVA, using the \code{\link{anova}} function,
 the effect type (statistic choice) can be varied.  See \code{\link{anova.lm.rrpp}} for more details.  Please
 recognize that the type of SS must be chosen prior to running \code{lm.rrpp} and not when applying \code{\link{anova}}
 to the \code{lm.rrpp} fit, as design matrices for the linear model must be created first.  Therefore, SS.type
 is an argument for \code{lm.rrpp} and effect.type is an argument for \code{\link{anova.lm.rrpp}}.
+
+The \code{\link{coef.lm.rrpp}} function can be used to test the specific coefficients of an lm.rrpp fit.  The test
+statistics are the distances (d), which are also standardized (Z-scores).  The Z-scores might be easier to compare,
+as the expected values for random distances can vary among coefficient vectors (Adams and Collyer 2016).
 }
 \examples{
 
