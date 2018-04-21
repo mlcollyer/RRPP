@@ -38,7 +38,7 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   x <- object
   rc <- x$LM$random.coef
   rd <- x$LM$random.coef.distances
-  n <- x$LM$n; p <- x$LM$p
+  n <- x$LM$n; p <- x$LM$p; p.prime = x$LM$p.prime
   model.terms <- x$LM$Terms
   k <- length(x$LM$term.labels)
   coef.obs <- rc[[k]][[1]]
@@ -66,7 +66,7 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
     out <- list(coef.obs = coef.obs,
                 random.coef = rc,
                 random.distances = rd,
-                n = n, p=p, k.terms = k, confidence = confidence,
+                n = n, p=p, p.prime=p.prime, k.terms = k, confidence = confidence,
                 model.terms = model.terms, nperms = perms,
                 RRPP = RRPP, gls=gls, SS.type = SS.type,
                 stat.table = stat.tab, test = test)

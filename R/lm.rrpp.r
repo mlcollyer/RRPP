@@ -59,7 +59,8 @@
 #' @return An object of class \code{lm.rrpp} is a list containing the following
 #' \item{call}{The matched call.}
 #' \item{LM}{Linear Model objects, including data (Y), coefficients, design matrix (X), sample size
-#' (n), number of dependent variables (p), QR decomposition of the design matrix, fitted values, residuals,
+#' (n), number of dependent variables (p), dimension of data space (p.prime),
+#' QR decomposition of the design matrix, fitted values, residuals,
 #' weights, offset, model terms, model frame (data), random coefficients (through permutations),
 #' random vector distances for coefficients (through permutations), and whether OLS or GLS was performed}
 #' \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,
@@ -258,12 +259,12 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     setTxtProgressBar(pb,step)
   }
   dimsY <- dim(as.matrix(fit.o$Y))
-  n <- dimsY[1]; p <- dimsY[2]
+  n <- dimsY[1]; p <- p.prime <- dimsY[2]
   if(p > n){
     fit <- rrpp.fit(f1, data = data, keep.order = ko, pca = TRUE, SS.type = SS.type, ...)
     Y <- as.matrix(fit$Y)
     dimsY <- dim(Y)
-    n <- dimsY[1]; p <- dimsY[2]
+    n <- dimsY[1]; p.prime <- dimsY[2]
   } else {
     fit <- fit.o
     Y <- as.matrix(fit$Y)
@@ -308,7 +309,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       } else SS <- do.call(SS.iter, SS.args)
     ANOVA <- anova.parts(fit, SS)
     LM <- list(coefficients = fit.o$wCoefficients.full[[k]],
-               Y = fit.o$Y,  X = fit.o$X, n = n, p = p,
+               Y = fit.o$Y,  X = fit.o$X, n = n, p = p, p.prime = p.prime,
                QR = fit.o$QRs.full[[k]],
                fitted = fit.o$fitted.full[[k]],
                residuals = fit.o$residuals.full[[k]],
@@ -352,7 +353,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     SSY <- SS[1]
     df <- n - fit$wQRs.full[[1]]$rank
     LM <- list(coefficients=fit$wCoefficients.full[[1]],
-               Y=fit$Y,  X=fit$X, n = n, p = p,
+               Y=fit$Y,  X=fit$X, n = n, p = p, p = p.prime,
                QR = fit.o$QRs.full[[1]], fitted = fit$fitted.full[[1]],
                residuals = fit$residuals.full[[1]],
                weights = fit$weights, offset = fit$offset,

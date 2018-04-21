@@ -5,7 +5,8 @@
 \title{Print/Summary Function for RRPP}
 \usage{
 \method{summary}{pairwise}(object, stat.table = TRUE, test.type = c("dist",
-  "VC"), angle.type = c("rad", "deg"), confidence = 0.95, ...)
+  "VC"), angle.type = c("rad", "deg"), confidence = 0.95,
+  show.vectors = FALSE, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{pairwise}}}
@@ -18,6 +19,8 @@
 \item{angle.type}{If test.type = "VC", whether angle results are expressed in radians or degrees.}
 
 \item{confidence}{Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)}
+
+\item{show.vectors}{Logical value to indicate whether vectors should be printed.}
 
 \item{...}{Other arguments passed onto predict.lm.rrpp}
 }

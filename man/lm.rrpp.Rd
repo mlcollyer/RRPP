@@ -47,7 +47,8 @@ platforms will automatically default to a single-core application of this functi
 An object of class \code{lm.rrpp} is a list containing the following
 \item{call}{The matched call.}
 \item{LM}{Linear Model objects, including data (Y), coefficients, design matrix (X), sample size
-(n), number of dependent variables (p), QR decomposition of the design matrix, fitted values, residuals,
+(n), number of dependent variables (p), dimension of data space (p.prime),
+QR decomposition of the design matrix, fitted values, residuals,
 weights, offset, model terms, model frame (data), random coefficients (through permutations),
 random vector distances for coefficients (through permutations), and whether OLS or GLS was performed}
 \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,

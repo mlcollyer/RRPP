@@ -587,7 +587,7 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
         names(dat) <- tl
         dat <- as.data.frame(dat)
     }
-    if(pca) d$Y <- prcomp(d$Y)$x
+    if(pca) d$Y <- prcomp(d$Y, tol = sqrt(.Machine$double.eps))$x
     dat$Y <- d$Y
     pdf.args <- list(data=dat,
                      x = model.matrix(Terms, data = dat),

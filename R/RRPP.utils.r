@@ -16,6 +16,7 @@ print.lm.rrpp <- function(x, ...){
     dv <- " "
   cat(paste("\nNumber of observations:", LM$n))
   cat(paste("\nNumber of dependent variables:", LM$p, dv))
+  cat(paste("\nData space dimensions:", LM$p.prime, dv))
   if(!is.null(AN$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", AN$SS.type))
   if(!is.null(PI)) cat(paste("\nNumber of permutations:", PI$perms))
   cat("\nCall: ")
@@ -42,6 +43,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   dv <- LM$dist.coefficients
   n <- LM$n
   p <- LM$p
+  p.prime <- LM$p.prime
   SS <- AN$SS
   SS.type <- AN$SS.type
   k <- length(LM$term.labels)
@@ -88,7 +90,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
   names(SSCP) <- LM$term.labels
   SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[length(RF)]]))))
-  out <- list(table = tab, SSCP = SSCP, n = n, p = p, k = k, 
+  out <- list(table = tab, SSCP = SSCP, n = n, p = p, p.prime = p.prime, k = k, 
               perms = perms, dv = dv, SS = SS, SS.type = SS.type)
   class(out) <- "summary.lm.rrpp"
   out
@@ -108,6 +110,7 @@ print.summary.lm.rrpp <- function(x, ...) {
   if(!is.null(x$dv)) dv <- "(dimensions of data after PCoA of distance matrix)" else
     dv <- " "
   cat(paste("\nNumber of dependent variables:", x$p, dv))
+  cat(paste("\nData space dimensions:", x$p.prime, dv))
   if(!is.null(x$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
   cat(paste("\nNumber of permutations:", x$perms))
   cat("\n\nFull Model Analysis of Variance\n\n")
@@ -127,6 +130,7 @@ print.coef.lm.rrpp <- function(x, ...){
   cat("\nLinear Model fit with lm.rrpp\n")
   cat(paste("\nNumber of observations:", x$n))
   cat(paste("\nNumber of dependent variables:", x$p))
+  cat(paste("\nData space dimensions:", x$p.prime))
   cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
   cat(paste("\nNumber of permutations:", x$nperms))
   if(!x$test) {
@@ -675,6 +679,7 @@ print.pairwise <- function(x, ...){
 #' @param test.type Whether distances or vector correlations between vectors should be used.
 #' @param angle.type If test.type = "VC", whether angle results are expressed in radians or degrees.
 #' @param confidence Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)
+#' @param show.vectors Logical value to indicate whether vectors should be printed.
 #' @param ... Other arguments passed onto predict.lm.rrpp
 #' @export
 #' @author Michael Collyer
@@ -682,7 +687,7 @@ print.pairwise <- function(x, ...){
 summary.pairwise <- function(object, stat.table = TRUE, 
                              test.type = c("dist", "VC"),
                              angle.type = c("rad", "deg"),
-                             confidence = 0.95, ...){
+                             confidence = 0.95, show.vectors = FALSE, ...){
   test.type <- match.arg(test.type)
   angle.type <- match.arg(angle.type)
   x <- object
@@ -693,8 +698,8 @@ summary.pairwise <- function(object, stat.table = TRUE,
   cat("\n")
   
   if(type == "means") {
-    cat("LS means\n")
-    print(x$LS.means[[1]])
+    cat("LS means:\n")
+    if(show.vectors) print(x$LS.means[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
     
     if(test.type == "dist") {
       L <- d.summary.from.list(x$means.dist)
@@ -740,8 +745,8 @@ summary.pairwise <- function(object, stat.table = TRUE,
   }
   
   if(type == "slopes") {
-    cat("Slopes (vectors of variate change per one unit of covariate change, by group)\n")
-    print(x$slopes[[1]])
+    cat("Slopes (vectors of variate change per one unit of covariate change, by group):\n")
+    if(show.vectors) print(x$slopes[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
     
     if(test.type == "dist") {
       cat("\nSlope vector lengths\n")

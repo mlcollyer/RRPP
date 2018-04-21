@@ -54,7 +54,7 @@ anova.lm.rrpp <- function(object, ...,
                            effect.type = effect.type, print.progress = print.progress)
   } else out <- aov.single.model(object, ...,
                           effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
-                          error = NULL)
+                          error = error)
   out
 }
   
