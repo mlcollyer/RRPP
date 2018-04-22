@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{Object from \code{\link{predict.lm.rrpp}}}
 
-\item{PC}{Logical argumnet for whether to use predicted values 
+\item{PC}{Logical argument for whether to use predicted values 
 rotated to their PCs}
 
 \item{...}{Other arguments passed onto predict.lm.rrpp}

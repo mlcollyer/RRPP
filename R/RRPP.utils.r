@@ -165,7 +165,7 @@ summary.coef.lm.rrpp <- function(object, ...){
 #' Print/Summary Function for RRPP
 #'
 #' @param x Object from \code{\link{predict.lm.rrpp}}
-#' @param PC Logical argumnet for whether to use predicted values 
+#' @param PC Logical argument for whether to use predicted values 
 #' rotated to their PCs
 #' @param ... Other arguments passed onto predict.lm.rrpp
 #' @export

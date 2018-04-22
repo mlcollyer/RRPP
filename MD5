@@ -18,7 +18,7 @@ b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
 1354129612f4c784fabcfb8a081e11d5 *man/print.coef.lm.rrpp.Rd
 3aff928928deb0f0d62d68d0f262a44b *man/print.lm.rrpp.Rd
 3081e2f8ef7f3fefb6c317fcecefcae6 *man/print.pairwise.Rd
-8b8eff9f3a36f67ca5c85dad2b185185 *man/print.predict.lm.rrpp.Rd
+9fbe301422c10eae052693a38d2ceb7e *man/print.predict.lm.rrpp.Rd
 dee2473a6f8021b7f361ddffbb69eed6 *man/print.summary.lm.rrpp.Rd
 b359f4a0c6a15c72d1529aae59167da8 *man/Pupfish.Rd
 9775958c42dbaf2536f7f0a444191cef *man/PupfishHeads.Rd
@@ -38,7 +38,7 @@ f9526dd7d40559ea574ef2006b660640 *R/anova.lm.rrpp.r
 52d3365efab07f1d11550e25a93baf5a *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
 cd3e20bc114cb5ad4b65bc77842608c2 *R/RRPP.support.code.r
-978a39b51fc8aa0aa7f2ed7772b57866 *R/RRPP.utils.r
+f0fa07e693145e8f4a47c9cfdb00e0b6 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 1961b3c225938fc972ec2e26c37a43c7 *vignettes/Collyer.Adams.2018.MEE.Appendix.S2.Rmd
