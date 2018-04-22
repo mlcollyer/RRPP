@@ -20,7 +20,7 @@
 #' be summarized with the \code{\link{summary.pairwise}} function.  The \code{\link{summary.pairwise}} function will allow one
 #' to select between distance or vector correlation tests, whether angles are measured in radians or degrees, and the level of
 #' confidence for the test.  Confidence limits are inherently one-tailed as
-#' the statistics are similar to absolute values.  For example, a distance is analagous to an absolute difference.  Therefore,
+#' the statistics are similar to absolute values.  For example, a distance is analogous to an absolute difference.  Therefore,
 #' the one-tailed confidence limits are more akin to two-tailed hypothesis tests.  (A comparable example is to use the absolute 
 #' value of a t-statistic, in which case the distribution has a lower bound of 0.)
 #' 
@@ -36,10 +36,10 @@
 #' @param groups A factor or vector that is coercible into a factor, describing the levels of
 #' the groups for which to find LS means or slopes.  Normally this factor would be part of the 
 #' model fit, but it is not necessary for that to be the case in order to obtain results.
-#' @param covariate A numeric vector for which to calculate slopes for comaprison.  If NULL, 
+#' @param covariate A numeric vector for which to calculate slopes for comparison  If NULL, 
 #' LS means will be calculated instead of slopes.  Normally this variable would be part of the 
 #' model fit, but it is not necessary for that to be the case in order to obtain results.
-#' @param print.progress If a null model fit is providdd, a logical value to indicate whether analytical 
+#' @param print.progress If a null model fit is provided, a logical value to indicate whether analytical 
 #' results progress should be printed on screen.  Unless large data sets are analyzed, this argument 
 #' is probably not helpful.
 #' @keywords analysis
@@ -47,7 +47,7 @@
 #' @author Michael Collyer
 #' @return An object of class \code{pairwise} is a list containing the following
 #' \item{LS.means}{LS means for groups, across permutations.}
-#' \item{slopes}{Slopes for grousp, across permutations.}
+#' \item{slopes}{Slopes for groups, across permutations.}
 #' \item{means.dist}{Pairwise distances between means, across permutations.}
 #' \item{means.vec.cor}{Pairwise vector correlations between means, across permutations.}
 #' \item{slopes.lengths}{Slope lengths, by group, across permutations.}
@@ -55,7 +55,7 @@
 #' \item{slopes.vec.cor}{Pairwise vector correlations between slope vectors, across permutations.}
 #' \item{n}{Sample size}
 #' \item{p}{Data dimensions; i.e., variable number}
-#' \item{PermInfo}{Information for random permutations, passed on from lm.rrpp fit and possbily
+#' \item{PermInfo}{Information for random permutations, passed on from lm.rrpp fit and possibly
 #' modified if an alternative null model was used.}
 #' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described
 #' by high-dimensional data. Heredity. 115:357-365.

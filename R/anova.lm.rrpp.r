@@ -4,7 +4,7 @@
 #' statistics from \code{\link{lm.rrpp}}.  ANOVA can be performed on one model or multiple models.  
 #' If the latter, the first model is considered a null model for comparison to other models.  The ANOVA is 
 #' functionally similar to a non-parametric likelihood ratio test for all null-full model comparisons
-#' Residuals from the null model will be used to generate random pseudovalues via RRPP for evlauation of subsequent models.
+#' Residuals from the null model will be used to generate random pseudovalues via RRPP for evaluation of subsequent models.
 #' The permutation schedule from the null model will be used for random permutations.
 #' This function does not correct for improper null models.  One must assure that the null model is nested
 #' within the other models.  Illogical results can be generated if this is not the case.

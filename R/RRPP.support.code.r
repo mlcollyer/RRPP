@@ -16,7 +16,7 @@
 #' distributions for linear model effects, for high-dimensional data or distance matrices.
 #' 
 #' An especially useful option of this package is to fit models with either ordinary or generalized
-#' least squares estimation (OLS or GLS, repsectively), using theoretic covariance matrices.  Mixed linear
+#' least squares estimation (OLS or GLS, respectively), using theoretic covariance matrices.  Mixed linear
 #' effects can also be evaluated.
 #' 
 #' @import parallel
