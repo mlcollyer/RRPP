@@ -2,12 +2,7 @@
 title: "RRPP: An R package for fitting linear models to high-dimensional data using residual randomization"
 author: "Michael L. Collyer & Dean C. Adams"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Using RRPP}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-  
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -246,6 +241,7 @@ plot(predict(fitOLSm, sizeDF), PC= TRUE) # Correlated error
 plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
 
 ```
+
 ******
 
 ***Analytical Summary***
@@ -259,7 +255,7 @@ attributes(fit)
 
 Within the `$LM` partition, all attributes of the lm function are found, in addition to coefficients for every random permutation.  Within the `$ANOVA` partition, the SS type, plus `SS`, `MS`, `R`^2^, `F`, and Cohen's `f`^2^ for all permutations, as well as effect sizes estimated for each of these are provided.  Within the `$PermInfo` partition, the number of permutations, type (RRPP or randomization of "full" data values, FRPP), and sampling frame in every permutation (schedule) are provided.  Thus, lm.rrpp is the workhorse that makes all downstream analysis efficient.
 
-*******
+******
 
 ***References***
 

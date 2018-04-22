@@ -2,12 +2,7 @@
 title: "RRPP: An R package for fitting linear models to high-dimensional data using residual randomization"
 author: "Michael L. Collyer & Dean C. Adams"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Using RRPP}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-  
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
