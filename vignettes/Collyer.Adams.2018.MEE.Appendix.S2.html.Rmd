@@ -260,7 +260,7 @@ Within the `$LM` partition, all attributes of the lm function are found, in addi
 
 Adams, D. C., & Collyer, M. L. (2018). Multivariate phylogenetic comparative methods: Evalutions, comparisons, and recommendations. Systematic Biology, 67, 14–31.
 
-Adams, D. C., Collyer, M. L., Kaliontzopoulou, A., & Sherratt, E. (2017). Geomorph: Software for geometric morphometric analyses. R package version 3.0.6. http://CRAN.R-project.org/package=geomorph.
+Adams, D. C., Collyer, M. L., Kaliontzopoulou, A., & Sherratt, E. (2017). Geomorph: Software for geometric morphometric analyses. R package version 3.0.6. 
 
 Adams, D. C., Rohlf, F. J., & Slice, D. E. 2013. A field comes of age: Geometric morphometrics in the 21st century. Hystrix, 24, 7–14.
 
