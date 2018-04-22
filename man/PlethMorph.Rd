@@ -17,7 +17,7 @@ described in Adams and Collyer (2018).
 }
 \references{
 Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
-challenges, and a refined permutation procedure. Evolution. Submitted.
+challenges, and a refined permutation procedure. Evolution. In press.
 }
 \author{
 Michael Collyer and Dean Adams

@@ -59,6 +59,8 @@
 #' modified if an alternative null model was used.}
 #' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described
 #' by high-dimensional data. Heredity. 115:357-365.
+#' @references Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
+#' challenges, and a refined permutation procedure. Evolution. In press.
 #' @seealso \code{advanced.procD.lm} within \code{geomorph}; \code{\link{lm.rrpp}} for model fits
 #' @examples 
 #' 

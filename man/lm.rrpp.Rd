@@ -251,6 +251,9 @@ by high-dimensional data. Heredity. 115:357-365.
 
 Adams, D.C. and M.L. Collyer. 2016.  On the comparison of the strength of morphological integration across morphometric
 datasets. Evolution. 70:2623-2631.
+
+Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
+challenges, and a refined permutation procedure. Evolution. In press.
 }
 \seealso{
 \code{procD.lm} and \code{procD.pgls} within \code{geomorph}; \code{\link[stats]{lm}} for more on linear model fits.
