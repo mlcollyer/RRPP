@@ -32,12 +32,12 @@ fc71444e7da0eb06a4fc73990ba915d6 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 d7284e96fa6b79361dacceaa6ad0397a *NAMESPACE
 b4b96e17839bbbd7d72652afd3d59427 *NEWS
-f9526dd7d40559ea574ef2006b660640 *R/anova.lm.rrpp.r
+a21dc91ddd9f0839b0c3420f1c6c858a *R/anova.lm.rrpp.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
-3693977ac28ad668324d6ef8e5ef0a9a *R/lm.rrpp.r
+dcf50d4c886d1ad33910eaced4d8ed63 *R/lm.rrpp.r
 52d3365efab07f1d11550e25a93baf5a *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
-c23f3eda96d112bcae8b1e75f1a7dbda *R/RRPP.support.code.r
+9db371142caeeef82d724e9b0021a5f6 *R/RRPP.support.code.r
 f0fa07e693145e8f4a47c9cfdb00e0b6 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

@@ -1349,7 +1349,7 @@ aov.single.model <- function(object, ...,
   df <- x$df
   k <- length(df)-2
   SS <- x$SS
-  MS <- x$MS    
+  MS <- x$MS 
   perms <- object$PermInfo$perms
   pm <- object$PermInfo$perm.method
   
@@ -1361,7 +1361,7 @@ aov.single.model <- function(object, ...,
     MSEmatch <- match(error, trms)
     if(any(is.na(MSEmatch))) stop("At least one of the error terms is not an ANOVA term")
   } else MSEmatch <- NULL
-  if(length(SS) > 1) {
+  if(NROW(SS) > 1) {
     Fs <- x$Fs
     
     if(!is.null(MSEmatch)){
@@ -1397,20 +1397,23 @@ aov.single.model <- function(object, ...,
     if(effect.type == "cohenf") Z <- x$cohenf
     if(effect.type == "Rsq") effect.type = "R-squared"
     if(effect.type == "cohenf") effect.type = "Cohen's f-squared"
-    if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
     Fs <- Fs[,1]
     SS <- SS[,1]
     MS <- MS[,1]
     MS[length(MS)] <- NA
     Rsq <- x$Rsq
     cohenf <- x$cohenf
-    P.val <- apply(Z, 1, pval)
-    Z <- apply(log(Z), 1, effect.size)
-    P.val[-(1:k)] <- NA
-    Z[-(1:k)] <- NA
-    Rsq <- Rsq[,1]
-    Rsq[length(Rsq)] <- NA
-    tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F=Fs, Z=Z, P.val=P.val)
+    if(!is.null(Z)) {
+      if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
+      P.val <- apply(Z, 1, pval) 
+      Z <- apply(log(Z), 1, effect.size)
+      P.val[-(1:k)] <- NA
+      Z[-(1:k)] <- NA
+      Rsq <- Rsq[,1]
+      Rsq[length(Rsq)] <- NA
+      } else P.val <- NULL
+
+    tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F = Fs, P.val = P.val)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
     SS.type <- x$SS.type
@@ -1420,10 +1423,10 @@ aov.single.model <- function(object, ...,
                 call = object$call)
     
       } else {
-        Residuals <- c(df, SS, MS)
-        names(Residuals) <- c("Df", "SS", "MS")
-        tab <- as.data.frame(Residuals)
+        tab <- data.frame(df = df, SS = SS[[1]], MS = MS[[1]])
+        rownames(tab) <- c("Residuals")
         class(tab) = c("anova", class(tab))
+        if(object$LM$gls) est <-"GLS" else est <- "OLS"
         out <- list(table = tab, perm.method = pm, perm.number = perms,
                     est.method = est, SS.type = NULL, effect.type = NULL,
                     call = object$call)
@@ -1447,18 +1450,18 @@ aov.multi.model <- function(object, lm.list,
   ind <- refModel$PermInfo$perm.schedule
   perms <- length(ind)
   
-  X <- refModel$LM$X * sqrt(refModel$LM$weights)
+  X <- as.matrix(refModel$LM$X * sqrt(refModel$LM$weights))
   B <- refModel$LM$coefficients
   Y <- refModel$LM$Y
-  U <- qr.Q(qr(X))
+  U <- as.matrix(qr.Q(qr(X)))
   n <- refModel$LM$n
   p <- refModel$LM$p
   if(refModel$LM$gls) {
     P <- refModel$LM$Pcov
     B <- refModel$LM$gls.coefficients
-    X <- crossprod(P, X)
+    X <- as.matrix(crossprod(P, X))
     Y <- crossprod(P, Y)
-    U <- qr.Q(qr(X))
+    U <- as.matrix(qr.Q(qr(X)))
   }
   Yh <- X %*% B
   R <- Y - Yh
@@ -1525,7 +1528,7 @@ aov.multi.model <- function(object, lm.list,
     int <- crossprod(refModel$LM$Pcov, rep(int, n))
   } else int <- rep(int, n)
   
-  U0 <- qr.Q(qr(int * sqrt(refModel$LM$weights)))
+  U0 <- as.matrix(qr.Q(qr(int * sqrt(refModel$LM$weights))))
   yh0 <- fastFit(U0, Y, n, p)
   r0 <- Y - yh0
   SSY <- sapply(1:perms, function(j){
@@ -1592,6 +1595,7 @@ aov.multi.model <- function(object, lm.list,
   
   out <- list(table = tab, perm.method = pm, perm.number = perms,
               est.method = est, SS.type = NULL, effect.type = effect.type,
+              SS = SS[NROW(SS),], F = Fs[NROW(Fs),],
               call = object$call)
   
 class(out) <- "anova.lm.rrpp"

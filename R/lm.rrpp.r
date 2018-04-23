@@ -354,8 +354,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     }
     SSY <- SS[1]
     df <- n - fit$wQRs.full[[1]]$rank
-    LM <- list(coefficients=fit$wCoefficients.full[[1]],
-               Y=fit$Y,  X=fit$X, n = n, p = p, p = p.prime,
+    LM <- list(coefficients=fit.o$wCoefficients.full[[1]],
+               Y=fit$Y,  X=fit$X, n = n, p = p, p.prime = p.prime,
                QR = fit.o$QRs.full[[1]], fitted = fit$fitted.full[[1]],
                residuals = fit$residuals.full[[1]],
                weights = fit$weights, offset = fit$offset,
