@@ -17,7 +17,8 @@
 #' See \code{\link{lm.rrpp}} for examples.
 #' @param print.progress A logical argument if multiple models are used and one wishes to view progress
 #' for sums of squares (SS) calculations.
-#' @export
+#' @export anova.lm.rrpp
+#' @method anova lm.rrpp
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 

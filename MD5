@@ -30,11 +30,11 @@ ad97e4ce6e14cb92ac228d0f798d7717 *man/summary.coef.lm.rrpp.Rd
 beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 fc71444e7da0eb06a4fc73990ba915d6 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
-d7284e96fa6b79361dacceaa6ad0397a *NAMESPACE
+1f4a2ac3e547fd2c392bb46fdc008d67 *NAMESPACE
 b4b96e17839bbbd7d72652afd3d59427 *NEWS
-a21dc91ddd9f0839b0c3420f1c6c858a *R/anova.lm.rrpp.r
+6e69e25b1f3cf1d315afa936f87b4d02 *R/anova.lm.rrpp.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
-e096e2a4c1f4b395dcd170955e7d2f1c *R/lm.rrpp.r
+2c3cf7a925b48284ca37fd8b24740283 *R/lm.rrpp.r
 52d3365efab07f1d11550e25a93baf5a *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
 9db371142caeeef82d724e9b0021a5f6 *R/RRPP.support.code.r
