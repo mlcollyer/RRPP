@@ -344,26 +344,26 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   {
     if(print.progress) cat("\n No terms for ANOVA; only RSS calculated in each permutation\n")
     if(!is.null(Cov)){
-      betas <- beta.iter.null(fit,  P = Pcov, ind = ind,  
+      betas <- beta.iter.null(fit.o,  P = Pcov, ind = ind,  
                               RRPP = RRPP, print.progress = print.progress)
       SS <- SS.iter.null(fit,  P = Pcov, ind = ind,  
                          RRPP = RRPP, print.progress = print.progress)
     }  else {
-      betas <- beta.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
+      betas <- beta.iter.null(fit.o, ind = ind, RRPP=RRPP, print.progress = print.progress)
       SS <- SS.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
     }
     SSY <- SS[1]
     df <- n - fit$wQRs.full[[1]]$rank
     LM <- list(coefficients=fit.o$wCoefficients.full[[1]],
                Y=fit$Y,  X=fit$X, n = n, p = p, p.prime = p.prime,
-               QR = fit.o$QRs.full[[1]], fitted = fit$fitted.full[[1]],
-               residuals = fit$residuals.full[[1]],
-               weights = fit$weights, offset = fit$offset,
+               QR = fit.o$QRs.full[[1]], fitted = fit.o$fitted.full[[1]],
+               residuals = fit.o$residuals.full[[1]],
+               weights = fit.o$weights, offset = fit.o$offset,
                wQR = fit.o$wQRs.full[[1]],
                wFitted = fit.o$wFitted.full[[1]],
                wResiduals = fit.o$wResiduals.full[[1]],
-               Terms = fit$Terms,
-               term.labels = fit$term.labels, 
+               Terms = fit.o$Terms,
+               term.labels = fit.o$term.labels, 
                data = fit.o$data, 
                random.coef = betas$random.coef,
                random.coef.distances = betas$random.coef.distances,

@@ -34,7 +34,7 @@ d7284e96fa6b79361dacceaa6ad0397a *NAMESPACE
 b4b96e17839bbbd7d72652afd3d59427 *NEWS
 a21dc91ddd9f0839b0c3420f1c6c858a *R/anova.lm.rrpp.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
-dcf50d4c886d1ad33910eaced4d8ed63 *R/lm.rrpp.r
+e096e2a4c1f4b395dcd170955e7d2f1c *R/lm.rrpp.r
 52d3365efab07f1d11550e25a93baf5a *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
 9db371142caeeef82d724e9b0021a5f6 *R/RRPP.support.code.r
