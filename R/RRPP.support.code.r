@@ -1641,7 +1641,7 @@ getLSmeans <- function(fit, g){
   beta <- fit$LM$random.coef[[k]]
   dat <- fit$LM$data
   covCheck <- sapply(dat, class)
-  for(i in 1:k) if(covCheck[i] == "numeric") dat[[i]] <- mean(dat[[i]])
+  for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") dat[[i]] <- mean(dat[[i]])
   L <- model.matrix(fit$LM$Terms, data = dat)
   L <- L[, colnames(L)  %in% rownames(beta[[1]])]
   getFitted <- function(b) L %*% b
