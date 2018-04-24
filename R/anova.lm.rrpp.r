@@ -19,7 +19,6 @@
 #' for sums of squares (SS) calculations.
 #' @export anova.lm.rrpp
 #' @export
-#' @method anova lm.rrpp
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 

@@ -32,7 +32,7 @@ fc71444e7da0eb06a4fc73990ba915d6 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 a6bec9968f5ea9aed278dcdf9809eac1 *NAMESPACE
 b4b96e17839bbbd7d72652afd3d59427 *NEWS
-da1dc9e4fbcc59eab94bb0d712228b9b *R/anova.lm.rrpp.r
+262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
 2c3cf7a925b48284ca37fd8b24740283 *R/lm.rrpp.r
 52d3365efab07f1d11550e25a93baf5a *R/pairwise.r
