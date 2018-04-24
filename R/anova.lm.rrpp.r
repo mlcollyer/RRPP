@@ -18,6 +18,7 @@
 #' @param print.progress A logical argument if multiple models are used and one wishes to view progress
 #' for sums of squares (SS) calculations.
 #' @export anova.lm.rrpp
+#' @export
 #' @method anova lm.rrpp
 #' @author Michael Collyer
 #' @keywords utilities
