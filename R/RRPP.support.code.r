@@ -1486,6 +1486,13 @@ aov.multi.model <- function(object, lm.list,
     cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
+  
+
+  int <- attr(refModel$LM$Terms, "intercept")
+  if(refModel$LM$gls) {
+    int <- crossprod(refModel$LM$Pcov, rep(int, n))
+  } else int <- rep(int, n)
+  
   U0 <- as.matrix(qr.Q(qr(int * sqrt(refModel$LM$weights))))
   yh0 <- fastFit(U0, Y, n, p)
   r0 <- Y - yh0
@@ -1528,12 +1535,7 @@ aov.multi.model <- function(object, lm.list,
   rownames(RSSp) <- rownames(RSSy) <- fit.names
   
   SS <- rep(RSSp[1,], each = K + 1) - RSSp
-  
-  int <- attr(refModel$LM$Terms, "intercept")
-  if(refModel$LM$gls) {
-    int <- crossprod(refModel$LM$Pcov, rep(int, n))
-  } else int <- rep(int, n)
-  
+
   SSY <- sapply(1:perms, function(j){
     y <- yh0 + r0[ind[[j]],]
     sum(y^2) - sum(crossprod(U0, y)^2)
