@@ -1551,18 +1551,23 @@ aov.multi.model <- function(object, lm.list,
   MSE <- RSSy/rep(dfe, perms)
   Fs <- MS/MSE
   
+  SS[which(zapsmall(SS) == 0)] <- 1e-32
+  MS[which(zapsmall(MS) == 0)] <- 1e-32
+  Rsq[which(zapsmall(Rsq) == 0)] <- 1e-32
+  Fs[which(zapsmall(Fs) == 0)] <- 1e-32
+  
   if(effect.type == "SS") {
     Pvals <- apply(SS, 1, pval)
-    Z <- apply(log(SS + 0.0000001), 1, effect.size)
+    Z <- apply(log(SS), 1, effect.size)
   } else   if(effect.type == "MS") {
     Pvals <- apply(MS, 1, pval)
-    Z <- apply(log(MS + 0.0000001), 1, effect.size)
+    Z <- apply(log(MS), 1, effect.size)
   } else   if(effect.type == "Rsq") {
     Pvals <- apply(Rsq, 1, pval)
-    Z <- apply(log(Rsq + 0.0000001), 1, effect.size)
+    Z <- apply(log(Rsq), 1, effect.size)
   } else{
     Pvals <- apply(Fs, 1, pval)
-    Z <- apply(log(Fs + 0.0000001), 1, effect.size)
+    Z <- apply(log(Fs), 1, effect.size)
   }
   SS[1,] <- NA
   MS[1,] <- NA
