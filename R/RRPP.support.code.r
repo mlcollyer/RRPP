@@ -1463,11 +1463,8 @@ aov.multi.model <- function(object, lm.list,
     Y <- crossprod(P, Y)
     U <- as.matrix(qr.Q(qr(X)))
   }
-  fit.lm <- fastLM(U, Y)
-  Yh <- fit.lm$fitted
-  R <- fit.lm$residuals
-  
-  rY <- function(ind.i) Yh + R[ind.i,]
+  Yh <- as.matrix(fastFit(U, Y, n, p))
+  R <- as.matrix(Y) - Yh
   
   K <- length(lm.list)
   Ulist <- lapply(1:K, function(j){
@@ -1486,7 +1483,6 @@ aov.multi.model <- function(object, lm.list,
     cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
-  
 
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
@@ -1494,8 +1490,11 @@ aov.multi.model <- function(object, lm.list,
   } else int <- rep(int, n)
   
   U0 <- as.matrix(qr.Q(qr(int * sqrt(refModel$LM$weights))))
-  yh0 <- fastFit(U0, Y, n, p)
-  r0 <- Y - yh0
+  yh0 <- as.matrix(fastFit(U0, Y, n, p))
+  r0 <- as.matrix(Y) - yh0
+  
+  rY <- function(ind.i) Yh + R[ind.i,]
+  rY0 <- function(ind.i) yh0 + r0[ind.i,]
   
   RSS <- function(ind.i, U, Ul, K, n, p, Y, yh0, r0) {
     y <- as.matrix(rY(ind.i))
@@ -1508,7 +1507,7 @@ aov.multi.model <- function(object, lm.list,
     RSSp <- c(rss0, unlist(rss))
     
     rss <- lapply(1:K, function(j){
-      y <- yh0 + r0[ind[[j]],]
+      y <- as.matrix(rY0(ind.i))
       u <- Ul[[j]]
       sum(y^2) - sum(crossprod(u, y)^2)
     })
@@ -1548,7 +1547,7 @@ aov.multi.model <- function(object, lm.list,
   df[1] <- 1
   
   MS <- SS/rep(df, perms)
-  MSE <- RSSy/rep(dfe, perms)
+  MSE <- RSSy/matrix(rep(dfe, perms), length(dfe), perms)
   Fs <- MS/MSE
   
   SS[which(zapsmall(SS) == 0)] <- 1e-32
@@ -1584,6 +1583,7 @@ aov.multi.model <- function(object, lm.list,
   tab <- data.frame(ResDf = dfe, DF = df, RSS = RSS.obs, SS = SS.obs, MS = MS.obs,
                     Rsq = Rsq.obs, F = F.obs, Z = Z, P = Pvals)
   tab$DF[1] <- NA
+  tab$Rsq <- zapsmall(tab$Rsq, digits = 8)
   tab <-  rbind(tab, c(n-1, NA, SSY[1], NA, NA, NA, NA, NA, NA))
   rownames(tab)[NROW(tab)] <- "Total"
   
