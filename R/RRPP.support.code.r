@@ -1463,8 +1463,9 @@ aov.multi.model <- function(object, lm.list,
     Y <- crossprod(P, Y)
     U <- as.matrix(qr.Q(qr(X)))
   }
-  Yh <- X %*% B
-  R <- Y - Yh
+  fit.lm <- fastLM(U, Y)
+  Yh <- fit.lm$fitted
+  R <- fit.lm$residuals
   
   rY <- function(ind.i) Yh + R[ind.i,]
   
@@ -1485,18 +1486,22 @@ aov.multi.model <- function(object, lm.list,
     cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
+  U0 <- as.matrix(qr.Q(qr(int * sqrt(refModel$LM$weights))))
+  yh0 <- fastFit(U0, Y, n, p)
+  r0 <- Y - yh0
   
-  RSS <- function(ind.i, U, Ul, K, n, p, Y) {
+  RSS <- function(ind.i, U, Ul, K, n, p, Y, yh0, r0) {
     y <- as.matrix(rY(ind.i))
     rss0  <- sum(y^2) - sum(crossprod(U, y)^2)
     rss <- lapply(1:K, function(j){
       u <- Ul[[j]]
       sum(y^2) - sum(crossprod(u, y)^2)
     })
+    
     RSSp <- c(rss0, unlist(rss))
     
-    y <- as.matrix(Y[ind.i,])
     rss <- lapply(1:K, function(j){
+      y <- yh0 + r0[ind[[j]],]
       u <- Ul[[j]]
       sum(y^2) - sum(crossprod(u, y)^2)
     })
@@ -1506,7 +1511,8 @@ aov.multi.model <- function(object, lm.list,
   }
   
   rss.list <- list(ind.i = NULL, U = U, 
-                   Ul = Ulist, K = K, n = n , p = p, Y=Y)
+                   Ul = Ulist, K = K, n = n , p = p, Y = Y,
+                   yh0 = yh0, r0 = r0)
   
   RSSp <- sapply(1:perms, function(j){
     step <- j
@@ -1528,9 +1534,6 @@ aov.multi.model <- function(object, lm.list,
     int <- crossprod(refModel$LM$Pcov, rep(int, n))
   } else int <- rep(int, n)
   
-  U0 <- as.matrix(qr.Q(qr(int * sqrt(refModel$LM$weights))))
-  yh0 <- fastFit(U0, Y, n, p)
-  r0 <- Y - yh0
   SSY <- sapply(1:perms, function(j){
     y <- yh0 + r0[ind[[j]],]
     sum(y^2) - sum(crossprod(U0, y)^2)
