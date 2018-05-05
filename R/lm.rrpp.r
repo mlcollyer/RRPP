@@ -299,6 +299,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       stop("Either one or both of the dimensions of the covariance matrix do not match the number of observations.")
     Pcov <- Cov.proj(Cov, id)
     SS.args$P <- Pcov
+    beta.args$P <- Pcov
   } else Pcov <- NULL 
   if(k > 0){
     if(Parallel) {
