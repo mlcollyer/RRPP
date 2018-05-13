@@ -676,7 +676,8 @@ print.pairwise <- function(x, ...){
 #' @param object Object from \code{\link{pairwise}}
 #' @param stat.table Logical argument for whether results should be returned in one table 
 #' (if TRUE) or separate pairwise tables (if FALSE)
-#' @param test.type Whether distances or vector correlations between vectors should be used.
+#' @param test.type Whether distances or vector correlations between vectors or variances (dispersion of residuals)
+#' should be used in the test.
 #' @param angle.type If test.type = "VC", whether angle results are expressed in radians or degrees.
 #' @param confidence Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)
 #' @param show.vectors Logical value to indicate whether vectors should be printed.
@@ -685,17 +686,45 @@ print.pairwise <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 summary.pairwise <- function(object, stat.table = TRUE, 
-                             test.type = c("dist", "VC"),
+                             test.type = c("dist", "VC", "var"),
                              angle.type = c("rad", "deg"),
                              confidence = 0.95, show.vectors = FALSE, ...){
   test.type <- match.arg(test.type)
   angle.type <- match.arg(angle.type)
   x <- object
-  if(is.null(x$LS.means)) type = "slopes"
-  if(is.null(x$slopes)) type = "means"
+  if(test.type != "var") {
+    if(is.null(x$LS.means)) type = "slopes"
+    if(is.null(x$slopes)) type = "means"
+  } else type <- "var"
  
   print.pairwise(x)
   cat("\n")
+  
+  vars <- object$vars
+  if(type == "var") {
+    var.diff <- lapply(1:NCOL(vars), function(j){
+      v <- as.matrix(vars[,j])
+      as.matrix(dist(v))
+    })
+    L <- d.summary.from.list(var.diff)
+    cat("\nObserved variances by group\n\n")
+    print(vars[,1])
+    
+    if(stat.table) {
+      tab <- makePWDTable(L)
+      cat("\nPairwise distances between variances, plus statistics\n")
+      print(tab)
+    } else {
+      cat("\nPairwise distances between variances\n")
+      print(L$D)
+      cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits between variances\n")
+      print(L$CL)
+      cat("\nPairwise effect sizes (Z) between variances\n")
+      print(L$Z)
+      cat("\nPairwise P-values between variances\n")
+      print(L$P)
+    }
+  }
   
   if(type == "means") {
     cat("LS means:\n")

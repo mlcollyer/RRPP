@@ -64,7 +64,10 @@ to select between distance or vector correlation tests, whether angles are measu
 confidence for the test.  Confidence limits are inherently one-tailed as
 the statistics are similar to absolute values.  For example, a distance is analogous to an absolute difference.  Therefore,
 the one-tailed confidence limits are more akin to two-tailed hypothesis tests.  (A comparable example is to use the absolute 
-value of a t-statistic, in which case the distribution has a lower bound of 0.)
+value of a t-statistic, in which case the distribution has a lower bound of 0.)  If rather than comparing the LS means or slopes,
+one wishes to compare the dispersion of residuals among groups, given the model, an option for comparing variances is also
+available.  Variance degrees of freedom equal n, the group size, rather than n-1, as the purpose is to compare mean dispersion 
+in the sample.  (Additionaly, tests with one subject in a group are possible, or at least not a hindrance to the analysis.)
 
 If data are univariate, test.type = 'cor' should not be chosen because the vector correlation between univariate 
 vectors is always 1.  Rather, cor.type = 'dist' will return the absolute difference between slopes or between means.  

@@ -5,7 +5,7 @@
 \title{Print/Summary Function for RRPP}
 \usage{
 \method{summary}{pairwise}(object, stat.table = TRUE, test.type = c("dist",
-  "VC"), angle.type = c("rad", "deg"), confidence = 0.95,
+  "VC", "var"), angle.type = c("rad", "deg"), confidence = 0.95,
   show.vectors = FALSE, ...)
 }
 \arguments{
@@ -14,7 +14,8 @@
 \item{stat.table}{Logical argument for whether results should be returned in one table 
 (if TRUE) or separate pairwise tables (if FALSE)}
 
-\item{test.type}{Whether distances or vector correlations between vectors should be used.}
+\item{test.type}{Whether distances or vector correlations between vectors or variances (dispersion of residuals)
+should be used in the test.}
 
 \item{angle.type}{If test.type = "VC", whether angle results are expressed in radians or degrees.}
 

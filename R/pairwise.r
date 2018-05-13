@@ -22,7 +22,10 @@
 #' confidence for the test.  Confidence limits are inherently one-tailed as
 #' the statistics are similar to absolute values.  For example, a distance is analogous to an absolute difference.  Therefore,
 #' the one-tailed confidence limits are more akin to two-tailed hypothesis tests.  (A comparable example is to use the absolute 
-#' value of a t-statistic, in which case the distribution has a lower bound of 0.)
+#' value of a t-statistic, in which case the distribution has a lower bound of 0.)  If rather than comparing the LS means or slopes,
+#' one wishes to compare the dispersion of residuals among groups, given the model, an option for comparing variances is also
+#' available.  Variance degrees of freedom equal n, the group size, rather than n-1, as the purpose is to compare mean dispersion 
+#' in the sample.  (Additionaly, tests with one subject in a group are possible, or at least not a hindrance to the analysis.)
 #' 
 #' If data are univariate, test.type = 'cor' should not be chosen because the vector correlation between univariate 
 #' vectors is always 1.  Rather, cor.type = 'dist' will return the absolute difference between slopes or between means.  
@@ -119,6 +122,8 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   fitf <- fit
   ind <- fit$PermInfo$perm.schedule
   perms <- length(ind)
+  gls <- fit$LM$gls
+  if(gls) res <- fit$LM$gls.residuals else res <- fit$LM$wResiduals
   if(!inherits(fit, "lm.rrpp")) stop("The model fit must be a lm.rrpp class object")
   
   if(!is.null(fit.null)) {
@@ -210,10 +215,30 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     slopes.dist <- lapply(slopes.length, function(x) as.matrix(dist(as.matrix(x))))
     slopes.vec.cor <- lapply(slopes, vec.cor.matrix)
   }
+  
+  disp.args <- list(res = as.matrix(res), ind.i = NULL, x = model.matrix(~groups + 0))
+  g.disp <- function(res, ind.i, x) {
+    r <- res[ind.i,]
+    d <- apply(r, 1, function(x) sum(x^2))
+    coef(lm.fit(x, d))
+  }
+  vars <- list()
+  for(i in 1:perms) {
+    disp.args$ind.i <- ind[[i]]
+    vars[[i]] <- do.call(g.disp, disp.args)
+  }
+  
+  vars <- sapply(1:perms, function(j){
+    disp.args$ind.i <- ind[[j]]
+    do.call(g.disp, disp.args)
+  })
+  
+  rownames(vars) <- levels(groups)
+  colnames(vars) <- c("obs", paste("iter", 1:(perms -1), sep = "."))
 
   out <- list(LS.means = means, slopes = slopes, means.dist = means.dist, means.vec.cor = means.vec.cor,
               slopes.length = slopes.length, slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
-              n <- fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)
+              vars = vars, n <- fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)
   
   class(out) <- "pairwise"
   out
