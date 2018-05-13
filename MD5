@@ -1,3 +1,4 @@
+d88166bbeaf9421921db9fb119080112 *_config.yml
 32c844bb9eab4f49ca58e68cceceda89 *cran-comments.md
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
@@ -37,7 +38,7 @@ f067eff00cf9bc00161401754037bf4f *NEWS
 cf31c68e116088e47282b57db2836ea0 *R/lm.rrpp.r
 52d3365efab07f1d11550e25a93baf5a *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
-a51a53180e25fb09e18a12045207db52 *R/RRPP.support.code.r
+7a5830753a9034d04ea6e7a600d222f8 *R/RRPP.support.code.r
 f0fa07e693145e8f4a47c9cfdb00e0b6 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

@@ -1418,7 +1418,7 @@ aov.single.model <- function(object, ...,
       Rsq[length(Rsq)] <- NA
       } else P.val <- NULL
 
-    tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F = Fs, P.val = P.val)
+    tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F = Fs, Z = Z, P.val = P.val)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
     SS.type <- x$SS.type
