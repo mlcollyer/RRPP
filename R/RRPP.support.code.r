@@ -726,7 +726,6 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
-    Unull <- qr.Q(qr(rep(int, n)))
     yh0 <- fastFit(Unull, Y, n, p)
     r0 <- Y - yh0
     if(!RRPP) {

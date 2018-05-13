@@ -57,8 +57,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     dfe <- df[k+1]
     dfM <- sum(df[1:k])
     Fs <- (SSM/dfM)/(SSE/dfe)
-    P <- pval(log(Fs))
-    Z <- effect.size(Fs)
+    P <- pval(Fs)
+    Z <- effect.size(log(Fs))
     Rsq <- SSM[1]/SST[1]
     SSM.obs <- SSM[1]
     Fs.obs <- Fs[1]
@@ -83,6 +83,37 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                           "Pr(>F)")
   if(formula) dimnames(tab)[[1]] <- deparse(x$call[[2]]) else
     dimnames(tab)[[1]] <- deparse(substitute(object))
+  
+  pca.fitted <- prcomp(x$LM$wFitted)
+  pca.residuals <- prcomp(x$LM$wResiduals)
+  pca.total <- prcomp(x$LM$Y)
+  
+  if(x$LM$gls) {
+    pca.fitted <- prcomp(x$LM$gls.fitted)
+    pca.residuals <- prcomp(x$LM$gls.residuals)
+  }
+  
+  d.f <- pca.fitted$sdev^2
+  d.r <- pca.residuals$sdev^2
+  d.t <- pca.total$sdev^2
+  
+  rank.f <- length(which(zapsmall(d.f) > 0))
+  rank.r <- length(which(zapsmall(d.r) > 0))
+  rank.t <- length(which(zapsmall(d.t) > 0))
+  
+  Trace <- c(sum(d.f), sum(d.r), sum(d.t))
+  Proportion <- Trace/sum(d.t)
+  Rank <- c(rank.f, rank.r, rank.t)
+  
+  redund <- data.frame(Trace, Proportion, Rank)
+  rownames(redund) <- c("Fitted", "Residuals", "Total")
+  eigs.f <- eig.r <- rep(NA, rank.t)
+  eigs.f <- d.f[1:rank.f]
+  eigs.r <- d.r[1:rank.r]
+  eigs.t <- d.t
+  eigs <- rbind(eigs.f, eigs.r, eigs.t)
+  rownames(eigs) <- c("Fitted", "Residuals", "Total")
+  colnames(eigs) <- paste("PC", 1:rank.t, sep="")
 
   rfit <-refit(x)
   RR <- rfit$wResiduals.reduced
@@ -91,7 +122,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   names(SSCP) <- LM$term.labels
   SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[length(RF)]]))))
   out <- list(table = tab, SSCP = SSCP, n = n, p = p, p.prime = p.prime, k = k, 
-              perms = perms, dv = dv, SS = SS, SS.type = SS.type)
+              perms = perms, dv = dv, SS = SS, SS.type = SS.type, redundancy = redund,
+              eigenvalues = eigs, gls = x$LM$gls)
   class(out) <- "summary.lm.rrpp"
   out
 }
@@ -115,6 +147,15 @@ print.summary.lm.rrpp <- function(x, ...) {
   cat(paste("\nNumber of permutations:", x$perms))
   cat("\n\nFull Model Analysis of Variance\n\n")
   print(x$table)
+  cat("\n\nRedundancy Analysis (PCA on fitted values and residuals)\n")
+  if(x$gls) {
+    cat("\nCenter of gravity used rather than GLS mean to ensure orthogonal projection.")
+    cat("\nThe traces of fitted values and residuals PCA might not sum to the total.\n\n")
+  }
+  print(x$redundancy)
+  cat("\nEigenvalues\n\n")
+  print(x$eigenvalues)
+  cat("\n")
   invisible(x)
 }
 ## coef.lm.rrpp

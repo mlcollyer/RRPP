@@ -38,8 +38,8 @@ f067eff00cf9bc00161401754037bf4f *NEWS
 cf31c68e116088e47282b57db2836ea0 *R/lm.rrpp.r
 e85ab1de63083c3d76e6cf5024b219ae *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
-7a5830753a9034d04ea6e7a600d222f8 *R/RRPP.support.code.r
-7577f5d8ebf13347e19b5b3f171ea6bb *R/RRPP.utils.r
+4b28b80325141c7efb18920d0df534db *R/RRPP.support.code.r
+73316a0eb39724582ca608f7823f1901 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 1961b3c225938fc972ec2e26c37a43c7 *vignettes/Collyer.Adams.2018.MEE.Appendix.S2.Rmd
