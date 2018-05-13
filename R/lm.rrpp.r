@@ -62,7 +62,8 @@
 #' (n), number of dependent variables (p), dimension of data space (p.prime),
 #' QR decomposition of the design matrix, fitted values, residuals,
 #' weights, offset, model terms, model frame (data), random coefficients (through permutations),
-#' random vector distances for coefficients (through permutations), and whether OLS or GLS was performed}
+#' random vector distances for coefficients (through permutations), whether OLS or GLS was performed, 
+#' and the centroid for OLS and/or GLS methods.}
 #' \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,
 #' random R-squared outcomes, random F outcomes, random Cohen's f-squared outcomes, P-values based on random F
 #' outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for
@@ -394,6 +395,15 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     out$LM$dist.coefficients <- D.coef
     out$LM$dist.wCoefficients <- D.wcoef
   }
+  centroid <- gls.centroid <- NULL
+  int <- matrix(attr(fit$Terms, "intercept"), n)
+  centroid <- lm.fit(int, Y)$coefficients
+  out$LM$centroid <- centroid
+  if(!is.null(Cov)) {
+    gls.centroid <- lm.fit(crossprod(Pcov, int), crossprod(Pcov, Y))$coefficients
+    out$LM$gls.centroid <- gls.centroid
+  }
+  
   class(out) = "lm.rrpp"
   out
 }

@@ -89,8 +89,44 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   pca.total <- prcomp(x$LM$Y)
   
   if(x$LM$gls) {
-    pca.fitted <- prcomp(x$LM$gls.fitted)
-    pca.residuals <- prcomp(x$LM$gls.residuals)
+    Pcov <- x$LM$Pcov
+    PY <- crossprod(Pcov, x$LM$Y * sqrt(x$LM$weights))
+    PX <- as.matrix(crossprod(Pcov, x$LM$X * sqrt(x$LM$weights)))
+    Uf <- qr.Q(qr(PX))
+    int <- attr(x$LM$Terms, "intercept")
+    Pint <- as.matrix(crossprod(Pcov, rep(int, n)))
+    Un <- qr.Q(qr(Pint))
+    glsfitted <- fastFit(Uf, PY, n, p)
+    glsmeans <- fastFit(Un, PY, n, p)
+    
+    Sf <- crossprod(glsfitted) - crossprod(glsmeans)
+    Sr <- crossprod((PY - glsfitted))
+    Sy <- crossprod(PY) - crossprod(glsmeans)
+    
+    Cf <- Sf/(n - 1)
+    Cr <- Sr/(n - 1)
+    Cy <- Sy/(n - 1)
+    
+    pca.fitted <- pca.residuals <- pca.total <- list()
+    
+    svd.Y <- svd(Cy)
+    keep <- which(zapsmall(svd.Y$d) > 0)
+    pca.total$sdev <- sqrt(svd.Y$d[keep])
+    pca.total$rotation <- as.matrix(svd.Y$v[, keep])
+    pca.total$x <- (PY - glsmeans) %*% as.matrix(svd.Y$v[, keep])
+    
+    svd.f <- svd(Cf)
+    keep <- which(zapsmall(svd.f$d) > 0)
+    pca.fitted$sdev <- sqrt(svd.f$d[keep])
+    pca.fitted$rotation <- as.matrix(svd.f$v[, keep])
+    pca.fitted$x <- glsfitted %*% as.matrix(svd.f$v[, keep])
+    
+    svd.r <- svd(Cr)
+    keep <- which(zapsmall(svd.r$d) > 0)
+    pca.residuals$sdev <- sqrt(svd.r$d[keep])
+    pca.residuals$rotation <- as.matrix(svd.r$v[, keep])
+    pca.residuals$x <- (PY - glsfitted) %*% as.matrix(svd.r$v[, keep])
+
   }
   
   d.f <- pca.fitted$sdev^2
@@ -149,8 +185,7 @@ print.summary.lm.rrpp <- function(x, ...) {
   print(x$table)
   cat("\n\nRedundancy Analysis (PCA on fitted values and residuals)\n")
   if(x$gls) {
-    cat("\nCenter of gravity used rather than GLS mean to ensure orthogonal projection.")
-    cat("\nThe traces of fitted values and residuals PCA might not sum to the total.\n\n")
+    cat("\nGLS mean used rather than center of gravity.  Projection is not orthogonal.\n\n")
   }
   print(x$redundancy)
   cat("\nEigenvalues\n\n")
