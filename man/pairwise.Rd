@@ -94,7 +94,7 @@ Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
 
 Pupfish$Y <- prcomp(Pupfish$coords)$x[, 1:3]
 
-# Pairwise comparisons of LS means
+## Pairwise comparisons of LS means
 
 fit1 <- lm.rrpp(Y ~ logSize + Sex * Pop, SS.type = "I", 
 data = Pupfish, print.progress = FALSE, iter = 999) 
@@ -110,7 +110,11 @@ summary(PW1, confidence = 0.95, test.type = "dist", stat.table = FALSE)
 summary(PW1, confidence = 0.95, test.type = "VC", 
    angle.type = "deg") # correlation between mean vectors (angles in degrees)
 
-# Pairwise comparisons of slopes
+# Can also compare the dispersion around means
+
+summary(PW1, confidence = 0.95, test.type = "var")
+
+## Pairwise comparisons of slopes
 
 fit2 <- lm.rrpp(Y ~ logSize * Sex * Pop, SS.type = "I", 
 data = Pupfish, print.progress = FALSE, iter = 999) 
@@ -125,6 +129,11 @@ summary(PW2, confidence = 0.95, test.type = "dist") # distances between slope ve
 summary(PW2, confidence = 0.95, test.type = "dist", stat.table = FALSE)
 summary(PW2, confidence = 0.95, test.type = "VC",
    angle.type = "deg") # correlation between slope vectors (and angles)
+   
+# Can also compare the dispersion around group slopes
+
+summary(PW2, confidence = 0.95, test.type = "var")
+
 }
 \references{
 Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described
