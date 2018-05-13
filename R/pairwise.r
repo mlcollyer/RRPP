@@ -131,7 +131,6 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   ind <- fit$PermInfo$perm.schedule
   perms <- length(ind)
   gls <- fit$LM$gls
-  if(gls) res <- fit$LM$gls.residuals else res <- fit$LM$wResiduals
   if(!inherits(fit, "lm.rrpp")) stop("The model fit must be a lm.rrpp class object")
   
   if(!is.null(fit.null)) {
@@ -224,18 +223,14 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     slopes.vec.cor <- lapply(slopes, vec.cor.matrix)
   }
   
+  if(gls) res <- fitf$LM$gls.residuals else res <- fitf$LM$wResiduals
   disp.args <- list(res = as.matrix(res), ind.i = NULL, x = model.matrix(~groups + 0))
   g.disp <- function(res, ind.i, x) {
     r <- res[ind.i,]
     d <- apply(r, 1, function(x) sum(x^2))
     coef(lm.fit(x, d))
   }
-  vars <- list()
-  for(i in 1:perms) {
-    disp.args$ind.i <- ind[[i]]
-    vars[[i]] <- do.call(g.disp, disp.args)
-  }
-  
+
   vars <- sapply(1:perms, function(j){
     disp.args$ind.i <- ind[[j]]
     do.call(g.disp, disp.args)
