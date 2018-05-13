@@ -143,11 +143,11 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   
   redund <- data.frame(Trace, Proportion, Rank)
   rownames(redund) <- c("Fitted", "Residuals", "Total")
-  eigs.f <- eig.r <- rep(NA, rank.t)
-  eigs.f <- d.f[1:rank.f]
-  eigs.r <- d.r[1:rank.r]
-  eigs.t <- d.t
-  eigs <- rbind(eigs.f, eigs.r, eigs.t)
+  eigs.f <- eigs.r <- rep(NA, rank.t)
+  eigs.f[1:rank.f] <- d.f[1:rank.f]
+  eigs.r[1:rank.r] <- d.r[1:rank.r]
+  eigs.t[1:rank.t] <- d.t[1:rank.t]
+  eigs <- as.table(rbind(eigs.f, eigs.r, eigs.t))
   rownames(eigs) <- c("Fitted", "Residuals", "Total")
   colnames(eigs) <- paste("PC", 1:rank.t, sep="")
 
@@ -183,9 +183,9 @@ print.summary.lm.rrpp <- function(x, ...) {
   cat(paste("\nNumber of permutations:", x$perms))
   cat("\n\nFull Model Analysis of Variance\n\n")
   print(x$table)
-  cat("\n\nRedundancy Analysis (PCA on fitted values and residuals)\n")
+  cat("\n\nRedundancy Analysis (PCA on fitted values and residuals)\n\n")
   if(x$gls) {
-    cat("\nGLS mean used rather than center of gravity.  Projection is not orthogonal.\n\n")
+    cat("nGLS mean used rather than center of gravity.  Projection is not orthogonal.\n\n")
   }
   print(x$redundancy)
   cat("\nEigenvalues\n\n")
