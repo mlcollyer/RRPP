@@ -143,7 +143,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   
   redund <- data.frame(Trace, Proportion, Rank)
   rownames(redund) <- c("Fitted", "Residuals", "Total")
-  eigs.f <- eigs.r <- rep(NA, rank.t)
+  eigs.f <- eigs.r <- eigs.t <- rep(NA, rank.t)
   eigs.f[1:rank.f] <- d.f[1:rank.f]
   eigs.r[1:rank.r] <- d.r[1:rank.r]
   eigs.t[1:rank.t] <- d.t[1:rank.t]
