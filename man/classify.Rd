@@ -52,26 +52,28 @@ values for continuous covariates.
 \details{
 This function uses a \code{\link{lm.rrpp}} fit, optional covariate values, optional prior probabilities,
 and an optional cross-validation procedure to estimate posterior probabilities.  One can choose the 
-principal component subspace in which to do the classification.  For cases with many more observations
-than response data variables, 100 percent of the PC space if probably preferred; however, for high-dimensional data,
-when the number of variables exceed the number of observations, and there are significantly different means,
-perfect classification is more likely.  The pc.space
+principal component subspace in which to do the classification.  For most cases, 100 percent of the PC space is preferred; 
+however, when there is a strong signal - groups have different means and observations within groups are close to means - it 
+might be desirable to ascertain if the signal remains strong in fewer dimensions.  The pc.space
 argument can be toggeled, and one might wish to run several analyses with different selections, to get a feel
 for how classification improves with increased data dimensionality.
 
 For high dimensional data, training and testing data are first projected onto the principal components of the 
 appropriate error covariance matrix from the \code{\link{lm.rrpp}} fit.  (The function will detect whether ordinary 
-least squares or generalized least squares was used.)  The estimated model covariance is then determined in the 
+least squares or generalized least squares was used.)  The model covariance is then re-estimated in the 
 defined amount of the PC space.  A ridge regularization step is also employed if it is determined that the covariance 
-matrix is ill-conditioned.  In this space, generalized Mahalanobis distances are calculated and used to calculate 
+matrix is ill-conditioned.  In this space, generalized (Mahalanobis) distances are calculated and used to calculate 
 Bayesian posterior probabilities, based on a multivariate normal density function.  An option for user-supplied 
 prior probabilities is available, or a user can choose between equal or sample-size corrected prior probabilities.
 
 This function should produce similar results as \code{\link[MASS]{lda}} for models that can be used in that 
 function, but it will also calculate least squares means if there are covariates in the \code{\link{lm.rrpp}} fit.  
 Furthermore, the user can choose specific covariate values for estimation.  For example, one could make classifications
-at small organism size or large size (rather than mean size), if size is a covariate.  The function does not
-find canonical (discriminant) axes, like \code{\link[MASS]{lda}}.
+at small organism size or large size (rather than mean size), if size is a covariate.  This is helpful if there are 
+factor-covariate interactions to consider, as classification could differ across the span of a covariate.
+The function does not find canonical (discriminant) axes, like \code{\link[MASS]{lda}}, however these can be calculated from 
+\code{\link{lm.rrpp}} output.  Whereas as \code{\link[MASS]{lda}} only allows a single factor model, \code{classify} can
+be used with various model types, and "discriminant" axes would not make as much sense for complex models.
 
 Regardless of variables input, data are projected onto PCs.  The purpose of this function is to predict 
 group association, and working in PC space facilitates this objective.

@@ -7,7 +7,7 @@ a9ca8058394e9a33e5b61be581e13bdd *DESCRIPTION
 500f0bb931cdc3c486878a01b48ef892 *inst/doc/Collyer.Adams.2018.MEE.Appendix.S2.html
 1961b3c225938fc972ec2e26c37a43c7 *inst/doc/Collyer.Adams.2018.MEE.Appendix.S2.Rmd
 c3b4760d53b0d12b9a6fbce6842554ea *man/anova.lm.rrpp.Rd
-98ad22ebf7c31b106492bd80f2af7660 *man/classify.Rd
+bf0e7a7989665d1d0df88bb82a4f5491 *man/classify.Rd
 54d52d7c0950f9c6a7bf4b351d1a49f8 *man/coef.lm.rrpp.Rd
 017bd97e98d3dcd432a33e32945757df *man/fitted.lm.rrpp.Rd
 f5039880ae531eaacf252b8eb5a167ec *man/lm.rrpp.Rd
@@ -37,7 +37,7 @@ e89f1ebd5e75e4a3ac32e99661476117 *man/summary.pairwise.Rd
 6d5cc9d6060acc038b12bb99efae4c4f *NAMESPACE
 f067eff00cf9bc00161401754037bf4f *NEWS
 262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
-91e4d7617266da9c2aa34a708b1d6be6 *R/classify.r
+751a70095bcc59e4029edeba3da6ee4d *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
 5ca4106909c77ea081b947923f9db363 *R/lm.rrpp.r
 e85ab1de63083c3d76e6cf5024b219ae *R/pairwise.r
