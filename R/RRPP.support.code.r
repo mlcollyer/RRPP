@@ -1813,4 +1813,42 @@ makePWCorTable <- function(L){
 
 }
 
+# leaveOneOut
+# set-up for jackknife classification
+# used in classify
+leaveOneOut <- function(X, Y, n.ind) {
+  x <- X[-n.ind,]
+  QR <- qr(x)
+  Q <- qr.Q(QR)
+  R <- qr.R(QR)
+  H <- tcrossprod(solve(R), Q)
+  y <- Y[-n.ind,]
+  H %*% y
+}
 
+# RiReg
+# Ridge Regularization of a covariance matrix, if needed
+# used in classify
+RiReg <- function(Cov, residuals){
+  leads <- seq(0,1,0.005)[-1]
+  leads <- leads[-length(leads)]
+  W <- diag(sqrt(diag(Cov)))
+  R <- solve(W) %*% Cov %*% solve (W)
+  I <- diag(1, NROW(Cov))
+  N <- NROW(residuals)
+  p <- NCOL(residuals)
+  
+  Covs <- lapply(1:length(leads), function(j){
+    lambda <- leads[[j]]
+    (lambda * Cov + (1 - lambda) * I)
+  })
+  logL <- sapply(1:length(leads), function(j){
+    C <- Covs[[j]]
+    N*p*log(2*pi) + N * log(det(C)) + sum(diag(
+      residuals %*% fast.solve(C) %*% t(residuals) 
+    ))
+  })
+  
+  Covs[[which.min(logL)]]
+  
+}
