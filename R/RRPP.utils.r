@@ -517,7 +517,7 @@ plot.QQ <- function(r){
 
 #' Plot Function for RRPP
 #' 
-#' @param x plot object (from \code{\link{lm.rrpp}})
+#' @param x plot object (from \code{\link{predict.lm.rrpp}})
 #' @param PC A logical argument for whether the data space should be rotated to its 
 #' principal components
 #' @param ellipse A logical argument to change error bars to ellipses in multivariate plots.  

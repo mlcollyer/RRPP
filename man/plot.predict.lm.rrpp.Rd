@@ -8,7 +8,7 @@
   label = TRUE, ...)
 }
 \arguments{
-\item{x}{plot object (from \code{\link{lm.rrpp}})}
+\item{x}{plot object (from \code{\link{predict.lm.rrpp}})}
 
 \item{PC}{A logical argument for whether the data space should be rotated to its 
 principal components}

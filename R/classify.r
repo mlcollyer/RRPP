@@ -48,7 +48,8 @@
 #' performed.  This is only a logical choice if test data are the same data used for the \code{\link{lm.rrpp}} fit.
 #' In other cases, the argument will be ignored.  The default is CV = TRUE.
 #' @param pc.space A value between 0 and 1 to indicate the portion of PC space to use for classification.  The default is 
-#' 1.0 (the entire PC space).
+#' 1.0 (the entire PC space).  Note that this is an upper limit, and the PCs included might (and probably do) comprise
+#' less space.  
 #' @param inherent.groups A logical argument in case one wishes to have the inherent groups in the model fit revealed.  If 
 #' TRUE, no other analysis will be done than to reveal the groups.  This argument should always be FALSE to perform 
 #' a classification analysis.
