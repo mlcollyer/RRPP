@@ -308,7 +308,7 @@ rrpp.fit.lm <- function(a){
   if(any(w <= 0)) stop("Weights must be positive")
   o <-a$offset
   dat <- a$data
-  Y <- as.matrix(dat$Y)
+  Y <- dat$Y
   X <- a$x
   n <- NROW(Y)
   SS.type <- a$SS.type
@@ -420,7 +420,7 @@ rrpp.fit.int <- function(a) {
   if(any(w <= 0)) stop("Weights must be positive")
   o <-a$offset
   dat <- a$data
-  Y <- as.matrix(dat$Y)
+  Y <- dat$Y
   X <- a$x
   n <- NROW(Y)
   SS.type <- a$SS.type
@@ -533,7 +533,6 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
       if ((is.matrix(d$Y) || is.data.frame(d$Y))
           && isSymmetric(unname(as.matrix(d$Y)))) d$Y <- pcoa(as.dist(d$Y)) else
             d$Y <- as.matrix(d$Y)
-    if(inherits(d$Y, "data.frame")) d$Y <- as.matrix(d$Y)
     n <- NROW(d$Y)
     form <- formula(terms(f1), keep.order = keep.order)
     form.adj <- update(form, Y ~.)
@@ -575,35 +574,23 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
     } else {
       if(is.null(data))
         dat <- lapply(1:length(tl), function(j) {
-          dj <- try(get(as.character(tl[j]), parent.frame()),
+          try(get(as.character(tl[j]), parent.frame()),
               silent = TRUE)
-          dat[[j]] <- dj
         }) else
           dat <- lapply(1:length(tl), function(j) {
-            dj <- try(get(as.character(tl[j]), data),
+            try(get(as.character(tl[j]), data),
                 silent = TRUE)
-            dat[[j]] <- dj
           })
         check <- (sapply(dat, NROW) == n)
         dat <- dat[check]
         tl <- tl[check]
         names(dat) <- tl
+        dat <- as.data.frame(dat)
     }
-    
     if(pca) d$Y <- prcomp(d$Y, tol = sqrt(.Machine$double.eps))$x
-    if(length(dat) == 1 && inherits(dat[[1]], "matrix")) {
-      X <- model.matrix(~ dat[[1]])
-      colnames(X)[-1] <- colnames(dat[[1]])
-      dat <- as.data.frame(dat)
-      dat$Y <- d$Y
-    } else {
-      dat <- as.data.frame(dat)
-      dat$Y <- d$Y
-      X <- model.matrix(Terms, data = dat)
-    }
-    
+    dat$Y <- d$Y
     pdf.args <- list(data=dat,
-                     x = X,
+                     x = model.matrix(Terms, data = dat),
                      w = dots$weights,
                      offset = dots$offset,
                      terms = Terms,
