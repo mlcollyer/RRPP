@@ -46,8 +46,6 @@ principal components (about 50% reduction).  It might be better to rely on the t
 are possible and no further attempt to avoid them is provided.)
 }
 \examples{
-Warton, D.I., 2008. Penalized normal likelihood and ridge regularization of correlation and covariance matrices. 
-Journal of the American Statistical Association. 103: 340-349.
 
 data(Pupfish)
 Pupfish$logSize <- log(Pupfish$CS)
@@ -73,8 +71,8 @@ plot(modComp2)
 Bedrick, E.J., and C.L. Tsai. 1994. Model selection for multivariate regression in small samples. 
 Biometrics, 226-231.
 
-Adams, D.C. and M.L. Collyer. 2016.  On the comparison of the strength of morphological integration across morphometric
-datasets. Evolution. 70:2623-2631.
+Warton, D.I., 2008. Penalized normal likelihood and ridge regularization of correlation and covariance matrices. 
+Journal of the American Statistical Association. 103: 340-349.
 }
 \author{
 Michael Collyer

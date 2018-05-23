@@ -38,10 +38,9 @@
 #' or covariance traces, plus parameter penalties.  AIC scores might be include, if applicable
 #' @references Bedrick, E.J., and C.L. Tsai. 1994. Model selection for multivariate regression in small samples. 
 #' Biometrics, 226-231.
-#' @references Adams, D.C. and M.L. Collyer. 2016.  On the comparison of the strength of morphological integration across morphometric
-#' datasets. Evolution. 70:2623-2631.
-#' @examples Warton, D.I., 2008. Penalized normal likelihood and ridge regularization of correlation and covariance matrices. 
+#' @references Warton, D.I., 2008. Penalized normal likelihood and ridge regularization of correlation and covariance matrices. 
 #' Journal of the American Statistical Association. 103: 340-349.
+#' @examples 
 #' 
 #' data(Pupfish)
 #' Pupfish$logSize <- log(Pupfish$CS)
