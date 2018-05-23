@@ -7,7 +7,7 @@
 \method{plot}{model.comparison}(x, ...)
 }
 \arguments{
-\item{x}{plot object (from \code{\link{compare.models}})}
+\item{x}{plot object (from \code{\link{model.comparison}})}
 
 \item{...}{other arguments passed to plot (helpful to employ
 different colors or symbols for different groups).  See

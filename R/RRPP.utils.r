@@ -974,7 +974,7 @@ summary.model.comparison <- function(object ,...){
 
 #' Plot Function for RRPP
 #' 
-#' @param x plot object (from \code{\link{compare.models}})
+#' @param x plot object (from \code{\link{model.comparison}})
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See
 #' \code{\link{plot.default}} and \code{\link{par}}
