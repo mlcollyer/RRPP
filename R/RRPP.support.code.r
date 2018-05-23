@@ -1832,8 +1832,6 @@ leaveOneOut <- function(X, Y, n.ind) {
 RiReg <- function(Cov, residuals){
   leads <- seq(0,1,0.005)[-1]
   leads <- leads[-length(leads)]
-  W <- diag(sqrt(diag(Cov)))
-  R <- solve(W) %*% Cov %*% solve (W)
   I <- diag(1, NROW(Cov))
   N <- NROW(residuals)
   p <- NCOL(residuals)
@@ -1850,5 +1848,68 @@ RiReg <- function(Cov, residuals){
   })
   
   Covs[[which.min(logL)]]
+  
+}
+
+
+
+
+logL <- function(fit){
+  n <- fit$LM$n
+  p <- fit$LM$p.prime
+  X <- fit$LM$X * sqrt(fit$LM$weights)
+  Y <- fit$LM$Y 
+  rdf <- fit$LM$data
+  if(fit$LM$gls){
+    cat("\nWarning: reducing dimnesions to ~50% to avoid singular determinants\n\n")
+    Sig <- (crossprod(fit$LM$gls.residuals, 
+                      fast.solve(fit$LM$Cov)) %*%
+              fit$LM$gls.residuals) /n
+    s <- svd(Sig)
+    pr <- which(cumsum(s$d)/sum(s$d) < 0.50)
+    P <- Y %*% s$v[,pr]
+    rdf <- rrpp.data.frame(P = P, X = X)
+    pfit <- lm.rrpp(P ~ X + 0, print.progress = FALSE, 
+                    Sig = fit$LM$Cov, data = rdf, weights = wt, iter = 0)
+    Sig <- (crossprod(pfit$LM$gls.residuals, fast.solve(pfit$LM$Cov)) %*%
+              pfit$LM$gls.residuals) / n
+    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
+    if(p == 1) detV <- Sig^n * det(fit$LM$Cov)^p  else
+      detV <- det(Sig)^n * det(fit$LM$Cov)^p
+    
+    ll <- -0.5*(n*p + log(detV) + n*p*log(2*pi))
+  }  else {
+    
+    Sig <- crossprod(fit$LM$wResiduals) /n
+    s <- svd(Sig) 
+    pr <- which(cumsum(s$d)/sum(s$d) < 0.995)
+    P <- Y %*% s$v[,pr]
+    rdf <- rrpp.data.frame(P = P, X = X)
+    pfit <- lm.rrpp(P ~ X + 0, print.progress = FALSE, 
+                    data = rdf, iter = 0)
+    Sig <- crossprod(pfit$LM$residuals) / n
+    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
+    ll <- -0.5*(n * p + n * log(det(Sig)) + n * p * log(2*pi))
+  }
+  
+  ll
+  
+}
+
+cov.trace <- function(fit) {
+  n <- fit$LM$n
+  p <- fit$LM$p.prime
+  if(fit$LM$gls){
+    Sig <- (crossprod(fit$LM$gls.residuals, 
+                      fast.solve(fit$LM$Cov)) %*%
+              fit$LM$gls.residuals) /n
+    
+  }  else {
+    
+    Sig <- crossprod(fit$LM$wResiduals) /n
+    
+  }
+  
+  sum(Sig^2)
   
 }

@@ -225,7 +225,6 @@ plot(predict(fitGLS, sizeDF)) # Independent error
 
 Y <- as.matrix(cbind(PlethMorph$TailLength,
 PlethMorph$HeadLength,
-PlethMorph$TailLength,
 PlethMorph$Snout.eye,
 PlethMorph$BodyWidth,
 PlethMorph$Forelimb,

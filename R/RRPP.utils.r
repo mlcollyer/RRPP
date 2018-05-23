@@ -379,7 +379,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
   type <- match.arg(type)
   if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
     type <- "diagnostics"
-  CRC <- PL <- Reg.proj <- NULL
+  CRC <- PL <- Reg.proj <- PC.points <- NULL
   if(type == "diagnostics") {
     pca.r <- prcomp(r)
     var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
@@ -471,8 +471,9 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
          xlab = paste("PC 1 for fitted values: ",ev[1],"%", sep = ""),
          ylab = paste("PC 2 for fitted values: ",ev[2],"%", sep = ""),
                       ...)
+    PC.points <- P
   }
-  out <- list(CRC = CRC, PredLine = PL, RegScore = Reg.proj)
+  out <- list(CRC = CRC, PredLine = PL, RegScore = Reg.proj, PC.points = PC.points)
   invisible(out)
 }
 
@@ -938,4 +939,70 @@ summary.classify <- function(object ,...){
   cat("\nPosterior proabilities\n")
   print(x$posterior)
   cat("\n")
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{model.comparison}}
+#' @param ... Other arguments passed onto model.comparison
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.model.comparison <- function(x ,...){
+  print(x$table)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{model.comparison}}
+#' @param ... Other arguments passed onto model.comparison
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.model.comparison <- function(object ,...){
+  x <- object
+  type <- colnames(x$table)[[1]]
+  if(type == "cov.trace") type.name <- "traces of model covariance matrices"
+  if(type == "logLik") type.name <- "model log-likelihoods"
+  n <- NROW(x$table)
+  cat("\n\n Summary statistics for", type.name, "\n\n")
+  cat(n, "Models compared.\n\n")
+  tab <- x$table
+  rownames(tab) <- x$names
+  print(tab)
+}
+
+#' Plot Function for RRPP
+#' 
+#' @param x plot object (from \code{\link{compare.models}})
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' \code{\link{plot.default}} and \code{\link{par}}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+plot.model.comparison <- function(x, ...){
+  type <- colnames(x$table)[[1]]
+  if(type == "cov.trace") type.name <- "Trace"
+  if(type == "logLik") type.name <- "-2 * log-likelihood"
+  tab <- x$table
+  nms <- x$names
+  x <- tab[,2]
+  y <- tab[,1]
+  if(type == "logLik") y <- -2 * y
+  xrange <- range(x)
+  dx <- xrange[2] - xrange[1]
+  xlim <- xrange + c(-0.1*dx, 0.1*dx)
+  
+  yrange <- range(y)
+  dy <- yrange[2] - yrange[1]
+  ylim <- yrange + c(-0.1*dy, 0.1*dy)
+  
+  plot(x, y, xlab = "Parameter penalty", 
+       ylab = type.name, xlim = xlim, ylim = ylim, ...)
+  
+  f <- lm(y ~ x)
+  abline(f, lty = 3, lwd = 0.8, col = "red")
+  text(x, y, nms, pos = 1, cex = 0.4)
 }

@@ -273,5 +273,5 @@ Bookstein, F. L. (1991). Morphometric tools for landmark data: geometry and biol
 
 Collyer, M. L., Sekora, D. J., & Adams, D. C. (2015). A method for analysis of phenotypic change for phenotypes described by high-dimensional data. Heredity, 115, 357–365.
 
-Gilbert, M. C. (2016). Impacts of habitat fragmentation on the cranial morphology of a threatened desert fish (_Cyprinodon pecosensis_). Western Kentucky University.
+Gilbert, M. C. (2016). Impacts of habitat fragmentation on the cranial morphology of a threatened desert fish (_Cyprinodon pecosensis_). Masters thesis.  Western Kentucky University, Bowling Green, KY, USA.
 
