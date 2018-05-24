@@ -40,7 +40,7 @@
 #' fit6 <- lm.rrpp(coords ~ logSize + Sex * Pop, data = Pupfish, iter = 0, print.progress = FALSE)
 #' 
 #' aovPup <- anova(fit0, fit1, fit2, fit3, fit4, fit5, fit6, 
-#' effect,type = "SS", print.progress = FALSE)
+#' effect.type = "SS", print.progress = FALSE)
 #' 
 #' summary(aovPup)
 #' 
