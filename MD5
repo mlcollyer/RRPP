@@ -17,6 +17,7 @@ c3b4760d53b0d12b9a6fbce6842554ea *man/anova.lm.rrpp.Rd
 4b4771b002da002b6443818178b9c043 *man/plot.lm.rrpp.Rd
 f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 5630c72d56543e38a747f90be072c2ea *man/plot.predict.lm.rrpp.Rd
+f5e3cc626aee85bbc8e9653a3b5ea419 *man/plot.z.model.test.Rd
 0d002b1ad5426b427b2df626351c1f6d *man/predict.lm.rrpp.Rd
 b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
 a5250d4040c7077e6100e338a9a38c6f *man/print.classify.Rd
@@ -26,6 +27,7 @@ a5250d4040c7077e6100e338a9a38c6f *man/print.classify.Rd
 3081e2f8ef7f3fefb6c317fcecefcae6 *man/print.pairwise.Rd
 9fbe301422c10eae052693a38d2ceb7e *man/print.predict.lm.rrpp.Rd
 dee2473a6f8021b7f361ddffbb69eed6 *man/print.summary.lm.rrpp.Rd
+327f226a5cec404b26dc11f42fc19928 *man/print.z.model.test.Rd
 b359f4a0c6a15c72d1529aae59167da8 *man/Pupfish.Rd
 9775958c42dbaf2536f7f0a444191cef *man/PupfishHeads.Rd
 2a130e557cf5e6d783bef526c8dcfcb7 *man/residuals.lm.rrpp.Rd
@@ -38,7 +40,9 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 8071df084e856baaea970cadde3d9b0c *man/summary.model.comparison.Rd
 e89f1ebd5e75e4a3ac32e99661476117 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
-ba5f3e0610f91baec3b02a3b83dfe4ca *NAMESPACE
+72cd8c1fc8fb15a7ea30c15a71fe2f03 *man/summary.z.model.test.Rd
+0ea05a48bd90db52c6e2650d8b663cbf *man/z.model.test.Rd
+d4f2a9673ff997aa83ee4660f435b018 *NAMESPACE
 f067eff00cf9bc00161401754037bf4f *NEWS
 262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
 31a6a48e6fbacabfed8eed70ebbd4116 *R/classify.r
@@ -47,8 +51,9 @@ f067eff00cf9bc00161401754037bf4f *NEWS
 46277a604c33004c68af1128471c4051 *R/model.comparison.r
 e85ab1de63083c3d76e6cf5024b219ae *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
-3201dcb1d4f5450b417e712e991bfc28 *R/RRPP.support.code.r
-3370842d7b67b5d6ae0991428e976639 *R/RRPP.utils.r
+7b0649e000719fcb8def1783d956d528 *R/RRPP.support.code.r
+b2c609adba831f1a279430ec20ca4a5e *R/RRPP.utils.r
+0c25cd77829f024f00e71af09390c877 *R/z.model.test.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 597d993e67557b7e47629ea98a6e2b14 *vignettes/Collyer.Adams.2018.MEE.Appendix.S2.Rmd

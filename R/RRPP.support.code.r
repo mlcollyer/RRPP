@@ -1609,7 +1609,7 @@ aov.multi.model <- function(object, lm.list,
   
   out <- list(table = tab, perm.method = pm, perm.number = perms,
               est.method = est, SS.type = NULL, effect.type = effect.type,
-              SS = SS[NROW(SS),], F = Fs[NROW(Fs),],
+              SS = SS[-1,], MS = MS[-1,], Rsq = Rsq[-1,], F = Fs[-1,],
               call = object$call)
   
 class(out) <- "anova.lm.rrpp"
@@ -1911,5 +1911,52 @@ cov.trace <- function(fit) {
   }
   
   sum(Sig^2)
+  
+}
+
+z.test <- function(aov.mm){
+  effect.type = aov.mm$effect.type
+  if(effect.type == "F") stat <- aov.mm$F
+  if(effect.type == "cohenf") stat <- aov.mm$F
+  if(effect.type == "SS") stat <- aov.mm$SS
+  if(effect.type == "MS") stat <- aov.mm$MS
+  if(effect.type == "Rsq") stat <- aov.mm$Rsq
+  
+  perms <- ncol(stat)
+  m <- nrow(stat)
+  stat.c <- sapply(1:m, function(j){
+    s <- stat[j,]
+    center(s)
+  })
+  
+  index <- combn(m, 2)
+  Dz <- Pz <- dist(matrix(0, m))
+
+  zdj <- function(x, y, j) {
+    obs <- x[j] - y[j]
+    sigd <- sqrt(var(x) + var(y))
+    obs/sigd
+  }
+  
+  for(i in 1:ncol(index)) {
+    x <- stat.c[,index[1,i]]
+    y <- stat.c[,index[2,i]]
+    res <- array(NA, perms)
+    for(j in 1: perms) res[j] <- zdj(x, y, j)
+    Dz[i] <- abs(res[1])
+    Pz[i] <- pval(abs(res))
+  }
+
+Z = as.matrix(Dz)
+P = as.matrix(Pz)
+
+options(warn = -1)
+mds <- cmdscale(Z, m-1, eig = TRUE)
+options(warn = 0)
+    
+list(Z = as.matrix(Dz), P = as.matrix(Pz), 
+     mds = mds,
+     form.names = rownames(aov.mm$table)[1:m],
+     model.names = paste("m", 0:(m-1), sep = ""))
   
 }
