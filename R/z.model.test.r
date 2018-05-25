@@ -15,11 +15,11 @@
 #' Z-score matrix.
 #' 
 #' The statistics used for the test is the one chosen for effect type in ANOVA.  The SS
-#' statistics is recommended, as the z-score would most resemble the deviance between
+#' statistic is recommended, as the z-score would most resemble the deviance between
 #' models.
 #' 
 #' This function is experimental, and is currently the source for conceptual/theoretical 
-#' work and should not be cited or used, haphazardly until confirmation of its appropriateness.  
+#' work and should not be cited or used, haphazardly, until confirmation of its appropriateness.  
 #' 
 #' @param A Object of class \code{\link{anova.lm.rrpp}}, performed on multiple models.
 #' @keywords analysis

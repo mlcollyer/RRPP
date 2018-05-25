@@ -81,7 +81,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                           "F",
                           "Z (from F)",
                           "Pr(>F)")
-  if(formula) dimnames(tab)[[1]] <- deparse(x$call[[2]]) else
+  if(formula) dimnames(tab)[[1]] <- deparse(x$call$f1[[3]]) else
     dimnames(tab)[[1]] <- deparse(substitute(object))
   
   pca.fitted <- prcomp(x$LM$wFitted)
@@ -472,6 +472,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
          ylab = paste("PC 2 for fitted values: ",ev[2],"%", sep = ""),
                       ...)
     PC.points <- P
+    rownames(P) <- rownames(x$LM$data)
   }
   out <- list(CRC = CRC, PredLine = PL, RegScore = Reg.proj, PC.points = PC.points)
   invisible(out)

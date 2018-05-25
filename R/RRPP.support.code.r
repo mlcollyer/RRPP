@@ -1584,7 +1584,7 @@ aov.multi.model <- function(object, lm.list,
   Rsq.obs <- Rsq[,1]
   F.obs <- Fs[,1]
   
-  tab <- data.frame(ResDf = dfe, DF = df, RSS = RSS.obs, SS = SS.obs, MS = MS.obs,
+  tab <- data.frame(ResDf = dfe, Df = df, RSS = RSS.obs, SS = SS.obs, MS = MS.obs,
                     Rsq = Rsq.obs, F = F.obs, Z = Z, P = Pvals)
   tab$DF[1] <- NA
   tab$Rsq <- zapsmall(tab$Rsq, digits = 8)
