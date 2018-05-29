@@ -277,7 +277,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   k <- length(fit$term.labels)
   id <- rownames(Y)
-  ind <- perm.index(n, iter = iter, seed = NULL)
+  ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
   if(print.progress) {
     step <- 4
