@@ -41,13 +41,13 @@ e89f1ebd5e75e4a3ac32e99661476117 *man/summary.pairwise.Rd
 ba5f3e0610f91baec3b02a3b83dfe4ca *NAMESPACE
 f067eff00cf9bc00161401754037bf4f *NEWS
 262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
-31a6a48e6fbacabfed8eed70ebbd4116 *R/classify.r
+c5e65aa915c617db51c720779d0f48f5 *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
 7014220fb7494af45ad0fbff318383eb *R/lm.rrpp.r
 46277a604c33004c68af1128471c4051 *R/model.comparison.r
 e85ab1de63083c3d76e6cf5024b219ae *R/pairwise.r
 4e1f9e99e9a534d6b69598e48c67e9ab *R/predict.lm.rrpp.r
-b716c7d7779c7827e89752209b31e233 *R/RRPP.support.code.r
+1fc19e26014a9bbd60b3393f6d40f85b *R/RRPP.support.code.r
 f207a6fe32f283476c2f6a4ccfe99e5c *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

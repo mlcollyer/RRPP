@@ -205,7 +205,8 @@ classify <- function(fit, test.data = NULL, covariate.values = NULL,
     if(NROW(unique(Xls)) != nlevels(group)) cat("\nWarning: Number of groups does not match design matrix levels")
     if(nlevels(group) == 1) xg = matrix(1,n) else xg <-model.matrix(~group + 0)
     
-    targ <- means <- as.matrix(lm.fit(xg, Xls %*% pfit$LM$coefficients)$coefficients)
+    if(gls) targ <- means <- as.matrix(lm.fit(xg, Xls %*% pfit$LM$gls.coefficients)$coefficients) else 
+      targ <- means <- as.matrix(lm.fit(xg, Xls %*% pfit$LM$coefficients)$coefficients)
     
     if(CV){
       gp.check <- by(group, group, length)

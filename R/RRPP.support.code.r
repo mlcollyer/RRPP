@@ -666,8 +666,8 @@ rrpp <- function(fitted, residuals, ind.i, w, o){
 # used in lm.rrpp
 
 Cov.proj <- function(Cov, id){
-  if(is.null(id)) id <- 1:NCOL(Cov)
-  Cov <- Cov[id, id]
+  if(is.null(id)) Cov <- Cov else
+    Cov <- Cov[id, id]
   invC <- fast.solve(Cov)
   eigC <- eigen(Cov)
   lambda <- zapsmall(eigC$values)
