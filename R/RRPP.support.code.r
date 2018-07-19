@@ -1857,39 +1857,40 @@ RiReg <- function(Cov, residuals){
 logL <- function(fit){
   n <- fit$LM$n
   p <- fit$LM$p.prime
-  X <- fit$LM$X * sqrt(fit$LM$weights)
-  Y <- fit$LM$Y 
+  X <- as.matrix(fit$LM$X * sqrt(fit$LM$weights))
+  Y <- as.matrix(fit$LM$Y)
   rdf <- fit$LM$data
   if(fit$LM$gls){
-    cat("\nWarning: reducing dimnesions to ~50% to avoid singular determinants\n\n")
     Sig <- (crossprod(fit$LM$gls.residuals, 
                       fast.solve(fit$LM$Cov)) %*%
               fit$LM$gls.residuals) /n
     s <- svd(Sig)
-    pr <- which(cumsum(s$d)/sum(s$d) < 0.50)
-    P <- Y %*% s$v[,pr]
-    rdf <- rrpp.data.frame(P = P, X = X)
-    pfit <- lm.rrpp(P ~ X + 0, print.progress = FALSE, 
-                    Sig = fit$LM$Cov, data = rdf, weights = wt, iter = 0)
+    pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
+    pp <- length(pr)
+    P <- as.matrix(Y %*% s$v[,pr])
+    fit$LM$data$Y <- P
+    pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
+                    Cov = fit$LM$Cov, data = fit$LM$data, 
+                    weights = fit$LM$weights, iter = 0)
     Sig <- (crossprod(pfit$LM$gls.residuals, fast.solve(pfit$LM$Cov)) %*%
               pfit$LM$gls.residuals) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
-    if(p == 1) detV <- Sig^n * det(fit$LM$Cov)^p  else
-      detV <- det(Sig)^n * det(fit$LM$Cov)^p
     
-    ll <- -0.5*(n*p + log(detV) + n*p*log(2*pi))
+    ll <- -0.5*(n*pp + n*log(det(Sig)) + pp*log(det(pfit$LM$Cov))+ n*pp*log(2*pi))
   }  else {
     
     Sig <- crossprod(fit$LM$wResiduals) /n
     s <- svd(Sig) 
-    pr <- which(cumsum(s$d)/sum(s$d) < 0.995)
-    P <- Y %*% s$v[,pr]
-    rdf <- rrpp.data.frame(P = P, X = X)
-    pfit <- lm.rrpp(P ~ X + 0, print.progress = FALSE, 
-                    data = rdf, iter = 0)
+    pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
+    pp <- length(pr)
+    P <- as.matrix(Y %*% s$v[,pr])
+    fit$LM$data$Y <- P
+    pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
+                    data = fit$LM$data, 
+                    weights = fit$LM$weights, iter = 0)
     Sig <- crossprod(pfit$LM$residuals) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
-    ll <- -0.5*(n * p + n * log(det(Sig)) + n * p * log(2*pi))
+    ll <- -0.5*(n * pp + n * log(det(Sig)) + n * pp * log(2*pi))
   }
   
   ll
