@@ -25,7 +25,7 @@ penalties, to assist in comparative model evaluation or selection.  Because high
 produce singular or ill-conditioned residual covariance matrices, this function does one of two things: 1) uses 
 the trace of a covariance matrix rather than its determinant; or 2) provides a ridge-regularization (Warton, 2008)
 of the covariance matrix, only if it is determined that it is ill-conditioned.  Regardless of implementation,
-covariance matrices are projected onto a principal component manifold of appropriate dimensions.
+covariance matrices are projected into a principal component space of appropriate dimensions.
 
 The parameter penalty is based on that proposed by Bedrick and Tsai (1994), equal to 2(pk + p(p + 1)/2), where 
 p is the appropriate dimension (not number of variables) of the covariance matrix.  The parameter, k,
@@ -40,10 +40,8 @@ model comparisons.
 
 Results can also be plotted using the generic \code{\link{plot}} function.
 
-Caution: For models with GLS estimation, determinants of large Kronecker products are required for 
-log-likelihood.  This requires reducing the data space dimensions via projection onto
-principal components (about 50% reduction).  It might be better to rely on the trace statistic.  (- Infinite log-likelihoods
-are possible and no further attempt to avoid them is provided.)
+Caution: For models with GLS estimation, the number of parameters used to estimate the covariance matrix
+is not taken into consideration.  A generalized information criterion is currently in development.
 }
 \examples{
 
