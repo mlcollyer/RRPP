@@ -5,6 +5,7 @@ NEW FEATURES
 OTHER CHANGES
     
 BUG FIXES 
+    o Fixed the logL function within model.comparisons for GLS determinants (was returning 0).
     o Fixed some issues with the aov.multimodel subfunction of anova.lm.rrpp, related to GLS permutations and intercept only models.  
     o Added random SS output to aov.multimodel subfunction of anova.lm.rrpp, so that it can be called by other functions/packages.
     
