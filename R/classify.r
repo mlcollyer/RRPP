@@ -26,12 +26,19 @@
 #' factor-covariate interactions to consider, as classification could differ across the span of a covariate.
 #' The function does not find canonical (discriminant) axes, like \code{\link[MASS]{lda}}, however these can be calculated from 
 #' \code{\link{lm.rrpp}} output.  Whereas as \code{\link[MASS]{lda}} only allows a single factor model, \code{classify} can
-#' be used with various model types, and "discriminant" axes would not make as much sense for complex models.
+#' be used with various model types, and "discriminant" axes would not make as much sense for complex models.  Finally,
+#'  \code{\link[MASS]{lda}} scales data and model design matrices to find (transformed) discriminant functions for within-group
+#'  covariances that are forced to be spherical; i.e., the discriminant functions are normalized.  This is not a step
+#'  taken with \code{classify}, as model design matrices might be more complex than single-factor designs, and obtaining 
+#'  discriminant functions is not the goal.  Nevertheless, posterior probabilities will differ slightly between the two
+#'  functions as a result.
 #' 
 #' Regardless of variables input, data are projected onto PCs.  The purpose of this function is to predict 
 #' group association, and working in PC space facilitates this objective.
 #' 
-#' This is a new function and not all limits and scenarios have been tested before its release.
+#' This is a new function and not all limits and scenarios have been tested before its release.  Please report 
+#' any issues or limitations or strange results to the maintainer.  (The function will likely be updated frequently
+#' until all kinks are worked out.)  
 #' 
 
 #' @param fit A linear model fit using \code{\link{lm.rrpp}}.
@@ -134,7 +141,8 @@ classify <- function(fit, test.data = NULL, covariate.values = NULL,
   d <- pca$sdev^2
   cd <- cumsum(d)/sum(d)
   k <- which(cd < pc.space)
-  P <- as.matrix(center(Y) %*% pca$rotation[, k])
+  if(length(k) < 1) k = 1
+  if(length(cd) > 1) P <- as.matrix(center(Y) %*% pca$rotation[, k]) 
   PTD <- as.matrix((td - matrix(rep(Ymean, each = td.n), td.n, p)) %*% 
                      pca$rotation[, k])
   
