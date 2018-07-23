@@ -32,7 +32,7 @@ p is the appropriate dimension (not number of variables) of the covariance matri
  is the rank of the model design matrix.
  
 In the case that "logLik" is chosen for the argument, type, AIC scores are calculated.  These scores
-may not perfectly match other packages or software that calculate AIC for multivariate data, if ridge regualrization
+may not perfectly match other packages or software that calculate AIC for multivariate data, if ridge regularization
 was used (and if other packages let p = the number of data variables).  Users can construct their own tables 
 from the results but this function does not attempt to summarize results, as interpreting results requires 
 some arbitrary decisions.  The \code{\link{anova}} function explicitly tests multiple models and can be used for nested 

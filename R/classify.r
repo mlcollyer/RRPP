@@ -8,7 +8,7 @@
 #' principal component subspace in which to do the classification.  For most cases, 100 percent of the PC space is preferred; 
 #' however, when there is a strong signal - groups have different means and observations within groups are close to means - it 
 #' might be desirable to ascertain if the signal remains strong in fewer dimensions.  The pc.space
-#' argument can be toggeled, and one might wish to run several analyses with different selections, to get a feel
+#' argument can be toggled, and one might wish to run several analyses with different selections, to get a feel
 #' for how classification improves with increased data dimensionality.
 #' 
 #' For high dimensional data, training and testing data are first projected onto the principal components of the 
@@ -68,7 +68,7 @@
 #' \item{group}{A factor derived for groups.}
 #' \item{group.n}{Sample size for each group.}
 #' \item{test.data}{PC scores for the test data used.}
-#' \item{Mah.dist.sq}{Generalied Mahalanobis squared distance from test data to group means.}
+#' \item{Mah.dist.sq}{Generalized Mahalanobis squared distance from test data to group means.}
 #' \item{prior}{Prior probabilities.}
 #' \item{posterior}{Posterior probabilities.}
 #' \item{class}{Classification based on highest posterior probability}
