@@ -10,6 +10,12 @@ Description: Linear model calculations are made for many random versions of data
     calculated over many permutations to generate empirical probability distributions 
     for evaluating model effects.  This method is described by 
     Collyer, Sekora, & Adams (2015) <doi:10.1038/hdy.2014.75>.
+    
+    Additionally, coefficients, statistics, fitted values, and residuals generated over many 
+    permutations can be used for various procedures including pairwise tests, prediction, classification, and
+    model comparison.  This package should provide most tools one could need for the analysis of
+    high-dimensional data, especially in ecology and evolutionary biology, but certainly other fields, as well.
+    
 License: GPL (>= 2)
 URL: https://github.com/mlcollyer/RRPP
 Encoding: UTF-8

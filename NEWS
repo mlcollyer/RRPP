@@ -5,7 +5,6 @@ NEW FEATURES
     o Added classify function.
 OTHER CHANGES
     o Added a pairwise variance comparison for the pairwise function.
-    
 BUG FIXES 
     o Fixed some issues with univariate data for classify.
     o Fixed some issues with univariate data for pairwise.

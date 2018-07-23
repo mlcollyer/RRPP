@@ -2,7 +2,7 @@
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-1bcf10ab2f725ae6c62af1bca788cb8d *DESCRIPTION
+0643db6a122ba51d8fe9be7605d80dd3 *DESCRIPTION
 500f0bb931cdc3c486878a01b48ef892 *inst/doc/Collyer.Adams.2018.MEE.Appendix.S2.html
 1961b3c225938fc972ec2e26c37a43c7 *inst/doc/Collyer.Adams.2018.MEE.Appendix.S2.Rmd
 c3b4760d53b0d12b9a6fbce6842554ea *man/anova.lm.rrpp.Rd
@@ -38,7 +38,7 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 e89f1ebd5e75e4a3ac32e99661476117 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 ba5f3e0610f91baec3b02a3b83dfe4ca *NAMESPACE
-73a13df337304e3be502d60f344744e1 *NEWS
+9772b048ebfbc727d5c3bd26163d194f *NEWS
 262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
