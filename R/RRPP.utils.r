@@ -185,7 +185,7 @@ print.summary.lm.rrpp <- function(x, ...) {
   print(x$table)
   cat("\n\nRedundancy Analysis (PCA on fitted values and residuals)\n\n")
   if(x$gls) {
-    cat("nGLS mean used rather than center of gravity.  Projection is not orthogonal.\n\n")
+    cat("\nGLS mean used rather than center of gravity.  Projection is not orthogonal.\n\n")
   }
   print(x$redundancy)
   cat("\nEigenvalues\n\n")

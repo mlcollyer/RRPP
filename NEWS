@@ -6,6 +6,7 @@ NEW FEATURES
 OTHER CHANGES
     o Added a pairwise variance comparison for the pairwise function.
 BUG FIXES 
+    o Fixed bug with GLS variance estimation in pairwise.
     o Fixed some issues with univariate data for classify.
     o Fixed some issues with univariate data for pairwise.
     o Fixed the logL function within model.comparisons for GLS determinants (was returning 0).

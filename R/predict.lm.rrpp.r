@@ -96,10 +96,11 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
       nX.names <- colnames(nX)
       for(i in 1:length(df.add)) nX <- cbind(nX, 0)
       colnames(nX) <- c(nX.names, df.add)
+      isall0 <- function(x) all(x == 0)
+      nX.check <- apply(nX, 2, isall0)
+      for(i in 1:length(nX.check)) 
+        if(isTRUE(nX.check[[i]])) nX[,i] <- mean(oX[i,])
     }
-    isall0 <- function(x) all(x == 0)
-    nX.check <- apply(nX, 2, isall0)
-    for(i in 1:length(nX.check)) if(isTRUE(nX.check[[i]])) nX[,i] <- mean(oX[i,])
   }
   PI <- object$PermInfo$perm.schedule
   seed <- attr(PI, "seed")
@@ -134,22 +135,9 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
   lcl <- function(x) quantile(x, prob = alpha/2)
   ucl <- function(x) quantile(x, prob = 1 - alpha/2)
   meanV <- Reduce("+", preds)/length(preds)
-  LCL <- as.matrix(sapply(1:n, function(j){
-    x <- sapply(1:length(preds), function(jj){
-      preds[[jj]][j,]
-    })
-    if(!is.matrix(x)) z <- lcl(x) else z <- apply(x, 1, lcl)
-    z
-  }))
-  
-  UCL <- as.matrix(sapply(1:n, function(j){
-    x <- sapply(1:length(preds), function(jj){
-      preds[[jj]][j,]
-    })
-    if(!is.matrix(x)) z <- ucl(x) else z <- apply(x, 1, ucl)
-    z
-  }))
- 
+  preds.array <- simplify2array(preds)
+  LCL <- t(apply(preds.array, c(1,2), lcl))
+  UCL <- t(apply(preds.array, c(1,2), ucl))
   if(!is.null(dim(LCL))) {
     if(dim(LCL)[2] == n) LCL <- t(LCL)
   }
