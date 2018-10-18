@@ -117,9 +117,13 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     
     svd.f <- svd(Cf)
     keep <- which(zapsmall(svd.f$d) > 0)
-    pca.fitted$sdev <- sqrt(svd.f$d[keep])
-    pca.fitted$rotation <- as.matrix(svd.f$v[, keep])
-    pca.fitted$x <- glsfitted %*% as.matrix(svd.f$v[, keep])
+    if(length(keep) == 0) {
+      pca.fitted$sdev <- pca.fitted$rotation <- pca.fitted$x <- 0
+    } else {
+      pca.fitted$sdev <- sqrt(svd.f$d[keep])
+      pca.fitted$rotation <- as.matrix(svd.f$v[, keep])
+      pca.fitted$x <- glsfitted %*% as.matrix(svd.f$v[, keep])
+    }
     
     svd.r <- svd(Cr)
     keep <- which(zapsmall(svd.r$d) > 0)

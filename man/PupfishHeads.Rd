@@ -12,7 +12,7 @@ per specimen.  These data are a subset of a larger data set.
 \details{
 The variable, "coords", are data that were previously aligned
 with GPA.  The variable, "headSize", is the Centroid size of each vector of coordinates.
-See the \link[geomorph]{geomorph} package for details.
+See the \link{geomorph} package for details.
 }
 \references{
 Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
