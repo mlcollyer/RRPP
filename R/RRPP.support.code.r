@@ -737,7 +737,7 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     }
     rrpp.args$fitted <- fitted
     rrpp.args$residuals <- res
-    SS <- lapply(1: perms, function(j){
+    result <- lapply(1: perms, function(j){
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
@@ -745,9 +745,13 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       Yi <- do.call(rrpp, rrpp.args)
       y <- yh0 + r0[x,]
       yy <- sum(y^2)
-      c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
-            Yi, Ur, Uf),
-        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
+      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
+      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
+      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- rep(TSS, k)
+      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
     })
   } else {
     if(!RRPP) {
@@ -763,7 +767,7 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Unull <- qr.Q(qr(rep(int, n)))
     yh0 <- fastFit(Unull, Y, n, p)
     r0 <- Y - yh0
-    SS <- lapply(1: perms, function(j){
+    result <- lapply(1: perms, function(j){
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
@@ -771,20 +775,33 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       Yi <- do.call(rrpp, rrpp.args)
       y <- yh0 + r0[x,]
       yy <- sum(y^2)
-      c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
-            Yi, Ur, Uf),
-        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
+      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
+      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
+      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- rep(TSS, k)
+      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
     })
   }
-  SS <- matrix(unlist(SS), k+2, perms)
-  rownames(SS) <- c(trms, "Residuals", "Total")
-  colnames(SS) <- c("obs", paste("iter", 1:(perms-1), sep=":"))
+  SS <- sapply(1:perms, function(j) result[[j]]$SS)
+  RSS <- sapply(1:perms, function(j) result[[j]]$RSS)
+  TSS <- sapply(1:perms, function(j) result[[j]]$TSS)
+  RSS.model <- sapply(1:perms, function(j) result[[j]]$RSS.model)
+  if(k == 1) {
+    SS <- matrix(SS, 1, length(SS))
+    RSS <- matrix(RSS, 1, length(RSS))
+    TSS <- matrix(TSS, 1, length(TSS))
+  }
+  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- trms
+  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- names(RSS.model) <- 
+    c("obs", paste("iter", 1:(perms-1), sep="."))
   step <- perms + 1
   if(print.progress) {
     setTxtProgressBar(pb,step)
     close(pb)
   }
-  SS
+  list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
 }
 
 # SS.iterPP
@@ -812,7 +829,6 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   rrpp.args <- list(fitted = fitted, residuals = res,
                     ind.i = NULL, w = NULL, o = NULL)
   if(offset) rrpp.args$o <- o
-  step <- 2
   if(gls){
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
@@ -822,6 +838,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
+    yh0 <- fastFit(Unull, Y, n, p)
+    r0 <- Y - yh0
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
@@ -831,15 +849,19 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     }
     rrpp.args$fitted <- fitted
     rrpp.args$residuals <- res
-    SS <- mclapply(1: perms, function(j){
+    result <- mclapply(1: perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      y <- Yi[[1]]
+      y <- yh0 + r0[x,]
       yy <- sum(y^2)
-      c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
-            Yi, Ur, Uf),
-        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
+      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
+      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
+      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- rep(TSS, k)
+      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
     }, mc.cores = cl)
   } else {
     if(!RRPP) {
@@ -853,20 +875,37 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(rep(int, n)))
-    SS <- mclapply(1: perms, function(j){
+    yh0 <- fastFit(Unull, Y, n, p)
+    r0 <- Y - yh0
+    result <- mclapply(1: perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      y <- Yi[[1]]; yy <- sum(y^2)
-      c(Map(function(y, ur, uf) sum(crossprod(uf,y)^2) - sum(crossprod(ur,y)^2),
-            Yi, Ur, Uf),
-        yy - sum(crossprod(Ufull, y)^2), yy - sum(crossprod(Unull, y)^2))
+      y <- yh0 + r0[x,]
+      yy <- sum(y^2)
+      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
+      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
+      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- rep(TSS, k)
+      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
     }, mc.cores = cl)
   }
-  SS <- matrix(unlist(SS), k+2, perms)
-  rownames(SS) <- c(trms, "Residuals", "Total")
-  colnames(SS) <- c("obs", paste("iter", 1:(perms-1), sep=":"))
-  SS
+  SS <- sapply(1:perms, function(j) result[[j]]$SS)
+  RSS <- sapply(1:perms, function(j) result[[j]]$RSS)
+  TSS <- sapply(1:perms, function(j) result[[j]]$TSS)
+  RSS.model <- sapply(1:perms, function(j) result[[j]]$RSS.model)
+  if(k == 1) {
+    SS <- matrix(SS, 1, length(SS))
+    RSS <- matrix(SS, 1, length(RSS))
+    TSS <- matrix(SS, 1, length(TSS))
+  }
+  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- trms
+  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- names(RSS.model) <- 
+    c("obs", paste("iter", 1:(perms-1), sep="."))
+
+  list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
 }
 
 SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
@@ -942,39 +981,29 @@ anova.parts <- function(fit, SS){
   n <- dims[1]; p <- dims[2]
   df <- unlist(Map(function(qf, qr) qf$rank - qr$rank, QRf, QRr))
   dfe <- n - QRf[[k]]$rank
+  
+  RSS <- SS$RSS
+  TSS <- SS$TSS
+  RSS.model <- SS$RSS.model
+  SS <- SS$SS
+  Rsq <- SS/TSS
+  MS <- SS/df
+  RMS <- RSS/dfe
+  Fs <- MS/RMS
   dft <- sum(df, dfe)
   df <- c(df, dfe, dft)
-  MS <- SS/df
-  Fs <- (apply(MS[1:(k+1),], 2, function(x) x/x[length(x)]))[1:k,]
-  Rsq <- apply(SS, 2, function(x) x/x[length(x)])
   if(SS.type == "III") {
-    etas <- apply(SS, 2, function(x) x/(x + x[k+1]))
-    cohenf <- (etas/(1-etas))[1:k,]
+    etas <- SS/TSS
+    cohenf <- etas/(1-etas)
   } else {
-    etas <- Rsq[1:k,]
+    etas <- Rsq
     if(k == 1) unexp <- 1 - etas else unexp <- 1 - apply(etas, 2, cumsum)
     cohenf <- etas/unexp
   }
-  if(k == 1) {
-    SS.effect <- effect.size(log(SS[1,]))
-    MS.effect <- effect.size(log(MS[1,]))
-    Rsq.effect <- effect.size(log(Rsq[1,]))
-    F.effect <- effect.size(log(Fs))
-    cohenf.effect <- effect.size(log(cohenf))
-  } else{
-    SS.effect <- apply(log(SS[1:k,]), 1, effect.size)
-    MS.effect <- apply(log(MS[1:k,]), 1, effect.size)
-    Rsq.effect <- apply(log(Rsq[1:k,]), 1, effect.size)
-    cohenf.effect <- apply(log(cohenf), 1, effect.size)
-    F.effect <- apply(log(Fs), 1, effect.size)
-  }
-  Fs <- rbind(Fs, NA, NA)
-  cohenf <- rbind(cohenf, NA, NA)
   rownames(Fs) <- rownames(cohenf) <- rownames(SS)
-  out <- list(SS.type = SS.type, SS = SS, MS = MS, Rsq = Rsq,
-              Fs = Fs, cohenf = cohenf, SS.effect = SS.effect,
-              MS.effect = MS.effect, Rsq.effect = Rsq.effect, F.effect = F.effect,
-              cohenf.effect = cohenf.effect,
+  out <- list(SS.type = SS.type, SS = SS, MS = MS, RSS = RSS,
+              TSS = TSS, RSS.model = RSS.model, Rsq = Rsq,
+              Fs = Fs, cohenf = cohenf,
               n = n, p = p, df=df
   )
   out
@@ -1354,29 +1383,32 @@ aov.single.model <- function(object, ...,
   k <- length(df)-2
   SS <- x$SS
   MS <- x$MS 
+  RSS <-x$RSS
+  TSS <- x$TSS
   perms <- object$PermInfo$perms
   pm <- object$PermInfo$perm.method
+  trms <- object$LM$term.labels
   
   if(!is.null(error)) {
-    if(!inherits(error, "character")) stop("The error description is illogical.  It should be a string of character values matching ANOVA terms.")
+    if(!inherits(error, "character")) stop("The error description is illogical.  It should be a string of character values matching ANOVA terms.",
+                                           call. = FALSE)
     kk <- length(error)
-    if(kk != k) stop("The error description should match in length the number of ANOVA terms (not including Residuals)")
-    trms <- rownames(MS)
-    MSEmatch <- match(error, trms)
-    if(any(is.na(MSEmatch))) stop("At least one of the error terms is not an ANOVA term")
+    if(kk != k) stop("The error description should match in length the number of ANOVA terms (not including Residuals)",
+                     call. = FALSE)
+    MSEmatch <- match(error, c(trms, "Residuals"))
+    if(any(is.na(MSEmatch))) stop("At least one of the error terms is not an ANOVA term",
+                                  call. = FALSE)
   } else MSEmatch <- NULL
-  if(NROW(SS) > 1) {
+  if(k >= 1) {
     Fs <- x$Fs
     
     if(!is.null(MSEmatch)){
-      Fs[1:k,] <- MS[1:k,]/MS[MSEmatch,]
-      F.effect.adj <- apply(Fs[1:k,], 1, effect.size)
+      Fmatch <- which(MSEmatch <= k)
+      Fs[Fmatch,] <- MS[Fmatch,]/MS[MSEmatch[Fmatch],]
+      F.effect.adj <- apply(Fs, 1, effect.size)
     }
     
     effect.type <- match.arg(effect.type)
-    if(effect.type == "F") {
-      if(!is.null(error)) Z <- F.effect.adj else Z <- x$F.effect
-    }
     
     if(object$LM$gls) {
       est <- "GLS"
@@ -1404,20 +1436,18 @@ aov.single.model <- function(object, ...,
     Fs <- Fs[,1]
     SS <- SS[,1]
     MS <- MS[,1]
-    MS[length(MS)] <- NA
-    Rsq <- x$Rsq
-    cohenf <- x$cohenf
+    Rsq <- x$Rsq[,1]
+    cohenf <- x$cohenf[,1]
     if(!is.null(Z)) {
       if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
       P.val <- apply(Z, 1, pval) 
       Z <- apply(log(Z), 1, effect.size)
-      P.val[-(1:k)] <- NA
-      Z[-(1:k)] <- NA
-      Rsq <- Rsq[,1]
-      Rsq[length(Rsq)] <- NA
       } else P.val <- NULL
-
-    tab <- data.frame(Df=df, SS=SS, MS = MS, Rsq = Rsq, F = Fs, Z = Z, P.val = P.val)
+    
+    Residuals <- c(df[k+1], RSS[[1]], RSS[[1]]/df[k+1], RSS[[1]]/TSS[[1]], rep(NA, 3))
+    Total <- c(df[k+2], TSS[[1]], rep(NA, 5))
+    tab <- data.frame(Df=df[1:k], SS=SS, MS = MS, Rsq = Rsq, F = Fs, Z = Z, P.val = P.val)
+    tab <- rbind(tab, Residuals = Residuals, Total = Total)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
     SS.type <- x$SS.type
@@ -1427,7 +1457,8 @@ aov.single.model <- function(object, ...,
                 call = object$call)
     
       } else {
-        tab <- data.frame(df = df, SS = SS[[1]], MS = MS[[1]])
+        RSS.model <- x$RSS.model
+        tab <- data.frame(df = df, SS = RSS.model[[1]], MS = RSS.model[[1]]/df)
         rownames(tab) <- c("Residuals")
         class(tab) = c("anova", class(tab))
         if(object$LM$gls) est <-"GLS" else est <- "OLS"

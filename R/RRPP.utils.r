@@ -45,33 +45,38 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   p <- LM$p
   p.prime <- LM$p.prime
   SS <- AN$SS
+  SSM.obs <- SS[,1]
+  RSS <- AN$RSS
+  TSS <- AN$TSS
+  RSS.model <- AN$RSS.model
+  if(is.null(RSS)) RSS <- RSS.model
+  if(is.null(RSS)) TSS <- RSS.model
   SS.type <- AN$SS.type
   k <- length(LM$term.labels)
   if(LM$gls) P <- LM$Pcov
   
   if(k > 0) {
-    SSE <- unlist(SS[k+1,])
-    SST <- unlist(SS[k+2,])
-    SSM <- SST - SSE
     df <- AN$df
     dfe <- df[k+1]
     dfM <- sum(df[1:k])
-    Fs <- (SSM/dfM)/(SSE/dfe)
+    SSM <- (TSS[1,] - RSS.model)
+    SSM.obs <- SSM[1]
+    Rsq <- SSM.obs/TSS[1]
+    Fs <- (SSM/dfM)/(RSS.model/dfe)
+    Fs.obs <- Fs[1]
     P <- pval(Fs)
     Z <- effect.size(log(Fs))
-    Rsq <- SSM[1]/SST[1]
-    SSM.obs <- SSM[1]
+    
     Fs.obs <- Fs[1]
   } else {
       df <- 0
       dfe <- AN$df
       dfM <- 1
-      SST <- SSE <- unlist(SS)
       SSM <- Fs <- Z <- Rsq <- SSM.obs <- Fs.obs <- P <- ""
     }
 
   tab <- data.frame(dfM = dfM, dfe = dfe,
-                    SSM = SSM.obs, RSS = SSE[1], Rsq = Rsq,
+                    SSM = SSM.obs, RSS = RSS[1], Rsq = Rsq,
                     F = Fs.obs, Z = Z, P = P)
   dimnames(tab)[[2]] <- c("Df",
                           "Residual Df",
@@ -141,8 +146,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   rank.r <- length(which(zapsmall(d.r) > 0))
   rank.t <- length(which(zapsmall(d.t) > 0))
   
-  Trace <- c(sum(d.f), sum(d.r), sum(d.t))
-  Proportion <- Trace/sum(d.t)
+  Trace <- zapsmall(c(sum(d.f), sum(d.r), sum(d.t)))
+  Proportion <- zapsmall(Trace/sum(d.t))
   Rank <- c(rank.f, rank.r, rank.t)
   
   redund <- data.frame(Trace, Proportion, Rank)
@@ -151,7 +156,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   eigs.f[1:rank.f] <- d.f[1:rank.f]
   eigs.r[1:rank.r] <- d.r[1:rank.r]
   eigs.t[1:rank.t] <- d.t[1:rank.t]
-  eigs <- as.table(rbind(eigs.f, eigs.r, eigs.t))
+  eigs <- as.table(zapsmall(rbind(eigs.f, eigs.r, eigs.t)))
   rownames(eigs) <- c("Fitted", "Residuals", "Total")
   colnames(eigs) <- paste("PC", 1:rank.t, sep="")
 
