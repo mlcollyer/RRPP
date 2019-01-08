@@ -206,7 +206,14 @@ fast.ginv <- function(X, tol = sqrt(.Machine$double.eps)){
 # chooses between fast.ginv or qr.solve, when det might or might not be 0
 # used in any function requiring a matrix inverse where the certainty of
 # singular matrices is in doubt
-fast.solve <- function(x) if(det(x) > 1e-8) chol2inv(chol(x)) else fast.ginv(x)
+fast.solve <- function(x) { 
+  if(det(x) > 1e-8) {
+  res <- try(chol2inv(chol(x)), silent = TRUE)
+  if(class(res) == "try-error") res <- fast.ginv(x)
+  } else  res <- fast.ginv(x)
+  return(res)
+}
+
 
 # pcoa
 # acquires principal coordinates from distance matrices
@@ -243,6 +250,7 @@ perm.index <-function(n, iter, seed=NULL){
       attr(ind, "seed") <- seed
       ind
 }
+
 
 # boot.index
 # creates a bootstrap index for resampling
@@ -676,7 +684,7 @@ Cov.proj <- function(Cov, id){
     lambda = lambda[lambda > 0]
   }
   eigC.vect = eigC$vectors[,1:(length(lambda))]
-  P <- fast.solve(eigC.vect%*% diag(sqrt(lambda)) %*% t(eigC.vect))
+  P <- fast.solve((eigC.vect%*% diag(sqrt(lambda)) %*% t(eigC.vect)))
   dimnames(P) <- dimnames(Cov)
   P
 }
