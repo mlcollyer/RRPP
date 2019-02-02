@@ -23,9 +23,10 @@
 #' @import stats
 #' @import graphics
 #' @import utils
-
+#' 
+#' @section RRPP TOC:
+#' RRPP-package
 NULL
-
 
 #' Landmarks on pupfish
 #'
@@ -36,7 +37,7 @@ NULL
 #' @description Landmark data from Cyprinodon pecosensis body shapes, with indication of Sex and
 #' Population from which fish were sampled (Marsh or Sinkhole).
 #' @details These data were previously aligned with GPA.  Centroid size (CS) is also provided.  
-#' See the \link{geomorph} package for details.
+#' See the \pkg{geomorph} package for details.
 #' 
 #' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic
 #' change for phenotypes described by high-dimensional data. Heredity. 113: doi:10.1038/hdy.2014.75.
@@ -52,7 +53,7 @@ NULL
 #' per specimen.  These data are a subset of a larger data set.
 #' @details The variable, "coords", are data that were previously aligned
 #' with GPA.  The variable, "headSize", is the Centroid size of each vector of coordinates.
-#' See the \link{geomorph} package for details.
+#' See the \pkg{geomorph} package for details.
 #' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
 #' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
 NULL
@@ -1371,8 +1372,8 @@ refit <- function(fit){
                    terms = fit$LM$Terms,
                    formula = NULL,
                    SS.type = fit$ANOVA$SS.type)
-  form <- formula(deparse(fit$call[[2]]))
-  form[[2]] <- "Y"
+  form <- fit$LM$form
+  form <- update.formula(form, Y ~.)
   pdf.args$formula <- form
   if(sum(attr(pdf.args$x, "assign")) == 0)
     out <- rrpp.fit.int(pdf.args) else
@@ -1911,8 +1912,8 @@ logL <- function(fit){
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     Cov = fit$LM$Cov, data = fit$LM$data, 
                     weights = fit$LM$weights, iter = 0)
-    Sig <- (crossprod(pfit$LM$gls.residuals, fast.solve(pfit$LM$Cov)) %*%
-              pfit$LM$gls.residuals) / n
+    Sig <- as.matrix((crossprod(pfit$LM$gls.residuals, fast.solve(pfit$LM$Cov)) %*%
+              pfit$LM$gls.residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
     
     ll <- -0.5*(n*pp + n*log(det(Sig)) + pp*log(det(pfit$LM$Cov))+ n*pp*log(2*pi))
@@ -1927,7 +1928,7 @@ logL <- function(fit){
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     data = fit$LM$data, 
                     weights = fit$LM$weights, iter = 0)
-    Sig <- crossprod(pfit$LM$residuals) / n
+    Sig <- as.matrix(crossprod(pfit$LM$residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
     ll <- -0.5*(n * pp + n * log(det(Sig)) + n * pp * log(2*pi))
   }
@@ -2000,3 +2001,22 @@ list(Z = as.matrix(Dz), P = as.matrix(Pz),
      model.names = paste("m", 0:(m-1), sep = ""))
   
 }
+
+wilks <- function(e) {
+  e <- zapsmall(e)
+  e <- e[e > 0]
+  prod(1/(1 + e))
+}
+
+pillai <- function(e) {
+  e <- zapsmall(e)
+  e <- e[e > 0]
+  sum(e/(1 + e))
+}
+
+hot.law <- function(e) {
+  e <- zapsmall(e)
+  e <- e[e > 0]
+  sum(e)
+}
+

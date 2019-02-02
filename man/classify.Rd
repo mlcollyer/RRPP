@@ -4,8 +4,8 @@
 \alias{classify}
 \title{Classification probabilities for lm.rrpp model fits}
 \usage{
-classify(fit, test.data = NULL, covariate.values = NULL, prior = NULL,
-  CV = TRUE, pc.space = 1, inherent.groups = FALSE)
+classify(fit, test.data = NULL, covariate.values = NULL,
+  prior = NULL, CV = TRUE, pc.space = 1, inherent.groups = FALSE)
 }
 \arguments{
 \item{fit}{A linear model fit using \code{\link{lm.rrpp}}.}

@@ -23,6 +23,11 @@ An especially useful option of this package is to fit models with either ordinar
 least squares estimation (OLS or GLS, respectively), using theoretic covariance matrices.  Mixed linear
 effects can also be evaluated.
 }
+\section{RRPP TOC}{
+
+RRPP-package
+}
+
 \author{
 Michael Collyer and Dean Adams
 }

@@ -35,142 +35,144 @@ print.lm.rrpp <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 summary.lm.rrpp <- function(object, formula = TRUE, ...){
-  x <- object
-  LM <- x$LM
-  PI <- x$PermInfo
-  AN <- x$ANOVA
-  perms <- PI$perms
-  dv <- LM$dist.coefficients
-  n <- LM$n
-  p <- LM$p
-  p.prime <- LM$p.prime
-  SS <- AN$SS
-  SSM.obs <- SS[,1]
-  RSS <- AN$RSS
-  TSS <- AN$TSS
-  RSS.model <- AN$RSS.model
-  if(is.null(RSS)) RSS <- RSS.model
-  if(is.null(RSS)) TSS <- RSS.model
-  SS.type <- AN$SS.type
-  k <- length(LM$term.labels)
-  if(LM$gls) P <- LM$Pcov
-  
-  if(k > 0) {
-    df <- AN$df
-    dfe <- df[k+1]
-    dfM <- sum(df[1:k])
-    SSM <- (TSS[1,] - RSS.model)
-    SSM.obs <- SSM[1]
-    Rsq <- SSM.obs/TSS[1]
-    Fs <- (SSM/dfM)/(RSS.model/dfe)
-    Fs.obs <- Fs[1]
-    P <- pval(Fs)
-    Z <- effect.size(log(Fs))
+  if(inherits(object, "manova.lm.rrpp")) out <- summary.manova.lm.rrpp(object) else {
+    x <- object
+    LM <- x$LM
+    PI <- x$PermInfo
+    AN <- x$ANOVA
+    perms <- PI$perms
+    dv <- LM$dist.coefficients
+    n <- LM$n
+    p <- LM$p
+    p.prime <- LM$p.prime
+    SS <- AN$SS
+    SSM.obs <- SS[,1]
+    RSS <- AN$RSS
+    TSS <- AN$TSS
+    RSS.model <- AN$RSS.model
+    if(is.null(RSS)) RSS <- RSS.model
+    if(is.null(RSS)) TSS <- RSS.model
+    SS.type <- AN$SS.type
+    k <- length(LM$term.labels)
+    if(LM$gls) P <- LM$Pcov
     
-    Fs.obs <- Fs[1]
-  } else {
+    if(k > 0) {
+      df <- AN$df
+      dfe <- df[k+1]
+      dfM <- sum(df[1:k])
+      SSM <- (TSS[1,] - RSS.model)
+      SSM.obs <- SSM[1]
+      Rsq <- SSM.obs/TSS[1]
+      Fs <- (SSM/dfM)/(RSS.model/dfe)
+      Fs.obs <- Fs[1]
+      P <- pval(Fs)
+      Z <- effect.size(log(Fs))
+      
+      Fs.obs <- Fs[1]
+    } else {
       df <- 0
       dfe <- AN$df
       dfM <- 1
       SSM <- Fs <- Z <- Rsq <- SSM.obs <- Fs.obs <- P <- ""
     }
-
-  tab <- data.frame(dfM = dfM, dfe = dfe,
-                    SSM = SSM.obs, RSS = RSS[1], Rsq = Rsq,
-                    F = Fs.obs, Z = Z, P = P)
-  dimnames(tab)[[2]] <- c("Df",
-                          "Residual Df",
-                          "SS",
-                          "Residual SS",
-                          "Rsq",
-                          "F",
-                          "Z (from F)",
-                          "Pr(>F)")
-  if(formula) dimnames(tab)[[1]] <- deparse(x$call$f1[[3]]) else
-    dimnames(tab)[[1]] <- deparse(substitute(object))
-  
-  pca.fitted <- prcomp(x$LM$wFitted)
-  pca.residuals <- prcomp(x$LM$wResiduals)
-  pca.total <- prcomp(x$LM$Y)
-  
-  if(x$LM$gls) {
-    Pcov <- x$LM$Pcov
-    PY <- crossprod(Pcov, x$LM$Y * sqrt(x$LM$weights))
-    PX <- as.matrix(crossprod(Pcov, x$LM$X * sqrt(x$LM$weights)))
-    Uf <- qr.Q(qr(PX))
-    int <- attr(x$LM$Terms, "intercept")
-    Pint <- as.matrix(crossprod(Pcov, rep(int, n)))
-    Un <- qr.Q(qr(Pint))
-    glsfitted <- fastFit(Uf, PY, n, p)
-    glsmeans <- fastFit(Un, PY, n, p)
     
-    Sf <- crossprod(glsfitted) - crossprod(glsmeans)
-    Sr <- crossprod((PY - glsfitted))
-    Sy <- crossprod(PY) - crossprod(glsmeans)
+    tab <- data.frame(dfM = dfM, dfe = dfe,
+                      SSM = SSM.obs, RSS = RSS[1], Rsq = Rsq,
+                      F = Fs.obs, Z = Z, P = P)
+    dimnames(tab)[[2]] <- c("Df",
+                            "Residual Df",
+                            "SS",
+                            "Residual SS",
+                            "Rsq",
+                            "F",
+                            "Z (from F)",
+                            "Pr(>F)")
+    if(formula) dimnames(tab)[[1]] <- deparse(x$call$f1[[3]]) else
+      dimnames(tab)[[1]] <- deparse(substitute(object))
     
-    Cf <- Sf/(n - 1)
-    Cr <- Sr/(n - 1)
-    Cy <- Sy/(n - 1)
+    pca.fitted <- prcomp(x$LM$wFitted)
+    pca.residuals <- prcomp(x$LM$wResiduals)
+    pca.total <- prcomp(x$LM$Y)
     
-    pca.fitted <- pca.residuals <- pca.total <- list()
-    
-    svd.Y <- svd(Cy)
-    keep <- which(zapsmall(svd.Y$d) > 0)
-    pca.total$sdev <- sqrt(svd.Y$d[keep])
-    pca.total$rotation <- as.matrix(svd.Y$v[, keep])
-    pca.total$x <- (PY - glsmeans) %*% as.matrix(svd.Y$v[, keep])
-    
-    svd.f <- svd(Cf)
-    keep <- which(zapsmall(svd.f$d) > 0)
-    if(length(keep) == 0) {
-      pca.fitted$sdev <- pca.fitted$rotation <- pca.fitted$x <- 0
-    } else {
-      pca.fitted$sdev <- sqrt(svd.f$d[keep])
-      pca.fitted$rotation <- as.matrix(svd.f$v[, keep])
-      pca.fitted$x <- glsfitted %*% as.matrix(svd.f$v[, keep])
+    if(x$LM$gls) {
+      Pcov <- x$LM$Pcov
+      PY <- crossprod(Pcov, x$LM$Y * sqrt(x$LM$weights))
+      PX <- as.matrix(crossprod(Pcov, x$LM$X * sqrt(x$LM$weights)))
+      Uf <- qr.Q(qr(PX))
+      int <- attr(x$LM$Terms, "intercept")
+      Pint <- as.matrix(crossprod(Pcov, rep(int, n)))
+      Un <- qr.Q(qr(Pint))
+      glsfitted <- fastFit(Uf, PY, n, p)
+      glsmeans <- fastFit(Un, PY, n, p)
+      
+      Sf <- crossprod(glsfitted) - crossprod(glsmeans)
+      Sr <- crossprod((PY - glsfitted))
+      Sy <- crossprod(PY) - crossprod(glsmeans)
+      
+      Cf <- Sf/(n - 1)
+      Cr <- Sr/(n - 1)
+      Cy <- Sy/(n - 1)
+      
+      pca.fitted <- pca.residuals <- pca.total <- list()
+      
+      svd.Y <- svd(Cy)
+      keep <- which(zapsmall(svd.Y$d) > 0)
+      pca.total$sdev <- sqrt(svd.Y$d[keep])
+      pca.total$rotation <- as.matrix(svd.Y$v[, keep])
+      pca.total$x <- (PY - glsmeans) %*% as.matrix(svd.Y$v[, keep])
+      
+      svd.f <- svd(Cf)
+      keep <- which(zapsmall(svd.f$d) > 0)
+      if(length(keep) == 0) {
+        pca.fitted$sdev <- pca.fitted$rotation <- pca.fitted$x <- 0
+      } else {
+        pca.fitted$sdev <- sqrt(svd.f$d[keep])
+        pca.fitted$rotation <- as.matrix(svd.f$v[, keep])
+        pca.fitted$x <- glsfitted %*% as.matrix(svd.f$v[, keep])
+      }
+      
+      svd.r <- svd(Cr)
+      keep <- which(zapsmall(svd.r$d) > 0)
+      pca.residuals$sdev <- sqrt(svd.r$d[keep])
+      pca.residuals$rotation <- as.matrix(svd.r$v[, keep])
+      pca.residuals$x <- (PY - glsfitted) %*% as.matrix(svd.r$v[, keep])
+      
     }
     
-    svd.r <- svd(Cr)
-    keep <- which(zapsmall(svd.r$d) > 0)
-    pca.residuals$sdev <- sqrt(svd.r$d[keep])
-    pca.residuals$rotation <- as.matrix(svd.r$v[, keep])
-    pca.residuals$x <- (PY - glsfitted) %*% as.matrix(svd.r$v[, keep])
-
+    d.f <- pca.fitted$sdev^2
+    d.r <- pca.residuals$sdev^2
+    d.t <- pca.total$sdev^2
+    
+    rank.f <- length(which(zapsmall(d.f) > 0))
+    rank.r <- length(which(zapsmall(d.r) > 0))
+    rank.t <- length(which(zapsmall(d.t) > 0))
+    
+    Trace <- zapsmall(c(sum(d.f), sum(d.r), sum(d.t)))
+    Proportion <- zapsmall(Trace/sum(d.t))
+    Rank <- c(rank.f, rank.r, rank.t)
+    
+    redund <- data.frame(Trace, Proportion, Rank)
+    rownames(redund) <- c("Fitted", "Residuals", "Total")
+    eigs.f <- eigs.r <- eigs.t <- rep(NA, rank.t)
+    eigs.f[1:rank.f] <- d.f[1:rank.f]
+    eigs.r[1:rank.r] <- d.r[1:rank.r]
+    eigs.t[1:rank.t] <- d.t[1:rank.t]
+    eigs <- as.table(zapsmall(rbind(eigs.f, eigs.r, eigs.t)))
+    rownames(eigs) <- c("Fitted", "Residuals", "Total")
+    colnames(eigs) <- paste("PC", 1:rank.t, sep="")
+    
+    rfit <-refit(x)
+    RR <- rfit$wResiduals.reduced
+    RF <- rfit$wResiduals.full
+    SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
+    names(SSCP) <- LM$term.labels
+    SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[length(RF)]]))))
+    out <- list(table = tab, SSCP = SSCP, n = n, p = p, p.prime = p.prime, k = k, 
+                perms = perms, dv = dv, SS = SS, SS.type = SS.type, redundancy = redund,
+                eigenvalues = eigs, gls = x$LM$gls)
+    class(out) <- "summary.lm.rrpp"
   }
-  
-  d.f <- pca.fitted$sdev^2
-  d.r <- pca.residuals$sdev^2
-  d.t <- pca.total$sdev^2
-  
-  rank.f <- length(which(zapsmall(d.f) > 0))
-  rank.r <- length(which(zapsmall(d.r) > 0))
-  rank.t <- length(which(zapsmall(d.t) > 0))
-  
-  Trace <- zapsmall(c(sum(d.f), sum(d.r), sum(d.t)))
-  Proportion <- zapsmall(Trace/sum(d.t))
-  Rank <- c(rank.f, rank.r, rank.t)
-  
-  redund <- data.frame(Trace, Proportion, Rank)
-  rownames(redund) <- c("Fitted", "Residuals", "Total")
-  eigs.f <- eigs.r <- eigs.t <- rep(NA, rank.t)
-  eigs.f[1:rank.f] <- d.f[1:rank.f]
-  eigs.r[1:rank.r] <- d.r[1:rank.r]
-  eigs.t[1:rank.t] <- d.t[1:rank.t]
-  eigs <- as.table(zapsmall(rbind(eigs.f, eigs.r, eigs.t)))
-  rownames(eigs) <- c("Fitted", "Residuals", "Total")
-  colnames(eigs) <- paste("PC", 1:rank.t, sep="")
-
-  rfit <-refit(x)
-  RR <- rfit$wResiduals.reduced
-  RF <- rfit$wResiduals.full
-  SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
-  names(SSCP) <- LM$term.labels
-  SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[length(RF)]]))))
-  out <- list(table = tab, SSCP = SSCP, n = n, p = p, p.prime = p.prime, k = k, 
-              perms = perms, dv = dv, SS = SS, SS.type = SS.type, redundancy = redund,
-              eigenvalues = eigs, gls = x$LM$gls)
-  class(out) <- "summary.lm.rrpp"
-  out
+ out
 }
 
 #' Print/Summary Function for RRPP
@@ -1016,3 +1018,139 @@ plot.model.comparison <- function(x, ...){
   abline(f, lty = 3, lwd = 0.8, col = "red")
   text(x, y, nms, pos = 1, cex = 0.4)
 }
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{lm.rrpp}}, updated with \code{\link{manova.update}}
+#' @param test Type of multivariate test statistic to use.
+#' @param ... Other arguments passed onto manova.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-Lawley", "Wilks"), ...){
+  if (!inherits(object, "manova.lm.rrpp")) 
+    stop(gettextf("object must be of class %s", dQuote("manova.lm.rrpp"), domain = NA))
+  test <- match.arg(test)
+  if(test == "Hotelling-Lawley") test <- "Hotelling.Lawley"
+  p <- object$LM$p
+  p.prime <- object$LM$p.prime
+  n <- object$LM$n
+  perm.method <- object$PermInfo$perm.method
+  if(perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
+  ind <- object$PermInfo$perm.schedule
+  trms <- object$LM$term.labels
+  k <- length(trms)
+  df <- object$ANOVA$df
+  df.model <- sum(df[1:k])
+  df <- c(df[1:k], df.model, df[k+1])
+  names(df) <- c(trms, "Full.Model", "Residuals")
+  
+  MANOVA <- object$MANOVA
+  if(MANOVA$verbose) {
+    eigs <- lapply(1:(k+1), function(j){
+      eh <- MANOVA$invR.H[[j]]
+      lapply(eh, function(x) Re(eigen(x, symmetric = FALSE,
+                                      only.values = TRUE)$values))
+    })
+  } else eigs <- MANOVA$eigs
+  
+  error <- MANOVA$error
+  
+  
+  stats <- as.data.frame(matrix(NA, nrow = k + 2, ncol = 5, byrow = FALSE,
+                                dimnames <- list(names(df), 
+                                                 c("Df", "Rand", test, "Z", "Pr"))))
+  stats$Df <- df
+  if(!is.null(error)) stats$Rand[1:(k+1)] <- c(error, "Residuals") else stats$Rand[1:(k+1)] <- rep("Residuals", k+1)
+  
+  if(test == "Pillai") {
+    
+    rand.stats <- sapply(1:(k+1), function(j){
+      y <- eigs[[j]]
+      sapply(y, pillai)
+    })
+    colnames(rand.stats) <- c(trms, "Full.Model")
+    test.stats <- rand.stats[1,]
+    Z <- apply(log(rand.stats), 2, effect.size)
+    P <- apply(rand.stats, 2, pval)
+    stats$Z[1:(k+1)] <- Z
+    stats$Pr[1:(k+1)] <- P
+    stats$Pillai[1:(k+1)] <- test.stats
+  }
+  else if(test == "Hotelling.Lawley") {
+    
+    rand.stats <- sapply(1:(k+1), function(j){
+      y <- eigs[[j]]
+      sapply(y, hot.law)
+    })
+    colnames(rand.stats) <- c(trms, "Full.Model")
+    test.stats <- rand.stats[1,]
+    Z <- apply(log(rand.stats), 2, effect.size)
+    P <- apply(rand.stats, 2, pval)
+    stats$Z[1:(k+1)] <- Z
+    stats$Pr[1:(k+1)] <- P
+    stats$Hotelling.Lawley[1:(k+1)] <- test.stats
+  }
+  
+  else if(test == "Wilks"){
+    
+    rand.stats <- sapply(1:(k+1), function(j){
+      y <- eigs[[j]]
+      sapply(y, wilks)
+    })
+    colnames(rand.stats) <- c(trms, "Full.Model")
+    test.stats <- rand.stats[1,]
+    Z <- apply(log(rand.stats), 2, effect.size)
+    P <- apply(1 - rand.stats, 2, pval)
+    stats$Z[1:(k+1)] <- Z
+    stats$Pr[1:(k+1)] <- P
+    stats$Wilks[1:(k+1)] <- test.stats
+  }
+  else {
+    rand.stats <- sapply(1:(k+1), function(j){
+      y <- eigs[[j]]
+      sapply(y, max)
+    })
+    colnames(rand.stats) <- c(trms, "Full.Model")
+    test.stats <- rand.stats[1,]
+    Z <- apply(log(rand.stats), 2, effect.size)
+    P <- apply(rand.stats, 2, pval)
+    stats$Z[1:(k+1)] <- Z
+    stats$Pr[1:(k+1)] <- P
+    stats$Roy[1:(k+1)] <- test.stats
+  }
+  
+  if(test == "Wilks") names(stats)[[length(stats)]] <- paste("Pr(<", test, ")", sep = "") else
+    names(stats)[[length(stats)]] <- paste("Pr(>", test, ")", sep = "")
+  
+  out <- list(stats.table = stats, rand.stats = rand.stats, stat.type = test,
+              n = n, p = p, p.prime = p.prime, e.rank = MANOVA$e.rank,
+              SS.type = object$ANOVA$SS.type, perms = object$PermInfo$perms)
+  class(out) <- "summary.manova.lm.rrpp"
+  out
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{summary.manova.lm.rrpp}}
+#' @param ... Other arguments passed onto summary.manova.lm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.summary.manova.lm.rrpp <- function(x, ...){
+  
+  cat("\nLinear Model fit with lm.rrpp\n")
+  cat(paste("\nNumber of observations:", x$n))
+  cat("\nNumber of dependent variables:", x$p)
+  cat("\nData space dimensions:", x$p.prime)
+  cat("\nResidual covariance matrix rank:", x$e.rank)
+  if(!is.null(x$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
+  cat(paste("\nNumber of permutations:", x$perms), "\n\n")
+  
+  tab <- as.matrix(x$stats.table)
+  print.table(tab, na.print = "")
+  invisible(x)
+}
+
+
+
