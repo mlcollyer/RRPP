@@ -159,7 +159,7 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
   } else Ematch <- NULL
   
   # Until a better solution is found, this must be forced
-  error <- Emathc <- NULL
+  error <- Ematch <- NULL
   
   fit <- refit(fit)
   perms <- length(ind)
