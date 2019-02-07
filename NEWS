@@ -1,6 +1,7 @@
 CHANGES IN RRPP VERSION 0.3.0
 
 NEW FEATURES
+    o Added print.summary.pairwise.
     o Added model.comparison function.
     o Added classify function.
 OTHER CHANGES

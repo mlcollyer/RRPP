@@ -786,9 +786,6 @@ summary.pairwise <- function(object, stat.table = TRUE,
     if(is.null(x$slopes)) type = "means"
   } else type <- "var"
  
-  print.pairwise(x)
-  cat("\n")
-  
   vars <- object$vars
   if(type == "var") {
     var.diff <- lapply(1:NCOL(vars), function(j){
@@ -796,11 +793,76 @@ summary.pairwise <- function(object, stat.table = TRUE,
       as.matrix(dist(v))
     })
     L <- d.summary.from.list(var.diff)
+  }
+  
+  if(type == "means") {
+    if(test.type == "dist") {
+      L <- d.summary.from.list(x$means.dist)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    
+    if(test.type == "VC") {
+      L <- r.summary.from.list(x$means.vec.cor)
+      if(stat.table) {
+        tab <- makePWCorTable(L)
+        if(angle.type == "deg") {
+          tab$angle <- tab$angle*180/pi
+          tab[,3] <- tab[,3]*180/pi
+        }
+      }
+    }
+  }
+  
+  if(type == "slopes") {
+
+    if(test.type == "dist") {
+      L <- d.summary.from.list(x$slopes.dist)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    
+    if(test.type == "VC") {
+      L <- r.summary.from.list(x$slopes.vec.cor) 
+      if(stat.table) {
+        tab <- makePWCorTable(L)
+        if(angle.type == "deg") {
+          tab$angle <- tab$angle*180/pi
+          tab[,3] <- tab[,3]*180/pi
+        }
+      }
+    }
+  }
+  out <- list()
+  out$pairwise.tables <- out$summary.table <- NULL
+  if(!is.null(L)) out$pairwise.table <- L
+  if(!is.null(tab)) out$summary.table <- tab
+  out$type <- type
+  out$test.type <- test.type
+  out$angle.type <- angle.type 
+  out$confidence <- confidence
+  if(!is.null(vars)) out$vars <- vars else out$vars <- NULL
+  out$show.vectors <- show.vectors
+  out$x <- x
+  class(out) <- "summary.pairwise"
+  out
+}
+
+print.summary.pairwise <- function(x, ...) {
+  type <- x$type
+  test.type <- x$test.type
+  print.pairwise(x$x)
+  cat("\n")
+  
+  L <- x$pairwise.table
+  tab <- x$summary.table
+  
+  if(!is.null(tab)) stat.table <- TRUE else stat.table <- FALSE
+  
+  if(type == "var") {
+    
     cat("\nObserved variances by group\n\n")
     print(vars[,1])
     
     if(stat.table) {
-      tab <- makePWDTable(L)
       cat("\nPairwise distances between variances, plus statistics\n")
       print(tab)
     } else {
@@ -816,13 +878,12 @@ summary.pairwise <- function(object, stat.table = TRUE,
   }
   
   if(type == "means") {
+    
     cat("LS means:\n")
-    if(show.vectors) print(x$LS.means[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
+    if(x$show.vectors) print(x$x$LS.means[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
     
     if(test.type == "dist") {
-      L <- d.summary.from.list(x$means.dist)
       if(stat.table) {
-        tab <- makePWDTable(L)
         cat("\nPairwise distances between means, plus statistics\n")
         print(tab)
       } else {
@@ -838,11 +899,9 @@ summary.pairwise <- function(object, stat.table = TRUE,
     }
     
     if(test.type == "VC") {
-      L <- r.summary.from.list(x$means.vec.cor)
       if(stat.table) {
-        tab <- makePWCorTable(L)
         cat("\nPairwise statistics based on mean vector correlations\n")
-        if(angle.type == "deg") {
+        if(x$angle.type == "deg") {
           tab$angle <- tab$angle*180/pi
           tab[,3] <- tab[,3]*180/pi
         }
@@ -851,9 +910,9 @@ summary.pairwise <- function(object, stat.table = TRUE,
         cat("\nPairwise vector correlations between mean vectors\n")
         print(L$r)
         cat("\nPairwise angles between mean vectors\n")
-        if(angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+        if(x$angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
         cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
-        if(angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+        if(x$angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
         cat("\nPairwise effect sizes (Z) for angles between mean vectors\n")
         print(L$Z)
         cat("\nPairwise P-values for angles between mean vectors\n")
@@ -864,14 +923,12 @@ summary.pairwise <- function(object, stat.table = TRUE,
   
   if(type == "slopes") {
     cat("Slopes (vectors of variate change per one unit of covariate change, by group):\n")
-    if(show.vectors) print(x$slopes[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
+    if(x$show.vectors) print(x$x$slopes[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
     
     if(test.type == "dist") {
       cat("\nSlope vector lengths\n")
-      print(x$slopes.length[[1]])
-      L <- d.summary.from.list(x$slopes.dist)
+      print(x$x$slopes.length[[1]])
       if(stat.table) {
-        tab <- makePWDTable(L)
         cat("\nPairwise absolute difference (d) between vector lengths, plus statistics\n")
         print(tab)
       } else {
@@ -887,13 +944,12 @@ summary.pairwise <- function(object, stat.table = TRUE,
     }
     
     if(test.type == "VC") {
-      L <- r.summary.from.list(x$slopes.vec.cor)
       cat("\nPairwise statistics based on slopes vector correlations (r) and angles, acos(r)")
       cat("\nThe null hypothesis is that r = 1 (parallel vectors).")
       cat("\nThis null hypothesis is better treated as the angle between vectors = 0\n")
       if(stat.table) {
-        tab <- makePWCorTable(L)
-        if(angle.type == "deg") {
+  
+        if(x$angle.type == "deg") {
           tab$angle <- tab$angle*180/pi
           tab[,3] <- tab[,3]*180/pi
         }
@@ -912,7 +968,9 @@ summary.pairwise <- function(object, stat.table = TRUE,
       }
     }
   }
+  invisible(x)
 }
+
 
 #' Print/Summary Function for RRPP
 #'
