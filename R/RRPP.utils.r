@@ -784,7 +784,10 @@ summary.pairwise <- function(object, stat.table = TRUE,
   if(test.type != "var") {
     if(is.null(x$LS.means)) type = "slopes"
     if(is.null(x$slopes)) type = "means"
-  } else type <- "var"
+  } else {
+    type <- "var"
+    tab <- NULL
+  }
  
   vars <- object$vars
   if(type == "var") {
@@ -793,6 +796,7 @@ summary.pairwise <- function(object, stat.table = TRUE,
       as.matrix(dist(v))
     })
     L <- d.summary.from.list(var.diff)
+    tab <- makePWDTable(L)
   }
   
   if(type == "means") {
@@ -832,9 +836,15 @@ summary.pairwise <- function(object, stat.table = TRUE,
     }
   }
   out <- list()
-  out$pairwise.tables <- out$summary.table <- NULL
-  if(!is.null(L)) out$pairwise.table <- L
-  if(!is.null(tab)) out$summary.table <- tab
+  out$pairwise.tables <- L
+  if(stat.table){
+    out$stat.table <- TRUE
+    out$summary.table <- tab
+  } else {
+    out$stat.table <- FALSE
+    out$summary.table <- NULL
+  }
+
   out$type <- type
   out$test.type <- test.type
   out$angle.type <- angle.type 
@@ -842,25 +852,33 @@ summary.pairwise <- function(object, stat.table = TRUE,
   if(!is.null(vars)) out$vars <- vars else out$vars <- NULL
   out$show.vectors <- show.vectors
   out$x <- x
+  
   class(out) <- "summary.pairwise"
   out
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{summary.pairwise}}
+#' @param ... Other arguments passed onto summary.pairwise
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
 print.summary.pairwise <- function(x, ...) {
   type <- x$type
   test.type <- x$test.type
+  stat.table <- x$stat.table
   print.pairwise(x$x)
   cat("\n")
   
-  L <- x$pairwise.table
-  tab <- x$summary.table
-  
-  if(!is.null(tab)) stat.table <- TRUE else stat.table <- FALSE
-  
+  L <- x$pairwise.tables
+  if(stat.table) tab <- x$summary.table
+
   if(type == "var") {
     
     cat("\nObserved variances by group\n\n")
-    print(vars[,1])
+    print(x$vars[,1])
     
     if(stat.table) {
       cat("\nPairwise distances between variances, plus statistics\n")
@@ -901,10 +919,6 @@ print.summary.pairwise <- function(x, ...) {
     if(test.type == "VC") {
       if(stat.table) {
         cat("\nPairwise statistics based on mean vector correlations\n")
-        if(x$angle.type == "deg") {
-          tab$angle <- tab$angle*180/pi
-          tab[,3] <- tab[,3]*180/pi
-        }
         print(tab)
       } else {
         cat("\nPairwise vector correlations between mean vectors\n")
@@ -947,20 +961,14 @@ print.summary.pairwise <- function(x, ...) {
       cat("\nPairwise statistics based on slopes vector correlations (r) and angles, acos(r)")
       cat("\nThe null hypothesis is that r = 1 (parallel vectors).")
       cat("\nThis null hypothesis is better treated as the angle between vectors = 0\n")
-      if(stat.table) {
-  
-        if(x$angle.type == "deg") {
-          tab$angle <- tab$angle*180/pi
-          tab[,3] <- tab[,3]*180/pi
-        }
-        print(tab)
-      } else {
+      if(stat.table) print(tab)
+        else {
         cat("\nPairwise vector correlations between slope vectors\n")
         print(L$r)
         cat("\nPairwise angles between slope vectors\n")
-        if(angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+        if(x$angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
         cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
-        if(angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+        if(x$angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
         cat("\nPairwise effect sizes (Z) for angles between slope vectors\n")
         print(L$Z)
         cat("\nPairwise P-values for angles between slope vectors\n")

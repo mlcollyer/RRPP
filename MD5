@@ -27,6 +27,7 @@ a5250d4040c7077e6100e338a9a38c6f *man/print.classify.Rd
 9fbe301422c10eae052693a38d2ceb7e *man/print.predict.lm.rrpp.Rd
 dee2473a6f8021b7f361ddffbb69eed6 *man/print.summary.lm.rrpp.Rd
 2bb8023b33c95bbed84ac4f434aa9828 *man/print.summary.manova.lm.rrpp.Rd
+9ae760a71c70574a33826296fe5f95fb *man/print.summary.pairwise.Rd
 e5e2cd45f97a0c4c65e797242f5588db *man/Pupfish.Rd
 3fe4d32c24afeeef0ec8dbecdd9d60ba *man/PupfishHeads.Rd
 2a130e557cf5e6d783bef526c8dcfcb7 *man/residuals.lm.rrpp.Rd
@@ -40,7 +41,7 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 8071df084e856baaea970cadde3d9b0c *man/summary.model.comparison.Rd
 17345e78d64e3b5f2464251c3482febf *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
-4a5f3b38a265069b773db6748908488b *NAMESPACE
+89a1b88cc02d517500bb45a486636776 *NAMESPACE
 86ea4676853eab04fde03ca50f62c0c2 *NEWS
 262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
@@ -51,7 +52,7 @@ d0c2e9bfde3601544d96c22161e1e4ae *R/model.comparison.r
 aadeaa80e40a91ea7d57d7fda254141a *R/pairwise.r
 2842c35d4b0d9cac9efff813dbf2115d *R/predict.lm.rrpp.r
 b185732728e1eb2112e81fb2aee9b8fe *R/RRPP.support.code.r
-bfa04691d172b61be51c6848342e49e6 *R/RRPP.utils.r
+6a32ca385246362894a42c69fb295449 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 597d993e67557b7e47629ea98a6e2b14 *vignettes/Collyer.Adams.2018.MEE.Appendix.S2.Rmd
