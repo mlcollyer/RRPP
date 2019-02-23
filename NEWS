@@ -1,3 +1,14 @@
+CHANGES IN RRPP VERSION 0.4.0
+
+NEW FEATURES
+    o manova.update.function
+
+OTHER CHANGES
+    o Added a pairwise variance comparison for the pairwise function.
+
+BUG FIXES 
+    o Tuned F-stat calculations to allow for model-specific residual variances, for multiple terms.
+
 CHANGES IN RRPP VERSION 0.3.0
 
 NEW FEATURES
@@ -5,7 +16,7 @@ NEW FEATURES
     o Added model.comparison function.
     o Added classify function.
 OTHER CHANGES
-    o Added a pairwise variance comparison for the pairwise function.
+    o Added an update to allow classify to work on univeraite data.
 BUG FIXES 
     o Tuned criterion for assessing whether generalized inverse should be performed.
     o Fixed bug with GLS variance estimation in pairwise.

@@ -1,0 +1,46 @@
+---
+title: "ANOVA versus MANOVA in RRPP"
+author: "Michael L. Collyer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ANOVA versus MANOVA in RRPP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Preliminaries
+
+RRPP is an acronym for radnomization of residuals in a permutation procedure.  *RRPP* refers to the package utlizing RRPP.
+
+## What is ANOVA?
+
+Analysis of variance (ANOVA) means different things to different people, but generally speaking, one recognizes an ANOVA table as a table of statistics including sums of squares, $SS$, mean squares , $MS$, $F$-statistics, and $P$-values.  In this table, such statistics might be found for different model terms and can be calculated for different types of $SS$.
+
+## What is ANOVA in *RRPP*?
+
+ANOVA in *RRPP* is a concept that generalizes the statistics used in univariate ANOVA to multivariate data.  The fundamental statistic is $SS$, calculated as the trace of the sums of squares and cross-products matrix, $\mathbf{S}$.  Thus, $SS$ is sum of each variable's $SS$, meaning for univariate data, $SS$ is found for a single variable, only. Dividing this trace form of $SS$ by appropriate degrees of freedom, produces $MS$ values, which can be used to calculate $F$-statistics; i.e., 
+
+$$ F = \frac{MS_{effect}}{MS_{Random}} = \frac{SS_{effect}/df_{effect}}{SS_{random}/df_{random}}=
+\frac{trace(\mathbf{S}_{effect})/df_{effect}}{trace(\mathbf{S}_{random})/df_{random}},$$
+
+where $random$ can refer to a random effect or residuals, and $df$ is the appropriate degrees of freedom for effect and random $SS$.
+
+In this manner, there is no fundamental difference in how univariate and multivariate statistics are calculated (the univariate statistics are a simplified version of the same multivariate statistics).  Therefore, ANOVA in *RRPP* does not distinguish between univariate and multivariate data, but refers to this consistency in calculation of statistics.
+
+## MANOVA in *RRPP*
+
+Multivariate analysis of variance (MANOVA) is perhaps typically thought of as an analog to ANOVA when data are multivariate.  Rather, in *RRPP*, the M in MANOVA references the calculation of multivariate statistics and generating their empircal sampling distributions.  This is no different than parametric MANOVA.  However, in parametric MANOVA, multivariate test statistics - including Roy's maximum root, Pillai trace, Hotelling-Lawley trace, and Wilks $\Lambda$ - are converted to  $F$-statistics that approximately follow $F$-distributions, as these statistics have no probability distributions of their own.  In *RRPP*, the statistics are calculated in every random permutation, eliminating the need to find an approximate probability distribution (the empirical sampling distribution is sufficient as an approximation).  Whereas parametric MANOVA could be thought of as the forcing of multivariate statistics into a univariate ANOVA style framework, MANOVA in *RRPP* is better defined as using randomization of residuals in a permutation procedure on multivariate statistics in much the same way as the traces of $\mathbf{S}$ matrices in ANOVA.  Description of how RRPP works can be found in [another vignette](Collyer.Adams.2018.MEE.Appendix.S2.html)
+
+All multivariate statistics are derived from eigenanalysis of
+
+$$\mathbf{S}_{random}^{-1}\mathbf{S}_{effect},$$
+
+where $\mathbf{S}_{random}$ is typicaly the $\mathbf{S}$ matrix for residuals.  Singular matrices are not a concern if data are projected into a an Euclidean space of appropriate dimensions before matrix inversion.  However, Wilks $\lambda$ might be less appropriate than other multivariate statistics, as it relies on products of eigenvalues rather than summation.
+
+

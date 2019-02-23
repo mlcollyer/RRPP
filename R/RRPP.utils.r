@@ -87,7 +87,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                             "F",
                             "Z (from F)",
                             "Pr(>F)")
-    if(formula) dimnames(tab)[[1]] <- deparse(x$call$f1[[3]]) else
+    if(formula) dimnames(tab)[[1]] <- deparse(formula(x$call$f1)[[3]]) else
       dimnames(tab)[[1]] <- deparse(substitute(object))
     
     pca.fitted <- prcomp(x$LM$wFitted)

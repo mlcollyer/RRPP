@@ -1,8 +1,8 @@
 ## Resubmission
-This is an initial submission for version 0.3.0
+This is an initial submission for version 0.4.0
 
 ## Test environments
-* local OS X install, R 3.5.1
+* local OS X install, R 3.5.2
 * win-builder (devel and release)
 
 ## R CMD check results

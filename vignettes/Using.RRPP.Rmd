@@ -1,6 +1,5 @@
 ---
-title: "RRPP: An R package for fitting linear models to high-dimensional data using residual randomization"
-author: "Michael L. Collyer & Dean C. Adams"
+title: "Using RRPP"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -263,7 +262,7 @@ Within the `$LM` partition, all attributes of the lm function are found, in addi
 
 ***References***
 
-Adams, D. C., & Collyer, M. L. (2018). Multivariate phylogenetic comparative methods: Evalutions, comparisons, and recommendations. Systematic Biology, 67, 14–31.
+Adams, D. C., & Collyer, M. L. (2018). Multivariate phylogenetic comparative methods: Evaluations, comparisons, and recommendations. Systematic Biology, 67, 14–31.
 
 Adams, D. C., Collyer, M. L., Kaliontzopoulou, A., & Sherratt, E. (2017). Geomorph: Software for geometric morphometric analyses. R package version 3.0.6. 
 
