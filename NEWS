@@ -2,6 +2,7 @@ CHANGES IN RRPP VERSION 0.4.0
 
 NEW FEATURES
     o manova.update.function
+    o New vignette for ANOVA versus MANOVA in RRPP
 
 OTHER CHANGES
     o Added a pairwise variance comparison for the pairwise function.

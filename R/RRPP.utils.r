@@ -1114,8 +1114,8 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   MANOVA <- object$MANOVA
   if(MANOVA$verbose) {
     eigs <- lapply(1:(k+1), function(j){
-      eh <- MANOVA$invR.H[[j]]
-      lapply(eh, function(x) Re(eigen(x, symmetric = FALSE,
+      rh <- MANOVA$invR.H[[j]]
+      lapply(rh, function(x) Re(eigen(x, symmetric = FALSE,
                                       only.values = TRUE)$values))
     })
   } else eigs <- MANOVA$eigs
