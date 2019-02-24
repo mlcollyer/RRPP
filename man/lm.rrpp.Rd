@@ -114,6 +114,8 @@ as the expected values for random distances can vary among coefficient vectors (
  by \code{\link{summary.manova.lm.rrpp}}, after running manova.update on lm.rrpp fits.
  
  Currently, mixed model effects are only possible with $ANOVA statistics, not $MANOVA.
+ 
+ More detail is found in the vignette, ANOVA versus MANOVA.
 }
 
 \subsection{Notes for RRPP 0.3.1 and subsequent versions}{ 

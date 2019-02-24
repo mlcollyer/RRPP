@@ -69,6 +69,7 @@ or exceeds the number of observations).
  
  Currently, mixed model effects are only possible with $ANOVA statistics, not $MANOVA.
  
+ More detail is found in the vignette, ANOVA versus MANOVA.  
 }
 }
 \examples{

@@ -42,6 +42,7 @@
 #'  
 #'  Currently, mixed model effects are only possible with $ANOVA statistics, not $MANOVA.
 #'  
+#'  More detail is found in the vignette, ANOVA versus MANOVA.  
 #' }
 #' 
 #' @references Goodall, C.R. 1991. Procrustes methods in the statistical analysis of shape. Journal of the 
