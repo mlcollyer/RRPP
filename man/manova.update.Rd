@@ -4,8 +4,8 @@
 \alias{manova.update}
 \title{MANOVA update for lm.rrpp model fits}
 \usage{
-manova.update(fit, error = NULL, print.progress = TRUE,
-  verbose = FALSE)
+manova.update(fit, error = NULL, tol = 0.01, PC.no = NULL,
+  print.progress = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{fit}{Linear model fit from \code{\link{lm.rrpp}}}
@@ -13,6 +13,16 @@ manova.update(fit, error = NULL, print.progress = TRUE,
 \item{error}{An optional character string to define R matrices used to calculate invR.H.
 (Currently only Residuals can be used and this argument defaults to NULL.  Future versions
 will update this argument.)}
+
+\item{tol}{A tolerance value for culling data dimensions to prevent spurious results.  The distribution
+of eigenvalues for the data will be examined and if the decay becomes less than the tolerance,
+the data will be truncated to principal components ahead of this point.  This will possibly prevent spurious results
+calculated from eigenvalues near 0.  If tol = 0, all possible PC axes are used, which is likely
+not a problem if observations outnumber variables.}
+
+\item{PC.no}{A value that, if not NULL,  overrides the tolerance argument, and forces a desired number of 
+data PCs to use for analysis.  If a value larger than the possible number of PCs is chosen, the full compliment of PCs
+(the full data space) will be used.}
 
 \item{print.progress}{A logical value to indicate whether a progress bar should be printed to the screen.
 This is helpful for long-running analyses.}
@@ -42,11 +52,15 @@ and Wilks lambda (via \code{\link{summary.manova.lm.rrpp}}).
 
 The manova.update to add $MANOVA to \code{\link{lm.rrpp}} fits requires more computation time than the $ANOVA
 statistics that are computed automatically in \code{\link{lm.rrpp}}.  Generally, the same inferential conclusions will
-be found with either approach.  Because distributions of MANOVA stats can be generated from the random permutations,
-there is no need to approximate F-values, like with parametric MANOVA.  Data dimensionality is not an issue with the 
-non-parametric approach used in this function.  By restricting analysis to the real, positive eigen values calculated,
+be found with either approach, when observations outnumber response variables.  For high-dimensional data (more variables
+than observations) data are projected into a Euclidean space of appropriate dimensions (rank of residual covariance matrix).  
+One can vary the tolerance for eigenvalue decay or specify the number of PCs, if a smaller set of PCs than the maximum is desired.  
+This is advised if there is strong correlation among variables (the data space could be simplified to fewer dimensions), as spurious
+results are possible.  When observations outnumber variables, projection of data onto PCs yields the same results as the original 
+variables.  Because distributions of MANOVA stats can be generated from the random permutations,
+there is no need to approximate F-values, like with parametric MANOVA. By restricting analysis to the real, positive eigen values calculated,
 all statistics can be calculated (but Wilks lambda, as a product but not a trace, might be less reliable as variable number approaches
-or exceeds the number of observations).
+the number of observations).
 
  \subsection{ANOVA vs. MANOVA}{ 
  Two SSCP matrices are calculated for each linear model effect, for every random permutation: R (Residuals or Random effects) and
@@ -93,7 +107,7 @@ anova(fit) # ANOVA table
 
 # MANOVA
 
-fit.m <- manova.update(fit, print.progress = FALSE)
+fit.m <- manova.update(fit, print.progress = FALSE, tol = 0.001)
 summary(fit.m, test = "Roy")
 summary(fit.m, test = "Pillai")
 

@@ -1113,10 +1113,17 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   
   MANOVA <- object$MANOVA
   if(MANOVA$verbose) {
+    
+    getEigs <- function(EH, EH.rank){
+      r <- min(dim(na.omit(EH)))
+      EH <- EH[1:r, 1:r]
+      Re(eigen(EH, symmetric = FALSE, only.values = TRUE)$values)[1:EH.rank]
+    }
+    
     eigs <- lapply(1:(k+1), function(j){
       rh <- MANOVA$invR.H[[j]]
-      lapply(rh, function(x) Re(eigen(x, symmetric = FALSE,
-                                      only.values = TRUE)$values))
+      rh.rank <- qr(rh[[1]])$rank
+      lapply(rh, function(x) getEigs(x, rh.rank))
     })
   } else eigs <- MANOVA$eigs
   
@@ -1190,7 +1197,8 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     names(stats)[[length(stats)]] <- paste("Pr(>", test, ")", sep = "")
   
   out <- list(stats.table = stats, rand.stats = rand.stats, stat.type = test,
-              n = n, p = p, p.prime = p.prime, e.rank = MANOVA$e.rank,
+              n = n, p = p, p.prime = p.prime, e.rank = MANOVA$e.rank, 
+              manova.pc.dims = MANOVA$manova.pc.dims, PCA = MANOVA$PCA,
               SS.type = object$ANOVA$SS.type, perms = object$PermInfo$perms)
   class(out) <- "summary.manova.lm.rrpp"
   out
@@ -1210,6 +1218,17 @@ print.summary.manova.lm.rrpp <- function(x, ...){
   cat("\nNumber of dependent variables:", x$p)
   cat("\nData space dimensions:", x$p.prime)
   cat("\nResidual covariance matrix rank:", x$e.rank)
+  pc.max <- max(x$manova.pc.dims)
+  
+  if(pc.max < x$e.rank) {
+    cat("\n   Data reduced to", pc.max, "PCs, as required or prescribed.")
+    PCA <- x$PCA
+    d2 <- PCA$sdev^2
+    d.p <- sum(d2[1:pc.max])/sum(d2)
+    cat("\n  ", round(d.p*100, 1), "% of overall variation explained by these PCs.")
+    cat("\n   See $MANOVA$PCA from manova.lm.rrpp object for more information.")
+  }
+    
   if(!is.null(x$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
   cat(paste("\nNumber of permutations:", x$perms), "\n\n")
   

@@ -15,11 +15,15 @@
 #' 
 #' The manova.update to add $MANOVA to \code{\link{lm.rrpp}} fits requires more computation time than the $ANOVA
 #' statistics that are computed automatically in \code{\link{lm.rrpp}}.  Generally, the same inferential conclusions will
-#' be found with either approach.  Because distributions of MANOVA stats can be generated from the random permutations,
-#' there is no need to approximate F-values, like with parametric MANOVA.  Data dimensionality is not an issue with the 
-#' non-parametric approach used in this function.  By restricting analysis to the real, positive eigen values calculated,
+#' be found with either approach, when observations outnumber response variables.  For high-dimensional data (more variables
+#' than observations) data are projected into a Euclidean space of appropriate dimensions (rank of residual covariance matrix).  
+#' One can vary the tolerance for eigenvalue decay or specify the number of PCs, if a smaller set of PCs than the maximum is desired.  
+#' This is advised if there is strong correlation among variables (the data space could be simplified to fewer dimensions), as spurious
+#' results are possible.  When observations outnumber variables, projection of data onto PCs yields the same results as the original 
+#' variables.  Because distributions of MANOVA stats can be generated from the random permutations,
+#' there is no need to approximate F-values, like with parametric MANOVA. By restricting analysis to the real, positive eigen values calculated,
 #' all statistics can be calculated (but Wilks lambda, as a product but not a trace, might be less reliable as variable number approaches
-#' or exceeds the number of observations).
+#' the number of observations).
 #' 
 #'  \subsection{ANOVA vs. MANOVA}{ 
 #'  Two SSCP matrices are calculated for each linear model effect, for every random permutation: R (Residuals or Random effects) and
@@ -53,6 +57,14 @@
 #' @param error An optional character string to define R matrices used to calculate invR.H.
 #' (Currently only Residuals can be used and this argument defaults to NULL.  Future versions
 #' will update this argument.)
+#' @param tol A tolerance value for culling data dimensions to prevent spurious results.  The distribution
+#' of eigenvalues for the data will be examined and if the decay becomes less than the tolerance,
+#' the data will be truncated to principal components ahead of this point.  This will possibly prevent spurious results
+#' calculated from eigenvalues near 0.  If tol = 0, all possible PC axes are used, which is likely
+#' not a problem if observations outnumber variables.
+#' @param PC.no A value that, if not NULL,  overrides the tolerance argument, and forces a desired number of 
+#' data PCs to use for analysis.  If a value larger than the possible number of PCs is chosen, the full compliment of PCs
+#' (the full data space) will be used.
 #' @param print.progress A logical value to indicate whether a progress bar should be printed to the screen.
 #' This is helpful for long-running analyses.
 #' @param verbose A logical value to indicate whether invR.H matrices should be returned (if TRUE) or just their 
@@ -86,7 +98,7 @@
 #' 
 #' # MANOVA
 #' 
-#' fit.m <- manova.update(fit, print.progress = FALSE)
+#' fit.m <- manova.update(fit, print.progress = FALSE, tol = 0.001)
 #' summary(fit.m, test = "Roy")
 #' summary(fit.m, test = "Pillai")
 #' 
@@ -113,9 +125,12 @@
 #' par(mfcol = c(1,1))
 #' 
 
-manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FALSE) {
+manova.update <- function(fit, error = NULL, 
+                          tol = 0.01, PC.no = NULL,
+                          print.progress = TRUE, verbose = FALSE) {
   if(inherits(fit, "manova.lm.rrpp")) stop("\nlm.rrpp object has already been updated for MANOVA\n", 
                                            call. = FALSE)
+  if(!is.logical(verbose)) verbose = FALSE
   p <- fit$LM$p
   if(p < 2) stop("\n Multiple responses are required for this analysis.\n", call. = FALSE)
   p.prime <- fit$LM$p.prime
@@ -131,16 +146,24 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
   gls <- fit$LM$gls
   if(gls) P <- fit$LM$Pcov else P <- NULL
   o.fit <- fit
-  if(e.rank < p.prime) {
-    ee.rank <- e.rank - 1
-    if(ee.rank == 0) 
-      stop("Insufficient dimensions for MANOVA\n", call. = FALSE)
-    Y <- prcomp(fit$LM$Y)$x[, 1:ee.rank]
-  } else {
-      ee.rank <- e.rank
-      Y <- prcomp(fit$LM$Y)$x[, 1:p.prime]
-    }
-
+  d <- svd(var(o.fit$LM$Y))$d
+  d <- cumsum(d/sum(d))
+  dd <- rep(0, length(d) - 1)
+  for(i in 2:length(d)) dd[i - 1] <- (d[i] - d[i - 1])
+  dd <- c(1, dd)
+  if(tol > 0) d <- which(dd >= tol) else d <- 1:p.prime
+  if(!is.null(PC.no)) {
+    d <- 1:PC.no
+    if(PC.no > p.prime) d <- 1:p.prime
+  }
+  PCA <- prcomp(o.fit$LM$Y)
+  dd <- zapsmall(PCA$sdev^2)
+  dd <- dd[dd > 0]
+  if(length(dd) < e.rank) {
+    d <- 1:length(dd)
+    e.rank <- length(d)
+  }
+  Y <- PCA$x[, 1:(min(length(d), e.rank))]
   dat <- fit$LM$data
   dat$Y <- Y
   dat <- rrpp.data.frame(dat)
@@ -182,9 +205,19 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
                     ind.i = NULL, w = NULL, o = NULL)
   if(offset) rrpp.args$o <- o
   if(print.progress){
-    cat(paste("\nEigen-analysis of SSCP matrix products:", perms, "permutations.\n"))
+    if(verbose) 
+      cat(paste("\nCalculation of SSCP matrix products:", perms, "permutations.\n")) else
+        cat(paste("\nEigen-analysis of SSCP matrix products:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
+  
+  getEigs <- function(EH, EH.rank){
+    r <- min(dim(na.omit(EH)))
+    EH <- EH[1:r, 1:r]
+    Re(eigen(EH, symmetric = FALSE, only.values = TRUE)$values)[1:EH.rank]
+  }
+  
+  
   if(gls){
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
@@ -198,6 +231,7 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
     H <- Map(function(f, r) tcrossprod(f) - tcrossprod(r), Uf, Ur)
     Hfull <- tcrossprod(Ufull)
     Hnull <- tcrossprod(Unull)
+    EH.rank <-  c(Map(function(r, f) f$rank - r$rank, Qr, Qf), qr(Hfull)$rank - qr(Hnull)$rank)
     
     yh0 <- fastFit(Unull, Y, n, p)
     r0 <- Y - yh0
@@ -235,12 +269,11 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
       D <- diag(1/sqrt(diag(E.full)))
       Ef.qr <- Map(function(e) qr(D %*% e %*% D), Es)
       Ef.qr.full <- qr(D %*% E.full %*% D)
-      E.rank <- lapply(Ef.qr, function(e) e$rank) 
-      EH <- Map(function(e, h, r) qr.coef(e, (D %*% h %*% D))[1:r, 1:r], Ef.qr, Hs, E.rank)
-      EH[[k+1]] <- qr.coef(Ef.qr.full, (D %*% H.full %*% D))[1:ee.rank, 1:ee.rank]
+      EH <- Map(function(e, h) qr.coef(e, (D %*% h %*% D)), Ef.qr, Hs)
+      EH[[k+1]] <- qr.coef(Ef.qr.full, (D %*% H.full %*% D))
       names(EH)[[k+1]] <- "full.model"
-      eig.d <- lapply(EH, function(x) Re(eigen(x, symmetric = FALSE,
-                                               only.values = TRUE)$values))
+      eig.d <- Map(function(e, r) getEigs(e, r),
+                   EH, EH.rank)
       if(verbose) out <- EH else out <- eig.d
       names(out) <- c(trms, "full.model")
       out
@@ -262,6 +295,7 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
     H <- Map(function(f, r) tcrossprod(f) - tcrossprod(r), Uf, Ur)
     Hfull <- tcrossprod(Ufull)
     Hnull <- tcrossprod(Unull)
+    EH.rank <-  c(Map(function(r, f) f$rank - r$rank, Qr, Qf), qr(Hfull)$rank - qr(Hnull)$rank)
     
     yh0 <- fastFit(Unull, Y, n, p)
     r0 <- Y - yh0
@@ -288,15 +322,14 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
       D <- diag(1/sqrt(diag(E.full)))
       Ef.qr <- Map(function(e) qr(D %*% e %*% D), Es)
       Ef.qr.full <- qr(D %*% E.full %*% D)
-      E.rank <- lapply(Ef.qr, function(e) e$rank)
-      EH <- Map(function(e, h, r) qr.coef(e, (D %*% h %*% D))[1:r, 1:r], Ef.qr, Hs, E.rank)
-      EH[[k+1]] <- qr.coef(Ef.qr.full, (D %*% H.full %*% D))[1:ee.rank, 1:ee.rank]
+      EH <- Map(function(e, h) qr.coef(e, (D %*% h %*% D)), Ef.qr, Hs)
+      EH[[k+1]] <- qr.coef(Ef.qr.full, (D %*% H.full %*% D))
       names(EH)[[k+1]] <- "full.model"
-      eig.d <- lapply(EH, function(x) Re(eigen(x, symmetric = FALSE,
-                                               only.values = TRUE)$values))
+      eig.d <- Map(function(e, r) getEigs(e, r),
+                   EH, EH.rank)
       
       if(verbose) out <- EH else out <- eig.d
-      names(out) <- c(trms, "full.model")
+      
       out
     })
   }
@@ -312,7 +345,8 @@ manova.update <- function(fit, error = NULL, print.progress = TRUE, verbose = FA
   names(MANOVA) <- names(result[[1]])
   
   out <- o.fit
-  out$MANOVA <- list(MANOVA = MANOVA, verbose = verbose, error = error, e.rank = e.rank)
+  out$MANOVA <- list(MANOVA = MANOVA, verbose = verbose, error = error, 
+                     e.rank = e.rank, PCA = PCA, manova.pc.dims = d)
   if(verbose) names(out$MANOVA)[[1]] <- "invR.H" else 
     names(out$MANOVA)[[1]] <- "eigs"
   

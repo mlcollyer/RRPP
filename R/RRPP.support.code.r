@@ -168,7 +168,7 @@ rrpp.data.frame<- function(...){
 # used in various functions where mean-centering is required
 
 center <- function(x){
-  if(is.vector(x)) x- mean(x) else {
+  if(is.vector(x)) x - mean(x) else {
     x <- as.matrix(x)
     dims <- dim(x)
     fast.center(x, dims[1], dims[2])

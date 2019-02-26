@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Preliminaries
 
-RRPP is an acronym for randomization of residuals in a permutation procedure.  *RRPP* refers to the package utlizing RRPP.
+RRPP is an acronym for randomization of residuals in a permutation procedure.  *RRPP* refers to the package utilizing RRPP.
 
 ## What is ANOVA?
 
@@ -35,7 +35,7 @@ In this manner, there is no fundamental difference in how univariate and multiva
 
 ## What is MANOVA?
 
-Multivariate analysis of variance (MANOVA) is perhaps typically thought of as an analog to ANOVA when data are multivariate.  In what is classically refered to as, "MANOVA," multivariate statistics are calculated, including Roy's maximum root, Pillai trace, Hotelling-Lawley trace, and Wilks $\Lambda$.  These statistics do not have probability distributions (density functions), so they are converted to statistics that are assumed to approximately follow $F$-distributions.  This works in cases that the number of observations are sufficiently larger than the number of response variables.  Therefore, the M in MANOVA can be thought of as an indicator that multivariate data are analyzed and/or that multivariate statistics are calculated as a means to estimate $F$-statistics, but the ANOVA in MANOVA is not different than parametric ANOVA for univariate data, once $F$-statistics are calculated.
+Multivariate analysis of variance (MANOVA) is perhaps typically thought of as an analog to ANOVA when data are multivariate.  In what is classically referred to as, "MANOVA," multivariate statistics are calculated, including Roy's maximum root, Pillai trace, Hotelling-Lawley trace, and Wilks $\Lambda$.  These statistics do not have probability distributions (density functions), so they are converted to statistics that are assumed to approximately follow $F$-distributions.  This works in cases that the number of observations are sufficiently larger than the number of response variables.  Therefore, the M in MANOVA can be thought of as an indicator that multivariate data are analyzed and/or that multivariate statistics are calculated as a means to estimate $F$-statistics, but the ANOVA in MANOVA is not different than parametric ANOVA for univariate data, once $F$-statistics are calculated.
 
 ## MANOVA in *RRPP*
 
@@ -69,15 +69,15 @@ anova(fit)
 To switch to MANOVA statistics, the linear model fit must be updated to include MANOVA statistics, in addition to the ANOVA statistics already generated.  The MANOVA statistics take more time to calculate, because of matrix inversion and eigenanalysis in every permutation, so it is not performed unless requested.  
 
 ```{r}
-fitm <- manova.update(fit, print.progress = FALSE)
+fitm <- manova.update(fit, print.progress = FALSE, tol = 0)
 attributes(fitm)
 attributes(fitm$MANOVA)
 ```
 
-The "eigs" object returns all the eigenvalues of $\mathbf{S}_{random}^{-1}\mathbf{S}_{effect}$, because the dafault argument, verbose, was FALSE.  One can return the matrices, themselves, with verbose = TRUE; i.e,
+The "eigs" object returns all the eigenvalues of $\mathbf{S}_{random}^{-1}\mathbf{S}_{effect}$, because the default argument, verbose, was FALSE.  One can return the matrices, themselves, with verbose = TRUE; i.e,
 
 ```{r}
-fitm <- manova.update(fit, print.progress = FALSE, verbose = TRUE)
+fitm <- manova.update(fit, print.progress = FALSE, tol = 0, verbose = TRUE)
 attributes(fitm)
 attributes(fitm$MANOVA)
 ```
@@ -90,16 +90,27 @@ summary(fitm, test = "Pillai")
 
 ```
 
-It should be apparent that although the ANOVA and MANOVA results have some qualitative similarity, the effect sizes ($Z$-scores) can vary.  $P$-values will be exactly the same for different MANOVA test statistics, even though effect sizes can vary.  Comparatively, the results of the MANOVA statistics can be influenced by variable covariances more so than ANOVA results (which are influenced solely by variances; i.e., the dispersion of values in the data space).  The results are also influenced by dimensionality.  In this case, there are more shape variables (112) than residual degrees of freedom (50), so data are projected into a lower-dimension Euclidean space to allow matrix inversion; i.e., $\mathbf{S}_{residual}^{-1}\mathbf{S}_{effect}$.  When the number of observations far exceeds the data space dimensions, the results will be qualitatively more similar.  Consider this example (although reducing dimensions is not recommended as a typical solution):
+It should be apparent that although the ANOVA and MANOVA results have some similarities, the effect sizes ($Z$-scores) and $P$-values can vary.  Comparatively, the results of the MANOVA statistics can be influenced by variable covariances more so than ANOVA results (which are influenced solely by variances; i.e., the dispersion of values in the data space).  The results are also influenced by dimensionality.  In this case, there are more shape variables (112) than residual degrees of freedom (50), so data are projected into a lower-dimension Euclidean space to allow matrix inversion; i.e., $\mathbf{S}_{residual}^{-1}\mathbf{S}_{effect}$.  A tolerance of 0 means all possible PCs were retained for analysis.  (Tolerance is the permissible relative change in eigenvalues.  For example, tol = 0.01 means that if the k + 1st eigenvalue is not at least 1% smaller than the kth eigenvalue, retain only k eigenvectors.  The k + 1, k + 2, k + 3, ... eigenvalues decay at such a small rate that they are considered inconsequential.)
+
+When the number of observations far exceeds the data space dimensions, this is okay, and the results will be qualitatively more similar to ANOVA results.  Consider this example (although reducing dimensions is not recommended as a typical solution):
 
 ```{r}
-Pupfish$Y <- prcomp(Pupfish$coords)$x[, 1:3] # only 3 PCs of shape
-fit <- lm.rrpp(Y ~ Sex*Pop, SS.type = "I", 
-               data = Pupfish, print.progress = FALSE) 
-fitm <- manova.update(fit, print.progress = FALSE)
+fitm <- manova.update(fit, print.progress = FALSE, tol = 0.001)
 anova(fit)
 summary(fitm)
 ```
+
+Alternatively, one could specify an exact number of PCs to use in analysis.
+
+```{r}
+fitm <- manova.update(fit, print.progress = FALSE, PC.no  = 10)
+anova(fit)
+summary(fitm)
+```
+
+## Dimensionality Warning for MANOVA on high-dimensional data
+
+If the maximum number of possible PCs is chosen (full data space dimensionality) **AND** the number of variables exceeds the number of observations, *RRPP* will attempt to assess the number of real dimensions in each random permutation and adjust SSCP matrices, accordingly.  (It is possible to randomly generate SSCP matrices of lower rank in random permutations, via RRPP.)  However, it cannot be guaranteed that eigenvalues will be positive in such cases.  If a warning message is delivered, "NaNs produced," this might be the reason.  Using a slightly lower number of PCs will probably resolve the issue.
 
 ## Conclusions and Suggestions
 
@@ -107,4 +118,4 @@ ANOVA in *RRPP* generalizes univariate ANOVA to multivariate data, its statistic
 
 MANOVA in *RRPP* produces the same multivariate statistics found in parametric MANOVA (when the number of observations exceeds residual degrees of freedom), but unlike parametric MANOVA, $P$-values are estimated from empirical sampling distributions of statistics (rather than estimating values that approximately follow $F$-distributions, with constraints).  The choice of multivariate statistic is inconsequential for $P$-values, but makes a difference for effect sizes.  
 
-Because high-dimensional data force a projection of data into Euclidean subspaces, to make matrix inversion and eigenanalysis possible, MANOVA results could differ from ANOVA results (both qualitatively and in terms of effect sizes).  For multivariate data with many more observations than variables (ideal conditions), results using either ANOVA or MANOVA will be comparable.  For high-dimensional data, ANOVA results might be more relaibale.
+Because high-dimensional data force a projection of data into Euclidean subspaces, to make matrix inversion and eigenanalysis possible, MANOVA results could differ from ANOVA results (both qualitatively and in terms of effect sizes).  For multivariate data with many more observations than variables (ideal conditions), results using either ANOVA or MANOVA will be comparable.  For high-dimensional data, ANOVA results might be more reliable
