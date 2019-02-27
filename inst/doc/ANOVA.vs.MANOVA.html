@@ -12,7 +12,7 @@
 
 <meta name="author" content="Michael L. Collyer" />
 
-<meta name="date" content="2019-02-26" />
+<meta name="date" content="2019-02-27" />
 
 <title>ANOVA versus MANOVA in RRPP</title>
 
@@ -280,7 +280,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">ANOVA versus MANOVA in RRPP</h1>
 <h4 class="author"><em>Michael L. Collyer</em></h4>
-<h4 class="date"><em>2019-02-26</em></h4>
+<h4 class="date"><em>2019-02-27</em></h4>
 
 
 
@@ -498,7 +498,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="dimensionality-warning-for-manova-on-high-dimensional-data" class="section level2">
 <h2>Dimensionality Warning for MANOVA on high-dimensional data</h2>
-<p>If the maximum number of possible PCs is chosen (full data space dimensionality) <strong>AND</strong> the number of variables exceeds the number of observations, <em>RRPP</em> will attempt to assess the number of dimensions in each random permutation and adjust SSCP matrix dimensions. (It is possible to randomly generate SSCP matrices of lower rank in random permutations, via RRPP.) However, it cannot be guaranteed that eigenvalues will be positive in such cases. If a warning message is delivered, “NaNs produced,” this might be the reason. Using a slightly lower number of PCs will probably resolve the issue.</p>
+<p>If the maximum number of possible PCs is chosen (full data space dimensionality) <strong>AND</strong> the number of variables exceeds the number of observations, <em>RRPP</em> will attempt to assess the number of real dimensions in each random permutation and adjust SSCP matrices, accordingly. (It is possible to randomly generate SSCP matrices of lower rank in random permutations, via RRPP.) However, it cannot be guaranteed that eigenvalues will be positive in such cases. If a warning message is delivered, “NaNs produced,” this might be the reason. Using a slightly lower number of PCs will probably resolve the issue.</p>
 </div>
 <div id="conclusions-and-suggestions" class="section level2">
 <h2>Conclusions and Suggestions</h2>
