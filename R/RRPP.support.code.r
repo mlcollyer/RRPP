@@ -23,6 +23,21 @@
 #' @import stats
 #' @import graphics
 #' @import utils
+#' @export print.lm.rrpp
+#' @export summary.lm.rrpp
+#' @export print.summary.lm.rrpp
+#' @export print.anova.lm.rrpp
+#' @export summary.anova.lm.rrpp
+#' @export print.coef.lm.rrpp
+#' @export summary.coef.lm.rrpp
+#' @export print.predict.lm.rrpp
+#' @export summary.predict.lm.rrpp
+#' @export plot.lm.rrpp
+#' @export plot.predict.lm.rrpp
+#' @export print.pairwise
+#' @export summary.pairwise
+#' @export print.summary.pairwise
+#' @export center
 #' 
 #' @section RRPP TOC:
 #' RRPP-package
@@ -167,6 +182,14 @@ rrpp.data.frame<- function(...){
 # centers a matrix faster than scale()
 # used in various functions where mean-centering is required
 
+#' Support function for RRPP
+#'
+#' Center a matrix, quickly
+#'
+#' @param x Matrix to mean-center.
+#' @keywords utilities
+#' @export
+#' @author Michael Collyer
 center <- function(x){
   if(is.vector(x)) x - mean(x) else {
     x <- as.matrix(x)
@@ -513,40 +536,51 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
   if(any(inherits(f1, "lm"))) {
     d <- f1$model
     form <- formula(terms(f1), keep.order = keep.order)
-    form.adj <- update(form, Y ~.)
-    form[[2]] <- form.adj[[2]]
-    Terms <- terms(form, keep.order = keep.order)
-    tl <- attr(Terms, "term.labels")
-    if(length(tl) == 0){
-      dat <- data.frame(Y = 1:NROW(d))
-      dat$Y <- as.matrix(d)
-    } else {
-      dat <- lapply(1:length(tl),
-                    function(j) try(get(as.character(tl[j]),
-                                        d), silent = TRUE))
-      names(dat) <- tl
-      dat <- as.data.frame(dat)
-    }
-    x <- model.matrix(Terms, data = dat)
+    k <- which(names(d) == form[[2]])
+    names(d)[[k]] <- "Y"
+    form <- update(form, Y ~.)
+    Terms <- terms(form, data = d, keep.order = keep.order)
+    x <- model.matrix(Terms, data = d)
     w <- f1$weights
     o <- f1$offset
-    t <- f1$terms
-    f <- form
-    pdf.args <- list(data=dat, x=x, w=w, offset=o, terms=t, formula=f,
+    pdf.args <- list(data=d, x=x, w=w, offset=o, terms=Terms, formula=form,
                      SS.type = SS.type)
-  } else {
-    form.in <- formula(f1)
-    d <- list()
-    d$Y <- eval(form.in[[2]], data, parent.frame())
-    if(inherits(d$Y, "dist")) d$Y <- pcoa(d$Y) else
-      if ((is.matrix(d$Y) || is.data.frame(d$Y))
-          && isSymmetric(unname(as.matrix(d$Y)))) d$Y <- pcoa(as.dist(d$Y)) else
-            d$Y <- as.matrix(d$Y)
-    n <- NROW(d$Y)
-    form <- formula(terms(f1), keep.order = keep.order)
-    form.adj <- update(form, Y ~.)
-    form[[2]] <- form.adj[[2]]
-    Terms <- terms(form, keep.order=keep.order)
+    } else {
+    form<- formula(f1)
+    Y <- eval(form[[2]], data, parent.frame())
+    if(inherits(Y, "dist")) Y <- pcoa(Y) else
+      if ((is.matrix(Y) || is.data.frame(Y))
+          && isSymmetric(unname(as.matrix(Y)))) Y <- pcoa(as.dist(Y)) else
+            Y <- as.matrix(Y)
+    n <- NROW(Y)
+    if(!is.null(data)){
+      dat <- data
+      if(is.data.frame(dat)) dat <- model.frame(terms(f1), data = dat)
+      k <- which(names(dat) == form[[2]])
+      dat <- dat[-k]
+      dat$Y <- Y
+      form <- update(form, Y ~.)
+      Terms <- try(terms(form, data = dat), silent = TRUE)
+      if(inherits(Terms, "try-error"))
+        Terms <- try(terms(form), silent = TRUE)
+      if(inherits(Terms, "try-error"))
+        stop("It was not possible to find model terms or data in the global environment or the data frame used.\n",
+             call. = FALSE)
+      x <- try(model.matrix(Terms), silent = TRUE)
+      if(inherits(Terms, "try-error"))
+        stop("It was not possible model terms or data in the global environment or the data frame used.\n",
+             call. = FALSE)
+    } else {
+      Terms <- try(terms(form), silent = TRUE)
+      if(inherits(Terms, "try-error"))
+        stop("It was not possible to find model terms or data in the global environment or the data frame used.\n",
+             call. = FALSE)
+      x <- try(model.matrix(Terms), silent = TRUE)
+      if(inherits(Terms, "try-error"))
+        stop("It was not possible model terms or data in the global environment or the data frame used.\n",
+             call. = FALSE)
+    }
+
     tl <- unique(unlist(strsplit(attr(Terms, "term.labels"), ":")))
     log.check <- grep("log", tl)
     scale.check <- grep("scale", tl)
@@ -711,7 +745,7 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   perms <- length(ind)
   fitted <- fit$wFitted.reduced
   res <- fit$wResiduals.reduced
-  Y <- fit$wY
+  Y <- as.matrix(fit$wY)
   dims <- dim(as.matrix(Y))
   n <- dims[1]; p <- dims[2]
   trms <- fit$term.labels
@@ -827,7 +861,7 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   }
   fitted <- fit$wFitted.reduced
   res <- fit$wResiduals.reduced
-  Y <- fit$wY
+  Y <- as.matrix(fit$wY)
   dims <- dim(as.matrix(Y))
   n <- dims[1]; p <- dims[2]
   trms <- fit$term.labels
@@ -926,7 +960,7 @@ SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
   }
   fitted <- fit$wFitted.full
   res <- fit$wResiduals.full
-  Y <- fit$wY
+  Y <- as.matrix(fit$wY)
   dims <- dim(as.matrix(Y))
   n <- dims[1]; p <- dims[2]
   k <- 1
@@ -1890,8 +1924,6 @@ RiReg <- function(Cov, residuals){
   Covs[[which.min(logL)]]
   
 }
-
-
 
 
 logL <- function(fit){
