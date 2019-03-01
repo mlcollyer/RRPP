@@ -560,24 +560,17 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
       dat <- dat[-k]
       dat$Y <- Y
       form <- update(form, Y ~.)
-      Terms <- try(terms(form, data = dat), silent = TRUE)
-      if(inherits(Terms, "try-error"))
-        Terms <- try(terms(form), silent = TRUE)
-      if(inherits(Terms, "try-error"))
-        stop("It was not possible to find model terms or data in the global environment or the data frame used.\n",
-             call. = FALSE)
-      x <- try(model.matrix(Terms), silent = TRUE)
-      if(inherits(Terms, "try-error"))
-        stop("It was not possible model terms or data in the global environment or the data frame used.\n",
+      Terms <- terms(form, keep.order = keep.order)
+      x <- try(model.matrix(Terms, data = dat), silent = TRUE)
+      if(inherits(x, "try-error"))
+        stop("It was not possible to find model terms in the global environment or the data frame used.\n",
              call. = FALSE)
     } else {
-      Terms <- try(terms(form), silent = TRUE)
-      if(inherits(Terms, "try-error"))
-        stop("It was not possible to find model terms or data in the global environment or the data frame used.\n",
-             call. = FALSE)
+      form <- update(form, Y ~.)
+      Terms <- terms(form, keep.order = keep.order)
       x <- try(model.matrix(Terms), silent = TRUE)
-      if(inherits(Terms, "try-error"))
-        stop("It was not possible model terms or data in the global environment or the data frame used.\n",
+      if(inherits(x, "try-error"))
+        stop("It was not possible to find model terms in the global environment or the data frame used.\n",
              call. = FALSE)
     }
 
