@@ -546,7 +546,7 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
     pdf.args <- list(data=d, x=x, w=w, offset=o, terms=Terms, formula=form,
                      SS.type = SS.type)
     } else {
-    form<- formula(f1)
+    form <- formula(f1)
     Y <- eval(form[[2]], data, parent.frame())
     if(inherits(Y, "dist")) Y <- pcoa(Y) else
       if ((is.matrix(Y) || is.data.frame(Y))
@@ -554,17 +554,20 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
             Y <- as.matrix(Y)
     n <- NROW(Y)
     if(!is.null(data)){
-      dat <- data
-      if(is.data.frame(dat)) dat <- model.frame(terms(f1), data = dat)
-      k <- which(names(dat) == form[[2]])
-      dat <- dat[-k]
-      dat$Y <- Y
-      form <- update(form, Y ~.)
+      d <- data
+      if(is.data.frame(d)) d <- model.frame(terms(f1), data = d)
+      ind.dat <- d
       Terms <- terms(form, keep.order = keep.order)
-      x <- try(model.matrix(Terms, data = dat), silent = TRUE)
-      if(inherits(x, "try-error"))
+      ind.check <- which(names(ind.dat) %in% rownames(attr(Terms, "factors"))[-1])
+      if(length(ind.check) != (NROW(attr(Terms, "factors")) - 1))
         stop("It was not possible to find model terms in the global environment or the data frame used.\n",
              call. = FALSE)
+      k <- which(names(d) == form[[2]])
+      d <- d[-k]
+      d$Y <- Y
+      form <- update(form, Y ~.)
+      Terms <- terms(form, keep.order = keep.order)
+      
     } else {
       form <- update(form, Y ~.)
       Terms <- terms(form, keep.order = keep.order)
@@ -573,7 +576,7 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
         stop("It was not possible to find model terms in the global environment or the data frame used.\n",
              call. = FALSE)
     }
-
+    
     tl <- unique(unlist(strsplit(attr(Terms, "term.labels"), ":")))
     log.check <- grep("log", tl)
     scale.check <- grep("scale", tl)
@@ -606,7 +609,7 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
     }
     if(length(tl) == 0){
       dat <- data.frame(Y = 1:n)
-      dat$Y <- d$Y
+      dat$Y <- Y
     } else {
       if(is.null(data))
         dat <- lapply(1:length(tl), function(j) {
@@ -623,8 +626,9 @@ rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
         names(dat) <- tl
         dat <- as.data.frame(dat)
     }
-    if(pca) d$Y <- prcomp(d$Y, tol = sqrt(.Machine$double.eps))$x
-    dat$Y <- d$Y
+
+    if(pca) dat$Y <- prcomp(Y, tol = sqrt(.Machine$double.eps))$x else dat$Y <- Y
+    
     pdf.args <- list(data=dat,
                      x = model.matrix(Terms, data = dat),
                      w = dots$weights,
