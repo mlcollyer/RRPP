@@ -1,15 +1,15 @@
 citHeader("To cite package 'RRPP' in a publication use:")
 
 citEntry(entry = "Misc",
-	title = "{RRPP}: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure",
+	title = "{RRPP}: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure. R package version 0.4.0.",
     author = personList(as.person("M. L. Collyer"),
 			    as.person("D. C. Adams")),
   	year = "2019",
   	url = "https://cran.r-project.org/web/packages/RRPP",
-  	textVersion = paste("Collyer, M. L. and D. C. Adams. 2019. RRPP: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure. ", "https://cran.r-project.org/web/packages/RRPP", sep = ""))
+  	textVersion = paste("Collyer, M. L. and D. C. Adams. 2019. RRPP: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure.", "https://cran.r-project.org/web/packages/RRPP", sep = ""))
   
-citEntry(entry = "Misc",
-	title = "{RRPP}: An R package for fitting linear models to high‐dimensional data using residual randomization",
+  citEntry(entry = "Misc",
+	title = "{RRPP}: An R package for fitting linear models to high‐dimensional data using residual randomization. ",
         author = personList(as.person("M. L. Collyer"),
 			    as.person("D. C. Adams")),
   	year = "2018",

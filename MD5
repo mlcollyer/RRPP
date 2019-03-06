@@ -3,7 +3,7 @@
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 c9e2fc16373feab769043ca58255120f *DESCRIPTION
-7673b3aea9c396d799d8ae97f0d6a4a8 *inst/CITATION
+786e940c923988f231aca49ac9d09ec0 *inst/CITATION
 d8c9f6d02070d71e15d4965f34cbf6fb *inst/doc/ANOVA.vs.MANOVA.html
 7821845f98ad3c880ed580393e3d3b0a *inst/doc/ANOVA.vs.MANOVA.Rmd
 bffa3cf6de5b1eb7708fbe237d98cb00 *inst/doc/Using.RRPP.html
@@ -56,7 +56,7 @@ c3e742732beed2fbeba3b237d7f6ad6a *R/manova.update.r
 d0c2e9bfde3601544d96c22161e1e4ae *R/model.comparison.r
 aadeaa80e40a91ea7d57d7fda254141a *R/pairwise.r
 2842c35d4b0d9cac9efff813dbf2115d *R/predict.lm.rrpp.r
-dba8146969bb38d7663dae41939a440a *R/RRPP.support.code.r
+716ce7dba4b25275b87dc9c76cf5425e *R/RRPP.support.code.r
 5e34148ccc67985ef7b4bc830361f871 *R/RRPP.utils.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
