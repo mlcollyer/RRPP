@@ -453,10 +453,10 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   centroid <- gls.centroid <- NULL
   int <- matrix(attr(fit$Terms, "intercept"), n)
-  centroid <- lm.fit(int, Y)$coefficients
+  centroid <- lm.fit(int, fit.o$wY)$coefficients
   out$LM$centroid <- centroid
   if(!is.null(Cov)) {
-    gls.centroid <- lm.fit(crossprod(Pcov, int), crossprod(Pcov, Y))$coefficients
+    gls.centroid <- lm.fit(crossprod(Pcov, int), crossprod(Pcov, fit.o$Y))$coefficients
     out$LM$gls.centroid <- gls.centroid
   }
   
