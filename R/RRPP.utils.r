@@ -455,7 +455,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     CRC <- r%*%a  
     resid <- r%*%(diag(p) - matrix(crossprod(a),p,p))
     RSC <- prcomp(resid)$x
-    Reg.proj <- x$LM$Y%*%b%*%sqrt(solve(crossprod(b)))
+    Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     PL <- prcomp(f)$x[,1]
     if(reg.type == "CRC"){
       par(mfcol = c(1,2))

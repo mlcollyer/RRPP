@@ -269,36 +269,57 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                      data = NULL, Cov = NULL,
                      print.progress = TRUE, Parallel = FALSE, ...) {
   if(int.first) ko = TRUE else ko = FALSE
-  if(!is.null(data) && inherits(data, "data.frame")) data <- rrpp.data.frame(data)
-  if(!is.null(data)) data <- droplevels.rrpp.data.frame(data)
+  SS.type <- match.arg(SS.type)
+  
   if(print.progress){
     cat("\nPreliminary Model Fit...\n")
     pb <- txtProgressBar(min = 0, max = 4, initial = 0, style=3)
     step <- 1
   }
-  SS.type <- match.arg(SS.type)
-  form <- formula(f1)
-  dep <- eval(form[[2]], data, parent.frame())
-  if(inherits(dep, "dist")) {
-    if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
-    D <- dep
-  } else if((is.matrix(dep) || is.data.frame(dep))
-            && isSymmetric(unname(as.matrix(dep)))) {
-    D <- as.dist(dep)
-  } else D <- NULL
+  
+  dots <- list(...)
+  if(length(dots) > 0) {
+    w <- dots$weights
+    o <- dots$offset
+  } else w <- o <- NULL
+  
+  if(!is.null(Cov)) {
+    Cov.name <- deparse(substitute(Cov))
+    Cov.match <- match(Cov.name, names(data))
+    if(length(Cov.match) > 1) stop("More than one object matches covariance matrix name")
+    if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
+    if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
+  }
+  
+  if(inherits(f1, "lm")) {
+    lm.args <- lm.args.from.lm(f1)
+    lm.args$keep.order <- ko
+    lm.args$pca <- FALSE
+    lm.args$SS.type <- SS.type
+  }
+  
+  if(inherits(f1, "formula")) {
+    lm.args <- lm.args.from.formula(f1, data = data)
+    if(!is.null(w)) lm.args$weights <- w
+    if(!is.null(o)) lm.args$offset <- o
+    lm.args$keep.order <- ko
+    lm.args$pca <- FALSE
+    lm.args$SS.type <- SS.type
+  }
+  
   if(print.progress) {
     step <- 2
     setTxtProgressBar(pb,step)
   }
-  fit.o <- rrpp.fit(f1, data = data, keep.order = ko, pca = FALSE, SS.type = SS.type,...)
-  if(print.progress) {
-    step <- 3
-    setTxtProgressBar(pb,step)
-  }
+  
+  fit.o <- do.call(rrpp.fit, lm.args)
+  
   dimsY <- dim(as.matrix(fit.o$Y))
   n <- dimsY[1]; p <- p.prime <- dimsY[2]
+  
   if(p > n){
-    fit <- rrpp.fit(f1, data = data, keep.order = ko, pca = TRUE, SS.type = SS.type, ...)
+    lm.args$pca <- TRUE
+    fit <- do.call(rrpp.fit, lm.args)
     Y <- as.matrix(fit$Y)
     dimsY <- dim(Y)
     n <- dimsY[1]; p.prime <- dimsY[2]
@@ -306,6 +327,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     fit <- fit.o
     Y <- as.matrix(fit$Y)
   }
+  
   if(print.progress) {
     step <- 3
     setTxtProgressBar(pb,step)
@@ -314,21 +336,18 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   id <- rownames(Y)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
+  
   if(print.progress) {
     step <- 4
     setTxtProgressBar(pb,step)
     close(pb)
   }
+  
   SS.args <- list(fit = fit, ind = ind, P = NULL,
                   RRPP = RRPP, print.progress = print.progress)
   beta.args <- SS.args
   beta.args$fit <- fit.o
   if(!is.null(Cov)){
-    Cov.name <- deparse(substitute(Cov))
-    Cov.match <- match(Cov.name, names(data))
-    if(length(Cov.match) > 1) stop("More than one object matches covariance matrix name")
-    if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
-    if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
     dimsC <- dim(Cov)
     if(!all(dimsC == n))
       stop("Either one or both of the dimensions of the covariance matrix do not match the number of observations.")
@@ -346,7 +365,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       else SS <- do.call(SS.iterPP, SS.args)
     } else SS <- do.call(SS.iter, SS.args)
     ANOVA <- anova.parts(fit, SS)
-    LM <- list(form = form, coefficients = fit.o$wCoefficients.full[[k]],
+    LM <- list(form = formula(f1), coefficients = fit.o$wCoefficients.full[[k]],
                Y = fit.o$Y,  X = fit.o$X, n = n, p = p, p.prime = p.prime,
                QR = fit.o$QRs.full[[k]],
                fitted = fit.o$fitted.full[[k]],
@@ -391,7 +410,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     }
     SSY <- SS[1]
     df <- n - fit$wQRs.full[[1]]$rank
-    LM <- list(form = form, coefficients=fit.o$wCoefficients.full[[1]],
+    LM <- list(form = formula(f1), coefficients=fit.o$wCoefficients.full[[1]],
                Y=fit.o$Y,  X=fit.o$X, n = n, p = p, p.prime = p.prime,
                QR = fit.o$QRs.full[[1]], fitted = fit.o$fitted.full[[1]],
                residuals = fit.o$residuals.full[[1]],
@@ -423,7 +442,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       out$LM$gls.mean <- colMeans(fit.o$X%*%fit.cov$coefficients)
     }
   }
-  if(!is.null(D)) {
+  if(!is.null(fit.o$D)) {
+    D <- fit.o$D
     qrf <- fit$QRs.full[[k]]
     wqrf <- fit$wQRs.full[[k]]
     D.coef <- qr.coef(qrf, D)

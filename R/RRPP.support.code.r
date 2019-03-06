@@ -38,6 +38,7 @@
 #' @export summary.pairwise
 #' @export print.summary.pairwise
 #' @export center
+#' @export fast.solve
 #' 
 #' @section RRPP TOC:
 #' RRPP-package
@@ -178,6 +179,36 @@ rrpp.data.frame<- function(...){
 
 # SUPPORT FUNCTIONS
 
+
+# makeDf
+# makes any list into a data.frame/model.frame object
+# used in lm.rrpp/rrpp.fit functions
+makeDf <- function(Terms, Y, data = NULL) {
+  Y <- as.matrix(Y)
+  form <- formula(Terms)
+  form <- update(form, Y~.)
+  Terms2 <- terms(form)
+  ind.var.names <- all.vars(Terms2)[-1]
+  if(length(ind.var.names) == 0) {
+    df <- list()
+    df$Y <- rep(0, NROW(Y))
+  } else{
+    if(!is.null(data)) {
+      dat.names <- which(names(data) %in% ind.var.names)
+      df <- data[dat.names]
+    } else {
+      df <- try(mget(ind.var.names, parent.frame()))
+      if(inherits(df, "try-error"))
+        stop("Model terms not found in global environment.\n", call. = FALSE)
+    }
+  }
+  df <- as.data.frame(df)
+  df$Y <- Y
+  df
+
+}
+
+
 # center
 # centers a matrix faster than scale()
 # used in various functions where mean-centering is required
@@ -226,10 +257,14 @@ fast.ginv <- function(X, tol = sqrt(.Machine$double.eps)){
   v%*%rtu
 }
 
-# fast.solve
-# chooses between fast.ginv or qr.solve, when det might or might not be 0
-# used in any function requiring a matrix inverse where the certainty of
-# singular matrices is in doubt
+#' Support function for RRPP
+#'
+#' Invert a matrix, quickly.  Functions similar to solve function, but much quicker.
+#'
+#' @param x Matrix to invert.
+#' @keywords utilities
+#' @export
+#' @author Michael Collyer
 fast.solve <- function(x) { 
   if(det(x) > 1e-8) {
   res <- try(chol2inv(chol(x)), silent = TRUE)
@@ -332,6 +367,93 @@ effect.size <- function(x, center = TRUE) {
 # general workhorse for all 'rrpp.lm' functions
 # used in all 'rrpp.lm' functions
 
+lm.args.from.lm <- function(f1){
+  Terms <- terms(f1)
+  data <- model.frame(Terms, data = f1$model)
+  weights <- f1$weights
+  offset <- f1$offset
+  form <- formula(f1)
+  
+  dep <- eval(form[[2]], data, parent.frame())
+  if(inherits(dep, "dist")) {
+    if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
+    D <- dep
+  } else if((is.matrix(dep) || is.data.frame(dep))
+            && isSymmetric(unname(as.matrix(dep)))) {
+    D <- as.dist(dep)
+  } else D <- NULL
+  
+  if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
+  data$Y <- Y
+  form <- update(form, Y ~ .)
+  Terms <- terms(form)
+  data <- model.frame(Terms, data = data)
+  
+  list(Terms = Terms, data = data,  weights = weights, offset = offset, 
+       Y = Y, D = D)
+}
+
+lm.args.from.formula <- function(f1, data = NULL){
+  Terms <- terms(f1)
+  dep <- eval(f1[[2]], data, parent.frame())
+  if(inherits(dep, "dist")) {
+    if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
+    D <- dep
+  } else if((is.matrix(dep) || is.data.frame(dep))
+            && isSymmetric(unname(as.matrix(dep)))) {
+    D <- as.dist(dep)
+  } else D <- NULL
+  
+  if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
+  data$Y <- Y
+  if(!is.null(data)) data <- makeDf(Terms, Y, data) else
+    data <- try(model.frame(Terms), silent = TRUE)
+  if(inherits(data, "try-error"))
+    stop("It was not possible to find model terms in the global environment or the data frame used.\n",
+         call. = FALSE)
+  data <- droplevels(data)
+  form <- update(f1, Y ~ .)
+  Terms <- terms(form)
+  list(Terms = Terms, data = data,  weights = NULL, offset = NULL, 
+       Y = Y, D = D)
+}
+
+rrpp.fit <- function(Terms, data, weights = weights, offset = offset,
+                     Y, D, 
+                     keep.order, pca,
+                     SS.type = "I"){
+  
+  if(is.null(SS.type)) SS.type <- "I"
+  if(is.na(match(SS.type, c("I","II", "III")))) SS.type <- "I"
+  
+  dims.Y <- dim(Y)
+  n <- dims.Y[1]
+  p <- dims.Y[2]
+  Terms <- terms(Terms, keep.order = keep.order)
+  form <- formula(Terms)
+  form <- update(form, Y ~ .)
+  
+  if(pca) data$Y <- prcomp(Y, tol = sqrt(.Machine$double.eps))$x 
+  
+  pdf.args <- list(data=data,
+                   x = model.matrix(Terms, data = data),
+                   w = weights,
+                   offset = offset,
+                   terms = Terms,
+                   formula = form,
+                   SS.type = SS.type,
+                   D = D)
+  
+  if(is.null(pdf.args$w))
+    pdf.args$w <- rep(1, NROW(pdf.args$data))
+  if(is.null(pdf.args$offset))
+    pdf.args$offset <- rep(0, NROW(pdf.args$data))
+  if(sum(attr(pdf.args$x, "assign")) == 0)
+    out <- rrpp.fit.int(pdf.args) else
+      out <- rrpp.fit.lm(pdf.args)
+  out
+}
+
 # rrpp.fit.lm
 # base for rrpp.fit
 rrpp.fit.lm <- function(a){
@@ -341,6 +463,7 @@ rrpp.fit.lm <- function(a){
   o <-a$offset
   dat <- a$data
   Y <- dat$Y
+  D <- a$D
   X <- a$x
   n <- NROW(Y)
   SS.type <- a$SS.type
@@ -437,7 +560,7 @@ rrpp.fit.lm <- function(a){
               wCoefficients.reduced = wCoefficients.reduced,
               wCoefficients.full = wCoefficients.full,
               weights = w, offset = o, data = dat,
-              SS.type = SS.type,
+              SS.type = SS.type, D = D,
               Terms = Terms, term.labels = term.labels)
   class(out) <- "rrpp.fit"
   invisible(out)
@@ -453,6 +576,7 @@ rrpp.fit.int <- function(a) {
   o <-a$offset
   dat <- a$data
   Y <- dat$Y
+  D <- a$D
   X <- a$x
   n <- NROW(Y)
   SS.type <- a$SS.type
@@ -520,7 +644,7 @@ rrpp.fit.int <- function(a) {
               wCoefficients.reduced = wCoefficients.reduced,
               wCoefficients.full = wCoefficients.full,
               weights = w, offset = o, data = dat,
-              SS.type = NULL,
+              SS.type = NULL, D = D,
               Terms = Terms, term.labels = term.labels)
   class(out) <- "procD.fit"
   invisible(out)
@@ -528,130 +652,6 @@ rrpp.fit.int <- function(a) {
 
 # rrpp.fit
 # calls one of previous functions, depending on conditions
-rrpp.fit <- function(f1, keep.order=FALSE, pca=TRUE,
-                     SS.type = NULL, data = NULL, ...){
-  dots <- list(...)
-  if(is.null(SS.type)) SS.type <- "I"
-  if(is.na(match(SS.type, c("I","II", "III")))) SS.type <- "I"
-  if(any(inherits(f1, "lm"))) {
-    d <- f1$model
-    form <- formula(terms(f1), keep.order = keep.order)
-    k <- which(names(d) == form[[2]])
-    names(d)[[k]] <- "Y"
-    form <- update(form, Y ~.)
-    Terms <- terms(form, data = d, keep.order = keep.order)
-    x <- model.matrix(Terms, data = d)
-    w <- f1$weights
-    o <- f1$offset
-    pdf.args <- list(data=d, x=x, w=w, offset=o, terms=Terms, formula=form,
-                     SS.type = SS.type)
-    } else {
-    form <- formula(f1)
-    Y <- eval(form[[2]], data, parent.frame())
-    if(inherits(Y, "dist")) Y <- pcoa(Y) else
-      if ((is.matrix(Y) || is.data.frame(Y))
-          && isSymmetric(unname(as.matrix(Y)))) Y <- pcoa(as.dist(Y)) else
-            Y <- as.matrix(Y)
-    n <- NROW(Y)
-    if(!is.null(data)){
-      d <- data
-      if(is.data.frame(d)) d <- model.frame(terms(f1), data = d)
-      ind.dat <- d
-      Terms <- terms(form, keep.order = keep.order)
-      ind.check <- which(names(ind.dat) %in% rownames(attr(Terms, "factors"))[-1])
-      if(length(ind.check) != (NROW(attr(Terms, "factors")) - 1))
-        stop("It was not possible to find model terms in the global environment or the data frame used.\n",
-             call. = FALSE)
-      k <- which(names(d) == form[[2]])
-      d <- d[-k]
-      d$Y <- Y
-      form <- update(form, Y ~.)
-      Terms <- terms(form, keep.order = keep.order)
-      
-    } else {
-      form <- update(form, Y ~.)
-      Terms <- terms(form, keep.order = keep.order)
-      x <- try(model.matrix(Terms), silent = TRUE)
-      if(inherits(x, "try-error"))
-        stop("It was not possible to find model terms in the global environment or the data frame used.\n",
-             call. = FALSE)
-    }
-    
-    tl <- unique(unlist(strsplit(attr(Terms, "term.labels"), ":")))
-    log.check <- grep("log", tl)
-    scale.check <- grep("scale", tl)
-    exp.check <- grep("exp", tl)
-    poly.check <- grep("poly", tl)
-    if(length(log.check) > 0) for(i in 1:length(log.check)){
-      tlf <- tl[log.check[i]]
-      tlf <- gsub("log\\(", "", tlf)
-      tlf <- gsub("\\)", "", tlf)
-      tl[log.check[i]]<- tlf
-    }
-    if(length(scale.check) > 0) for(i in 1:length(scale.check)){
-      tlf <- tl[scale.check[i]]
-      tlf <- gsub("scale\\(", "", tlf)
-      tlf <- gsub("\\)", "", tlf)
-      tl[scale.check[i]]<- tlf
-    }
-    if(length(exp.check) > 0) for(i in 1:length(exp.check)){
-      tlf <- tl[exp.check[i]]
-      tlf <- gsub("exp\\(", "", tlf)
-      tlf <- gsub("\\)", "", tlf)
-      tl[exp.check[i]]<- tlf
-    }
-    if(length(poly.check) > 0) for(i in 1:length(poly.check)){
-      tlf <- tl[poly.check[i]]
-      tlf <- gsub("poly\\(", "", tlf)
-      tlf <- gsub("\\)", "", tlf)
-      tlf <- strsplit(tlf, "")[[1]][1]
-      tl[poly.check[i]]<- tlf
-    }
-    if(length(tl) == 0){
-      dat <- data.frame(Y = 1:n)
-      dat$Y <- Y
-    } else {
-      if(is.null(data))
-        dat <- lapply(1:length(tl), function(j) {
-          try(get(as.character(tl[j]), parent.frame()),
-              silent = TRUE)
-        }) else
-          dat <- lapply(1:length(tl), function(j) {
-            try(get(as.character(tl[j]), data),
-                silent = TRUE)
-          })
-        check <- (sapply(dat, NROW) == n)
-        dat <- dat[check]
-        tl <- tl[check]
-        names(dat) <- tl
-        dat <- as.data.frame(dat)
-    }
-
-    if(pca) dat$Y <- prcomp(Y, tol = sqrt(.Machine$double.eps))$x else dat$Y <- Y
-    
-    pdf.args <- list(data=dat,
-                     x = model.matrix(Terms, data = dat),
-                     w = dots$weights,
-                     offset = dots$offset,
-                     terms = Terms,
-                     formula = form,
-                     SS.type = SS.type)
-  }
-  if(is.null(pdf.args$w))
-    pdf.args$w <- rep(1, NROW(pdf.args$data))
-  if(is.null(pdf.args$offset))
-    pdf.args$offset <- rep(0, NROW(pdf.args$data))
-  if(sum(attr(pdf.args$x, "assign")) == 0)
-    out <- rrpp.fit.int(pdf.args) else
-      out <- rrpp.fit.lm(pdf.args)
-    out
-}
-
-rrpp.fit.from.lm.rrpp <- function(fit){
-  # get the rrpp.args needed
-  # then decide to use rrpp.fit.lm or rrpp.fit.int
-}
-
 
 
 # rrpp + subfunctions
@@ -1555,7 +1555,9 @@ aov.multi.model <- function(object, lm.list,
   })
   
   if(print.progress){
-    cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n"))
+    if(K > 1)
+    cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n")) else
+      cat(paste("\nSums of Squares calculations for", K, "model:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
 
