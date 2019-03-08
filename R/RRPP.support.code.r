@@ -37,6 +37,9 @@
 #' @export print.pairwise
 #' @export summary.pairwise
 #' @export print.summary.pairwise
+#' @export print.trajectory.analysis
+#' @export summary.trajectory.analysis
+#' @export print.summary.trajectory.analysis
 #' 
 #' @section RRPP TOC:
 #' RRPP-package
