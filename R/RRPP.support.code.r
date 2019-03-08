@@ -37,8 +37,6 @@
 #' @export print.pairwise
 #' @export summary.pairwise
 #' @export print.summary.pairwise
-#' @export center
-#' @export fast.solve
 #' 
 #' @section RRPP TOC:
 #' RRPP-package
@@ -328,14 +326,16 @@ rrpp.fit.lm <- function(a){
   
   if(SS.type == "III"){
     uk0 <- uk[-1]
-    xk0 <- X.k[-1]
+    xk0 <- unique(X.k[-1])
     terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
     terms.f <- lapply(1:k, function(.) Terms)
+    Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+    Xfs <- lapply(2:length(uk), function(j)  X)
   }
   
   if(SS.type == "II") {
     uk0 <- uk[-1]
-    xk0 <- X.k[-1]
+    xk0 <- unique(X.k[-1])
     fac <- crossprod(attr(Terms, "factor"))
     terms.r <- lapply(1:k, function(j){
       ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
@@ -348,15 +348,26 @@ rrpp.fit.lm <- function(a){
       ind <- as.logical(c(ind))
       Terms[xk0 %in% uk0[ind]]
     })
+    Xrs <- lapply(1:NROW(fac), function(j){
+      ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+      ind <- as.logical(c(1,ind))
+      X[, X.k %in% uk[ind]]
+    })
+    Xfs <- lapply(1:NROW(fac), function(j){
+      ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+      ind[j] <- 1
+      ind <- as.logical(c(1,ind))
+      X[, X.k %in% uk[ind]]
+    })
   }
   
   if(SS.type == "I") {
     terms.f <- lapply(1:k, function(j) Terms[1:j])
     terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+    Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+    Xrs <- Xs[1:k]
+    Xfs <- Xs[2:(k+1)]
   }
-  
-  Xrs <- lapply(terms.r, function(x) model.matrix(x, data = dat))
-  Xfs <- lapply(terms.f, function(x) model.matrix(x, data = dat))
   
   names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
   
@@ -606,8 +617,10 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) qr.Q(qr(x)[, 1:x$rank]))
-    Uf <- lapply(Xf, function(x) qr.Q(qr(x)[, 1:x$rank]))
+    Qr <- lapply(Xr, qr)
+    Qf <- lapply(Xf, qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Uf <- lapply(Qf, function(x) qr.Q(x))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
@@ -645,8 +658,8 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$fitted <- fitted
       rrpp.args$residuals <- res
     }
-    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x)[,1:x$rank])
-    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x)[,1:x$rank])
+    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x))
+    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(rep(int, n)))
@@ -718,8 +731,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) qr.Q(qr(x)[, 1:x$rank]))
-    Uf <- lapply(Xf, function(x) qr.Q(qr(x)[, 1:x$rank]))
+    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
+    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
@@ -755,8 +768,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$fitted <- fitted
       rrpp.args$residuals <- res
     }
-    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x)[,1:x$rank])
-    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x)[,1:x$rank])
+    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x))
+    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(rep(int, n)))
@@ -946,9 +959,8 @@ beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
     Qr <- lapply(Xr, qr)
     Qf <- lapply(Xf, qr)
-    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
-    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
-    Ur <- lapply(Qr, function(x) qr.Q(x)[, 1:x$rank])
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Ur <- lapply(Qr, function(x) qr.Q(x))
   
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
@@ -975,8 +987,7 @@ beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$residuals <- res
     }
     Qf <- lapply(fit$wXfs, qr)
-    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
-    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
     
     betas <- lapply(1:perms, function(j){
       step <- j
@@ -1062,9 +1073,8 @@ beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) 
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
     Qr <- lapply(Xr, qr)
     Qf <- lapply(Xf, qr)
-    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
-    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
-    Ur <- lapply(Qr, function(x) qr.Q(x)[, 1:x$rank])
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Ur <- lapply(Qr, function(x) qr.Q(x))
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
@@ -1087,8 +1097,8 @@ beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) 
       rrpp.args$fitted <- fitted
       rrpp.args$residuals <- res
     }
-    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
-    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
+    Qf <- lapply(fit$wXfs, qr)
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
     betas <- mclapply(1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x

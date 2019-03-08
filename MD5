@@ -11,7 +11,7 @@ bffa3cf6de5b1eb7708fbe237d98cb00 *inst/doc/Using.RRPP.html
 c3b4760d53b0d12b9a6fbce6842554ea *man/anova.lm.rrpp.Rd
 eef4721fad3a88829eaef7937229dd7c *man/classify.Rd
 54d52d7c0950f9c6a7bf4b351d1a49f8 *man/coef.lm.rrpp.Rd
-f39551429682671bd68ade68dad2075f *man/fitted.lm.rrpp.Rd
+017bd97e98d3dcd432a33e32945757df *man/fitted.lm.rrpp.Rd
 cf9f206514b25b983a337af2fe7f485d *man/lm.rrpp.Rd
 d0e291d2a7f237e0a69145dd8c61b44e *man/manova.update.Rd
 b08077f2ad22b38d6e0ecf63660ed18c *man/model.comparison.Rd
@@ -46,7 +46,7 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 17345e78d64e3b5f2464251c3482febf *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
-4389bfe58147ca48d7e60246dcf9b21d *NAMESPACE
+a0d1db6a59819125decceff325d52919 *NAMESPACE
 9283276cfad16d1a53f8321b40a6756b *NEWS
 262059f161b3a6bef292cdd97fc9c414 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
@@ -55,9 +55,9 @@ a022c6ffaaa6d4af5742bc1b3994d012 *R/lm.rrpp.r
 4d1bf36a62e32fe02971db798b61a7a7 *R/manova.update.r
 d0c2e9bfde3601544d96c22161e1e4ae *R/model.comparison.r
 336356322a99a3eb0f07adef1a8042fc *R/pairwise.r
-8a1fe23026f2296af8c8606fd4e5678a *R/predict.lm.rrpp.r
+d0ba1ce3ec27cb68ab30db856e025784 *R/predict.lm.rrpp.r
 be65a023ec04fe716867de7a1907b645 *R/reveal.model.designs..r
-92871b75e7315e5ac442c8343b6fb517 *R/RRPP.support.code.r
+ff0e8763f1987fb6b5fa9ce37ffea82a *R/RRPP.support.code.r
 d30d82dc0977e68dc81f950650ffff53 *R/RRPP.utils.r
 1b982c9a35b5c3748afcecb3928dd69a *R/shared.support.code.r
 987d403df491c09b6db91776c4443a53 *README.md
