@@ -1,4 +1,4 @@
-#' predict for lm.rrpp model fits
+#' predict for lm.rrpp model fits 
 #'
 #' @description Computes predicted values from an \code{\link{lm.rrpp}} model fit, using bootstrapped residuals
 #' to generate confidence intervals.  (Residuals are the residuals of the lm.rppp fit, not its null model.  The bootstrap
@@ -111,7 +111,7 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
   fitted <- object$LM$wFitted
   X <- object$LM$X * sqrt(object$LM$weights)
   Q <- object$LM$wQR
-  H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
+  H <- tcrossprod(solve(qr.R(Q)[1:Q$rank, 1:Q$rank]), qr.Q(Q)[, 1:Q$rank])
   if(object$LM$gls) {
     P <- object$LM$Pcov
     PY <- crossprod(P, object$LM$Y * sqrt(object$LM$weights))
@@ -120,7 +120,7 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
     fitted <- as.matrix(glsFit$fitted.values)
     res <- as.matrix(glsFit$residuals)
     Q <- qr(PX)
-    H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
+    H <- tcrossprod(solve(qr.R(Q)[1:Q$rank, 1:Q$rank]), qr.Q(Q)[, 1:Q$rank])
   }
   n <- NROW(nX)
   beta.args <- list(f = fitted, r = res, h = H, ind.i = NULL)
