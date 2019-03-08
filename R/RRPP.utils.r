@@ -736,7 +736,7 @@ fitted.lm.rrpp <- function(object, weighted = TRUE, ...) {
 #' Print/Summary Function for RRPP
 #'
 #' @param x Object from \code{\link{pairwise}}
-#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @param ... Other arguments passed onto pairwise
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -770,7 +770,7 @@ print.pairwise <- function(x, ...){
 #' @param angle.type If test.type = "VC", whether angle results are expressed in radians or degrees.
 #' @param confidence Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)
 #' @param show.vectors Logical value to indicate whether vectors should be printed.
-#' @param ... Other arguments passed onto predict.lm.rrpp
+#' @param ... Other arguments passed onto pairwise
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1242,4 +1242,194 @@ print.summary.manova.lm.rrpp <- function(x, ...){
 }
 
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{trajectory.analysis}}
+#' @param ... Other arguments passed onto 
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.trajectory.analysis<- function(x, ...){
+  if(is.null(x$SD)) type = "vectors" else type = "trajectories"
+  perms <- length(x$MD)
+  pca = x$pca
+  groups <- rownames(x$LS.means[[1]])
+  pca <- x$pca
+  cat("\nTrajectory analysis\n\n")
+  cat(perms, "permutations.\n\n")
+  if(pca) cat("Points projected onto trajectory PCs\n")
+  
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{trajectory.analysis}}
+#' @param stat.table Logical argument for whether results should be returned in one table 
+#' (if TRUE) or separate pairwise tables (if FALSE)
+#' @param attribute Whether magnitude differences (MD, absolute difference in trajectory path lengths), 
+#' trajectory correlations (TC), or trajectory shape differences (SD) are summarized.
+#' @param angle.type If attribute = "TC", whether angle results are expressed in radians or degrees.
+#' @param confidence Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)
+#' @param show.trajectories Logical value to indicate whether trajectories should be printed.
+#' @param ... Other arguments passed onto trajectory.analysis
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.trajectory.analysis <- function(object, stat.table = TRUE, 
+                             attribute = c("MD", "TC", "SD"),
+                             angle.type = c("rad", "deg"),
+                             confidence = 0.95, show.trajectories = FALSE, ...) {
+  
+  attribute <- match.arg(attribute)
+  angle.type <- match.arg(angle.type)
+  x <- object
+  if(is.null(x$SD)) type = "vectors" else type = "trajectories"
+  
+  MD <- object$MD
+  TC <- object$TC
+  SD <- object$SD
+  
+  if(attribute == "MD"){
+    L <- d.summary.from.list(MD, confidence = confidence)
+    tab <- makePWDTable(L)
+  }
+  
+  if(attribute == "TC"){
+    L <- r.summary.from.list(TC, confidence = confidence)
+    tab <- makePWCorTable(L)
+    if(angle.type == "deg") {
+      options(warn = -1)
+      tab$angle <- tab$angle*180/pi
+      tab[,3] <- tab[,3]*180/pi
+      options(warn = -1)
+    }
+  }
+  
+  if(attribute == "SD"){
+    if(type == "trajectories") {
+      L <- d.summary.from.list(SD, confidence = confidence)
+      tab <- makePWDTable(L)
+    } else {
+      L <- NULL
+      tab <- NULL
+    }
+  }
+  
+ 
+  out <- list()
+  out$pairwise.tables <- L
+  if(stat.table){
+    out$stat.table <- TRUE
+    out$summary.table <- tab
+  } else {
+    out$stat.table <- FALSE
+    out$summary.table <- NULL
+  }
+  
+  out$type <- type
+  out$attribute <- attribute
+  out$angle.type <- angle.type 
+  out$confidence <- confidence
+  out$show.trajectories <- show.trajectories
+  out$x <- x
+  
+  class(out) <- "summary.trajectory.analysis"
+  out
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{summary.trajectory.analysis}}
+#' @param ... Other arguments passed onto summary.trajectory.analysis
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.summary.trajectory.analysis <- function(x, ...) {
+  attribute <- x$attribute
+  type <- x$type
+  if(attribute == "SD" && type == "vectors") 
+    cat("\n\nCannot summarize trajectory shape differences for vectors.\n\n")
+  stat.table <- x$stat.table
+  if(attribute != "SD") print.trajectory.analysis(x$x) else 
+    if(type == "trajectories") print.trajectory.analysis(x$x)
+
+  cat("\n")
+  
+  L <- x$pairwise.tables
+  if(stat.table) tab <- x$summary.table
+  
+  if(attribute == "MD") {
+    
+    cat("Trajectories:\n")
+    if(x$show.trajectories) print(x$x$trajectories[[1]]) else cat("Trajectories hidden (use show.trajectories = TRUE to view)\n")
+    
+    cat("\nObserved path distances by group\n\n")
+    print(x$x$PD[[1]])
+    
+    if(stat.table) {
+      cat("\nPairwise absolute differences in path distances, plus statistics\n")
+      print(tab)
+    } else {
+      cat("\nPairwise absolute differences in path distancess\n")
+      print(L$D)
+      cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits, absolute differences in path distancess\n")
+      print(L$CL)
+      cat("\nPairwise effect sizes (Z) for absolute differences in path distancess\n")
+      print(L$Z)
+      cat("\nPairwise P-values for absolute differences in path distances\n")
+      print(L$P)
+    }
+  }
+  
+  if(attribute == "TC") {
+    
+    cat("Trajectories:\n")
+    if(x$show.trajectories) print(x$x$trajectories[[1]]) else cat("Trajectories hidden (use show.trajectories = TRUE to view)\n")
+    
+    if(stat.table) {
+      cat("\nPairwise correlations between trajectories, plus statistics\n")
+      print(tab)
+    } else {
+      cat("\nPairwise statistics based on trajectory vector correlations (r) and angles, acos(r)")
+      cat("\nThe null hypothesis is that r = 1 (parallel vectors).")
+      cat("\nThis null hypothesis is better treated as the angle between vectors = 0\n")
+      
+      cat("\nPairwise vector correlations between trajectories\n")
+      print(L$r)
+      cat("\nPairwise angles between trajectories\n")
+      if(x$angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+      cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles\n")
+      if(x$angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+      cat("\nPairwise effect sizes (Z) for angles\n")
+      print(L$Z)
+      cat("\nPairwise P-values for angles\n")
+      print(L$P)
+    }
+  }
+  
+  if(type == "trajectories"  && attribute == "SD") {
+    
+    cat("Trajectories:\n")
+    if(x$show.trajectories) print(x$x$trajectories[[1]]) else cat("Trajectories hidden (use show.trajectories = TRUE to view)\n")
+
+    if(stat.table) {
+      cat("\nPairwise trajectory shape differences, plus statistics\n")
+      print(tab)
+    } else {
+      cat("\nPairwise trajectory shape differences\n")
+      print(L$D)
+      cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits, shape differnces\n")
+      print(L$CL)
+      cat("\nPairwise effect sizes (Z) for trajectory shape differencess\n")
+      print(L$Z)
+      cat("\nPairwise P-values for trajectory shape differences\n")
+      print(L$P)
+    }
+  }
+  
+  cat("\n\n")
+    
+  invisible(x)
+}
 

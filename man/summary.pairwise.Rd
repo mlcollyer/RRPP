@@ -23,7 +23,7 @@ should be used in the test.}
 
 \item{show.vectors}{Logical value to indicate whether vectors should be printed.}
 
-\item{...}{Other arguments passed onto predict.lm.rrpp}
+\item{...}{Other arguments passed onto pairwise}
 }
 \description{
 Print/Summary Function for RRPP

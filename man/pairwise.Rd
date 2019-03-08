@@ -12,7 +12,8 @@ pairwise(fit, fit.null = NULL, groups, covariate = NULL,
 
 \item{fit.null}{An alternative linear model fit to use as a null model for RRPP, if the null model
 of the fit is not desired.  Note, for FRPP this argument should remain NULL and FRPP
-must be established in the lm.rrpp fit.}
+must be established in the lm.rrpp fit (RRPP = FALSE).  If the null model is uncertain, 
+using \code{\link{reveal.model.designs}} will help elucidate the inherent null model used.}
 
 \item{groups}{A factor or vector that is coercible into a factor, describing the levels of
 the groups for which to find LS means or slopes.  Normally this factor would be part of the 

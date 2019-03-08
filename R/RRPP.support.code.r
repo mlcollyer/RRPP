@@ -88,6 +88,17 @@ NULL
 #' @references Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
 #' challenges, and a refined permutation procedure. Evolution. In press.
 NULL
+
+#' Simulated motion paths
+#'
+#' @name motionpaths
+#' @docType data
+#' @author Dean Adams
+#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for the analysis of phenotypic
+#'   trajectories in evolutionary studies. Evolution 63:1143-1154.
+#' @keywords datasets
+NULL
+
 #####----------------------------------------------------------------------------------------------------
 
 # HELP FUNCTIONs
@@ -1917,3 +1928,36 @@ hot.law <- function(e) {
   sum(e)
 }
 
+# trajsize
+# find path distance of trajectory
+# used in: trajectory.analysis
+trajsize <- function(y) {
+  k <- NROW(y[[1]])
+  tpairs <- cbind(1:(k-1),2:k)
+  sapply(1:length(y), function(j) {
+    d <- as.matrix(dist(y[[j]]))
+    sum(d[tpairs])
+  })
+}
+
+# trajorient
+# find trajectory correlations from first PCs
+# used in: trajectory.analysis
+trajorient <- function(y, tn) {
+  m <- t(sapply(1:tn, function(j){
+    x <- y[[j]]
+    La.svd(center.scale(x)$coords, 0, 1)$vt
+  }))
+  vec.cor.matrix(m)
+}
+
+# trajshape
+# find shape differences among trajectories
+# used in: trajectory.analysis
+trajshape <- function(y){
+  y <- Map(function(x) center.scale(x)$coords, y)
+  M <- Reduce("+",y)/length(y)
+  z <- apply.pPsup(M, y)
+  z <- t(sapply(z, function(x) as.vector(t(x))))
+  as.matrix(dist(z))
+}

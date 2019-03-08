@@ -29,6 +29,41 @@ fast.scale <- function(x, n, p){
   }
 }
 
+# csize
+# calculates centroid size
+# digitsurface
+csize <- function(x) sqrt(sum(center(as.matrix(x))^2))
+
+# cs.scale
+# divide matrices by centroid size
+# used in other functions for gpagen
+cs.scale <- function(x) x/csize(x)
+
+# center.scale
+# center and divide matrices by centroid size; faster than scale()
+# used in other functions for gpagen
+center.scale <- function(x) {
+  x <- center(x)
+  cs <- sqrt(sum(x^2))
+  y <- x/cs
+  list(coords=y, CS=cs)
+}
+
+# apply.pPsup
+# applies a partial Procrustes superimposition to matrices in a list
+# used in gpagen functions
+apply.pPsup<-function(M, Ya) {	# M = mean (reference); Ya all Y targets
+  dims <- dim(Ya[[1]])
+  k <- dims[2]; p <- dims[1]; n <- length(Ya)
+  M <- cs.scale(M)
+  lapply(1:n, function(j){
+    y <- Ya[[j]]
+    MY <- crossprod(M,y)
+    sv <- La.svd(MY,k,k)
+    u <- sv$u; u[,k] <- u[,k]*determinant(MY)$sign
+    tcrossprod(y,u%*%sv$vt)
+  })
+}
 
 # fast.ginv
 # same as ginv, but without traps (faster)
