@@ -378,7 +378,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                data = fit.o$data, 
                random.coef = betas$random.coef,
                random.coef.distances = betas$random.coef.distances,
-               ols = TRUE, gls = FALSE)
+               model.sets = fit.o$model.sets, ols = TRUE, gls = FALSE)
     PermInfo <- list(perms = perms,
                      perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
                      perm.schedule = ind, perm.seed = seed)
@@ -423,7 +423,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                data = fit.o$data, 
                random.coef = betas$random.coef,
                random.coef.distances = betas$random.coef.distances,
-               ols = TRUE, gls = FALSE)
+               model.sets = fit.o$model.sets, ols = TRUE, gls = FALSE)
     ANOVA <- list(df = df, RSS.model = SS, MS = SS/df)
     PermInfo <- list(perms = perms,
                      perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 

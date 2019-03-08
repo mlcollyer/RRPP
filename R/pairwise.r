@@ -243,7 +243,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
 
   out <- list(LS.means = means, slopes = slopes, means.dist = means.dist, means.vec.cor = means.vec.cor,
               slopes.length = slopes.length, slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
-              vars = vars, n <- fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)
+              vars = vars, n = fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)
   
   class(out) <- "pairwise"
   out

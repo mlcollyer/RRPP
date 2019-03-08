@@ -356,7 +356,6 @@ manova.update <- function(fit, error = NULL,
     close(pb)
   }
   
-  out <- out[c(1,2,3,5,4)]
   class(out) <- c("manova.lm.rrpp", class(o.fit))
   out
 }

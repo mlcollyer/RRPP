@@ -180,7 +180,7 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
     }
   }
   
-  data.name = as.character(object$call[[2]])[[2]]
+  data.name = all.vars(object$LM$form)[1]
   rn <- rownames(nX)
   if(is.null(rownames(nX))) rn <- as.character(1:NROW(nX))
   colnames(meanV) <- colnames(LCL) <- colnames(UCL) <- colnames(object$LM$Y)

@@ -383,7 +383,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                           reg.type = c("CRC", "PredLine", "RegScore"), ...){
   r <- as.matrix(x$LM$wResiduals)
   f <- as.matrix(x$LM$wFitted)
-  if(!is.null(x$Pcov)) {
+  if(x$LM$gls) {
     r <- as.matrix(x$LM$gls.residuals)
     f <- as.matrix(x$LM$gls.fitted)
   }
@@ -425,6 +425,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     p <- ncol(r)
   }
   if(type == "regression"){
+    PL <- prcomp(f)$x[,1]
     reg.type <- match.arg(reg.type)
     if(is.na(match(reg.type, c("CRC", "PredLine", "RegScore")))) 
       if(is.null(predictor))
@@ -434,7 +435,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     if(length(predictor) != n) 
       stop("Observations in predictor must equal observations if procD.lm fit")
     X <- x$LM$X * sqrt(x$LM$weights)
-    if(!is.null(x$LM$Pcov)) B <- x$LM$gls.coefficients else B <- x$LM$coefficients
+    if(x$LM$gls) B <- x$LM$gls.coefficients else B <- x$LM$coefficients
     xc <- predictor
     pred.match <- sapply(1:NCOL(X), function(j){
       any(is.na(match(xc, X[,j])))
@@ -456,7 +457,6 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     resid <- r%*%(diag(p) - matrix(crossprod(a),p,p))
     RSC <- prcomp(resid)$x
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
-    PL <- prcomp(f)$x[,1]
     if(reg.type == "CRC"){
       par(mfcol = c(1,2))
       par(mar = c(4,4,1,1))
@@ -795,23 +795,25 @@ summary.pairwise <- function(object, stat.table = TRUE,
       v <- as.matrix(vars[,j])
       as.matrix(dist(v))
     })
-    L <- d.summary.from.list(var.diff)
+    L <- d.summary.from.list(var.diff, confidence = confidence)
     tab <- makePWDTable(L)
   }
   
   if(type == "means") {
     if(test.type == "dist") {
-      L <- d.summary.from.list(x$means.dist)
+      L <- d.summary.from.list(x$means.dist, confidence = confidence)
       if(stat.table) tab <- makePWDTable(L)
     }
     
     if(test.type == "VC") {
-      L <- r.summary.from.list(x$means.vec.cor)
+      L <- r.summary.from.list(x$means.vec.cor, confidence = confidence)
       if(stat.table) {
         tab <- makePWCorTable(L)
         if(angle.type == "deg") {
+          options(warn = -1)
           tab$angle <- tab$angle*180/pi
           tab[,3] <- tab[,3]*180/pi
+          options(warn = 0)
         }
       }
     }
@@ -829,8 +831,10 @@ summary.pairwise <- function(object, stat.table = TRUE,
       if(stat.table) {
         tab <- makePWCorTable(L)
         if(angle.type == "deg") {
+          options(warn = -1)
           tab$angle <- tab$angle*180/pi
           tab[,3] <- tab[,3]*180/pi
+          options(warn = -1)
         }
       }
     }

@@ -208,160 +208,6 @@ makeDf <- function(Terms, Y, data = NULL) {
 
 }
 
-
-# center
-# centers a matrix faster than scale()
-# used in various functions where mean-centering is required
-
-#' Support function for RRPP
-#'
-#' Center a matrix, quickly
-#'
-#' @param x Matrix to mean-center.
-#' @keywords utilities
-#' @export
-#' @author Michael Collyer
-center <- function(x){
-  if(is.vector(x)) x - mean(x) else {
-    x <- as.matrix(x)
-    dims <- dim(x)
-    fast.center(x, dims[1], dims[2])
-  }
-}
-
-fast.center <- function(x, n, p){
-  m <- colMeans(x)
-  x - rep.int(m, rep_len(n, p))
-}
-
-fast.scale <- function(x, n, p){
-  if(p > 1) {
-    x <- fast.center(x, n, p)
-    scale <- apply(x, 2, sd)
-    x / rep.int(scale, rep_len(n, p))
-  } else {
-    x <- x - mean(x)
-    x/sd(x)
-  }
-}
-
-# fast.ginv
-# same as ginv, but without traps (faster)
-# used in any function requiring a generalized inverse
-fast.ginv <- function(X, tol = sqrt(.Machine$double.eps)){
-  k <- ncol(X)
-  Xsvd <- La.svd(X, k, k)
-  Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
-  rtu <-((1/Xsvd$d[Positive]) * t(Xsvd$u[, Positive, drop = FALSE]))
-  v <-t(Xsvd$vt)[, Positive, drop = FALSE]
-  v%*%rtu
-}
-
-#' Support function for RRPP
-#'
-#' Invert a matrix, quickly.  Functions similar to solve function, but much quicker.
-#'
-#' @param x Matrix to invert.
-#' @keywords utilities
-#' @export
-#' @author Michael Collyer
-fast.solve <- function(x) { 
-  if(det(x) > 1e-8) {
-  res <- try(chol2inv(chol(x)), silent = TRUE)
-  if(class(res) == "try-error") res <- fast.ginv(x)
-  } else  res <- fast.ginv(x)
-  return(res)
-}
-
-
-# pcoa
-# acquires principal coordinates from distance matrices
-# used in all linear model functions with data input
-pcoa <- function(D){
-  options(warn=-1)
-  if(class(D) != "dist") stop("function only works with distance matrices")
-  cmd <- cmdscale(D, k=attr(D, "Size") -1, eig=TRUE)
-  options(warn=0)
-  d <- cmd$eig
-  min.d <- min(d)
-  if(min.d < 0) {
-    options(warn=-1)
-    cmd.c <- cmdscale(D, k=attr(D, "Size") -1, eig=TRUE, add= TRUE)
-    options(warn=0)
-    d <- cmd.c$eig
-  } else cmd.c <- cmd
-  p <- length(cmd.c$eig[zapsmall(d) > 0])
-  Yp <- cmd.c$points[,1:p]
-  Yp
-}
-
-# perm.index
-# creates a permutation index for resampling
-# used in all functions with a resampling procedure
-
-perm.index <-function(n, iter, seed=NULL){
-  if(is.null(seed)) seed = iter else
-    if(seed == "random") seed = sample(1:iter,1) else
-      if(!is.numeric(seed)) seed = iter
-      set.seed(seed)
-      ind <- c(list(1:n),(Map(function(x) sample.int(n,n), 1:iter)))
-      rm(.Random.seed, envir=globalenv())
-      attr(ind, "seed") <- seed
-      ind
-}
-
-
-# boot.index
-# creates a bootstrap index for resampling
-# used in lm.rrpp for intercept models
-boot.index <-function(n, iter, seed=NULL){
-  if(is.null(seed)) seed = iter else
-    if(seed == "random") seed = sample(1:iter,1) else
-      if(!is.numeric(seed)) seed = iter
-      set.seed(seed)
-      ind <- c(list(1:n),(Map(function(x) sample.int(n, n, replace = TRUE), 1:iter)))
-      rm(.Random.seed, envir=globalenv())
-      attr(ind, "seed") <- seed
-      ind
-}
-
-# fastFit
-# calculates fitted values for a linear model, after decomoposition of X to get U
-# used in SS.iter
-fastFit <- function(U,y,n,p){
-  if(!is.matrix(y)) y <- as.matrix(y)
-  if(p > n) tcrossprod(U)%*%y else
-    U%*%crossprod(U,y)
-}
-
-# fastLM
-# calculates fitted values and residuals, after fastFit
-# placeholder in case needed later
-fastLM<- function(U,y){
-  p <- dim(y)[2]; n <- dim(y)[1]
-  yh <- fastFit(U,y,n,p)
-  list(fitted = yh, residuals = y-yh)
-}
-
-# pval
-# P-values form random outcomes
-# any analytical function
-pval = function(s){# s = sampling distribution
-  p = length(s)
-  r = rank(s)[1]-1
-  pv = 1-r/p
-  pv
-}
-
-# effect.size
-# Effect sizes (standard deviates) form random outcomes
-# any analytical function
-effect.size <- function(x, center = TRUE) {
-  z = scale(x, center=center)
-  n <- length(z)
-  z[1]*sqrt((n-1)/(n))
-}
-
 # rrpp.fit + subfunctions
 # lm-like fit modified for all submodels
 # general workhorse for all 'rrpp.lm' functions
@@ -476,32 +322,44 @@ rrpp.fit.lm <- function(a){
   X <- X[, QRx$pivot, drop = FALSE]
   X <- X[, 1:QRx$rank, drop = FALSE]
   X.k <- X.k[QRx$pivot][1:QRx$rank]
-  uk <- unique(c(0,X.k))
-  k <- length(attr(Terms, "term.labels"))
-  # SS types: reduced and full X matrices
+  uk <- unique(c(0, X.k))
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  
   if(SS.type == "III"){
-    Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
-    Xfs <- lapply(2:length(uk), function(j)  X)
+    uk0 <- uk[-1]
+    xk0 <- X.k[-1]
+    terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+    terms.f <- lapply(1:k, function(.) Terms)
   }
+  
   if(SS.type == "II") {
+    uk0 <- uk[-1]
+    xk0 <- X.k[-1]
     fac <- crossprod(attr(Terms, "factor"))
-    Xrs <- lapply(1:NROW(fac), function(j){
+    terms.r <- lapply(1:k, function(j){
       ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
-      ind <- as.logical(c(1,ind))
-      X[, X.k %in% uk[ind]]
+      ind <- as.logical(ind)
+      Terms[xk0 %in% uk0[ind]]
     })
-    Xfs <- lapply(1:NROW(fac), function(j){
+    terms.f <- lapply(1:k, function(j){
       ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
       ind[j] <- 1
-      ind <- as.logical(c(1,ind))
-      X[, X.k %in% uk[ind]]
+      ind <- as.logical(c(ind))
+      Terms[xk0 %in% uk0[ind]]
     })
   }
+  
   if(SS.type == "I") {
-    Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
-    Xrs <- Xs[1:k]
-    Xfs <- Xs[2:(k+1)]
+    terms.f <- lapply(1:k, function(j) Terms[1:j])
+    terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
   }
+  
+  Xrs <- lapply(terms.r, function(x) model.matrix(x, data = dat))
+  Xfs <- lapply(terms.f, function(x) model.matrix(x, data = dat))
+  
+  names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
+  
   # unweighted output
   QRs.reduced <- lapply(Xrs, function(x) qr(x))
   fits.reduced <- lapply(Xrs, function(x) lm.fit(as.matrix(x),Y, offset = o))
@@ -540,7 +398,10 @@ rrpp.fit.lm <- function(a){
     wCoefficients.full <- lapply(wfits.full, function(x) as.matrix(x$coefficients))
   }
   # additional output
-  term.labels <- attr(Terms, "term.labels")
+  
+  model.sets <- list(terms.r = terms.r, terms.f = terms.f,
+                     Xrs = Xrs, Xfs = Xfs)
+  
   out <- list(Y=Y, wY=wY, X=X, Xrs=Xrs, Xfs=Xfs,
               wX=wX, wXrs=wXrs, wXfs=wXfs,
               QRs.reduced = QRs.reduced,
@@ -561,7 +422,8 @@ rrpp.fit.lm <- function(a){
               wCoefficients.full = wCoefficients.full,
               weights = w, offset = o, data = dat,
               SS.type = SS.type, D = D,
-              Terms = Terms, term.labels = term.labels)
+              Terms = Terms, term.labels = term.labels,
+              model.sets = model.sets)
   class(out) <- "rrpp.fit"
   invisible(out)
 }
@@ -625,6 +487,7 @@ rrpp.fit.int <- function(a) {
     wCoefficients.full <- list(as.matrix(wfits.full$coefficients))
   }
   term.labels <- attr(Terms, "term.labels")
+  model.sets <- NULL
   out <- list(Y=Y, wY=wY, X=X, Xrs=Xrs, Xfs=Xfs,
               wX=wX, wXrs=wXrs, wXfs=wXfs,
               QRs.reduced = QRs.reduced,
@@ -645,7 +508,8 @@ rrpp.fit.int <- function(a) {
               wCoefficients.full = wCoefficients.full,
               weights = w, offset = o, data = dat,
               SS.type = NULL, D = D,
-              Terms = Terms, term.labels = term.labels)
+              Terms = Terms, term.labels = term.labels,
+              model.sets = model.sets)
   class(out) <- "procD.fit"
   invisible(out)
 }
@@ -701,25 +565,6 @@ rrpp <- function(fitted, residuals, ind.i, w, o){
   r
 }
 
-# Cov.proj
-# generates projection matrix from covariance matrix
-# used in lm.rrpp
-
-Cov.proj <- function(Cov, id){
-  if(is.null(id)) Cov <- Cov else
-    Cov <- Cov[id, id]
-  invC <- fast.solve(Cov)
-  eigC <- eigen(Cov)
-  lambda <- zapsmall(eigC$values)
-  if(any(lambda == 0)){
-    cat("\nWarning: singular covariance matrix. Proceed with caution\n")
-    lambda = lambda[lambda > 0]
-  }
-  eigC.vect = eigC$vectors[,1:(length(lambda))]
-  P <- fast.solve((eigC.vect%*% diag(sqrt(lambda)) %*% t(eigC.vect)))
-  dimnames(P) <- dimnames(Cov)
-  P
-}
 
 # droplevels.rrpp.data.frame
 # same as droplevels for data.frame objects
@@ -761,8 +606,8 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
-    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
+    Ur <- lapply(Xr, function(x) qr.Q(qr(x)[, 1:x$rank]))
+    Uf <- lapply(Xf, function(x) qr.Q(qr(x)[, 1:x$rank]))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
@@ -800,8 +645,8 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$fitted <- fitted
       rrpp.args$residuals <- res
     }
-    Ur <- lapply(fit$wQRs.reduced, qr.Q)
-    Uf <- lapply(fit$wQRs.full, qr.Q)
+    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x)[,1:x$rank])
+    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x)[,1:x$rank])
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(rep(int, n)))
@@ -873,8 +718,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
-    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
+    Ur <- lapply(Xr, function(x) qr.Q(qr(x)[, 1:x$rank]))
+    Uf <- lapply(Xf, function(x) qr.Q(qr(x)[, 1:x$rank]))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
@@ -910,8 +755,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$fitted <- fitted
       rrpp.args$residuals <- res
     }
-    Ur <- lapply(fit$wQRs.reduced, qr.Q)
-    Uf <- lapply(fit$wQRs.full, qr.Q)
+    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x)[,1:x$rank])
+    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x)[,1:x$rank])
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(rep(int, n)))
@@ -1101,8 +946,10 @@ beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
     Qr <- lapply(Xr, qr)
     Qf <- lapply(Xf, qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
+    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
+    Ur <- lapply(Qr, function(x) qr.Q(x)[, 1:x$rank])
+  
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
@@ -1128,7 +975,9 @@ beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
       rrpp.args$residuals <- res
     }
     Qf <- lapply(fit$wXfs, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
+    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
+    
     betas <- lapply(1:perms, function(j){
       step <- j
       if(print.progress) setTxtProgressBar(pb,step)
@@ -1213,8 +1062,9 @@ beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) 
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
     Qr <- lapply(Xr, qr)
     Qf <- lapply(Xf, qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
+    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
+    Ur <- lapply(Qr, function(x) qr.Q(x)[, 1:x$rank])
     if(!RRPP) {
       fitted <- lapply(fitted, function(.) matrix(0, n, p))
       res <- lapply(res, function(.) Y)
@@ -1237,8 +1087,8 @@ beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) 
       rrpp.args$fitted <- fitted
       rrpp.args$residuals <- res
     }
-    Qf <- lapply(fit$wXfs, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Qf.rank <- lapply(Qf, function(x) 1:x$rank)
+    Hf <- Map(function(q, r) tcrossprod(solve(qr.R(q)[r, r]), qr.Q(q)[, r]), Qf, Qf.rank)
     betas <- mclapply(1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
@@ -1750,9 +1600,15 @@ getLSmeans <- function(fit, g){
   means
 }
 
-# vec.cor.matrix
-# finds vector correlations for a matrix (by rows)
-# used in pairwise
+
+#' Support function for RRPP
+#'
+#' Calculate vector correlations for a matrix (by rows).  Used for pairwise comparisons.
+#'
+#' @param M Matrix for vector correlations.
+#' @keywords utilities
+#' @export
+#' @author Michael Collyer
 vec.cor.matrix <- function(M) {
   options(warn = -1)
   M = as.matrix(M)
@@ -1798,7 +1654,7 @@ percentile.list <- function(M, confidence = 0.95){
   n <- length(M)
   for(i in 1:length(P)) {
     y <- sapply(1:n, function(j) M[[j]][i])
-    P[i] <- quantile(y, confidence)
+    P[i] <- quantile(y, confidence, na.rm = TRUE)
   }
   P
 }
