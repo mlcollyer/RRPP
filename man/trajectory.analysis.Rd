@@ -48,11 +48,11 @@ The function quantifies multivariate trajectories from a set of observations, an
  
  This function is a modified version of \code{\link{pairwise}}, retaining the least squares (LS) means as trajectory points.
  Analysis starts with a \code{\link{lm.rrpp}} fit (but a procD.lm fit from geomorph can also be used).  LS means are calculated using a grouping
- variable.  Data can be trajectories, as a start(sensu Admas and Cerney 2007), or trajectories can be calculated from data using a factorial model (in which case
+ variable.  Data can be trajectories, as a start(sensu Adams and Cerney 2007), or trajectories can be calculated from data using a factorial model (in which case
  trajectory points are defined by factor levels).
 
 This function produces statistics that can be summarized with the \code{\link{summary.trajectory.analysis}} function.  The summaries
- are consistent with those in the \code{\link{summary.pairwise}} function, pertating to trajectory attributes including,
+ are consistent with those in the \code{\link{summary.pairwise}} function, pertaining to trajectory attributes including,
  magnitude difference (MD), the difference in path lengths of trajectories; trajectory correlations (TC), better
  thought of as angular differences between trajectory principal axes; and if trajectories have three or more points,
  shape difference (SD), the square root of summed squared point differences, after scaling, centering, and rotating trajectories.  The SD is
@@ -60,10 +60,12 @@ This function produces statistics that can be summarized with the \code{\link{su
  configurations in geometric morphometrics.  If attribute = "TC" is chosen for the summary, then the angle type ("rad" or "deg",
  can be chosen for either radians and degrees, respectively, to return angles between principal axes.)
  
- Plotting options will be updated soon.
+ Plotting can be performed with \code{\link{plot.trajectory.analysis}} and \code{\link{add.trajectories}}.  The former
+ plots all pincipal component scores for the data, and allows point-by-point control of plot parameters.  The later
+ adds trajectories points and lines, with constrained control.  By saving the plot.trajectory.analysis
+ object, plotting information can be retained and advanced plotting can be performed.  See examples below.
 }
 \examples{
-
 ### Analysis of sexual dimorphism vectors (factorial approach)
 data(Pupfish)
 fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 999)
@@ -77,6 +79,12 @@ summary(TA, attribute = "SD") # No shape differences between vectors
 TA.summary <- summary(TA, attribute = "MD")
 TA.summary$summary.table
 
+# Plot results
+TP <- plot(TA, pch = as.numeric(Pupfish$Pop) + 20, bg = as.numeric(Pupfish$Sex),
+cex = 0.7, col = "gray")
+add.trajectories(TP, traj.pch = c(21, 22), start.bg = 1, end.bg = 2)
+legend("topright", levels(Pupfish$Pop), pch =  c(21, 22), pt.bg = 1)
+
 ### Analysis when data are already trajectories (motion paths)
 
 # data are planar Cartesian coordinates (x, y) across 5 points (10 variables)
@@ -86,6 +94,10 @@ TA <- trajectory.analysis(fit, groups = motionpaths$groups, traj.pts = 5)
 summary(TA, attribute = "MD") # Magnitude difference (absolute difference between path distances)
 summary(TA, attribute = "TC", angle.type = "deg") # Correlations (angles) between trajectories
 summary(TA, attribute = "SD") # Shape differences between trajectories 
+
+TP <- plot(TA, pch = 21, bg = as.numeric(motionpaths$groups),
+cex = 0.7, col = "gray")
+add.trajectories(TP, traj.pch = 21, traj.bg = 1:4)
 }
 \references{
 Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical motion using Procrustes 

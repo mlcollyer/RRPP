@@ -10,11 +10,11 @@
 #'  
 #'  This function is a modified version of \code{\link{pairwise}}, retaining the least squares (LS) means as trajectory points.
 #'  Analysis starts with a \code{\link{lm.rrpp}} fit (but a procD.lm fit from geomorph can also be used).  LS means are calculated using a grouping
-#'  variable.  Data can be trajectories, as a start(sensu Admas and Cerney 2007), or trajectories can be calculated from data using a factorial model (in which case
+#'  variable.  Data can be trajectories, as a start(sensu Adams and Cerney 2007), or trajectories can be calculated from data using a factorial model (in which case
 #'  trajectory points are defined by factor levels).  
 #'
 #'  This function produces statistics that can be summarized with the \code{\link{summary.trajectory.analysis}} function.  The summaries
-#'  are consistent with those in the \code{\link{summary.pairwise}} function, pertating to trajectory attributes including,
+#'  are consistent with those in the \code{\link{summary.pairwise}} function, pertaining to trajectory attributes including,
 #'  magnitude difference (MD), the difference in path lengths of trajectories; trajectory correlations (TC), better
 #'  thought of as angular differences between trajectory principal axes; and if trajectories have three or more points,
 #'  shape difference (SD), the square root of summed squared point differences, after scaling, centering, and rotating trajectories.  The SD is
@@ -22,7 +22,10 @@
 #'  configurations in geometric morphometrics.  If attribute = "TC" is chosen for the summary, then the angle type ("rad" or "deg",
 #'  can be chosen for either radians and degrees, respectively, to return angles between principal axes.)
 #'  
-#'  Plotting options will be updated soon.
+#'  Plotting can be performed with \code{\link{plot.trajectory.analysis}} and \code{\link{add.trajectories}}.  The former
+#'  plots all pincipal component scores for the data, and allows point-by-point control of plot parameters.  The later
+#'  adds trajectories points and lines, with constrained control.  By saving the plot.trajectory.analysis
+#'  object, plotting information can be retained and advanced plotting can be performed.  See examples below.
 #'  
 #' @param fit A linear model fit using \code{\link{lm.rrpp}}.
 #' @param fit.null An alternative linear model fit to use as a null model for RRPP, if the null model
@@ -62,7 +65,6 @@
 #' by high-dimensional data. Heredity. 115:357-365.
 #' 
 #' @examples 
-#' 
 #' ### Analysis of sexual dimorphism vectors (factorial approach)
 #' data(Pupfish)
 #' fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 999)
@@ -76,6 +78,12 @@
 #' TA.summary <- summary(TA, attribute = "MD")
 #' TA.summary$summary.table
 #' 
+#' # Plot results
+#' TP <- plot(TA, pch = as.numeric(Pupfish$Pop) + 20, bg = as.numeric(Pupfish$Sex),
+#' cex = 0.7, col = "gray")
+#' add.trajectories(TP, traj.pch = c(21, 22), start.bg = 1, end.bg = 2)
+#' legend("topright", levels(Pupfish$Pop), pch =  c(21, 22), pt.bg = 1)
+#' 
 #' ### Analysis when data are already trajectories (motion paths)
 #' 
 #' # data are planar Cartesian coordinates (x, y) across 5 points (10 variables)
@@ -85,6 +93,11 @@
 #' summary(TA, attribute = "MD") # Magnitude difference (absolute difference between path distances)
 #' summary(TA, attribute = "TC", angle.type = "deg") # Correlations (angles) between trajectories
 #' summary(TA, attribute = "SD") # Shape differences between trajectories 
+#' 
+#' TP <- plot(TA, pch = 21, bg = as.numeric(motionpaths$groups),
+#' cex = 0.7, col = "gray")
+#' add.trajectories(TP, traj.pch = 21, traj.bg = 1:4)
+
 
 trajectory.analysis <- function(fit, fit.null = NULL, groups, 
                                 traj.pts, pca = TRUE, print.progress = FALSE){
@@ -104,11 +117,12 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
     } else {
       g2 <- traj.pts
       tp <- NULL
+      p <- levels(g2)
     }
   }
   g1 <- groups
   
-  if(NCOL(g2) > 1) stop("traj.pts can be either a single value or a factor, not a matrix.\n",
+  if(!is.null(g2) && NCOL(g2) > 1) stop("traj.pts can be either a single value or a factor, not a matrix.\n",
                         call. = FALSE)
   if(NCOL(g1) > 1) stop("Groups must be a single factor.\n",
                         call. = FALSE)
@@ -121,8 +135,13 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = print.progress)
   
   means <- PW$LS.means
-  if(is.null(tp) && pca) means <- lapply(means, function(x) prcomp(x)$x)
-  
+  if(is.null(tp) && pca) {
+    PCA <- if(fit$LM$gls) prcomp(fit$LM$gls.fitted) else prcomp(fit$LM$wFitted)
+    rot <- PCA$rotation
+    means <- lapply(means, function(x) x %*% rot)
+  } else PCA <- NULL
+ 
+
   if(!is.null(tp)){
     p <- ncol(means[[1]])/tp
     if(p != floor(p)) stop("The number of variables divided by the number of trajectory points is not an integer")
@@ -204,7 +223,10 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   if(!is.null(SD)) names(SD) <- names(PD)
   # output
   out <- list(LS.means = means, trajectories = trajectories, PD = PD, 
-              MD = MD, TC = Tcor, SD = SD, pca = pca)
+              MD = MD, TC = Tcor, SD = SD, pca = PCA, 
+              fit = fit, n.trajectories = if(is.matrix(trajectories[[1]])) 1 else length(trajectories[[1]]),
+              n.points = p,
+              type = if(is.null(g2)) "single.factor" else "factorial")
 
   class(out) <- "trajectory.analysis"
   out

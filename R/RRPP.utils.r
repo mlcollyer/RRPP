@@ -456,12 +456,13 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     CRC <- r%*%a  
     resid <- r%*%(diag(p) - matrix(crossprod(a),p,p))
     RSC <- prcomp(resid)$x
+    CRC <- prcomp(CRC)$x
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     if(reg.type == "CRC"){
       par(mfcol = c(1,2))
       par(mar = c(4,4,1,1))
       plot(predictor, CRC,  ...)
-      plot(CRC, RSC[,1], asp=1, xlab = "CRC", ylab = "RSC 1", ...)
+      plot(CRC, RSC[,1], xlab = "CRC", ylab = "RSC 1", ...)
       par(mar = c(5,4,4,2) + 0.1)
       par(mfcol=c(1,1))
     } else if(reg.type == "RegScore") {
@@ -1257,7 +1258,7 @@ print.trajectory.analysis<- function(x, ...){
   pca <- x$pca
   cat("\nTrajectory analysis\n\n")
   cat(perms, "permutations.\n\n")
-  if(pca) cat("Points projected onto trajectory PCs\n")
+  if(!is.null(pca)) cat("Points projected onto trajectory PCs\n")
   
 }
 
@@ -1431,5 +1432,223 @@ print.summary.trajectory.analysis <- function(x, ...) {
   cat("\n\n")
     
   invisible(x)
+}
+
+
+#' Plot Function for RRPP
+#' 
+#'  Function generates a principal component plot for trajectories
+#'
+#'  The function calculates and plots principal components of fitted values from 
+#'  \code{\link{lm.rrpp}} that are passed onto \code{\link{trajectory.analysis}}, and projects
+#'  data onto them.  This function is a set.up, and \code{\link{add.trajectories}} is needed to 
+#'  add trajectories to the plot.  By having two stages of control, the plotting functions are more 
+#'  flexible.  This function also returns plotting information that can be valuable for making
+#'  individualized plots, if \code{\link{add.trajectories}} is not preferred.
+#' @param x plot object (from \code{\link{trajectory.analysis}})
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' \code{\link{plot.default}} and \code{\link{par}}
+#' 
+#' @return If an object is assigned, it will return:
+#'  \item{pca}{Principal component analysis performed using \code{\link{prcomp}}.}
+#'  \item{pc.points}{Principal component scores for all data.}
+#'  \item{trajectory.analysis}{Trajectory analysis passed on.}
+#'  \item{trajectories}{pca Observed trajectories projected onto principal components.}
+#'  
+#' @seealso 
+#' \code{\link{plot.default}} and \code{\link{par}}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+#' @references Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical motion using Procrustes 
+#'   motion analysis. J. Biomech. 40:437-444.
+#' @references Adams, D. C., and M. L. Collyer. 2007. The analysis of character divergence along environmental 
+#'   gradients and other covariates. Evolution 61:510-515.
+#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for the analysis of phenotypic 
+#'   trajectories in evolutionary studies. Evolution 63:1143-1154.
+#' @references Collyer, M. L., and D. C. Adams. 2007. Analysis of two-state multivariate phenotypic change 
+#'   in ecological studies. Ecology 88:683-692.
+#' @references Collyer, M. L., and D. C. Adams. 2013. Phenotypic trajectory analysis: comparison of shape change patterns 
+#' in evolution and ecology. Hystrix 24: 75-83.
+#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described 
+#' by high-dimensional data. Heredity. 115:357-365.
+#' 
+#' @examples 
+#' # See \code{\link{trajectory.analysis}} for examples
+plot.trajectory.analysis <- function(x, ...) {
+  
+  if(!is.null(x$pca)) {
+    pca <- x$pca
+    rot <- pca$rotation
+    Y <- x$fit$LM$Y
+    props <- pca$sdev^2 / sum(pca$sdev^2)
+    pc.points <- center(Y) %*% rot
+    trajectories <- x$trajectories[[1]]
+  }
+  
+  if(is.null(x$pca) && x$type == "factorial") {
+    f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$wFitted
+    pca <- prcomp(f)
+    rot <- pca$rotation
+    Y <- x$fit$LM$Y
+    Y.cent <- colMeans(Y)
+    props <- pca$sdev^2 / sum(pca$sdev^2)
+    pc.points <- center(Y) %*% rot
+    trajectories <- x$trajectories[[1]]
+    if(is.matrix(trajectories)) trajectories <- list(trajectories)
+    traj.c <- matrix(Y.cent, NROW(traj[[1]]), NCOL(traj[[1]]), byrow = TRUE)
+    trajectories <- lapply(trajectories, function(x) (x - traj.c) %*% rot)
+  }
+  
+  if(x$type == "single.factor") {
+    f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$wFitted
+    tp <- x$n.points
+    p <- NCOL(f)/tp
+    n <- NROW(f)
+    ft <- array(f, c(n, p, tp))
+    ft2 <- ft[,,1]
+    for(i in 2:tp) ft2 <- rbind(ft2, ft[,,i])
+    pca <- prcomp(ft2)
+    rot <- pca$rotation
+    Y <- x$fit$LM$Y
+    Y2 <- array(Y, c(n, p, tp))
+    Y <- Y2[,,1]
+    for(i in 2:tp) Y <- rbind(Y, Y2[,,i])
+    Y.cent <- colMeans(Y)
+    props <- pca$sdev^2 / sum(pca$sdev^2)
+    pc.points <- center(Y) %*% rot
+    trajectories <- x$trajectories[[1]]
+    if(is.matrix(trajectories)) trajectories <- list(trajectories)
+    traj.c <- matrix(Y.cent, NROW(trajectories[[1]]), 
+                     NCOL(trajectories[[1]]), byrow = TRUE)
+    trajectories <- lapply(trajectories, function(x) (x - traj.c) %*% rot)
+  }
+  
+  
+  dots <- list(...)
+  if(is.null(dots$xlab))
+    xlabel <- paste("PC 1 for fitted values: ", round(props[1] *100, 2), "%", sep = "")
+  if(is.null(dots$ylab))
+    ylabel <- paste("PC 2 for fitted values: ", round(props[2] *100, 2), "%", sep = "")
+  
+  if(!is.null(dots$xlab) && !is.null(dots$ylab)) plot(pc.points[,1], pc.points[,2], asp = 1, ...)
+  if(!is.null(dots$xlab) && is.null(dots$ylab)) plot(pc.points[,1], pc.points[,2], asp = 1, ylab = ylabel, ...)
+  if(is.null(dots$xlab) && !is.null(dots$ylab)) plot(pc.points[,1], pc.points[,2], asp = 1, xlab = xlabel, ...)
+  if(is.null(dots$xlab) && is.null(dots$ylab))
+    plot(pc.points[,1], pc.points[,2], asp = 1, xlab = xlabel, ylab = ylabel, ...)
+  out <- list(pca = pca, pc.points = pc.points, trajectoy.analysis = x, trajectories = trajectories)
+  invisible(out)
+}
+
+#' Plot Function for RRPP
+#' 
+#'  Function adds trajectories to a principal component plot
+#'
+#'  The function adds trajectories to a plot made by \code{\link{plot.trajectory.analysis}}.
+#'  This function has a restricted set of plot parameters based on the number of trajectories
+#'  to be added to the plot.
+#'  
+#' @param TP plot object (from \code{\link{plot.trajectory.analysis}})
+#' @param traj.pch Plotting "character" for trajectory points.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for pch.
+#' @param traj.col The color of trajectory lines.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for col.
+#' @param traj.lty Trajectory line type.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for lty.
+#' @param traj.lwd Trajectory line width.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for lwd.
+#' @param traj.cex Trajectory point character expansion.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for cex.
+#' @param traj.bg Trajectory point background.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for bg.
+#' @param start.bg Trajectory point background, just the start points.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for bg.  Green start points are the default.
+#' @param end.bg Trajectory point background, just the end points.  Can be a single value or vector 
+#' of length equal to the number of trajectories.  See \code{\link{par}} and its description 
+#' for bg.  Red end points are the default.
+#' 
+#' @seealso 
+#' \code{\link{plot.default}} and \code{\link{par}}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+#' @references Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical motion using Procrustes 
+#'   motion analysis. J. Biomech. 40:437-444.
+#' @references Adams, D. C., and M. L. Collyer. 2007. The analysis of character divergence along environmental 
+#'   gradients and other covariates. Evolution 61:510-515.
+#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for the analysis of phenotypic 
+#'   trajectories in evolutionary studies. Evolution 63:1143-1154.
+#' @references Collyer, M. L., and D. C. Adams. 2007. Analysis of two-state multivariate phenotypic change 
+#'   in ecological studies. Ecology 88:683-692.
+#' @references Collyer, M. L., and D. C. Adams. 2013. Phenotypic trajectory analysis: comparison of shape change patterns 
+#' in evolution and ecology. Hystrix 24: 75-83.
+#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described 
+#' by high-dimensional data. Heredity. 115:357-365.
+add.trajectories <- function(TP, 
+                             traj.pch = 21,
+                             traj.col = 1,
+                             traj.lty = 1,
+                             traj.lwd = 1,
+                             traj.cex = 1.5,
+                             traj.bg = 1,
+                             start.bg = 3,
+                             end.bg = 2) {
+  
+  traj <- TP$trajectories
+  nt <- length(traj)
+  np <- NROW(traj[[1]])
+  
+  if(length(traj.pch) != 1 && length(traj.pch) != nt)
+    stop("For add.trajectories, traj.pch must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(traj.pch) == 1) traj.pch <- rep(traj.pch, nt)
+  
+  if(length(traj.col) != 1 && length(traj.col) != nt)
+    stop("For add.trajectories, traj.col must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(traj.col) == 1) traj.col <- rep(traj.col, nt)
+  
+  if(length(traj.lty) != 1 && length(traj.lty) != nt)
+    stop("For add.trajectories, traj.lty must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(traj.lty) == 1) traj.lty <- rep(traj.lty, nt)
+  
+  if(length(traj.lwd) != 1 && length(traj.lwd) != nt)
+    stop("For add.trajectories, traj.lwd must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(traj.lwd) == 1) traj.lwd <- rep(traj.lwd, nt)
+  
+  if(length(traj.cex) != 1 && length(traj.cex) != nt)
+    stop("For add.trajectories, traj.cex must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(traj.cex) == 1) traj.cex <- rep(traj.cex, nt)
+  
+  if(length(traj.bg) != 1 && length(traj.bg) != nt)
+    stop("For add.trajectories, traj.bg must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(traj.bg) == 1) traj.bg <- rep(traj.bg, nt)
+  
+  if(length(start.bg) != 1 && length(start.bg) != nt)
+    stop("For add.trajectories, start.bg must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(start.bg) == 1) start.bg<- rep(start.bg, nt)
+  
+  if(length(end.bg) != 1 && length(end.bg) != nt)
+    stop("For add.trajectories, end.bg must be equal in length to the number of trajectories or just one value\n",
+         call. = FALSE) else if(length(end.bg) == 1) end.bg<- rep(end.bg, nt)     
+  
+  for(i in 1:nt){
+    x <- traj[[i]][,1]
+    y <- traj[[i]][,2]
+    lines(x, y, col = traj.col[i], lwd = traj.lwd[i], lty = traj.lty[i])
+    points(x, y, col = 1, pch = traj.pch[i], lwd = traj.lwd[i], cex = traj.cex[i], bg = traj.bg[i])
+    points(x[1], y[1], col = 1, pch = traj.pch[i], lwd = traj.lwd[i], cex = traj.cex[i], bg = start.bg[i])
+    points(x[np], y[np], col = 1, pch = traj.pch[i], lwd = traj.lwd[i], cex = traj.cex[i], bg = end.bg[i])
+  }
+  
+  
 }
 

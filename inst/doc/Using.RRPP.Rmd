@@ -249,7 +249,7 @@ plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
 
 ***Analytical Summary***
 
-On the surface, these three examples and their analyses should seem intuitive to any user of R who has used the `lm` function plus its associated S3 generics (`coef, predict, resid, fitted, summary`, and `anova`), all of which can be used on `lm.rrpp` model fits.  The functions, `pairwise` (not an S3 generic) and `anova`, also allow pairwise comparisons of least-squares means or slopes and multi-model inferences, respectively. Advanced users will recognize, however, much more extensive useable results for adaptive programming.  The output from a `lm.rrpp` fit is arranged hierarchically, i.e.:
+On the surface, these three examples and their analyses should seem intuitive to any user of R who has used the `lm` function plus its associated S3 generics (`coef, predict, resid, fitted, summary`, and `anova`), all of which can be used on `lm.rrpp` model fits.  The functions, `pairwise` (not an S3 generic) and `anova`, also allow pairwise comparisons of least-squares means or slopes and multi-model inferences, respectively. Advanced users will recognize, however, much more extensive usable results for adaptive programming.  The output from a `lm.rrpp` fit is arranged hierarchically, i.e.:
 
 ```{r}
 attributes(fit)
