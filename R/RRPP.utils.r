@@ -1498,7 +1498,7 @@ plot.trajectory.analysis <- function(x, ...) {
     pc.points <- center(Y) %*% rot
     trajectories <- x$trajectories[[1]]
     if(is.matrix(trajectories)) trajectories <- list(trajectories)
-    traj.c <- matrix(Y.cent, NROW(traj[[1]]), NCOL(traj[[1]]), byrow = TRUE)
+    traj.c <- matrix(Y.cent, NROW(trajectories[[1]]), NCOL(trajectories[[1]]), byrow = TRUE)
     trajectories <- lapply(trajectories, function(x) (x - traj.c) %*% rot)
   }
   
