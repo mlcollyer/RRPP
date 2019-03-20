@@ -360,9 +360,9 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' and is a variable likely used in \code{\link{lm.rrpp}}.
 #' This vector is a vector of covariate values equal to the number of observations.
 #' @param reg.type If "regression" is chosen for plot type, this argument
-#' indicates whether a common regression component (CRC) plot, prediction line 
-#' (Predline) plot, or regression score (RegScore) plotting is performed.  
-#' For explanation of CRC, see Mitteroecker et al. (2004).  For explanation of prediction line,
+#' indicates whether prediction line 
+#' (Predline) or regression score (RegScore) plotting is performed.  
+#' For explanation of prediction line,
 #' see Adams and Nistri (2010).  For explanation of regression score, see 
 #' Drake and Klingenberg (2008).
 #' @param ... other arguments passed to plot (helpful to employ
@@ -372,15 +372,13 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 #' @keywords visualization
-#' @references Mitteroecker, P., P. Gunz, M. Bernhard, K. Schaefer, and F. L. Bookstein. 2004. 
-#' Comparison of cranial ontogenetic trajectories among great apes and humans. J. Hum. Evol. 46:679-698.
 #' @references Drake, A. G., and C. P. Klingenberg. 2008. The pace of morphological change: Historical 
 #' transformation of skull shape in St Bernard dogs. Proc. R. Soc. B. 275:71-76.
 #' @references Adams, D. C., and A. Nistri. 2010. Ontogenetic convergence and evolution of foot morphology 
 #' in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
 plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                                       "PC"), predictor = NULL,
-                          reg.type = c("CRC", "PredLine", "RegScore"), ...){
+                          reg.type = c("PredLine", "RegScore"), ...){
   r <- as.matrix(x$LM$wResiduals)
   f <- as.matrix(x$LM$wFitted)
   if(x$LM$gls) {
@@ -427,45 +425,19 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
   if(type == "regression"){
     PL <- prcomp(f)$x[,1]
     reg.type <- match.arg(reg.type)
-    if(is.na(match(reg.type, c("CRC", "PredLine", "RegScore")))) 
+    if(is.na(match(reg.type, c("PredLine", "RegScore")))) 
       if(is.null(predictor))
         stop("This plot type is not available without a predictor.")
     n <- NROW(r); p <- NCOL(r)
     if(!is.vector(predictor)) stop("Predictor must be a vector")
     if(length(predictor) != n) 
       stop("Observations in predictor must equal observations if procD.lm fit")
-    X <- x$LM$X * sqrt(x$LM$weights)
-    if(x$LM$gls) B <- x$LM$gls.coefficients else B <- x$LM$coefficients
+
     xc <- predictor
-    pred.match <- sapply(1:NCOL(X), function(j){
-      any(is.na(match(xc, X[,j])))
-    })
-    if(all(pred.match)) {
-      b <- lm(f ~ xc)$coefficients
-      if(is.matrix(b)) b <- b[2,] else b <- b[2]
-    } else {
-      Xcrc <- as.matrix(X)
-      Xcrc[,!pred.match] <- 0
-      f <- Xcrc %*% B
-      r <- x$LM$Y - f
-      b <- lm(f ~ xc)$coefficients
-      if(is.matrix(b)) b <- b[2,] else b <- b[2]
-    }
-    a <- crossprod(r, xc)/sum(xc^2)
-    a <- a/sqrt(sum(a^2))
-    CRC <- r%*%a  
-    resid <- r%*%(diag(p) - matrix(crossprod(a),p,p))
-    RSC <- prcomp(resid)$x
-    CRC <- prcomp(CRC)$x
+    X <- cbind(xc, x$LM$X) * sqrt(x$LM$weights)
+    b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
-    if(reg.type == "CRC"){
-      par(mfcol = c(1,2))
-      par(mar = c(4,4,1,1))
-      plot(predictor, CRC,  ...)
-      plot(CRC, RSC[,1], xlab = "CRC", ylab = "RSC 1", ...)
-      par(mar = c(5,4,4,2) + 0.1)
-      par(mfcol=c(1,1))
-    } else if(reg.type == "RegScore") {
+    if(reg.type == "RegScore") {
       plot(predictor, Reg.proj, 
            ylab = "Regression Score", ...)
     } else {

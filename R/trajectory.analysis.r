@@ -131,8 +131,10 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   
   if(is.null(tp)) groups <- interaction(g1, g2) else groups <- g1
   
-  if(is.null(fit.null)) print.progress <- FALSE
-  PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = print.progress)
+  if(is.null(fit.null)) 
+  PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = FALSE) else 
+    PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = print.progress)
+  
   
   means <- PW$LS.means
   if(is.null(tp) && pca) {
@@ -212,12 +214,25 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   
   p <- NROW(trajectories[[1]][[1]])
   
-  if(p > 2) SD <- lapply(1:perms, function(j) {
-    x <- trajectories[[j]]
-    ts <- trajshape(x)
-    dimnames(ts) <- list(gl, gl)
-    ts
-  }) else SD <- NULL
+  if(p > 2) {
+    
+    if(print.progress) {
+      cat("Beginning trajectory shape analysis.\nThis could take long for highly multivariate data.\n")
+      pb <- txtProgressBar(min = 0, max = perms, initial = 0, style=3)
+    }
+    
+    SD <- lapply(1:perms, function(j) {
+      x <- trajectories[[j]]
+      ts <- trajshape(x)
+      dimnames(ts) <- list(gl, gl)
+      if(print.progress) setTxtProgressBar(pb,j)
+      ts
+    })
+    
+    if(print.progress) close(pb)
+    
+  } else SD <- NULL
+    
   
   names(MD) <- names(PD) <- names(Tcor) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
   if(!is.null(SD)) names(SD) <- names(PD)

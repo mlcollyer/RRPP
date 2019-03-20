@@ -1638,6 +1638,7 @@ vec.cor.matrix <- function(M) {
   M = as.matrix(M)
   w = 1/sqrt(rowSums(M^2))
   vc = tcrossprod(M*w)
+  diag(vc) <- 1
   options(warn = 0)
   vc
 }

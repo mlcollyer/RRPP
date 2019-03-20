@@ -5,7 +5,7 @@
 \title{Plot Function for RRPP}
 \usage{
 \method{plot}{lm.rrpp}(x, type = c("diagnostics", "regression", "PC"),
-  predictor = NULL, reg.type = c("CRC", "PredLine", "RegScore"), ...)
+  predictor = NULL, reg.type = c("PredLine", "RegScore"), ...)
 }
 \arguments{
 \item{x}{plot object (from \code{\link{lm.rrpp}})}
@@ -21,9 +21,9 @@ and is a variable likely used in \code{\link{lm.rrpp}}.
 This vector is a vector of covariate values equal to the number of observations.}
 
 \item{reg.type}{If "regression" is chosen for plot type, this argument
-indicates whether a common regression component (CRC) plot, prediction line 
-(Predline) plot, or regression score (RegScore) plotting is performed.  
-For explanation of CRC, see Mitteroecker et al. (2004).  For explanation of prediction line,
+indicates whether prediction line 
+(Predline) or regression score (RegScore) plotting is performed.  
+For explanation of prediction line,
 see Adams and Nistri (2010).  For explanation of regression score, see 
 Drake and Klingenberg (2008).}
 
@@ -35,9 +35,6 @@ different colors or symbols for different groups).  See
 Plot Function for RRPP
 }
 \references{
-Mitteroecker, P., P. Gunz, M. Bernhard, K. Schaefer, and F. L. Bookstein. 2004. 
-Comparison of cranial ontogenetic trajectories among great apes and humans. J. Hum. Evol. 46:679-698.
-
 Drake, A. G., and C. P. Klingenberg. 2008. The pace of morphological change: Historical 
 transformation of skull shape in St Bernard dogs. Proc. R. Soc. B. 275:71-76.
 
