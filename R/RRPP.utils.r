@@ -388,8 +388,9 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
   type <- match.arg(type)
   if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
     type <- "diagnostics"
-  CRC <- PL <- Reg.proj <- PC.points <- NULL
+  PL <- Reg.proj <- PC.points <- NULL
   if(type == "diagnostics") {
+    plot.args <- NULL
     pca.r <- prcomp(r)
     var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
     plot(pca.r$x, pch=19, asp =1,
@@ -438,27 +439,28 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     if(reg.type == "RegScore") {
-      plot(predictor, Reg.proj, 
-           ylab = "Regression Score", ...)
+      plot.args <- list(x = predictor, y = Reg.proj, ylab = "Regression Score", ...)
+      do.call(plot, plot.args)
     } else {
-      plot(predictor, PL, 
-           ylab = "PC 1 for fitted values", ...)
+      plot.args <- list(x = predictor, y = PL, ylab = "PC 1 for fitted values", ...)
+      do.call(plot, plot.args)
     }
   }
   if(type == "PC"){
     pca <- prcomp(f)
     eigs <- pca$rotation
-    P <- x$LM$Y%*%eigs
+    P <- center(x$LM$Y)%*%eigs
     v <- pca$sdev^2
     ev <- round(v[1:2]/sum(v)*100, 2)
-    plot(P, asp=1,
-         xlab = paste("PC 1 for fitted values: ",ev[1],"%", sep = ""),
-         ylab = paste("PC 2 for fitted values: ",ev[2],"%", sep = ""),
-                      ...)
+    plot.args <- if(NCOL(P) > 1) list(x = P[,1], y = P[,2],  
+                        xlab = paste("PC 1 for fitted values: ",ev[1],"%", sep = "") ,
+                        ylab = paste("PC 2 for fitted values: ",ev[2],"%", sep = "") ,
+                        ...) else list(x = 1:length(P), y = P, xlab = "Index", ylab = "PC 1 for fitted values: 100%",...)
+    do.call(plot, plot.args)
     PC.points <- P
     rownames(P) <- rownames(x$LM$data)
   }
-  out <- list(CRC = CRC, PredLine = PL, RegScore = Reg.proj, PC.points = PC.points)
+  out <- list(PredLine = PL, RegScore = Reg.proj, PC.points = PC.points, plot.args = plot.args)
   invisible(out)
 }
 

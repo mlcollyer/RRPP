@@ -196,30 +196,18 @@ rrpp.data.frame<- function(...){
 # makes any list into a data.frame/model.frame object
 # used in lm.rrpp/rrpp.fit functions
 makeDf <- function(Terms, Y, data = NULL) {
-  Y <- as.matrix(Y)
-  form <- formula(Terms)
-  form <- update(form, Y~.)
-  Terms2 <- terms(form)
-  ind.var.names <- all.vars(Terms2)[-1]
-  if(length(ind.var.names) == 0) {
-    df <- list()
-    df$Y <- rep(0, NROW(Y))
-  } else{
-    if(!is.null(data)) {
-      dat.names <- which(names(data) %in% ind.var.names)
-      df <- data[dat.names]
-    } else {
-      df <- try(mget(ind.var.names, parent.frame()))
-      if(inherits(df, "try-error"))
-        stop("Model terms not found in global environment.\n", call. = FALSE)
-    }
-  }
+  
+  ind.var.names <- all.vars(Terms)[-1]
+  df <- if(is.null(data)) lapply(1:length(ind.var.names), function(j) get(ind.var.names[j], -1)) else
+    mget(ind.var.names, as.environment(data))
+  if(is.null(names(df))) names(df) <- ind.var.names
+  
   df <- as.data.frame(df)
-  df$Y <- Y
+  df$Y <- as.matrix(Y)
+  df <- droplevels(df)
   df
-
 }
-
+  
 # rrpp.fit + subfunctions
 # lm-like fit modified for all submodels
 # general workhorse for all 'rrpp.lm' functions
@@ -263,13 +251,10 @@ lm.args.from.formula <- function(f1, data = NULL){
   } else D <- NULL
   
   if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
-  data$Y <- Y
-  if(!is.null(data)) data <- makeDf(Terms, Y, data) else
-    data <- try(model.frame(Terms), silent = TRUE)
+  data <- try(makeDf(Terms, Y, data), silent = TRUE)
   if(inherits(data, "try-error"))
     stop("It was not possible to find model terms in the global environment or the data frame used.\n",
          call. = FALSE)
-  data <- droplevels(data)
   form <- update(f1, Y ~ .)
   Terms <- terms(form)
   list(Terms = Terms, data = data,  weights = NULL, offset = NULL, 
@@ -311,6 +296,27 @@ rrpp.fit <- function(Terms, data, weights = weights, offset = offset,
       out <- rrpp.fit.lm(pdf.args)
   out
 }
+
+# rrpp.lm.fit
+# helper for rrpp.fit, resembles lm.fit
+
+rrpp.lm.fit <- function(x, y, o = NULL){
+  k <- ncol(x)
+  p <- NCOL(y)
+  if(!is.null(o)) y <- y - o
+  n <- nrow(x)
+  Q <- qr(x)
+  out <- list()
+  out$coefficients <- qr.coef(Q, y)
+  out$residuals <- qr.resid(Q, y)
+  out$rank <- Q$rank
+  out$fitted.values <- qr.fitted(Q, y, Q$rank)
+  out$assign <- attr(x, "assign")
+  out$qr <- Q
+  out$df.residual <- n - Q$rank
+  out
+}
+
 
 # rrpp.fit.lm
 # base for rrpp.fit
@@ -387,12 +393,12 @@ rrpp.fit.lm <- function(a){
   
   # unweighted output
   QRs.reduced <- lapply(Xrs, function(x) qr(x))
-  fits.reduced <- lapply(Xrs, function(x) lm.fit(as.matrix(x),Y, offset = o))
+  fits.reduced <- lapply(Xrs, function(x) rrpp.lm.fit(as.matrix(x),Y, o = o))
   fitted.reduced <- lapply(fits.reduced, function(x) as.matrix(x$fitted.values))
   residuals.reduced <- lapply(fits.reduced, function(x) as.matrix(x$residuals))
   coefficients.reduced <- lapply(fits.reduced, function(x) as.matrix(x$coefficients))
   QRs.full <- lapply(Xfs, function(x) qr(x))
-  fits.full <- lapply(Xfs, function(x) lm.fit(as.matrix(x),Y, offset = o))
+  fits.full <- lapply(Xfs, function(x) rrpp.lm.fit(as.matrix(x),Y, o = o))
   fitted.full <- lapply(fits.full, function(x) as.matrix(x$fitted.values))
   residuals.full <- lapply(fits.full, function(x) as.matrix(x$residuals))
   coefficients.full <- lapply(fits.full, function(x) as.matrix(x$coefficients))
@@ -479,7 +485,7 @@ rrpp.fit.int <- function(a) {
   coefficients.reduced <- NULL
   Xfs <- list(X)
   QRs.full <- list(qr(X))
-  fits.full <- lm.fit(as.matrix(X),Y, offset = o)
+  fits.full <- rrpp.lm.fit(as.matrix(X),Y, o = o)
   fitted.full <- list(as.matrix(fits.full$fitted.values))
   residuals.full <- list(as.matrix(fits.full$residuals))
   coefficients.full <- list(as.matrix(fits.full$coefficients))
