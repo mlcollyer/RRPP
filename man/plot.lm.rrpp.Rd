@@ -22,7 +22,7 @@ This vector is a vector of covariate values equal to the number of observations.
 
 \item{reg.type}{If "regression" is chosen for plot type, this argument
 indicates whether prediction line 
-(Predline) or regression score (RegScore) plotting is performed.  
+(PredLine) or regression score (RegScore) plotting is performed.  
 For explanation of prediction line,
 see Adams and Nistri (2010).  For explanation of regression score, see 
 Drake and Klingenberg (2008).}

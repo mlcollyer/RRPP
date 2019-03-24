@@ -361,7 +361,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' This vector is a vector of covariate values equal to the number of observations.
 #' @param reg.type If "regression" is chosen for plot type, this argument
 #' indicates whether prediction line 
-#' (Predline) or regression score (RegScore) plotting is performed.  
+#' (PredLine) or regression score (RegScore) plotting is performed.  
 #' For explanation of prediction line,
 #' see Adams and Nistri (2010).  For explanation of regression score, see 
 #' Drake and Klingenberg (2008).
@@ -439,10 +439,10 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     if(reg.type == "RegScore") {
-      plot.args <- list(x = predictor, y = Reg.proj, ylab = "Regression Score", ...)
+      plot.args <- list(x = predictor, y = Reg.proj, ylab = "Regression Score", xlab = deparse(substitute(predictor)), ...)
       do.call(plot, plot.args)
     } else {
-      plot.args <- list(x = predictor, y = PL, ylab = "PC 1 for fitted values", ...)
+      plot.args <- list(x = predictor, y = PL, ylab = "PC 1 for fitted values", xlab = deparse(substitute(predictor)), ...)
       do.call(plot, plot.args)
     }
   }

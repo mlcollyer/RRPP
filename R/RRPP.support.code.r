@@ -196,13 +196,23 @@ rrpp.data.frame<- function(...){
 # makes any list into a data.frame/model.frame object
 # used in lm.rrpp/rrpp.fit functions
 makeDf <- function(Terms, Y, data = NULL) {
+  if(length(attr(Terms, "term.labels")) == 0) {
+    
+    df <- list()
+    df$Y <- as.matrix(Y)
+    df <- as.data.frame(df)
+    
+  } else {
+    
+    ind.var.names <- all.vars(Terms)[-1]
+    df <- if(is.null(data)) lapply(1:length(ind.var.names), function(j) get(ind.var.names[j], -1)) else
+      mget(ind.var.names, as.environment(data))
+    if(is.null(names(df))) names(df) <- ind.var.names
+    
+    df <- as.data.frame(df)
+    
+  }
   
-  ind.var.names <- all.vars(Terms)[-1]
-  df <- if(is.null(data)) lapply(1:length(ind.var.names), function(j) get(ind.var.names[j], -1)) else
-    mget(ind.var.names, as.environment(data))
-  if(is.null(names(df))) names(df) <- ind.var.names
-  
-  df <- as.data.frame(df)
   df$Y <- as.matrix(Y)
   df <- droplevels(df)
   df
