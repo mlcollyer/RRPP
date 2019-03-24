@@ -1,7 +1,9 @@
 CHANGES IN RRPP VERSION 0.4.0
 
 NEW FEATURES
-    o manova.update.function
+    o manova.update function
+    o trajectory.analysis function
+    o reveal.model.designs function
     o New vignette for ANOVA versus MANOVA in RRPP
 
 OTHER CHANGES
@@ -9,6 +11,7 @@ OTHER CHANGES
 
 BUG FIXES 
     o Tuned F-stat calculations to allow for model-specific residual variances, for multiple terms.
+    o Updated procD.lm to better work with data in the gloabl environment rather than a data frame. 
 
 CHANGES IN RRPP VERSION 0.3.0
 
