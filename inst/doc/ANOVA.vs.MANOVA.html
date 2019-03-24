@@ -12,7 +12,7 @@
 
 <meta name="author" content="Michael L. Collyer" />
 
-<meta name="date" content="2019-03-03" />
+<meta name="date" content="2019-03-24" />
 
 <title>ANOVA versus MANOVA in RRPP</title>
 
@@ -280,7 +280,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">ANOVA versus MANOVA in RRPP</h1>
 <h4 class="author"><em>Michael L. Collyer</em></h4>
-<h4 class="date"><em>2019-03-03</em></h4>
+<h4 class="date"><em>2019-03-24</em></h4>
 
 
 
@@ -354,7 +354,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">fitm &lt;-<span class="st"> </span><span class="kw">manova.update</span>(fit, <span class="dt">print.progress =</span> <span class="ot">FALSE</span>, <span class="dt">tol =</span> <span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">attributes</span>(fitm)</a></code></pre></div>
 <pre><code>## $names
-## [1] &quot;call&quot;     &quot;LM&quot;       &quot;ANOVA&quot;    &quot;MANOVA&quot;   &quot;PermInfo&quot;
+## [1] &quot;call&quot;     &quot;LM&quot;       &quot;ANOVA&quot;    &quot;PermInfo&quot; &quot;MANOVA&quot;  
 ## 
 ## $class
 ## [1] &quot;manova.lm.rrpp&quot; &quot;lm.rrpp&quot;</code></pre>
@@ -366,7 +366,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">fitm &lt;-<span class="st"> </span><span class="kw">manova.update</span>(fit, <span class="dt">print.progress =</span> <span class="ot">FALSE</span>, <span class="dt">tol =</span> <span class="dv">0</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw">attributes</span>(fitm)</a></code></pre></div>
 <pre><code>## $names
-## [1] &quot;call&quot;     &quot;LM&quot;       &quot;ANOVA&quot;    &quot;MANOVA&quot;   &quot;PermInfo&quot;
+## [1] &quot;call&quot;     &quot;LM&quot;       &quot;ANOVA&quot;    &quot;PermInfo&quot; &quot;MANOVA&quot;  
 ## 
 ## $class
 ## [1] &quot;manova.lm.rrpp&quot; &quot;lm.rrpp&quot;</code></pre>
@@ -504,7 +504,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Conclusions and Suggestions</h2>
 <p>ANOVA in <em>RRPP</em> generalizes univariate ANOVA to multivariate data, its statistics are directly associated with the amount of dispersion in multivariate data spaces, irrespective of variable covariances, and data dimensionality has no effect or limitation on their calculation.</p>
 <p>MANOVA in <em>RRPP</em> produces the same multivariate statistics found in parametric MANOVA (when the number of observations exceeds residual degrees of freedom), but unlike parametric MANOVA, <span class="math inline">\(P\)</span>-values are estimated from empirical sampling distributions of statistics (rather than estimating values that approximately follow <span class="math inline">\(F\)</span>-distributions, with constraints). The choice of multivariate statistic is inconsequential for <span class="math inline">\(P\)</span>-values, but makes a difference for effect sizes.</p>
-<p>Because high-dimensional data force a projection of data into Euclidean subspaces, to make matrix inversion and eigenanalysis possible, MANOVA results could differ from ANOVA results (both qualitatively and in terms of effect sizes). For multivariate data with many more observations than variables (ideal conditions), results using either ANOVA or MANOVA will be comparable. For high-dimensional data, ANOVA results might be more reliable</p>
+<p>Because high-dimensional data force a projection of data into Euclidean subspaces, to make matrix inversion and eigenanalysis possible, MANOVA results could differ from ANOVA results (both qualitatively and in terms of effect sizes). For multivariate data with many more observations than variables (ideal conditions), results using either ANOVA or MANOVA will be comparable. For high-dimensional data, ANOVA results might be more reliable.</p>
 </div>
 
 

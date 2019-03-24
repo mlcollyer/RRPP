@@ -6,7 +6,7 @@ b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 c9e2fc16373feab769043ca58255120f *DESCRIPTION
 786e940c923988f231aca49ac9d09ec0 *inst/CITATION
 d8c9f6d02070d71e15d4965f34cbf6fb *inst/doc/ANOVA.vs.MANOVA.html
-7821845f98ad3c880ed580393e3d3b0a *inst/doc/ANOVA.vs.MANOVA.Rmd
+070e9a22fe4f8a290a46ac3598513879 *inst/doc/ANOVA.vs.MANOVA.Rmd
 99e4d84f887799047771154acd41ef95 *inst/doc/Using.RRPP.html
 6f61ac0efa7dab47ce7dd5f7b3401c82 *inst/doc/Using.RRPP.Rmd
 00cb966631067dc597098ccceb3b84f8 *man/add.trajectories.Rd
@@ -41,7 +41,7 @@ e5e2cd45f97a0c4c65e797242f5588db *man/Pupfish.Rd
 3fe4d32c24afeeef0ec8dbecdd9d60ba *man/PupfishHeads.Rd
 2a130e557cf5e6d783bef526c8dcfcb7 *man/residuals.lm.rrpp.Rd
 013c70693b7b2a1524c49cc4179607d3 *man/reveal.model.designs.Rd
-bfa1cfc7dad45de38cdaee02bcaea975 *man/RRPP-package.Rd
+67cafb94f077a18cdae0a8a5a50347cd *man/RRPP-package.Rd
 b2609542adce8385f7b76da76817dc83 *man/rrpp.data.frame.Rd
 3feb50b2cd634fb9812fba13a02ff65d *man/summary.anova.lm.rrpp.Rd
 ee0f0a6b42a82d6bd81cc7d59afb281a *man/summary.classify.Rd
@@ -52,7 +52,7 @@ beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 a80a54cfe4673d90783a3ba49f9b4535 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 3d74de459d57a98acae66188a6150e7b *man/summary.trajectory.analysis.Rd
-673b5a7b7a8e3015d2097f3bf36bf43d *man/trajectory.analysis.Rd
+f22bbf5e151d912a8efcb00990a588fa *man/trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 8dd28dfe65e0542561bc6096514f7d94 *NAMESPACE
 9283276cfad16d1a53f8321b40a6756b *NEWS
@@ -65,11 +65,11 @@ d0c2e9bfde3601544d96c22161e1e4ae *R/model.comparison.r
 fdda74b2c42e5ae7ddcb00ef0693da96 *R/pairwise.r
 d0ba1ce3ec27cb68ab30db856e025784 *R/predict.lm.rrpp.r
 be65a023ec04fe716867de7a1907b645 *R/reveal.model.designs.r
-36a37eda99a197dbaa06fae9466092c2 *R/RRPP.support.code.r
+ee6bd34491c3f37d6c3e41c45f99264b *R/RRPP.support.code.r
 c0eee4e511568498896d258ac95a9408 *R/RRPP.utils.r
 89843e939b7cd289a5b651730bae8b8f *R/shared.support.code.r
-039d1e0d7ea76d9670446a8e91ab0e57 *R/trajectory.analysis.r
+fc1041b73d8b10c678b62ce91dfa70d3 *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
-7821845f98ad3c880ed580393e3d3b0a *vignettes/ANOVA.vs.MANOVA.Rmd
+070e9a22fe4f8a290a46ac3598513879 *vignettes/ANOVA.vs.MANOVA.Rmd
 6f61ac0efa7dab47ce7dd5f7b3401c82 *vignettes/Using.RRPP.Rmd

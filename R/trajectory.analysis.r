@@ -23,7 +23,7 @@
 #'  can be chosen for either radians and degrees, respectively, to return angles between principal axes.)
 #'  
 #'  Plotting can be performed with \code{\link{plot.trajectory.analysis}} and \code{\link{add.trajectories}}.  The former
-#'  plots all pincipal component scores for the data, and allows point-by-point control of plot parameters.  The later
+#'  plots all principal component scores for the data, and allows point-by-point control of plot parameters.  The later
 #'  adds trajectories points and lines, with constrained control.  By saving the plot.trajectory.analysis
 #'  object, plotting information can be retained and advanced plotting can be performed.  See examples below.
 #'  

@@ -7,7 +7,7 @@
 #' \item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
 #' \item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, plus model comparisons.}
 #' \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test on coefficients, using RRPP.}
-#' \item{\code{\link{predict.lm.rrpp}}}{Predict values from lm.rrpp fits and generate boostrapped confidence intervals.}
+#' \item{\code{\link{predict.lm.rrpp}}}{Predict values from lm.rrpp fits and generate bootstrapped confidence intervals.}
 #' \item{\code{\link{pairwise}}}{Perform pairwise tests, based on lm.rrpp model fits.}
 #' 
 #' @description Functions in this package allow one to evaluate linear models with residual randomization.
