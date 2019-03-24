@@ -1,5 +1,6 @@
 ---
-title: "Using RRPP" 
+title: "RRPP: An R package for fitting linear models to high-dimensional data using residual randomization"
+author: "Michael L. Collyer & Dean C. Adams"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -25,7 +26,7 @@ Three data sets are provided in `RRPP` (with examples also in help pages), and a
     PupfishHeads (Gilbert, 2016)
     PlethMorph (Adams & Collyer, 2018)
     
-The first two datasets contain landmark-based geometric morphometric data collected from museum samples of Pecos pupfish (_Cyprinodon pecosensis_), representing body shape and cranial morphology, respectively.  Within both data sets, the `$coords`  objects are matrices of Procrustes residuals obtained from generalized Procrustes analysis (GPA) of configurations of anatomical landmarks. For the purposes of this example, it is sufficient to recognize that Procrustes residuals embody a highly multivariate dataset representing shape (see the R package, geomorph).  The third data set contains averaged linear measurements of 37 species of Plethodontid salamanders, plus a covariance matrix based on a Brownian model of evolution, given the phylogenetic relationship among the species (Adams & Collyer, 2018, for details).
+The first two datasets contain landmark-based geometric morphometric data collected from museum samples of Pecos pupfish (_Cyprinodon pecosnesis_), representing body shape and cranial morphology, respectively.  Within both data sets, the `$coords`  objects are matrices of Procrustes residuals obtained from generalized Procrustes analysis (GPA) of configurations of anatomical landmarks. For the purposes of this example, it is sufficient to recognize that Procrustes residuals embody a highly multivariate dataset representing shape (see the R package, geomorph).  The third data set contains averaged linear measurements of 37 species of Plethodontid salamanders, plus a covariance matrix based on a Brownian model of evolution, given the phylogenetic relationship among the species (Adams & Collyer, 2018, for details).
 
 ******
 
@@ -249,7 +250,7 @@ plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
 
 ***Analytical Summary***
 
-On the surface, these three examples and their analyses should seem intuitive to any user of R who has used the `lm` function plus its associated S3 generics (`coef, predict, resid, fitted, summary`, and `anova`), all of which can be used on `lm.rrpp` model fits.  The functions, `pairwise` (not an S3 generic) and `anova`, also allow pairwise comparisons of least-squares means or slopes and multi-model inferences, respectively. Advanced users will recognize, however, much more extensive usable results for adaptive programming.  The output from a `lm.rrpp` fit is arranged hierarchically, i.e.:
+On the surface, these three examples and their analyses should seem intuitive to any user of R who has used the `lm` function plus its associated S3 generics (`coef, predict, resid, fitted, summary`, and `anova`), all of which can be used on `lm.rrpp` model fits.  The functions, `pairwise` (not an S3 generic) and `anova`, also allow pairwise comparisons of least-squares means or slopes and multi-model inferences, respectively. Advanced users will recognize, however, much more extensive useable results for adaptive programming.  The output from a `lm.rrpp` fit is arranged hierarchically, i.e.:
 
 ```{r}
 attributes(fit)
@@ -262,7 +263,7 @@ Within the `$LM` partition, all attributes of the lm function are found, in addi
 
 ***References***
 
-Adams, D. C., & Collyer, M. L. (2018). Multivariate phylogenetic comparative methods: Evaluations, comparisons, and recommendations. Systematic Biology, 67, 14–31.
+Adams, D. C., & Collyer, M. L. (2018). Multivariate phylogenetic comparative methods: Evalutions, comparisons, and recommendations. Systematic Biology, 67, 14–31.
 
 Adams, D. C., Collyer, M. L., Kaliontzopoulou, A., & Sherratt, E. (2017). Geomorph: Software for geometric morphometric analyses. R package version 3.0.6. 
 

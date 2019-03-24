@@ -1,0 +1,1312 @@
+Hmm ... looks like a package
+
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2017-04-15>
+Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
+(./Rd2.tex
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/bk10.clo))
+(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/url/url.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.112, 2017/01/04 Text macros for Inconsolata (msharpe)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/keyval.tex)))))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-def/pdftex.def
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/local/texlive/2017/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+No file Rd2.aux.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [2] [3] [4]
+[5] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [6]
+Overfull \hbox (14.24408pt too wide) in paragraph at lines 370--370
+ []\T1/zi4/m/n/9 x<-matrix(rnorm(18),nrow=3)  # Random triangles (all coordinat
+es on same row for each triangle)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [7] [8] [9]
+Overfull \hbox (3.60793pt too wide) in paragraph at lines 492--494
+[]\T1/ptm/m/n/10 The fluc-tu-at-ing asym-me-try com-po-nent for each spec-i-men
+, found as the specimen-
+
+Overfull \hbox (2.92703pt too wide) in paragraph at lines 492--494
+\T1/ptm/m/n/10 specific side de-vi-a-tion ad-justed for the mean di-rec-tional 
+asym-me-try in the dataset. 
+
+Overfull \hbox (27.76248pt too wide) in paragraph at lines 523--523
+ []\T1/zi4/m/n/9 gdf <- geomorph.data.frame(wingshape = mosquito$wingshape, ind
+=mosquito$ind, side=mosquito$side,[] 
+[10] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [11] [12]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [13] [14]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [15]
+Overfull \hbox (48.77782pt too wide) in paragraph at lines 870--870
+ []\T1/zi4/m/n/9 ER<-compare.evol.rates(A=Y.gpa$coords, phy=plethspecies$phy,me
+thod="simulation",gp=gp.end,iter=999)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [16] [17]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [18] [19]
+Overfull \hbox (38.25635pt too wide) in paragraph at lines 1077--1077
+ [] \T1/zi4/m/n/9 integ.tests <- Map(function(x,y) integration.test(x, y, iter=
+499), head.coords.gp, tail.coords.gp)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [20]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [21]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [22]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.1779pt too wide) in paragraph at lines 1281--1283
+[]\T1/ptm/m/n/10 (3D only) If 'land-marks' con-tains "sur-face slid-ers", e.g. 
+made by [][]\T1/zi4/m/n/10 buildtemplate[][][]\T1/ptm/m/n/10 ,
+[23]
+Overfull \hbox (21.90796pt too wide) in paragraph at lines 1289--1295
+[]\T1/ptm/m/n/10 Function takes a ma-trix of dig-i-tized land-mark co-or-di-nat
+es, such as made by [][]\T1/zi4/m/n/10 digitize2d[][][] \T1/ptm/m/n/10 or [][]\
+T1/zi4/m/n/10 digit.fixed[][][]\T1/ptm/m/n/10 ,
+[24] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [25] [26]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (4.5768pt too wide) in paragraph at lines 1499--1502
+[]\T1/ptm/m/n/10 For 3D "sur-face slid-ers" (sur-face semi-land-marks that slid
+e over a sur-face) the func-tion [][]\T1/zi4/m/n/10 digitsurface[][][]
+
+Overfull \hbox (8.48721pt too wide) in paragraph at lines 1499--1502
+\T1/ptm/m/n/10 should be used in-stead. NOTE: Func-tion cen-ters the mesh be-fo
+re dig-i-tiz-ing by de-fault (cen-ter=TRUE).
+[27] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [28] [29]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [30]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [31]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [32] [33]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [34]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [35]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [36]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [37]
+Overfull \hbox (5.19687pt too wide) in paragraph at lines 2142--2144
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether or not the Procrustes-
+aligned spec-i-mens should
+[38] [39] [40]
+Overfull \hbox (17.26862pt too wide) in paragraph at lines 2293--2293
+ []\T1/zi4/m/n/9 Y.gpa <- gpagen(A=scallops$coorddata, curves=scallops$curvslid
+e, surfaces=scallops$surfslide)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [41] [42]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 2447--2448
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C)
+[43] [44] [45] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[46] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [47]
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 2676--2677
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C) 
+[48] (/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [49]
+Overfull \hbox (11.03787pt too wide) in paragraph at lines 2788--2791
+[]\T1/ptm/m/n/10 A for-mula des-ig-nat-ing groups, e.g., groups = ~ groups. If 
+NULL, mor-phol.disparity
+[50]
+Overfull \hbox (0.95758pt too wide) in paragraph at lines 2840--2842
+[]\T1/ptm/m/n/10 Observed pair-wise ab-so-lute dif-fer-ences (dis-tances) among
+ group Pro-crustes vari-
+[51]
+Overfull \hbox (12.74101pt too wide) in paragraph at lines 2880--2880
+ []\T1/zi4/m/n/9 MD <- morphol.disparity(coords ~ Csize + species*site, groups=
+ ~ species, data = gdf, iter=499)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [52]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [53]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (10.24796pt too wide) in paragraph at lines 3025--3026
+[]\T1/ptm/m/n/10 The two for-mu-lae above achieve the same model terms for the 
+ex-panded model: ~ fixed + fixed:random 
+[54]
+Overfull \hbox (29.25635pt too wide) in paragraph at lines 3065--3065
+ []\T1/zi4/m/n/9 gdf <- geomorph.data.frame(Y.gpa, Treatment = larvalMorph$trea
+tment, Family = larvalMorph$family)[] 
+[55] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 3124--3125
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C)
+[56] [57] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [58]
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 3272--3273
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C) 
+[59] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [60] [61]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [62]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1997) in paragraph at lines 3497--3497
+[]\T1/ptm/m/it/10 Average head shape and phy-lo-ge-netic re-la-tion-ships for s
+ev-eral
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [63]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [64]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [65]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [66]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [67]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [68]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [69]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [70]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [71]
+Overfull \hbox (2.25768pt too wide) in paragraph at lines 3977--3978
+\T1/ptm/m/n/10 mean.cex), links (link.col, link.lwd, link.lty) and land-mark la
+-bels (txt.cex, txt.adj,
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [72] [73]
+Overfull \hbox (39.75941pt too wide) in paragraph at lines 4090--4090
+ []\T1/zi4/m/n/9 #NOTE: 3D plot also available: plotGMPhyloMorphoSpace(plethspe
+cies$phy,Y.gpa$coords, zaxis= "time",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [74]
+Overfull \hbox (9.74408pt too wide) in paragraph at lines 4155--4155
+ []\T1/zi4/m/n/9 out <- plotOutliers(Y$coords) # function returns dimnames and 
+address of all specimens ordered[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [75] [76]
+Overfull \hbox (18.77168pt too wide) in paragraph at lines 4279--4279
+ []\T1/zi4/m/n/9 # Y.gpa<-gpagen(A=scallops$coorddata, curves=scallops$curvslid
+e, surfaces=scallops$surfslide)[] 
+
+Overfull \hbox (35.26862pt too wide) in paragraph at lines 4283--4283
+ []\T1/zi4/m/n/9 # plotRefToTarget(ref,Y.gpa$coords[,,1],gridPars=gridPar(tar.p
+t.bg = "blue", tar.link.col="blue",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (38.65662pt too wide) in paragraph at lines 4312--4314
+\T1/ptm/m/n/10 tered=FALSE) or if the data were col-lected af-ter the mesh was 
+cen-tered (centered=TRUE)-
+[77] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [78]
+Overfull \hbox (3.83665pt too wide) in paragraph at lines 4409--4410
+[]\T1/ptm/m/n/10 A list with the shape co-or-di-nates of the ex-treme ends of a
+ll PC axes, e.g. $PC1min 
+[79] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [80]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [81]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [82]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [83]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [84]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [85]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [86]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [87] [88]
+Overfull \hbox (11.3584pt too wide) in paragraph at lines 4933--4938
+\T1/ptm/m/n/10 ANOVA in ge-o-morph, re-sam-pling pro-ce-dures used, and out-put
+, see [][]\T1/zi4/m/n/10 procD.lm[][][] \T1/ptm/m/n/10 or [][]\T1/zi4/m/n/10 ad
+vanced.procD.lm[][][]\T1/ptm/m/n/10 .
+
+Overfull \hbox (37.77571pt too wide) in paragraph at lines 4965--4977
+[]\T1/ptm/m/n/10 Experienced or ad-vanced users will prob-a-bly pre-fer us-ing 
+[][]\T1/zi4/m/n/10 procD.lm[][][] \T1/ptm/m/n/10 with a com-bi-na-tion of [][]\
+T1/zi4/m/n/10 plot.procD.lm[][][]\T1/ptm/m/n/10 ,
+[89]
+Overfull \hbox (5.376pt too wide) in paragraph at lines 5006--5010
+\T1/ptm/m/n/10 duced plots of al-lom-e-try curves. In ge-o-morph 3.0, the [][]\
+T1/zi4/m/n/10 plot[][][] \T1/ptm/m/n/10 func-tion is used with [][]\T1/zi4/m/n/
+10 procD.allometry[][][]
+[90] [91]
+Overfull \hbox (2.25635pt too wide) in paragraph at lines 5130--5130
+ []\T1/zi4/m/n/9 adj.shape <- shape.resid + array(Y.gpa$consensus, dim(shape.re
+sid)) # allometry-free shapes[] 
+
+Overfull \hbox (33.75635pt too wide) in paragraph at lines 5151--5151
+ []\T1/zi4/m/n/9 Y.gpa <- gpagen(larvalMorph$tailcoords, curves = larvalMorph$t
+ail.sliders, print.progress = FALSE)[] 
+[92] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [93] [94]
+[95] [96]
+Overfull \hbox (11.24715pt too wide) in paragraph at lines 5409--5409
+ []\T1/zi4/m/n/9 rat.plot <- plot(rat.anova, type = "regression", predictor = g
+df$Csize, reg.type = "RegScore",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [97] [98]
+Overfull \hbox (0.10356pt too wide) in paragraph at lines 5513--5517
+[]\T1/ptm/m/n/10 Compared to pre-vi-ous ver-sions, GLS com-pu-ta-tions in ran-d
+om per-mu-ta-tions re-quire RRPP (Adams
+[99] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [100]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [101]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [102]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [103]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [104]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [105]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [106]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [107] [108]
+Overfull \hbox (8.25941pt too wide) in paragraph at lines 6059--6059
+ []\T1/zi4/m/n/9 preds <- shape.predictor(plethAllometry$Ahat, x= plethAllometr
+y$Reg.proj, Intercept = FALSE,[] 
+
+Overfull \hbox (8.25941pt too wide) in paragraph at lines 6066--6066
+ []\T1/zi4/m/n/9 preds <- shape.predictor(plethAllometry$Ahat, x= plethAllometr
+y$pred.val, Intercept = FALSE,[] 
+
+Underfull \vbox (badness 10000) has occurred while \output is active [109]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [110]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [111]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [112]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [113]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [114]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [115]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [116]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [117] [118]
+[119] [120] [121] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[122] [123] [124] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[125] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [126]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [127]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+No file Rd2.ind.
+[128] (./Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)pdfTeX warning (dest): name
+{Rfn.paste} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.svd} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.model.matrix} has been referenced but does not 
+exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.addNormals} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.polygon} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.polygon3d} has been referenced but does not exi
+st, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.list.files} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.terms} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.prcomp} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.shade3d} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot3d} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.ace} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.fastAnc} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.par} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot.default} has been referenced but does not 
+exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.text} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.data.frame} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.readJPEG} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.rgl.Rdash.package} has been referenced but does
+ not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.nearPD} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.sim.char} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.vcv.phylo} has been referenced but does not exi
+st, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.lm.rrpp} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.pairwise} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.anova.lm.rrpp} has been referenced but does not
+ exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.summary} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.print} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.lm} has been referenced but does not exist, rep
+laced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.read.tree} has been referenced but does not exi
+st, replaced by a fixed one
+
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/us
+r/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive
+/2017/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/20
+17/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/
+2017/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2017/texmf
+-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/font
+s/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/ur
+w/times/utmri8a.pfb>
+Output written on Rd2.pdf (128 pages, 386834 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.15 [TeX Live 2017] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (679 entries accepted, 13 rejected).
+Sorting entries........done (6898 comparisons).
+Generating output file Rd2.ind....done (568 lines written, 4 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2017-04-15>
+Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
+(./Rd2.tex
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/bk10.clo))
+(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/url/url.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.112, 2017/01/04 Text macros for Inconsolata (msharpe)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/keyval.tex)))))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-def/pdftex.def
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/local/texlive/2017/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+(./Rd2.aux) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./Rd2.out) (./Rd2.out)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc
+[1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+[2]) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [3]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [4] [5] [6]
+[7] [8] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [9]
+Overfull \hbox (14.24408pt too wide) in paragraph at lines 370--370
+ []\T1/zi4/m/n/9 x<-matrix(rnorm(18),nrow=3)  # Random triangles (all coordinat
+es on same row for each triangle)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [10] [11]
+Overfull \hbox (3.60793pt too wide) in paragraph at lines 492--494
+[]\T1/ptm/m/n/10 The fluc-tu-at-ing asym-me-try com-po-nent for each spec-i-men
+, found as the specimen-
+
+Overfull \hbox (2.92703pt too wide) in paragraph at lines 492--494
+\T1/ptm/m/n/10 specific side de-vi-a-tion ad-justed for the mean di-rec-tional 
+asym-me-try in the dataset. 
+[12]
+Overfull \hbox (27.76248pt too wide) in paragraph at lines 523--523
+ []\T1/zi4/m/n/9 gdf <- geomorph.data.frame(wingshape = mosquito$wingshape, ind
+=mosquito$ind, side=mosquito$side,[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [13] [14]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [15] [16]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [17] [18]
+Overfull \hbox (48.77782pt too wide) in paragraph at lines 870--870
+ []\T1/zi4/m/n/9 ER<-compare.evol.rates(A=Y.gpa$coords, phy=plethspecies$phy,me
+thod="simulation",gp=gp.end,iter=999)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [19] [20]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [21]
+Overfull \hbox (38.25635pt too wide) in paragraph at lines 1077--1077
+ [] \T1/zi4/m/n/9 integ.tests <- Map(function(x,y) integration.test(x, y, iter=
+499), head.coords.gp, tail.coords.gp)[] 
+[22] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [23]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [24]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [25]
+Overfull \hbox (6.1779pt too wide) in paragraph at lines 1281--1283
+[]\T1/ptm/m/n/10 (3D only) If 'land-marks' con-tains "sur-face slid-ers", e.g. 
+made by [][]\T1/zi4/m/n/10 buildtemplate[][][]\T1/ptm/m/n/10 ,
+
+Overfull \hbox (21.90796pt too wide) in paragraph at lines 1289--1295
+[]\T1/ptm/m/n/10 Function takes a ma-trix of dig-i-tized land-mark co-or-di-nat
+es, such as made by [][]\T1/zi4/m/n/10 digitize2d[][][] \T1/ptm/m/n/10 or [][]\
+T1/zi4/m/n/10 digit.fixed[][][]\T1/ptm/m/n/10 ,
+[26] [27] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [28]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [29]
+Overfull \hbox (4.5768pt too wide) in paragraph at lines 1499--1502
+[]\T1/ptm/m/n/10 For 3D "sur-face slid-ers" (sur-face semi-land-marks that slid
+e over a sur-face) the func-tion [][]\T1/zi4/m/n/10 digitsurface[][][]
+
+Overfull \hbox (8.48721pt too wide) in paragraph at lines 1499--1502
+\T1/ptm/m/n/10 should be used in-stead. NOTE: Func-tion cen-ters the mesh be-fo
+re dig-i-tiz-ing by de-fault (cen-ter=TRUE).
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [30] [31]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [32] [33]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [34]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [35]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [36]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [37]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [38]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [39]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (5.19687pt too wide) in paragraph at lines 2142--2144
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether or not the Procrustes-
+aligned spec-i-mens should
+[40] [41] [42]
+Overfull \hbox (17.26862pt too wide) in paragraph at lines 2293--2293
+ []\T1/zi4/m/n/9 Y.gpa <- gpagen(A=scallops$coorddata, curves=scallops$curvslid
+e, surfaces=scallops$surfslide)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [43] [44]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [45]
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 2447--2448
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C)
+[46] [47] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [48]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [49]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 2676--2677
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C) 
+[50] [51] (/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (11.03787pt too wide) in paragraph at lines 2788--2791
+[]\T1/ptm/m/n/10 A for-mula des-ig-nat-ing groups, e.g., groups = ~ groups. If 
+NULL, mor-phol.disparity
+[52]
+Overfull \hbox (0.95758pt too wide) in paragraph at lines 2840--2842
+[]\T1/ptm/m/n/10 Observed pair-wise ab-so-lute dif-fer-ences (dis-tances) among
+ group Pro-crustes vari-
+[53]
+Overfull \hbox (12.74101pt too wide) in paragraph at lines 2880--2880
+ []\T1/zi4/m/n/9 MD <- morphol.disparity(coords ~ Csize + species*site, groups=
+ ~ species, data = gdf, iter=499)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [54]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [55]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (10.24796pt too wide) in paragraph at lines 3025--3026
+[]\T1/ptm/m/n/10 The two for-mu-lae above achieve the same model terms for the 
+ex-panded model: ~ fixed + fixed:random 
+[56]
+Overfull \hbox (29.25635pt too wide) in paragraph at lines 3065--3065
+ []\T1/zi4/m/n/9 gdf <- geomorph.data.frame(Y.gpa, Treatment = larvalMorph$trea
+tment, Family = larvalMorph$family)[] 
+[57] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 3124--3125
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C)
+[58] [59] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [60]
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 3272--3273
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C) 
+[61] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [62] [63]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [64]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1997) in paragraph at lines 3497--3497
+[]\T1/ptm/m/it/10 Average head shape and phy-lo-ge-netic re-la-tion-ships for s
+ev-eral
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [65]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [66]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [67]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [68]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [69]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [70]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [71]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [72]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [73]
+Overfull \hbox (2.25768pt too wide) in paragraph at lines 3977--3978
+\T1/ptm/m/n/10 mean.cex), links (link.col, link.lwd, link.lty) and land-mark la
+-bels (txt.cex, txt.adj,
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [74] [75]
+Overfull \hbox (39.75941pt too wide) in paragraph at lines 4090--4090
+ []\T1/zi4/m/n/9 #NOTE: 3D plot also available: plotGMPhyloMorphoSpace(plethspe
+cies$phy,Y.gpa$coords, zaxis= "time",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [76]
+Overfull \hbox (9.74408pt too wide) in paragraph at lines 4155--4155
+ []\T1/zi4/m/n/9 out <- plotOutliers(Y$coords) # function returns dimnames and 
+address of all specimens ordered[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [77] [78]
+Overfull \hbox (18.77168pt too wide) in paragraph at lines 4279--4279
+ []\T1/zi4/m/n/9 # Y.gpa<-gpagen(A=scallops$coorddata, curves=scallops$curvslid
+e, surfaces=scallops$surfslide)[] 
+
+Overfull \hbox (35.26862pt too wide) in paragraph at lines 4283--4283
+ []\T1/zi4/m/n/9 # plotRefToTarget(ref,Y.gpa$coords[,,1],gridPars=gridPar(tar.p
+t.bg = "blue", tar.link.col="blue",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (38.65662pt too wide) in paragraph at lines 4312--4314
+\T1/ptm/m/n/10 tered=FALSE) or if the data were col-lected af-ter the mesh was 
+cen-tered (centered=TRUE)-
+[79] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [80]
+Overfull \hbox (3.83665pt too wide) in paragraph at lines 4409--4410
+[]\T1/ptm/m/n/10 A list with the shape co-or-di-nates of the ex-treme ends of a
+ll PC axes, e.g. $PC1min 
+[81] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [82]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [83]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [84]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [85]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [86]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [87]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [88]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [89] [90]
+Overfull \hbox (11.3584pt too wide) in paragraph at lines 4933--4938
+\T1/ptm/m/n/10 ANOVA in ge-o-morph, re-sam-pling pro-ce-dures used, and out-put
+, see [][]\T1/zi4/m/n/10 procD.lm[][][] \T1/ptm/m/n/10 or [][]\T1/zi4/m/n/10 ad
+vanced.procD.lm[][][]\T1/ptm/m/n/10 .
+
+Overfull \hbox (37.77571pt too wide) in paragraph at lines 4965--4977
+[]\T1/ptm/m/n/10 Experienced or ad-vanced users will prob-a-bly pre-fer us-ing 
+[][]\T1/zi4/m/n/10 procD.lm[][][] \T1/ptm/m/n/10 with a com-bi-na-tion of [][]\
+T1/zi4/m/n/10 plot.procD.lm[][][]\T1/ptm/m/n/10 ,
+[91]
+Overfull \hbox (5.376pt too wide) in paragraph at lines 5006--5010
+\T1/ptm/m/n/10 duced plots of al-lom-e-try curves. In ge-o-morph 3.0, the [][]\
+T1/zi4/m/n/10 plot[][][] \T1/ptm/m/n/10 func-tion is used with [][]\T1/zi4/m/n/
+10 procD.allometry[][][]
+[92] [93]
+Overfull \hbox (2.25635pt too wide) in paragraph at lines 5130--5130
+ []\T1/zi4/m/n/9 adj.shape <- shape.resid + array(Y.gpa$consensus, dim(shape.re
+sid)) # allometry-free shapes[] 
+
+Overfull \hbox (33.75635pt too wide) in paragraph at lines 5151--5151
+ []\T1/zi4/m/n/9 Y.gpa <- gpagen(larvalMorph$tailcoords, curves = larvalMorph$t
+ail.sliders, print.progress = FALSE)[] 
+[94] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [95] [96]
+[97] [98]
+Overfull \hbox (11.24715pt too wide) in paragraph at lines 5409--5409
+ []\T1/zi4/m/n/9 rat.plot <- plot(rat.anova, type = "regression", predictor = g
+df$Csize, reg.type = "RegScore",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [99] [100]
+Overfull \hbox (0.10356pt too wide) in paragraph at lines 5513--5517
+[]\T1/ptm/m/n/10 Compared to pre-vi-ous ver-sions, GLS com-pu-ta-tions in ran-d
+om per-mu-ta-tions re-quire RRPP (Adams
+[101] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [102]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [103]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [104]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [105]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [106]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [107]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [108]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [109] [110]
+Overfull \hbox (8.25941pt too wide) in paragraph at lines 6059--6059
+ []\T1/zi4/m/n/9 preds <- shape.predictor(plethAllometry$Ahat, x= plethAllometr
+y$Reg.proj, Intercept = FALSE,[] 
+
+Overfull \hbox (8.25941pt too wide) in paragraph at lines 6066--6066
+ []\T1/zi4/m/n/9 preds <- shape.predictor(plethAllometry$Ahat, x= plethAllometr
+y$pred.val, Intercept = FALSE,[] 
+
+Underfull \vbox (badness 10000) has occurred while \output is active [111]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [112]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [113]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [114]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [115]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [116]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [117]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [118]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [119] [120]
+[121] [122] [123] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[124] [125] [126] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[127] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [128]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [129]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) (./Rd2.ind
+[130] [131]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 224.
+
+[132] [133] [134]) (./Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information)pdfTeX warning (dest): name
+{Rfn.paste} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.svd} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.model.matrix} has been referenced but does not 
+exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.addNormals} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.polygon} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.polygon3d} has been referenced but does not exi
+st, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.list.files} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.terms} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.prcomp} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.shade3d} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot3d} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.ace} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.fastAnc} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.par} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot.default} has been referenced but does not 
+exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.text} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.data.frame} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.readJPEG} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.rgl.Rdash.package} has been referenced but does
+ not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.nearPD} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.sim.char} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.vcv.phylo} has been referenced but does not exi
+st, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.lm.rrpp} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.pairwise} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.anova.lm.rrpp} has been referenced but does not
+ exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.summary} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.print} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.lm} has been referenced but does not exist, rep
+laced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.read.tree} has been referenced but does not exi
+st, replaced by a fixed one
+
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/us
+r/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive
+/2017/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/20
+17/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/te
+xlive/2017/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2
+017/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2017/texmf-
+dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts
+/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw
+/times/utmri8a.pfb>
+Output written on Rd2.pdf (134 pages, 431270 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.15 [TeX Live 2017] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (679 entries accepted, 13 rejected).
+Sorting entries........done (6898 comparisons).
+Generating output file Rd2.ind....done (569 lines written, 3 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2017-04-15>
+Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
+(./Rd2.tex
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/bk10.clo))
+(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/url/url.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.112, 2017/01/04 Text macros for Inconsolata (msharpe)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/local/texlive/2017/texmf-dist/tex/generic/xkeyval/keyval.tex)))))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-def/pdftex.def
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/local/texlive/2017/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+(./Rd2.aux) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./Rd2.out) (./Rd2.out)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc
+[1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+[2]) (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [3]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [4] [5] [6]
+[7] [8] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [9]
+Overfull \hbox (14.24408pt too wide) in paragraph at lines 370--370
+ []\T1/zi4/m/n/9 x<-matrix(rnorm(18),nrow=3)  # Random triangles (all coordinat
+es on same row for each triangle)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [10] [11]
+Overfull \hbox (3.60793pt too wide) in paragraph at lines 492--494
+[]\T1/ptm/m/n/10 The fluc-tu-at-ing asym-me-try com-po-nent for each spec-i-men
+, found as the specimen-
+
+Overfull \hbox (2.92703pt too wide) in paragraph at lines 492--494
+\T1/ptm/m/n/10 specific side de-vi-a-tion ad-justed for the mean di-rec-tional 
+asym-me-try in the dataset. 
+[12]
+Overfull \hbox (27.76248pt too wide) in paragraph at lines 523--523
+ []\T1/zi4/m/n/9 gdf <- geomorph.data.frame(wingshape = mosquito$wingshape, ind
+=mosquito$ind, side=mosquito$side,[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [13] [14]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [15] [16]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [17] [18]
+Overfull \hbox (48.77782pt too wide) in paragraph at lines 870--870
+ []\T1/zi4/m/n/9 ER<-compare.evol.rates(A=Y.gpa$coords, phy=plethspecies$phy,me
+thod="simulation",gp=gp.end,iter=999)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [19] [20]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [21]
+Overfull \hbox (38.25635pt too wide) in paragraph at lines 1077--1077
+ [] \T1/zi4/m/n/9 integ.tests <- Map(function(x,y) integration.test(x, y, iter=
+499), head.coords.gp, tail.coords.gp)[] 
+[22] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [23]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [24]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [25]
+Overfull \hbox (6.1779pt too wide) in paragraph at lines 1281--1283
+[]\T1/ptm/m/n/10 (3D only) If 'land-marks' con-tains "sur-face slid-ers", e.g. 
+made by [][]\T1/zi4/m/n/10 buildtemplate[][][]\T1/ptm/m/n/10 ,
+
+Overfull \hbox (21.90796pt too wide) in paragraph at lines 1289--1295
+[]\T1/ptm/m/n/10 Function takes a ma-trix of dig-i-tized land-mark co-or-di-nat
+es, such as made by [][]\T1/zi4/m/n/10 digitize2d[][][] \T1/ptm/m/n/10 or [][]\
+T1/zi4/m/n/10 digit.fixed[][][]\T1/ptm/m/n/10 ,
+[26] [27] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [28]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [29]
+Overfull \hbox (4.5768pt too wide) in paragraph at lines 1499--1502
+[]\T1/ptm/m/n/10 For 3D "sur-face slid-ers" (sur-face semi-land-marks that slid
+e over a sur-face) the func-tion [][]\T1/zi4/m/n/10 digitsurface[][][]
+
+Overfull \hbox (8.48721pt too wide) in paragraph at lines 1499--1502
+\T1/ptm/m/n/10 should be used in-stead. NOTE: Func-tion cen-ters the mesh be-fo
+re dig-i-tiz-ing by de-fault (cen-ter=TRUE).
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [30] [31]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [32] [33]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [34]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [35]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [36]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [37]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [38]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [39]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (5.19687pt too wide) in paragraph at lines 2142--2144
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether or not the Procrustes-
+aligned spec-i-mens should
+[40] [41] [42]
+Overfull \hbox (17.26862pt too wide) in paragraph at lines 2293--2293
+ []\T1/zi4/m/n/9 Y.gpa <- gpagen(A=scallops$coorddata, curves=scallops$curvslid
+e, surfaces=scallops$surfslide)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [43] [44]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [45]
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 2447--2448
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C)
+[46] [47] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [48]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [49]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 2676--2677
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C) 
+[50] [51] (/usr/local/texlive/2017/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (11.03787pt too wide) in paragraph at lines 2788--2791
+[]\T1/ptm/m/n/10 A for-mula des-ig-nat-ing groups, e.g., groups = ~ groups. If 
+NULL, mor-phol.disparity
+[52]
+Overfull \hbox (0.95758pt too wide) in paragraph at lines 2840--2842
+[]\T1/ptm/m/n/10 Observed pair-wise ab-so-lute dif-fer-ences (dis-tances) among
+ group Pro-crustes vari-
+[53]
+Overfull \hbox (12.74101pt too wide) in paragraph at lines 2880--2880
+ []\T1/zi4/m/n/9 MD <- morphol.disparity(coords ~ Csize + species*site, groups=
+ ~ species, data = gdf, iter=499)[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [54]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [55]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (10.24796pt too wide) in paragraph at lines 3025--3026
+[]\T1/ptm/m/n/10 The two for-mu-lae above achieve the same model terms for the 
+ex-panded model: ~ fixed + fixed:random 
+[56]
+Overfull \hbox (29.25635pt too wide) in paragraph at lines 3065--3065
+ []\T1/zi4/m/n/9 gdf <- geomorph.data.frame(Y.gpa, Treatment = larvalMorph$trea
+tment, Family = larvalMorph$family)[] 
+[57] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 3124--3125
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C)
+[58] [59] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [60]
+Overfull \hbox (46.67697pt too wide) in paragraph at lines 3272--3273
+[]\T1/ptm/m/n/10 A list of which land-marks (or vari-ables) be-long in which pa
+r-ti-tion (e.g. A,A,A,B,B,B,C,C,C) 
+[61] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [62] [63]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [64]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1997) in paragraph at lines 3497--3497
+[]\T1/ptm/m/it/10 Average head shape and phy-lo-ge-netic re-la-tion-ships for s
+ev-eral
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [65]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [66]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [67]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [68]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [69]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [70]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [71]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [72]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [73]
+Overfull \hbox (2.25768pt too wide) in paragraph at lines 3977--3978
+\T1/ptm/m/n/10 mean.cex), links (link.col, link.lwd, link.lty) and land-mark la
+-bels (txt.cex, txt.adj,
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [74] [75]
+Overfull \hbox (39.75941pt too wide) in paragraph at lines 4090--4090
+ []\T1/zi4/m/n/9 #NOTE: 3D plot also available: plotGMPhyloMorphoSpace(plethspe
+cies$phy,Y.gpa$coords, zaxis= "time",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [76]
+Overfull \hbox (9.74408pt too wide) in paragraph at lines 4155--4155
+ []\T1/zi4/m/n/9 out <- plotOutliers(Y$coords) # function returns dimnames and 
+address of all specimens ordered[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [77] [78]
+Overfull \hbox (18.77168pt too wide) in paragraph at lines 4279--4279
+ []\T1/zi4/m/n/9 # Y.gpa<-gpagen(A=scallops$coorddata, curves=scallops$curvslid
+e, surfaces=scallops$surfslide)[] 
+
+Overfull \hbox (35.26862pt too wide) in paragraph at lines 4283--4283
+ []\T1/zi4/m/n/9 # plotRefToTarget(ref,Y.gpa$coords[,,1],gridPars=gridPar(tar.p
+t.bg = "blue", tar.link.col="blue",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (38.65662pt too wide) in paragraph at lines 4312--4314
+\T1/ptm/m/n/10 tered=FALSE) or if the data were col-lected af-ter the mesh was 
+cen-tered (centered=TRUE)-
+[79] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [80]
+Overfull \hbox (3.83665pt too wide) in paragraph at lines 4409--4410
+[]\T1/ptm/m/n/10 A list with the shape co-or-di-nates of the ex-treme ends of a
+ll PC axes, e.g. $PC1min 
+[81] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [82]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [83]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [84]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [85]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [86]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [87]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [88]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [89] [90]
+Overfull \hbox (11.3584pt too wide) in paragraph at lines 4933--4938
+\T1/ptm/m/n/10 ANOVA in ge-o-morph, re-sam-pling pro-ce-dures used, and out-put
+, see [][]\T1/zi4/m/n/10 procD.lm[][][] \T1/ptm/m/n/10 or [][]\T1/zi4/m/n/10 ad
+vanced.procD.lm[][][]\T1/ptm/m/n/10 .
+
+Overfull \hbox (37.77571pt too wide) in paragraph at lines 4965--4977
+[]\T1/ptm/m/n/10 Experienced or ad-vanced users will prob-a-bly pre-fer us-ing 
+[][]\T1/zi4/m/n/10 procD.lm[][][] \T1/ptm/m/n/10 with a com-bi-na-tion of [][]\
+T1/zi4/m/n/10 plot.procD.lm[][][]\T1/ptm/m/n/10 ,
+[91]
+Overfull \hbox (5.376pt too wide) in paragraph at lines 5006--5010
+\T1/ptm/m/n/10 duced plots of al-lom-e-try curves. In ge-o-morph 3.0, the [][]\
+T1/zi4/m/n/10 plot[][][] \T1/ptm/m/n/10 func-tion is used with [][]\T1/zi4/m/n/
+10 procD.allometry[][][]
+[92] [93]
+Overfull \hbox (2.25635pt too wide) in paragraph at lines 5130--5130
+ []\T1/zi4/m/n/9 adj.shape <- shape.resid + array(Y.gpa$consensus, dim(shape.re
+sid)) # allometry-free shapes[] 
+
+Overfull \hbox (33.75635pt too wide) in paragraph at lines 5151--5151
+ []\T1/zi4/m/n/9 Y.gpa <- gpagen(larvalMorph$tailcoords, curves = larvalMorph$t
+ail.sliders, print.progress = FALSE)[] 
+[94] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [95] [96]
+[97] [98]
+Overfull \hbox (11.24715pt too wide) in paragraph at lines 5409--5409
+ []\T1/zi4/m/n/9 rat.plot <- plot(rat.anova, type = "regression", predictor = g
+df$Csize, reg.type = "RegScore",[] 
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [99] [100]
+Overfull \hbox (0.10356pt too wide) in paragraph at lines 5513--5517
+[]\T1/ptm/m/n/10 Compared to pre-vi-ous ver-sions, GLS com-pu-ta-tions in ran-d
+om per-mu-ta-tions re-quire RRPP (Adams
+[101] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [102]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [103]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [104]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [105]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [106]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [107]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [108]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [109] [110]
+Overfull \hbox (8.25941pt too wide) in paragraph at lines 6059--6059
+ []\T1/zi4/m/n/9 preds <- shape.predictor(plethAllometry$Ahat, x= plethAllometr
+y$Reg.proj, Intercept = FALSE,[] 
+
+Overfull \hbox (8.25941pt too wide) in paragraph at lines 6066--6066
+ []\T1/zi4/m/n/9 preds <- shape.predictor(plethAllometry$Ahat, x= plethAllometr
+y$pred.val, Intercept = FALSE,[] 
+
+Underfull \vbox (badness 10000) has occurred while \output is active [111]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [112]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [113]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [114]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [115]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [116]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [117]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [118]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [119] [120]
+[121] [122] [123] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[124] [125] [126] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def)
+[127] (/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [128]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) [129]
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/utf8.def) (./Rd2.ind
+[130] [131]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 225.
+
+[132] [133] [134]) (./Rd2.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information)pdfTeX warning (dest): name
+{Rfn.paste} has been referenced but does not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.svd} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.model.matrix} has been referenced but does not 
+exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.addNormals} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.polygon} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.polygon3d} has been referenced but does not exi
+st, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.list.files} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.terms} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.prcomp} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.shade3d} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot3d} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.ace} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.fastAnc} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.par} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot.default} has been referenced but does not 
+exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.text} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.data.frame} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.readJPEG} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.rgl.Rdash.package} has been referenced but does
+ not exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.nearPD} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.sim.char} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.vcv.phylo} has been referenced but does not exi
+st, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.lm.rrpp} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.pairwise} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.anova.lm.rrpp} has been referenced but does not
+ exist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.plot} has been referenced but does not exist, r
+eplaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.summary} has been referenced but does not exist
+, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.print} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.lm} has been referenced but does not exist, rep
+laced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.read.tree} has been referenced but does not exi
+st, replaced by a fixed one
+
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/us
+r/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive
+/2017/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/20
+17/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/te
+xlive/2017/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2
+017/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2017/texmf-
+dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts
+/type1/urw/times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw
+/times/utmri8a.pfb>
+Output written on Rd2.pdf (134 pages, 431530 bytes).
+Transcript written on Rd2.log.
+Saving output to ‘geomorph-manual.pdf’ ...
+Done
+You may want to clean up by 'rm -Rf /var/folders/nc/mhtq82h91s1bgrwdwwx8fh280000gn/T//RtmpxIXrtz/Rd2pdf42c36b52fff0'

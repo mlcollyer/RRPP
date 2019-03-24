@@ -1,0 +1,39 @@
+CHANGES IN RRPP VERSION 0.3.0
+
+NEW FEATURES
+    o Added model.comparison function.
+    o Added classify function.
+OTHER CHANGES
+    o Added a pairwise variance comparison for the pairwise function.
+BUG FIXES 
+    o Fixed some issues with univariate data for classify.
+    o Fixed some issues with univariate data for pairwise.
+    o Fixed the logL function within model.comparisons for GLS determinants (was returning 0).
+    o Fixed some issues with the aov.multimodel subfunction of anova.lm.rrpp, related to GLS permutations and intercept only models.  
+    o Added random SS output to aov.multimodel subfunction of anova.lm.rrpp, so that it can be called by other functions/packages.
+    
+    
+CHANGES IN RRPP VERSION 0.2.0
+
+NEW FEATURES
+    o pairwise function: allows pairwise comparison of means or slopes for a lm.rrpp fit.
+    o A vignette for using RRPP, which is the same as Appendix S2 in Collyer and Adams (2008). RRPP: An R package for fitting linear models to high-dimensional data using residual randomization. Methods in Ecology and Evolution.  (submitted)
+
+OTHER CHANGES
+    o Added multi-model inference capabaility to anova.lm.rrpp
+    
+BUG FIXES 
+    o Fixed issue for coef.lm.rrpp tests when type II or type III SS is chosen, to make sure that appropriate coefficients are used.
+ 
+
+CHANGES IN RRPP VERSION 0.1.0
+
+	New Release!
+
+	New features
+		anova.lm.rrpp.r
+		coef.lm.rrpp.r
+		lm.rrpp.r
+		predict.lm.rrpp.r
+		RRPP.support.code.r
+		RRPP.utils.r
