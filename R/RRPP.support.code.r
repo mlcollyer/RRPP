@@ -1835,7 +1835,7 @@ logL <- function(fit){
     s <- svd(Sig)
     pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
     pp <- length(pr)
-    P <- as.matrix(Y %*% s$v[,pr])
+    if(p > 1) P <- as.matrix(Y %*% s$v[,pr]) else P <- center(Y)
     fit$LM$data$Y <- P
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     Cov = fit$LM$Cov, data = fit$LM$data, 
@@ -1851,7 +1851,7 @@ logL <- function(fit){
     s <- svd(Sig) 
     pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
     pp <- length(pr)
-    P <- as.matrix(Y %*% s$v[,pr])
+    if(p > 1) P <- as.matrix(Y %*% s$v[,pr]) else P <- center(Y)
     fit$LM$data$Y <- P
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     data = fit$LM$data, 

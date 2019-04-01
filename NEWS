@@ -4,6 +4,10 @@ NEW FEATURES
 
 OTHER CHANGES
     o Updated source in Description.
+
+BUG FIXES 
+    o Fixed univariate data issue with model.comparison
+    
 --------------------------------------------------------------------------------
 
 CHANGES IN RRPP VERSION 0.4.0 (Minor release)
