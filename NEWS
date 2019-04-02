@@ -1,4 +1,4 @@
-RRPP VERSION 0.4.0.9000 (Development)
+RRPP VERSION 0.4.1 (Patch release)
 
 NEW FEATURES
 
@@ -7,6 +7,7 @@ OTHER CHANGES
 
 BUG FIXES 
     o Fixed univariate data issue with model.comparison
+    o Fixed xlab flexibility issue for regression plots in plot.procD.lm
     
 --------------------------------------------------------------------------------
 
