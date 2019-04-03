@@ -1,15 +1,15 @@
 Package: RRPP
-Date: 2019-03-24
+Date: 2019-04-02
 Type: Package
 Title: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure
-Version: 0.4.0.9000
+Version: 0.4.1.9000
 Author: Michael Collyer, Dean Adams
 Maintainer: Michael Collyer <mlcollyer@gmail.com>
 Description: Linear model calculations are made for many random versions of data.  
     Using residual randomization in a permutation procedure, sums of squares are 
     calculated over many permutations to generate empirical probability distributions 
-    for evaluating model effects.  This method is described by 
-    Collyer, Sekora, & Adams (2015) <doi:10.1038/hdy.2014.75>.  Additionally, coefficients, statistics, fitted values, and residuals generated over many 
+    for evaluating model effects.  This packaged is described by 
+    Collyer & Adams (2018) <doi:10.1111/2041-210X.13029>.  Additionally, coefficients, statistics, fitted values, and residuals generated over many 
     permutations can be used for various procedures including pairwise tests, prediction, classification, and
     model comparison.  This package should provide most tools one could need for the analysis of
     high-dimensional data, especially in ecology and evolutionary biology, but certainly other fields, as well.

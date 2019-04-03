@@ -379,6 +379,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                                       "PC"), predictor = NULL,
                           reg.type = c("PredLine", "RegScore"), ...){
+  plot.args <- list(...)
   r <- as.matrix(x$LM$wResiduals)
   f <- as.matrix(x$LM$wFitted)
   if(x$LM$gls) {
@@ -433,16 +434,21 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     if(!is.vector(predictor)) stop("Predictor must be a vector")
     if(length(predictor) != n) 
       stop("Observations in predictor must equal observations if procD.lm fit")
+    
+    plot.args$x <- predictor
+    plot.args$y <- Reg.proj
+    plot.args$ylab <- "Regression Score"
+    if(is.null(plot.args$xlab)) plot.args$xlab <- deparse(substitute(predictor))
 
     xc <- predictor
     X <- cbind(xc, x$LM$X) * sqrt(x$LM$weights)
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     if(reg.type == "RegScore") {
-      plot.args <- list(x = predictor, y = Reg.proj, ylab = "Regression Score", xlab = deparse(substitute(predictor)), ...)
       do.call(plot, plot.args)
     } else {
-      plot.args <- list(x = predictor, y = PL, ylab = "PC 1 for fitted values", xlab = deparse(substitute(predictor)), ...)
+      plot.args$y <- PL
+      plot.args$ylab <- "PC 1 for fitted values"
       do.call(plot, plot.args)
     }
   }
