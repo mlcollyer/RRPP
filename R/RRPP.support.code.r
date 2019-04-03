@@ -1812,7 +1812,7 @@ RiReg <- function(Cov, residuals){
   })
   logL <- sapply(1:length(leads), function(j){
     C <- Covs[[j]]
-    N*p*log(2*pi) + N * log(det(C)) + sum(diag(
+    N*p*log(2*pi) + N * determinant(C, logarithm = TRUE)$modulus[1] + sum(diag(
       residuals %*% fast.solve(C) %*% t(residuals) 
     ))
   })
@@ -1844,7 +1844,8 @@ logL <- function(fit){
               pfit$LM$gls.residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
     
-    ll <- -0.5*(n*pp + n*log(det(Sig)) + pp*log(det(pfit$LM$Cov))+ n*pp*log(2*pi))
+    ll <- -0.5*(n*pp + n*determinant(Sig, logarithm = TRUE)$modulus[1] + 
+      pp*determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n*pp*log(2*pi))
   }  else {
     
     Sig <- crossprod(fit$LM$wResiduals) /n
@@ -1858,7 +1859,7 @@ logL <- function(fit){
                     weights = fit$LM$weights, iter = 0)
     Sig <- as.matrix(crossprod(pfit$LM$residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
-    ll <- -0.5*(n * pp + n * log(det(Sig)) + n * pp * log(2*pi))
+    ll <- -0.5*(n * pp + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * pp * log(2*pi))
   }
   
   ll

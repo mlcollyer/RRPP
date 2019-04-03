@@ -1,4 +1,11 @@
-RRPP VERSION 0.4.1 (Patch release)
+RRPP VERSION 0.4.1.9000 (Development)
+
+BUG FIXES 
+    o Changed det to determinant in all needing functions, to use modulus for 
+    near-singular matrices
+--------------------------------------------------------------------------------
+
+CHANGES IN RRPP VERSION 0.4.1 (Patch release)
 
 NEW FEATURES
 
