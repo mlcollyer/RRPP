@@ -436,7 +436,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       stop("Observations in predictor must equal observations if procD.lm fit")
     
     plot.args$x <- predictor
-    plot.args$y <- Reg.proj
+    
     plot.args$ylab <- "Regression Score"
     if(is.null(plot.args$xlab)) plot.args$xlab <- deparse(substitute(predictor))
 
@@ -444,6 +444,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     X <- cbind(xc, x$LM$X) * sqrt(x$LM$weights)
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
+    plot.args$y <- Reg.proj
     if(reg.type == "RegScore") {
       do.call(plot, plot.args)
     } else {
