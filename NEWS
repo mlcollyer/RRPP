@@ -3,6 +3,7 @@ RRPP VERSION 0.4.1.9000 (Development)
 BUG FIXES 
     o Changed det to determinant in all needing functions, to use modulus for 
     near-singular matrices
+    o Fixed bug in plot.lm.rrpp (code lines out of order)
 --------------------------------------------------------------------------------
 
 CHANGES IN RRPP VERSION 0.4.1 (Patch release)
