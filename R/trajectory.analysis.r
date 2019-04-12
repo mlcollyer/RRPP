@@ -129,7 +129,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   if(length(g1) != n)stop("The number of observations does not match group length.\n",
                           call. = FALSE)
   
-  if(is.null(tp)) groups <- interaction(g1, g2) else groups <- g1
+  if(is.null(tp)) groups <- interaction(g1, g2, lex.order = TRUE) else groups <- g1
   
   if(is.null(fit.null)) 
   PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = FALSE) else 
@@ -165,7 +165,11 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   if(is.null(tp)) {
     gl <- levels(g1)
     traj.list <- list()
-    for(i in 1:length(gl)) traj.list[[i]] <- grep(gl[i], rownames(means[[1]]))
+    nt <- nrow(means[[1]])
+    tpts <-  nt / length(gl)
+    start <- seq(1, nt - tpts + 1, tpts)
+    end <- seq(tpts, nt, tpts)
+    for(i in 1:length(gl)) traj.list[[i]] <- seq(start[i], end[i], 1)
     names(traj.list) <- gl
     
     trajectories <- lapply(1:perms, function(j){
