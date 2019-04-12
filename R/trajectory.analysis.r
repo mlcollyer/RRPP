@@ -120,7 +120,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
       p <- levels(g2)
     }
   }
-  g1 <- groups
+  g1 <- as.factor(groups)
   
   if(!is.null(g2) && NCOL(g2) > 1) stop("traj.pts can be either a single value or a factor, not a matrix.\n",
                         call. = FALSE)
