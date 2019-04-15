@@ -345,15 +345,30 @@ rrpp.fit.lm <- function(a){
   wY <- Y*sqrt(w); wX <- X*sqrt(w)
   # data and design matrix
   Terms <- a$terms
-  X.k <- attr(X, "assign")
+  X.k <- X.k.obs <- attr(X, "assign")
+  X.n.k.obs <- length(X.k.obs)
   QRx <- qr(X)
+  X.n.k <- QRx$rank
   X <- X[, QRx$pivot, drop = FALSE]
   X <- X[, 1:QRx$rank, drop = FALSE]
   X.k <- X.k[QRx$pivot][1:QRx$rank]
   uk <- unique(c(0, X.k))
+  
+  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
+  
+  if(fix) {
+    Terms <- Terms[uk]
+    cat("\nWarning: Because variables in the linear model are redundant,")
+    cat("\nthe linear model design has been truncated (via QR decomposition).")
+    cat("\nOriginal X columns:", X.n.k.obs)
+    cat("\nFinal X columns (rank):", X.n.k)
+    cat("\nCheck coefficients or degrees of freedom in ANOVA to see changes.\n\n")
+  } 
+  
   term.labels <- attr(Terms, "term.labels")
   k <- length(term.labels)
-  
+
+
   if(SS.type == "III"){
     uk0 <- uk[-1]
     xk0 <- unique(X.k[-1])
