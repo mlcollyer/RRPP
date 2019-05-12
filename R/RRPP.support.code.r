@@ -263,6 +263,9 @@ lm.args.from.lm <- function(f1){
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
   dep <- eval(f1[[2]], data, parent.frame())
+  if(is.array(dep) && length(dim(dep)) > 2)
+    stop("Data are arranged in an array rather than a matrix.  Please update data first.\n", 
+         call. = FALSE)
   if(inherits(dep, "dist")) {
     if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
     D <- dep
