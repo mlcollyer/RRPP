@@ -204,9 +204,20 @@ makeDf <- function(Terms, Y, data = NULL) {
     
   } else {
     
-    ind.var.names <- all.vars(Terms)[-1]
-    df <- if(is.null(data)) lapply(1:length(ind.var.names), function(j) get(ind.var.names[j], -1)) else
-      mget(ind.var.names, as.environment(data))
+    ind.var.names <- rownames(attr(Terms, "factors"))[-1]
+    df <- vector("list", length = length(ind.var.names))
+    names(df) <- ind.var.names
+    for(i in 1:length(ind.var.names)) {
+      f <- as.formula(paste("~", ind.var.names[i]))
+      temp <- if(is.null(data)) try(eval(f[[2]]), silent = TRUE) else 
+        try(eval(f[[2]], as.environment(data), enclos = parent.frame()), silent = TRUE)
+      if(inherits(temp, "try-error")) temp <- try(eval(f[[2]]), silent = TRUE)
+      if(inherits(temp, "try-error"))
+        stop("Cannot find data in global environment.\n",
+                                           call. = FALSE) else
+                                             df[[i]] <- temp
+    }
+    
     if(is.null(names(df))) names(df) <- ind.var.names
     
     df <- as.data.frame(df)
