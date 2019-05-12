@@ -1,6 +1,8 @@
 RRPP VERSION 0.4.1.9000 (Development)
 
 BUG FIXES 
+    o Added forgotten code from last update to fix non-full rank design matrices.
+    o Fixed trajectory.analysis traj.list issue, to not use grep for sorting trajectories.  (Now lexical ordering of interactions is used.)
     o Changed det to determinant in all needing functions, to use modulus for 
     near-singular matrices
     o Fixed bug in plot.lm.rrpp (code lines out of order)
