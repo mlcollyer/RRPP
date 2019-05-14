@@ -132,8 +132,13 @@
 #' 
 #' PupfishHeads$logHeadSize <- log(PupfishHeads$headSize)
 #' names(PupfishHeads)
+#' 
+#' # Note: one should increase RRPP iterations but a smaller number is used here for demonstration 
+#' # efficiency.  Generally, iter = 999 will take less
+#' # than 1s for this example with a modern computer.
 #'
-#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", data = PupfishHeads)
+#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", 
+#' data = PupfishHeads, print.progress = FALSE, iter = 499)
 #' summary(fit)
 #' anova(fit, effect.type = "F") # Maybe not most appropriate
 #' anova(fit, effect.type = "Rsq") # Change effect type, but still not most appropriate
@@ -144,7 +149,8 @@
 #'
 #' # Change to Type III SS
 #' 
-#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", data = PupfishHeads)
+#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", 
+#' data = PupfishHeads, print.progress = FALSE, iter = 499)
 #' summary(fit)
 #' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals"))
 #'

@@ -1,8 +1,8 @@
 Package: RRPP
-Date: 2019-04-02
+Date: 2019-05-13
 Type: Package
 Title: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure
-Version: 0.4.1.9000
+Version: 0.4.2
 Author: Michael Collyer, Dean Adams
 Maintainer: Michael Collyer <mlcollyer@gmail.com>
 Description: Linear model calculations are made for many random versions of data.  

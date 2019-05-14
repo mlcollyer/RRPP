@@ -68,9 +68,10 @@ This function produces statistics that can be summarized with the \code{\link{su
 \examples{
 ### Analysis of sexual dimorphism vectors (factorial approach)
 data(Pupfish)
-fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 999)
+fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 499)
 reveal.model.designs(fit)
-TA <- trajectory.analysis(fit, groups = Pupfish$Pop, traj.pts = Pupfish$Sex)
+TA <- trajectory.analysis(fit, groups = Pupfish$Pop, 
+traj.pts = Pupfish$Sex, print.progress = FALSE)
 summary(TA, attribute = "MD") # Magnitude difference (absolute difference between path distances)
 summary(TA, attribute = "TC", angle.type = "deg") # Correlations (angles) between trajectories
 summary(TA, attribute = "SD") # No shape differences between vectors

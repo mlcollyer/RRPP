@@ -204,21 +204,27 @@ makeDf <- function(Terms, Y, data = NULL) {
     
   } else {
     
-    ind.var.names <- rownames(attr(Terms, "factors"))[-1]
-    df <- vector("list", length = length(ind.var.names))
-    names(df) <- ind.var.names
-    for(i in 1:length(ind.var.names)) {
+    ind.facts<- rownames(attr(Terms, "factors"))[-1]
+    nterms <- length(ind.facts)
+    ind.var.names <- union(ind.facts, all.vars(Terms)[-1])
+    df <- vector("list", length = nterms)
+    i <- k <- 1
+    while(i <= length(ind.var.names)) {
       f <- as.formula(paste("~", ind.var.names[i]))
       temp <- if(is.null(data)) try(eval(f[[2]]), silent = TRUE) else 
         try(eval(f[[2]], as.environment(data), enclos = parent.frame()), silent = TRUE)
       if(inherits(temp, "try-error")) temp <- try(eval(f[[2]]), silent = TRUE)
-      if(inherits(temp, "try-error"))
-        stop("Cannot find data in global environment.\n",
-                                           call. = FALSE) else
-                                             df[[i]] <- temp
+      if(!inherits(temp, "try-error")) {
+        df[[k]] <- temp
+        names(df)[[k]] <- ind.var.names[[i]]
+        k <- k +1
+      }
+      i <- i+1
     }
-    
-    if(is.null(names(df))) names(df) <- ind.var.names
+    check <- sapply(df, length)
+    if(any(check == 0)) 
+      stop("One or more terms was not found in the data frame or global environment.\n",
+           call. = FALSE)
     
     df <- as.data.frame(df)
     
