@@ -67,7 +67,7 @@
 #' @examples 
 #' ### Analysis of sexual dimorphism vectors (factorial approach)
 #' data(Pupfish)
-#' fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 499)
+#' fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 199)
 #' reveal.model.designs(fit)
 #' TA <- trajectory.analysis(fit, groups = Pupfish$Pop, 
 #' traj.pts = Pupfish$Sex, print.progress = FALSE)
@@ -89,7 +89,7 @@
 #' 
 #' # data are planar Cartesian coordinates (x, y) across 5 points (10 variables)
 #' data(motionpaths)
-#' fit <- lm.rrpp(trajectories ~ groups, data = motionpaths, iter = 999)
+#' fit <- lm.rrpp(trajectories ~ groups, data = motionpaths, iter = 199)
 #' TA <- trajectory.analysis(fit, groups = motionpaths$groups, traj.pts = 5)
 #' summary(TA, attribute = "MD") # Magnitude difference (absolute difference between path distances)
 #' summary(TA, attribute = "TC", angle.type = "deg") # Correlations (angles) between trajectories

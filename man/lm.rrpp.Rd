@@ -148,7 +148,7 @@ names(PupfishHeads)
 # than 1s for this example with a modern computer.
 
 fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", 
-data = PupfishHeads, print.progress = FALSE, iter = 499)
+data = PupfishHeads, print.progress = FALSE, iter = 199)
 summary(fit)
 anova(fit, effect.type = "F") # Maybe not most appropriate
 anova(fit, effect.type = "Rsq") # Change effect type, but still not most appropriate
@@ -160,7 +160,7 @@ anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals
 # Change to Type III SS
 
 fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", 
-data = PupfishHeads, print.progress = FALSE, iter = 499)
+data = PupfishHeads, print.progress = FALSE, iter = 199)
 summary(fit)
 anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals"))
 
@@ -252,8 +252,10 @@ summary(fit, formula = FALSE)
 # GLS Example (Univariate) ----------------------------------------------------------
 
 data(PlethMorph)
-fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph)
-fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov)
+fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+print.progress = FALSE, iter = 999)
+fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
+print.progress = FALSE, iter = 999)
 
 anova(fitOLS)
 anova(fitGLS)
@@ -271,8 +273,10 @@ PlethMorph$BodyWidth,
 PlethMorph$Forelimb,
 PlethMorph$Hindlimb))
 PlethMorph <- rrpp.data.frame(PlethMorph, Y=Y)
-fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph)
-fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov)
+fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+print.progress = FALSE, iter = 199)
+fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov,
+print.progress = FALSE, iter = 199)
 
 anova(fitOLSm)
 anova(fitGLSm)
