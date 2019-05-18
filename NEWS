@@ -1,6 +1,7 @@
 RRPP VERSION 0.4.2 (Patch release)
 
 BUG FIXES 
+    o Tweaked logL tolerance (0.001) calculation to be consistent with prcomp.
     o Tweaked support code for lm.rrpp to work better with missing data frames.
     o Fixed eigen absolute eigenvalue issue with Cov.proj.
     o Added forgotten code from last update to fix non-full rank design matrices.

@@ -17,7 +17,15 @@
 #'  
 #' In the case that "logLik" is chosen for the argument, type, AIC scores are calculated.  These scores
 #' may not perfectly match other packages or software that calculate AIC for multivariate data, if ridge regularization
-#' was used (and if other packages let p = the number of data variables).  Users can construct their own tables 
+#' was used (and if other packages require p = the number of data variables).  When choosing logLik as the type of comparison,
+#' it might be a good idea to adjust the tolerance or number of data principal components (PC).  The default (NULL) values will
+#' use all data dimensions to calculate log-likelihoods, which might cause problems if the number of variables exceeds the number 
+#' of observations (producing singular residual covariance matrices).  However, one should not reduce data dimensions haphazardly,
+#' as this can lead to poor estimates of log-likelihood.  Furthermore, using the tolernace argument could result in different
+#' numbers of principal components used for each model to calculate log-likelihoods, which might be a concern for comparing models.  
+#' If both tol and pc.no arguments are used, the solution will use the fewest PCs produced by either argument.
+#' 
+#' Users can construct their own tables 
 #' from the results but this function does not attempt to summarize results, as interpreting results requires 
 #' some arbitrary decisions.  The \code{\link{anova}} function explicitly tests multiple models and can be used for nested 
 #' model comparisons.
@@ -29,6 +37,12 @@
 #' 
 #' @param ... Any number of lm.rrpp class objects for model fits to be compared.
 #' @param type An argument to choose between log-likelihood or covariance trace results
+#' @param tol If type = logLik, tol is a tolerance value between 0 and 1, indicating the magnitude below which 
+#' components should be omitted (if standard deviations of components are less than the eigenvalue of the 
+#' first component times the tolerance), for calculating the log-likelihood.
+#' @param pc.no If type = logLik, an optional value to indicate the number of principal components (maximum rank) to use 
+#' for calculating the log-likelihood.
+#' 
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
@@ -50,7 +64,7 @@
 #' fit6 <- lm.rrpp(coords ~ logSize + Sex * Pop, data = Pupfish, iter = 0, print.progress = FALSE)
 #' 
 #' modComp1 <- model.comparison(fit1, fit2, fit3, fit4, fit5, fit6, type = "cov.trace")
-#' modComp2 <- model.comparison(fit1, fit2, fit3, fit4, fit5, fit6, type = "logLik")
+#' modComp2 <- model.comparison(fit1, fit2, fit3, fit4, fit5, fit6, type = "logLik", tol = 0.01)
 #' 
 #' summary(modComp1)
 #' summary(modComp2)
@@ -59,15 +73,23 @@
 #' plot(modComp1)
 #' plot(modComp2)
 #' 
-model.comparison<- function(..., type = c("cov.trace", "logLik")) {
+model.comparison<- function(..., type = c("cov.trace", "logLik"), tol = NULL, pc.no = NULL) {
   
   dots <- list(...)
   check <- lapply(dots, class)
   if(any(check != "lm.rrpp")) stop("\nObjects must be lm.rrpp fits\n.")
   dot.names <- lapply(dots, function(x) x$LM$Terms[[3]])
   type = match.arg(type)
-  if(type == "logLik") res <- sapply(dots, logL) else
-    res <- sapply(dots, cov.trace) 
+  if(type == "logLik") ll.args <- list(fit = dots[[1]], tol = tol, pc.no = pc.no)
+  logL.apply <- function(x) {
+    ll.args$fit <- x
+    do.call(logL, ll.args)
+  }
+  if(type == "logLik") {
+    temp <- sapply(dots, logL.apply) 
+    res <- unlist(temp[1,])
+    rank <- unlist(temp[2,])
+  } else res <- sapply(dots, cov.trace) 
   
   par.pen <- function(f){
     p <- f$LM$p.prime
@@ -77,8 +99,8 @@ model.comparison<- function(..., type = c("cov.trace", "logLik")) {
   pp <- sapply(dots, par.pen)
   
   if(type == "logLik") {
-    out <- cbind(res, pp, -2*res + pp)
-    colnames(out) <- c("logLik", "penalty", "AIC")
+    out <- cbind(res, rank, pp, -2*res + pp)
+    colnames(out) <- c("logLik", "residual.pc.no", "penalty", "AIC")
   } else {
     out <- cbind(res, pp)
     colnames(out) <- c("cov.trace", "penalty")

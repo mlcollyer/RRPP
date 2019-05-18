@@ -1857,9 +1857,14 @@ RiReg <- function(Cov, residuals){
 }
 
 
-logL <- function(fit){
+logL <- function(fit, tol = NULL, pc.no = NULL){
+  if(is.null(tol)) tol = 0
   n <- fit$LM$n
   p <- fit$LM$p.prime
+  k <- if (!is.null(pc.no)) {
+    stopifnot(length(pc.no) == 1, is.finite(pc.no), as.integer(pc.no) > 0)
+                min(as.integer(pc.no), n, p)
+  } else min(n, p)
   X <- as.matrix(fit$LM$X * sqrt(fit$LM$weights))
   Y <- as.matrix(fit$LM$Y)
   rdf <- fit$LM$data
@@ -1867,10 +1872,15 @@ logL <- function(fit){
     Sig <- (crossprod(fit$LM$gls.residuals, 
                       fast.solve(fit$LM$Cov)) %*%
               fit$LM$gls.residuals) /n
-    s <- svd(Sig)
-    pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
-    pp <- length(pr)
-    if(p > 1) P <- as.matrix(Y %*% s$v[,pr]) else P <- center(Y)
+    s <- svd(Sig, nu = 0, nv = k)
+    sdev <- s$d/sqrt(max(1, n - 1))
+    rank <- min(sum(sdev > (sdev[1L] * tol)), k)
+    if(rank < k){
+      pr <- seq_len(rank)
+      s$v <- s$v[, pr, drop = FALSE]
+    }
+    
+    if(p > 1) P <- as.matrix(Y %*% s$v) else P <- center(Y)
     fit$LM$data$Y <- P
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     Cov = fit$LM$Cov, data = fit$LM$data, 
@@ -1879,25 +1889,30 @@ logL <- function(fit){
               pfit$LM$gls.residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
     
-    ll <- -0.5*(n*pp + n*determinant(Sig, logarithm = TRUE)$modulus[1] + 
-      pp*determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n*pp*log(2*pi))
+    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
+      rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   }  else {
     
     Sig <- crossprod(fit$LM$wResiduals) /n
-    s <- svd(Sig) 
-    pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
-    pp <- length(pr)
-    if(p > 1) P <- as.matrix(Y %*% s$v[,pr]) else P <- center(Y)
+    s <- svd(Sig, nu = 0, nv = k)
+    sdev <- s$d/sqrt(max(1, n - 1))
+    rank <- min(sum(sdev > (sdev[1L] * tol)), k)
+    if(rank < k){
+      pr <- seq_len(rank)
+      s$v <- s$v[, pr, drop = FALSE]
+    }
+    
+    if(p > 1) P <- as.matrix(Y %*% s$v) else P <- center(Y)
     fit$LM$data$Y <- P
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     data = fit$LM$data, 
                     weights = fit$LM$weights, iter = 0)
     Sig <- as.matrix(crossprod(pfit$LM$residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
-    ll <- -0.5*(n * pp + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * pp * log(2*pi))
+    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   }
   
-  ll
+  list(logL = ll, rank = rank)
   
 }
 
