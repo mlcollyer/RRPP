@@ -33,7 +33,7 @@ penalties, to assist in comparative model evaluation or selection.  Because high
 produce singular or ill-conditioned residual covariance matrices, this function does one of two things: 1) uses 
 the trace of a covariance matrix rather than its determinant; or 2) provides a ridge-regularization (Warton, 2008)
 of the covariance matrix, only if it is determined that it is ill-conditioned.  Regardless of implementation,
-covariance matrices are projected into a principal component space of appropriate dimensions.
+covariance matrices are projected into a principal component (PC) space of appropriate dimensions.
 
 The parameter penalty is based on that proposed by Bedrick and Tsai (1994), equal to 2(pk + p(p + 1)/2), where 
 p is the appropriate dimension (not number of variables) of the covariance matrix.  The parameter, k,
@@ -42,12 +42,13 @@ p is the appropriate dimension (not number of variables) of the covariance matri
 In the case that "logLik" is chosen for the argument, type, AIC scores are calculated.  These scores
 may not perfectly match other packages or software that calculate AIC for multivariate data, if ridge regularization
 was used (and if other packages require p = the number of data variables).  When choosing logLik as the type of comparison,
-it might be a good idea to adjust the tolerance or number of data principal components (PC).  The default (NULL) values will
+it might be a good idea to adjust the tolerance or number of data principal components.  The default (NULL) values will
 use all data dimensions to calculate log-likelihoods, which might cause problems if the number of variables exceeds the number 
 of observations (producing singular residual covariance matrices).  However, one should not reduce data dimensions haphazardly,
-as this can lead to poor estimates of log-likelihood.  Furthermore, using the tolernace argument could result in different
+as this can lead to poor estimates of log-likelihood.  Furthermore, using the tolerance argument could result in different
 numbers of principal components used for each model to calculate log-likelihoods, which might be a concern for comparing models.  
-If both tol and pc.no arguments are used, the solution will use the fewest PCs produced by either argument.
+If both tol and pc.no arguments are used, the solution will use the fewest PCs produced by either argument.  Because the trace
+of a covariance matrix is not sensitive to matrix singularity, no PC adjustment is used for the cov.trace argument.
 
 Users can construct their own tables 
 from the results but this function does not attempt to summarize results, as interpreting results requires 
