@@ -3,7 +3,7 @@
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-aa995d816807635ee396939e6067fa84 *DESCRIPTION
+49c30158c048f8d2ff1d05fec6423348 *DESCRIPTION
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
 00cb966631067dc597098ccceb3b84f8 *man/add.trajectories.Rd
 da78dcbc0abb4e22926a34272552cf1f *man/anova.lm.rrpp.Rd
@@ -51,7 +51,7 @@ a80a54cfe4673d90783a3ba49f9b4535 *man/summary.pairwise.Rd
 829ab7e9505dcee579a3546212fe4804 *man/trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 8dd28dfe65e0542561bc6096514f7d94 *NAMESPACE
-7d3faa767aac1e05640f90087cc4469f *NEWS
+d5908ee79a1c729e9b0a6d398d086007 *NEWS
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r

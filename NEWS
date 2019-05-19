@@ -1,5 +1,8 @@
 RRPP VERSION 0.4.2 (Patch release)
 
+OTHER CHANGES
+    o Added tol and pc.no arguments to model.comparisons (were fixed before) so that users have more control of the analysis.
+
 BUG FIXES 
     o Tweaked logL tolerance (0.001) calculation to be consistent with prcomp.
     o Tweaked support code for lm.rrpp to work better with missing data frames.
