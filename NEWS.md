@@ -1,4 +1,8 @@
-# RRPP 0.4.2 (Patch Release)
+# RRPP 0.4.2.9000 (Development)
+
+------
+
+# CHANGES IN RRPP 0.4.2 (Patch Release)
 
 ### NEW FEATURES
 
