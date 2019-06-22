@@ -1,5 +1,4 @@
 9d82b7188d7b4b1c70e2d3245594ea59 *cran-comments.md
-7681ae1129f15f347c6d74556c352d73 *CRAN-RELEASE
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
@@ -60,7 +59,7 @@ c9f6c9222abd8c021834f24ca5f7bce9 *NEWS.md
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
-30e3b549f894529b209bef8b3b86b85d *R/lm.rrpp.r
+736e70feaae4213b3b4db05e673ef7aa *R/lm.rrpp.r
 10b4f87d160a6c9a93012bea6ecddac3 *R/manova.update.r
 50d9a8e7e9d0b43b00566e2c30e6918b *R/model.comparison.r
 c6867066687afcd124b93086e60bd82b *R/pairwise.r

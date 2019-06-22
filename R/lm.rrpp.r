@@ -402,9 +402,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients
-      out$LM$gls.fitted = fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.residuals = fit.o$Y - fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.mean <- colMeans(fit.o$X%*%fit.cov$coefficients) # Fix this
+      out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
+      out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
+      out$LM$gls.mean <- colMeans(out$LM$gls.fitted)
     }
   } else
   {
@@ -447,9 +447,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients
-      out$LM$gls.fitted = fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.residuals = fit.o$Y - fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.mean <- colMeans(fit.o$X%*%fit.cov$coefficients)
+      out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
+      out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
+      out$LM$gls.mean <- colMeans(fout$LM$gls.fitted)
     }
   }
   if(!is.null(fit.o$D)) {
