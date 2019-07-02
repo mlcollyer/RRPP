@@ -953,7 +953,7 @@ anova.parts <- function(fit, SS){
   MS <- SS/df
   RMS <- RSS/dfe
   Fs <- MS/RMS
-  dft <- sum(df, dfe)
+  dft <- n - 1
   df <- c(df, dfe, dft)
   if(SS.type == "III") {
     etas <- SS/TSS

@@ -449,7 +449,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       out$LM$gls.coefficients = fit.cov$coefficients
       out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
       out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
-      out$LM$gls.mean <- colMeans(fout$LM$gls.fitted)
+      out$LM$gls.mean <- colMeans(out$LM$gls.fitted)
     }
   }
   if(!is.null(fit.o$D)) {
