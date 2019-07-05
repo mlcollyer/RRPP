@@ -1630,6 +1630,54 @@ add.trajectories <- function(TP,
     points(x[np], y[np], col = 1, pch = traj.pch[i], lwd = traj.lwd[i], cex = traj.cex[i], bg = end.bg[i])
   }
   
+}
+
+#' Plot Function for RRPP
+#' 
+#' @param x An object of class \code{\link{ordinate}}
+#' @param axis1 A value indicating which component should be displayed as the X-axis (default = C1)
+#' @param axis2 A value indicating which component should be displayed as the Y-axis (default = C2)
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' @return An object of class "plot.ordinate" is a list with components
+#'  that can be used in other plot functions, such as the type of plot, points, 
+#'  a group factor, and other information depending on the plot parameters used.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
+  options(warn = -1)
+  if(NCOL(x$x) == 1) stop("Only one component  No plotting capability with this function.\n", 
+                          call. = FALSE)
+  v <- x$d/sum(x$d)
+  plot.args <- list(x = x$x[, axis1], y = x$x[, axis2],  ...)
+  xlabel <- paste("C ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
+  ylabel <- paste("C ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
+  if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
+  if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
+  pcdata <- as.matrix(x$x[, c(axis1, axis2)])
+  if(!is.null(plot.args$axes)) axes <- plot.args$axes else axes <- TRUE
+  if(!is.logical(axes)) axes <- as.logical(axes)
+  plot.args$xlim <- 1.05*range(plot.args$x)
+  plot.args$ylim <- 1.05*range(plot.args$y)
+  if(is.null(plot.args$asp)) plot.args$asp <- 1
+  if(is.null(plot.args$phylo)) plot.args$phylo <- FALSE
+  
+  do.call(plot, plot.args)
+  
+  if(axes){
+    abline(h = 0, lty=2, ...)
+    abline(v = 0, lty=2, ...)
+  }
+  
+  options(warn = 0)
+  out <- list(points = pcdata,   
+              call = match.call())
+  
+  out$plot.args <- plot.args
+  class(out) <- "plot.ordinate"
+  invisible(out)
   
 }
 
