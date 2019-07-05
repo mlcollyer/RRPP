@@ -204,10 +204,27 @@ makeDf <- function(Terms, Y, data = NULL) {
     
   } else {
     
-    ind.var.names <- all.vars(Terms)[-1]
-    df <- if(is.null(data)) lapply(1:length(ind.var.names), function(j) get(ind.var.names[j], -1)) else
-      mget(ind.var.names, as.environment(data))
-    if(is.null(names(df))) names(df) <- ind.var.names
+    ind.facts<- rownames(attr(Terms, "factors"))[-1]
+    nterms <- length(ind.facts)
+    ind.var.names <- union(ind.facts, all.vars(Terms)[-1])
+    df <- vector("list", length = nterms)
+    i <- k <- 1
+    while(i <= length(ind.var.names)) {
+      f <- as.formula(paste("~", ind.var.names[i]))
+      temp <- if(is.null(data)) try(eval(f[[2]]), silent = TRUE) else 
+        try(eval(f[[2]], as.environment(data), enclos = parent.frame()), silent = TRUE)
+      if(inherits(temp, "try-error")) temp <- try(eval(f[[2]]), silent = TRUE)
+      if(!inherits(temp, "try-error")) {
+        df[[k]] <- temp
+        names(df)[[k]] <- ind.var.names[[i]]
+        k <- k +1
+      }
+      i <- i+1
+    }
+    check <- sapply(df, length)
+    if(any(check == 0)) 
+      stop("One or more terms was not found in the data frame or global environment.\n",
+           call. = FALSE)
     
     df <- as.data.frame(df)
     
@@ -252,6 +269,9 @@ lm.args.from.lm <- function(f1){
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
   dep <- eval(f1[[2]], data, parent.frame())
+  if(is.array(dep) && length(dim(dep)) > 2)
+    stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
+         call. = FALSE)
   if(inherits(dep, "dist")) {
     if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
     D <- dep
@@ -933,7 +953,7 @@ anova.parts <- function(fit, SS){
   MS <- SS/df
   RMS <- RSS/dfe
   Fs <- MS/RMS
-  dft <- sum(df, dfe)
+  dft <- n - 1
   df <- c(df, dfe, dft)
   if(SS.type == "III") {
     etas <- SS/TSS
@@ -1837,9 +1857,14 @@ RiReg <- function(Cov, residuals){
 }
 
 
-logL <- function(fit){
+logL <- function(fit, tol = NULL, pc.no = NULL){
+  if(is.null(tol)) tol = 0
   n <- fit$LM$n
   p <- fit$LM$p.prime
+  k <- if (!is.null(pc.no)) {
+    stopifnot(length(pc.no) == 1, is.finite(pc.no), as.integer(pc.no) > 0)
+                min(as.integer(pc.no), n, p)
+  } else min(n, p)
   X <- as.matrix(fit$LM$X * sqrt(fit$LM$weights))
   Y <- as.matrix(fit$LM$Y)
   rdf <- fit$LM$data
@@ -1847,10 +1872,15 @@ logL <- function(fit){
     Sig <- (crossprod(fit$LM$gls.residuals, 
                       fast.solve(fit$LM$Cov)) %*%
               fit$LM$gls.residuals) /n
-    s <- svd(Sig)
-    pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
-    pp <- length(pr)
-    if(p > 1) P <- as.matrix(Y %*% s$v[,pr]) else P <- center(Y)
+    s <- svd(Sig, nu = 0, nv = k)
+    sdev <- s$d/sqrt(max(1, n - 1))
+    rank <- min(sum(sdev > (sdev[1L] * tol)), k)
+    if(rank < k){
+      pr <- seq_len(rank)
+      s$v <- s$v[, pr, drop = FALSE]
+    }
+    
+    if(p > 1) P <- as.matrix(Y %*% s$v) else P <- center(Y)
     fit$LM$data$Y <- P
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     Cov = fit$LM$Cov, data = fit$LM$data, 
@@ -1859,25 +1889,30 @@ logL <- function(fit){
               pfit$LM$gls.residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
     
-    ll <- -0.5*(n*pp + n*determinant(Sig, logarithm = TRUE)$modulus[1] + 
-      pp*determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n*pp*log(2*pi))
+    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
+      rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   }  else {
     
     Sig <- crossprod(fit$LM$wResiduals) /n
-    s <- svd(Sig) 
-    pr <- which(cumsum(s$d)/sum(s$d) < 0.999)
-    pp <- length(pr)
-    if(p > 1) P <- as.matrix(Y %*% s$v[,pr]) else P <- center(Y)
+    s <- svd(Sig, nu = 0, nv = k)
+    sdev <- s$d/sqrt(max(1, n - 1))
+    rank <- min(sum(sdev > (sdev[1L] * tol)), k)
+    if(rank < k){
+      pr <- seq_len(rank)
+      s$v <- s$v[, pr, drop = FALSE]
+    }
+    
+    if(p > 1) P <- as.matrix(Y %*% s$v) else P <- center(Y)
     fit$LM$data$Y <- P
     pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
                     data = fit$LM$data, 
                     weights = fit$LM$weights, iter = 0)
     Sig <- as.matrix(crossprod(pfit$LM$residuals)) / n
     if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
-    ll <- -0.5*(n * pp + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * pp * log(2*pi))
+    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   }
   
-  ll
+  list(logL = ll, rank = rank)
   
 }
 

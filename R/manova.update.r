@@ -222,8 +222,10 @@ manova.update <- function(fit, error = NULL,
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
-    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
+    Qr <- lapply(fit$wXrs, qr)
+    Qf <- lapply(fit$wXfs, qr)
+    Ur <- lapply(Qr, qr.Q)
+    Uf <- lapply(Qf, qr.Q)
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
@@ -274,8 +276,9 @@ manova.update <- function(fit, error = NULL,
       names(EH)[[k+1]] <- "full.model"
       eig.d <- Map(function(e, r) getEigs(e, r),
                    EH, EH.rank)
+      
       if(verbose) out <- EH else out <- eig.d
-      names(out) <- c(trms, "full.model")
+      
       out
     })
   } else {

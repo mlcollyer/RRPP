@@ -88,8 +88,12 @@
 #' 
 #' ## Pairwise comparisons of LS means
 #' 
+#' # Note: one should increase RRPP iterations but a smaller number is used here for demonstration 
+#' # efficiency.  Generally, iter = 999 will take less
+#' # than 1s for these examples with a modern computer.
+#' 
 #' fit1 <- lm.rrpp(Y ~ logSize + Sex * Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 999) 
+#' data = Pupfish, print.progress = FALSE, iter = 499) 
 #' summary(fit1, formula = FALSE)
 #' anova(fit1) 
 #'
@@ -109,13 +113,14 @@
 #' ## Pairwise comparisons of slopes
 #' 
 #' fit2 <- lm.rrpp(Y ~ logSize * Sex * Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 999) 
+#' data = Pupfish, print.progress = FALSE, iter = 199) 
 #' summary(fit2, formula = FALSE)
 #' anova(fit1, fit2)
 #'
 #' # Using a null fit that excludes all factor-covariate interactions, not just the last one  
 #' 
-#' PW2 <- pairwise(fit2, fit.null = fit1, groups = pup.group, covariate = Pupfish$logSize) 
+#' PW2 <- pairwise(fit2, fit.null = fit1, groups = pup.group, 
+#' covariate = Pupfish$logSize, print.progress = FALSE) 
 #' PW2
 #' summary(PW2, confidence = 0.95, test.type = "dist") # distances between slope vector lengths
 #' summary(PW2, confidence = 0.95, test.type = "dist", stat.table = FALSE)

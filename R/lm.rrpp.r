@@ -132,8 +132,13 @@
 #' 
 #' PupfishHeads$logHeadSize <- log(PupfishHeads$headSize)
 #' names(PupfishHeads)
+#' 
+#' # Note: one should increase RRPP iterations but a smaller number is used here for demonstration 
+#' # efficiency.  Generally, iter = 999 will take less
+#' # than 1s for this example with a modern computer.
 #'
-#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", data = PupfishHeads)
+#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", 
+#' data = PupfishHeads, print.progress = FALSE, iter = 199)
 #' summary(fit)
 #' anova(fit, effect.type = "F") # Maybe not most appropriate
 #' anova(fit, effect.type = "Rsq") # Change effect type, but still not most appropriate
@@ -144,7 +149,8 @@
 #'
 #' # Change to Type III SS
 #' 
-#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", data = PupfishHeads)
+#' fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", 
+#' data = PupfishHeads, print.progress = FALSE, iter = 199)
 #' summary(fit)
 #' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals"))
 #'
@@ -236,8 +242,10 @@
 #' # GLS Example (Univariate) ----------------------------------------------------------
 #' 
 #' data(PlethMorph)
-#' fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph)
-#' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov)
+#' fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+#' print.progress = FALSE, iter = 999)
+#' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
+#' print.progress = FALSE, iter = 999)
 #' 
 #' anova(fitOLS)
 #' anova(fitGLS)
@@ -255,8 +263,10 @@
 #' PlethMorph$Forelimb,
 #' PlethMorph$Hindlimb))
 #' PlethMorph <- rrpp.data.frame(PlethMorph, Y=Y)
-#' fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph)
-#' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov)
+#' fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+#' print.progress = FALSE, iter = 199)
+#' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov,
+#' print.progress = FALSE, iter = 199)
 #' 
 #' anova(fitOLSm)
 #' anova(fitGLSm)
@@ -392,9 +402,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients
-      out$LM$gls.fitted = fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.residuals = fit.o$Y - fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.mean <- colMeans(fit.o$X%*%fit.cov$coefficients) # Fix this
+      out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
+      out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
+      out$LM$gls.mean <- colMeans(out$LM$gls.fitted)
     }
   } else
   {
@@ -437,9 +447,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       fit.cov <- lm.fit(PX, PY)
       out$LM$gls = TRUE; out$LM$ols = FALSE
       out$LM$gls.coefficients = fit.cov$coefficients
-      out$LM$gls.fitted = fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.residuals = fit.o$Y - fit.o$X%*%fit.cov$coefficients
-      out$LM$gls.mean <- colMeans(fit.o$X%*%fit.cov$coefficients)
+      out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
+      out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
+      out$LM$gls.mean <- colMeans(out$LM$gls.fitted)
     }
   }
   if(!is.null(fit.o$D)) {
