@@ -1632,6 +1632,62 @@ add.trajectories <- function(TP,
   
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{ordinate}}
+#' @param ... Other arguments passed onto print.ordinate
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.ordinate <- function(x, ...){
+  ord.type <- if(x$alignment == "principal") "Principal Component Analysis" else
+    "Alignment to an alternative matrix"
+  cat("\nOrdination type:", ord.type, "\n")
+  if(x$alignment != "principal")
+    cat("Alignment matrix:", x$alignment, "\n")
+  cen <- if(x$GLS) "GLS" else "OLS"
+  cat("Centering and projection:", cen, "\n")
+  cat("Number of observations", NROW(x$x), "\n")
+  cat("Number of vectors", NCOL(x$x), "\n\n")
+} 
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{ordinate}}
+#' @param ... Other arguments passed onto print.ordinate
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+summary.ordinate <- function(x, ...){
+  print.ordinate(x, ...)
+  d <- x$d
+  p <- d/sum(d)
+  cp <- cumsum(d)/sum(d)
+  r <- as.data.frame(rbind(d, p, cp))
+  colnames(r) <- colnames(x$x)
+  rownames(r) <- c("Variance", "Proportion of Variance", "Cumulative Proportion")
+  if(x$alignment == "principal") rownames(r)[[1]] <- "Eigenvalues"
+  cat("Importance of Components:\n")
+  print(r)
+  out <- r
+  invisible(out)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{summary.ordinate}}
+#' @param ... Other arguments passed onto print.ordinate
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.summary.ordinate <- function(x, ...){
+  cat("\nImportance of Components:\n")
+  print(x$table)
+} 
+
 #' Plot Function for RRPP
 #' 
 #' @param x An object of class \code{\link{ordinate}}
@@ -1662,7 +1718,6 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
   plot.args$xlim <- 1.05*range(plot.args$x)
   plot.args$ylim <- 1.05*range(plot.args$y)
   if(is.null(plot.args$asp)) plot.args$asp <- 1
-  if(is.null(plot.args$phylo)) plot.args$phylo <- FALSE
   
   do.call(plot, plot.args)
   

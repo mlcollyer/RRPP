@@ -42,6 +42,8 @@ An object of class \code{ordinate} is a list containing the following
 \item{rot}{The matrix of variable loadings, i.e. the singular vectors, \bold{V}.}
 \item{center}{The OLS or GLS means vector used for centering.}
 \item{scale}{The sclaing used, or FALSE.}
+\item{alignment}{Whether data were aligned to principal axes or the name of another matrix.}
+\item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
 }
 \description{
 Function performs a singular value decomposition of ordinary least squares (OLS) or 
@@ -63,7 +65,7 @@ function can center data via OLS or GLS means (the latter if a covariance matrix
 the non-independence among observations is provided).  If standardizing variables is preferred,
 then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard deviations.
 
-Data are prokected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
+Data are projected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
 an orthogonal projection and in the case of GLS is an oblique projection.
 
 The versatility of using an alignment approach is that alternive data space rotations are possible.
@@ -77,8 +79,10 @@ is not an option (it is required).
 }
 \examples{
 
-# Examples use geometric morphometric data
-# See the package, geomorph, for details about obtaining such data
+# Examples use residuals from a regression of salamander morphological 
+# traits against body size (snout to vent length, SVL).
+# Observations are species means and a phylogenetic covariance matrix
+# describes the relatedness among observations.
 
 data("PlethMorph")
 R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
@@ -96,6 +100,15 @@ PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
 PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
 PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
 Cov = PlethMorph$PhyCov)
+
+# Summaries
+
+summary(PCA.ols)
+summary(PCA.gls)
+summary(PaCA.ols)
+summary(PaCA.gls)
+
+# Plots
 
 par(mfrow = c(2,2))
 plot(PCA.ols, main = "PCA OLS")

@@ -18,7 +18,7 @@
 #' the non-independence among observations is provided).  If standardizing variables is preferred,
 #' then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard deviations.
 #' 
-#' Data are prokected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
+#' Data are projected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
 #' an orthogonal projection and in the case of GLS is an oblique projection.
 #'
 #' The versatility of using an alignment approach is that alternive data space rotations are possible.
@@ -59,12 +59,16 @@
 #' \item{rot}{The matrix of variable loadings, i.e. the singular vectors, \bold{V}.}
 #' \item{center}{The OLS or GLS means vector used for centering.}
 #' \item{scale}{The sclaing used, or FALSE.}
+#' \item{alignment}{Whether data were aligned to principal axes or the name of another matrix.}
+#' \item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
 #' @references Collyer and Adams, in prep.
 #' @seealso \code{\link{prcomp}} and \code{gm.prcomp} within \code{geomorph}
 #' @examples
 #' 
-#' # Examples use geometric morphometric data
-#' # See the package, geomorph, for details about obtaining such data
+#' # Examples use residuals from a regression of salamander morphological 
+#' # traits against body size (snout to vent length, SVL).
+#' # Observations are species means and a phylogenetic covariance matrix
+#' # describes the relatedness among observations.
 #'
 #' data("PlethMorph")
 #' R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
@@ -83,6 +87,15 @@
 #' PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
 #' Cov = PlethMorph$PhyCov)
 #' 
+#' # Summaries
+#' 
+#' summary(PCA.ols)
+#' summary(PCA.gls)
+#' summary(PaCA.ols)
+#' summary(PaCA.gls)
+#' 
+#' # Plots
+#' 
 #' par(mfrow = c(2,2))
 #' plot(PCA.ols, main = "PCA OLS")
 #' plot(PCA.gls, main = "PCA GLS")
@@ -100,6 +113,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   n <- dims[1]
   p <- dims[2]
   I <- diag(n)
+  alignment <- if(!is.null(A)) deparse(substitute(A)) else "principal"
   if(is.null(A)) A <- I
   if(!is.matrix(A))
     stop("A must be a matrix with the same number of rows as Y\n", 
@@ -153,7 +167,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   
   r <- list(d = s$d^2, sdev = s$d, rot = s$v, 
             center = colMeans(H %*% Y), 
-            scale = if (is.null(sc)) FALSE else sc,
+            scale = if(is.null(sc)) FALSE else sc,
+            GLS = if(is.null(Cov)) FALSE else TRUE,
+            alignment = alignment,
             x = x)
 
   if(!is.null(newdata)){
