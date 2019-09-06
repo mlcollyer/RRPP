@@ -132,10 +132,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   X <- matrix(1, n)
   rownames(X) <- rownames(Y)
   if(!is.null(Cov)) Pcov <- Cov.proj(Cov, rownames(Y))
-  if(is.null(Cov)) H <- tcrossprod(X)/n else 
-    H <- X %*% solve(crossprod(crossprod(Pcov, X))) %*% crossprod(crossprod(Pcov, X), Pcov)
-  
-  Z <- scale(as.matrix((I - H) %*% Y), center = FALSE, scale = scale.)
+  cen <- if(is.null(Cov)) colMeans(Y) else lm.fit(Pcov %*% X, Pcov %*% Y)$coefficients
+  Z <- scale(Y, center = cen, scale = scale.)
+  cen <- attr(Z, "scaled:center")
   sc <- attr(Z, "scaled:scale")
   if (any(sc == 0)) 
     stop("cannot rescale a constant/zero column to unit variance")
@@ -163,18 +162,20 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
       x <- x[j]
     }
   }
-  dimnames(s$v) <- list(colnames(Z), paste0("PC", j))
+  s$v <- as.matrix(s$v)
+  dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
   
   r <- list(d = s$d^2, sdev = s$d, rot = s$v, 
-            center = colMeans(H %*% Y), 
+            center = cen, 
             scale = if(is.null(sc)) FALSE else sc,
             GLS = if(is.null(Cov)) FALSE else TRUE,
             alignment = alignment,
             x = x)
+  colnames(r$x) <- colnames(s$v)
 
   if(!is.null(newdata)){
     xn <- as.matrix(newdata)
-    xn <- scale(xn, center = r$center, scale = r$scale)
+    xn <- scale(xn, center = cen, scale = scale.)
     if(NCOL(Z) != NCOL(xn)) stop("Different number of variables in newdata\n", call. = FALSE) 
     r$xn <- xn %*% s$v
   }
