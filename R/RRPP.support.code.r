@@ -1481,11 +1481,11 @@ aov.multi.model <- function(object, lm.list,
   
   if(print.progress){
     if(K > 1)
-    cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n")) else
-      cat(paste("\nSums of Squares calculations for", K, "model:", perms, "permutations.\n"))
+      cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n")) else
+        cat(paste("\nSums of Squares calculations for", K, "model:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
-
+  
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
     int <- crossprod(refModel$LM$Pcov, rep(int, n))
@@ -1498,27 +1498,23 @@ aov.multi.model <- function(object, lm.list,
   rY <- function(ind.i) Yh + R[ind.i,]
   rY0 <- function(ind.i) yh0 + r0[ind.i,]
   
-  RSS <- function(ind.i, U, Ul, K, n, p, Y, yh0, r0) {
+  RSS <- function(ind.i, U0, U, Ul, K, n, p, Y, yh0, r0) {
     y <- as.matrix(rY(ind.i))
+    y0 <- as.matrix(rY0(ind.i))
     rss0  <- sum(y^2) - sum(crossprod(U, y)^2)
+    rss00 <- sum(y0^2) - sum(crossprod(U0, y)^2)
+    
     rss <- lapply(1:K, function(j){
       u <- Ul[[j]]
       sum(y^2) - sum(crossprod(u, y)^2)
     })
+    tss <- sum(y0^2) - sum(crossprod(U0, y)^2)
     
-    RSSp <- c(rss0, unlist(rss))
-    
-    rss <- lapply(1:K, function(j){
-      y <- as.matrix(rY0(ind.i))
-      u <- Ul[[j]]
-      sum(y^2) - sum(crossprod(u, y)^2)
-    })
-    RSSy <- c(rss0, unlist(rss))
-    
-    c(RSSp, RSSy)
+    RSSp <- c(rss0, unlist(rss), tss)
+    RSSp
   }
   
-  rss.list <- list(ind.i = NULL, U = U, 
+  rss.list <- list(ind.i = NULL, U0 = U0, U = U, 
                    Ul = Ulist, K = K, n = n , p = p, Y = Y,
                    yh0 = yh0, r0 = r0)
   
@@ -1529,27 +1525,24 @@ aov.multi.model <- function(object, lm.list,
     do.call(RSS, rss.list)
   })
   
-  RSSy <- RSSp[-(1:(K+1)),]
-  RSSp <- RSSp[1:(K+1),]
+  RSSy <- as.matrix(RSSp[nrow(RSSp),])
+  RSSp <- as.matrix(RSSp[-(nrow(RSSp)),])
+  RSSy <- as.matrix(matrix(RSSy, nrow(RSSp), perms, byrow = TRUE))
   
   fit.names <- c(refModel$call[[2]], lapply(1:K, function(j) lm.list[[j]]$call[[2]]))
   rownames(RSSp) <- rownames(RSSy) <- fit.names
   
   SS <- rep(RSSp[1,], each = K + 1) - RSSp
-
-  SSY <- sapply(1:perms, function(j){
-    y <- yh0 + r0[ind[[j]],]
-    sum(y^2) - sum(crossprod(U0, y)^2)
-  })
   
-  Rsq <-  1 - (RSSp / rep(SSY, each = K + 1))
+  Rsq <-  SS / RSSy
+  
   dfe <- n - c(object$LM$wQR$rank, unlist(lapply(1:K, 
                                                  function(j) lm.list[[j]]$LM$wQR$rank)))
   df <- dfe[1] - dfe
   df[1] <- 1
   
   MS <- SS/rep(df, perms)
-  MSE <- RSSy/matrix(rep(dfe, perms), length(dfe), perms)
+  MSE <- RSSp/matrix(rep(dfe, perms), length(dfe), perms)
   Fs <- MS/MSE
   
   SS[which(zapsmall(SS) == 0)] <- 1e-32
@@ -1610,9 +1603,9 @@ aov.multi.model <- function(object, lm.list,
               SS = SS[-1,], MS = MS[-1,], Rsq = Rsq[-1,], F = Fs[-1,],
               call = object$call)
   
-class(out) <- "anova.lm.rrpp"
-out
-
+  class(out) <- "anova.lm.rrpp"
+  out
+  
 }
 
 # getSlopes
