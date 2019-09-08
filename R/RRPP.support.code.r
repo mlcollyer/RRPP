@@ -1579,7 +1579,7 @@ aov.multi.model <- function(object, lm.list,
                     Rsq = Rsq.obs, F = F.obs, Z = Z, P = Pvals)
   tab$DF[1] <- NA
   tab$Rsq <- zapsmall(tab$Rsq, digits = 8)
-  tab <-  rbind(tab, c(n-1, NA, SSY[1], NA, NA, NA, NA, NA, NA, NA))
+  tab <-  rbind(tab, c(n-1, NA, RSSy[1], NA, NA, NA, NA, NA, NA, NA))
   rownames(tab)[NROW(tab)] <- "Total"
   
   if(effect.type == "SS") p.type <- "Pr(>SS)" else
