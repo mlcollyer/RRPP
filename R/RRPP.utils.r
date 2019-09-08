@@ -1654,13 +1654,14 @@ print.ordinate <- function(x, ...){
 
 #' Print/Summary Function for RRPP
 #'
-#' @param x Object from \code{\link{ordinate}}
+#' @param object Object from \code{\link{ordinate}}
 #' @param ... Other arguments passed onto print.ordinate
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 #' 
-summary.ordinate <- function(x, ...){
+summary.ordinate <- function(object, ...){
+  x <- object
   print.ordinate(x, ...)
   d <- x$d
   p <- d/sum(d)

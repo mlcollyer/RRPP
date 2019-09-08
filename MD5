@@ -6,10 +6,6 @@
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 7627f8092890e16aa4e4f4cb2c7d024b *DESCRIPTION
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
-e343298b7b12b2531375f0a51e259fc9 *inst/doc/ANOVA.vs.MANOVA.html
-070e9a22fe4f8a290a46ac3598513879 *inst/doc/ANOVA.vs.MANOVA.Rmd
-f772ea816edcb02334c4993b03d225ef *inst/doc/Using.RRPP.html
-6f61ac0efa7dab47ce7dd5f7b3401c82 *inst/doc/Using.RRPP.Rmd
 00cb966631067dc597098ccceb3b84f8 *man/add.trajectories.Rd
 da78dcbc0abb4e22926a34272552cf1f *man/anova.lm.rrpp.Rd
 eef4721fad3a88829eaef7937229dd7c *man/classify.Rd
@@ -19,7 +15,7 @@ eef4721fad3a88829eaef7937229dd7c *man/classify.Rd
 d0e291d2a7f237e0a69145dd8c61b44e *man/manova.update.Rd
 bea514f191b8cfb002cfbf1786a1264a *man/model.comparison.Rd
 c75db7099ad7a5d9bf80757369e495ea *man/motionpaths.Rd
-0c7fb969a8795cbaa65b9ba0591f4d76 *man/ordinate.Rd
+ba6a9746b3a179ee873c176f82e98ff5 *man/ordinate.Rd
 5505a0acd9e340f6a19fdb932f7979a6 *man/pairwise.Rd
 4ba4f9fdbeffa3718c5c2bca0db78ad2 *man/PlethMorph.Rd
 ba59abd91f8751ff1601107c997228cb *man/plot.lm.rrpp.Rd
@@ -54,7 +50,7 @@ ad97e4ce6e14cb92ac228d0f798d7717 *man/summary.coef.lm.rrpp.Rd
 beb55085de49d23665272a0db65d1dff *man/summary.lm.rrpp.Rd
 20741957da5d7e81e3eec81e66bc11f5 *man/summary.manova.lm.rrpp.Rd
 8071df084e856baaea970cadde3d9b0c *man/summary.model.comparison.Rd
-6d6508eef668e98ad35da23f6490ecd1 *man/summary.ordinate.Rd
+02292ef7e504acfa0052c2231ba12305 *man/summary.ordinate.Rd
 a80a54cfe4673d90783a3ba49f9b4535 *man/summary.pairwise.Rd
 73f2a913f66ac6af76747a7cd93c9070 *man/summary.predict.lm.rrpp.Rd
 3d74de459d57a98acae66188a6150e7b *man/summary.trajectory.analysis.Rd
@@ -68,12 +64,12 @@ c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 00403f14bb9d498340ea34e1d0aac15d *R/lm.rrpp.r
 10b4f87d160a6c9a93012bea6ecddac3 *R/manova.update.r
 50d9a8e7e9d0b43b00566e2c30e6918b *R/model.comparison.r
-f87465f26a25b7b5e51b888474fe81c1 *R/ordinate.r
+9ff07b099d1658bd69888a64dac05ed8 *R/ordinate.r
 c6867066687afcd124b93086e60bd82b *R/pairwise.r
 d0ba1ce3ec27cb68ab30db856e025784 *R/predict.lm.rrpp.r
 be65a023ec04fe716867de7a1907b645 *R/reveal.model.designs.r
-0d168cfb10e6e4594904052575054612 *R/RRPP.support.code.r
-c0a2f672d57034d1c5af7864d7d418e2 *R/RRPP.utils.r
+b352645ab2179631f77d57c503ca8bdd *R/RRPP.support.code.r
+03283edb80646797d7f1f5adb3ead11e *R/RRPP.utils.r
 641d6c3669b2e303318e2e25d082a551 *R/shared.support.code.r
 7242e550d45113e1df449e43ecd0c59f *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md

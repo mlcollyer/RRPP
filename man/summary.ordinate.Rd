@@ -4,10 +4,10 @@
 \alias{summary.ordinate}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{summary}{ordinate}(x, ...)
+\method{summary}{ordinate}(object, ...)
 }
 \arguments{
-\item{x}{Object from \code{\link{ordinate}}}
+\item{object}{Object from \code{\link{ordinate}}}
 
 \item{...}{Other arguments passed onto print.ordinate}
 }

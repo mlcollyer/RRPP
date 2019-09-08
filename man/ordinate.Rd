@@ -13,6 +13,10 @@ ordinate(Y, A = NULL, Cov = NULL, scale. = FALSE, tol = NULL,
 \item{A}{An optional n x n symmetric matrix or an n x k data matrix, where k is the number of variables that could
 be associated with the p variables of Y.  If NULL, an n x n identity matrix will be used.}
 
+\item{Cov}{An optional n x n covariance matrix to describe the non-independence among
+observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
+wishes to align GLS residuals to the same matrix used to obtain them.}
+
 \item{scale.}{a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
 takes place. The default is FALSE.}
 
@@ -28,10 +32,6 @@ smaller than the dimensions of the matrix.  This argument is exactly the same as
 
 \item{newdata}{An optional data frame of values for the same variables of Y to be projected onto 
 aligned components.}
-
-\item{A}{An optional n x n covariance matrix to describe the non-independence among
-observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
-wishes to align GLS residuals to the same matrix used to obtain them.}
 }
 \value{
 An object of class \code{ordinate} is a list containing the following

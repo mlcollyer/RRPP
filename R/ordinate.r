@@ -33,7 +33,7 @@
 #' @param Y An n x p data matrix.
 #' @param A An optional n x n symmetric matrix or an n x k data matrix, where k is the number of variables that could
 #' be associated with the p variables of Y.  If NULL, an n x n identity matrix will be used.
-#' @param A An optional n x n covariance matrix to describe the non-independence among
+#' @param Cov An optional n x n covariance matrix to describe the non-independence among
 #' observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
 #' wishes to align GLS residuals to the same matrix used to obtain them.
 #' @param scale. a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
@@ -115,11 +115,12 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   I <- diag(n)
   alignment <- if(!is.null(A)) deparse(substitute(A)) else "principal"
   if(is.null(A)) A <- I
+  ind.check <- (sum(A) == n)
   if(!is.matrix(A))
     stop("A must be a matrix with the same number of rows as Y\n", 
          call. = FALSE)
   if(NROW(A) != n)
-    stop("A must be a matrix with the same number of rows as Y\n", 
+    stop("A must be a matrix with the same number of rows as data\n", 
          call. = FALSE)
   if(is.null(rownames(A))) rownames(A) <- rownames(Y) else {
     nnames <- length(intersect(rownames(Y), rownames(A)))
@@ -152,9 +153,18 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   j <- seq_len(k)
   s$v <- s$v[,j]
   x <- Z %*% s$v
-  s$d <- apply(x, 2, sd)
+  
+  s$d <- (s$d/sqrt(n-1))^2
+  
+  if(!ind.check) {
+    s$d <- if(!is.null(Cov)) apply(Pcov %*% x, 2, var) else
+      apply(x, 2, var)
+  }
+  
+  s$sdev <- sqrt(s$d)
+  
   if (!is.null(tol)) {
-    rank <- sum(s$d > (s$d[1L] * tol))
+    rank <- sum(s$sdev > (s$sdev[1L] * tol))
     if (rank < k) {
       j <- seq_len(k <- rank)
       s$v <- s$v[, j, drop = FALSE]
@@ -165,7 +175,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   s$v <- as.matrix(s$v)
   dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
   
-  r <- list(d = s$d^2, sdev = s$d, rot = s$v, 
+  r <- list(d = s$d, sdev = s$sdev, rot = s$v, 
             center = cen, 
             scale = if(is.null(sc)) FALSE else sc,
             GLS = if(is.null(Cov)) FALSE else TRUE,
