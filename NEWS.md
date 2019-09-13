@@ -10,9 +10,11 @@
 * Added `tol` and `pc.no` arguments to `model.comparison` (were fixed before) so that users have more control of the analysis.
 
 ### BUG FIXES 
+* Fixed multi-model anova TSS issue.
+* Fixed centering issue for trajectory,analysis plots.
 * Tweaked logL tolerance calculation to be consistent with prcomp.
 * Tweaked support code for `lm.rrpp` to work better with missing data frames.
-* Fixed eigen absolute eigenvalue issue with Cov.proj.
+* Fixed absolute eigenvalue issue with Cov.proj.
 * Added forgotten code from last update to fix non-full rank design matrices.
 * Fixed `trajectory.analysis` traj.list issue, to not use grep for sorting trajectories.  (Now lexical ordering of interactions is used.)
 * Changed `det` to `determinant` in all needing functions, to use modulus for near-singular matrices

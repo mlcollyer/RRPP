@@ -5,14 +5,12 @@
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 7627f8092890e16aa4e4f4cb2c7d024b *DESCRIPTION
 13b4eb650ebacb9d39169ff3f93d5dff *doc/ANOVA.vs.MANOVA.html
+d16062cf59bdc27c9af73c5e4280c9e2 *doc/ANOVA.vs.MANOVA.R
 070e9a22fe4f8a290a46ac3598513879 *doc/ANOVA.vs.MANOVA.Rmd
 8cd1350e1a5d047e07fede540cd64dea *doc/Using.RRPP.html
+0e482efe02b456ba5d259e8a514c8540 *doc/Using.RRPP.R
 6f61ac0efa7dab47ce7dd5f7b3401c82 *doc/Using.RRPP.Rmd
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
-e343298b7b12b2531375f0a51e259fc9 *inst/doc/ANOVA.vs.MANOVA.html
-070e9a22fe4f8a290a46ac3598513879 *inst/doc/ANOVA.vs.MANOVA.Rmd
-f772ea816edcb02334c4993b03d225ef *inst/doc/Using.RRPP.html
-6f61ac0efa7dab47ce7dd5f7b3401c82 *inst/doc/Using.RRPP.Rmd
 00cb966631067dc597098ccceb3b84f8 *man/add.trajectories.Rd
 da78dcbc0abb4e22926a34272552cf1f *man/anova.lm.rrpp.Rd
 eef4721fad3a88829eaef7937229dd7c *man/classify.Rd
@@ -58,6 +56,7 @@ a80a54cfe4673d90783a3ba49f9b4535 *man/summary.pairwise.Rd
 3d74de459d57a98acae66188a6150e7b *man/summary.trajectory.analysis.Rd
 829ab7e9505dcee579a3546212fe4804 *man/trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
+bdf70e2e8fe66e061b34d3095c57c02a *Meta/vignette.rds
 8dd28dfe65e0542561bc6096514f7d94 *NAMESPACE
 c9f6c9222abd8c021834f24ca5f7bce9 *NEWS.md
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
@@ -75,6 +74,5 @@ b89fcf6916542d1b9659736f4699c83c *R/RRPP.utils.r
 7242e550d45113e1df449e43ecd0c59f *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
-581f55176f9deb1dfd0011745b9b0b2b *vignettes/ANOVA.vs.MANOVA.html
 070e9a22fe4f8a290a46ac3598513879 *vignettes/ANOVA.vs.MANOVA.Rmd
 6f61ac0efa7dab47ce7dd5f7b3401c82 *vignettes/Using.RRPP.Rmd
