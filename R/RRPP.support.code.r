@@ -772,13 +772,9 @@ SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
 # used in lm.rrpp
 
 SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  cl <- detectCores()-1
+  cl <- detectCores() - 1
   if(!is.null(P)) gls = TRUE else gls = FALSE
   perms <- length(ind)
-  if(print.progress){
-    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
-  }
   fitted <- fit$wFitted.reduced
   res <- fit$wResiduals.reduced
   Y <- as.matrix(fit$wY)
@@ -792,12 +788,18 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   rrpp.args <- list(fitted = fitted, residuals = res,
                     ind.i = NULL, w = NULL, o = NULL)
   if(offset) rrpp.args$o <- o
+  if(print.progress){
+    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
+    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+  }
   if(gls){
     Y <- crossprod(P, Y)
     Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
     Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Ur <- lapply(Xr, function(x) qr.Q(qr(x)))
-    Uf <- lapply(Xf, function(x) qr.Q(qr(x)))
+    Qr <- lapply(Xr, qr)
+    Qf <- lapply(Xf, qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Uf <- lapply(Qf, function(x) qr.Q(x))
     Ufull <- Uf[[k]]
     int <- attr(fit$Terms, "intercept")
     Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
@@ -813,6 +815,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     rrpp.args$fitted <- fitted
     rrpp.args$residuals <- res
     result <- mclapply(1: perms, function(j){
+      step <- j
+      if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
@@ -841,6 +845,8 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
     yh0 <- fastFit(Unull, Y, n, p)
     r0 <- Y - yh0
     result <- mclapply(1: perms, function(j){
+      step <- j
+      if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
@@ -861,13 +867,17 @@ SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
   RSS.model <- sapply(1:perms, function(j) result[[j]]$RSS.model)
   if(k == 1) {
     SS <- matrix(SS, 1, length(SS))
-    RSS <- matrix(SS, 1, length(RSS))
-    TSS <- matrix(SS, 1, length(TSS))
+    RSS <- matrix(RSS, 1, length(RSS))
+    TSS <- matrix(TSS, 1, length(TSS))
   }
   rownames(SS) <- rownames(RSS) <- rownames(TSS) <- trms
   colnames(SS) <- colnames(RSS) <- colnames(TSS) <- names(RSS.model) <- 
     c("obs", paste("iter", 1:(perms-1), sep="."))
-
+  step <- perms + 1
+  if(print.progress) {
+    setTxtProgressBar(pb,step)
+    close(pb)
+  }
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
 }
 
