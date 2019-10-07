@@ -1,4 +1,14 @@
-# RRPP 0.4.2.9000 (Development)
+# CHANGES IN RRPP 0.4.3 (Patch Release)
+
+### NEW FEATURES
+
+### OTHER CHANGES
+
+### BUG FIXES 
+* Fixed a parallel processing issue with internal function, `SS.iter` (produced incorrect RSS).
+* Fixed multi-model anova TSS issue.
+* Fixed an issue with the centering of trajectories in `trajectoty.analysis`.
+* Fixed an issue for calculating fitted values for GLS in the `lm.rrpp` function.
 
 ------
 
@@ -10,9 +20,8 @@
 * Added `tol` and `pc.no` arguments to `model.comparison` (were fixed before) so that users have more control of the analysis.
 
 ### BUG FIXES 
-* Fixed multi-model anova TSS issue.
-* Fixed centering issue for trajectory,analysis plots.
-* Tweaked logL tolerance calculation to be consistent with prcomp.
+
+* Tweaked logL tolerance calculation to be consistent with `prcomp`.
 * Tweaked support code for `lm.rrpp` to work better with missing data frames.
 * Fixed absolute eigenvalue issue with Cov.proj.
 * Added forgotten code from last update to fix non-full rank design matrices.
@@ -61,7 +70,7 @@
 
 ### OTHER CHANGES
 
-* Added an update to allow classify to work on univeraite data.
+* Added an update to allow classify to work on univeriate data.
 
 ### BUG FIXES 
 
@@ -87,7 +96,7 @@
 
 ### OTHER CHANGES
 
-* Added multi-model inference capabaility to `anova.lm.rrpp`
+* Added multi-model inference capability to `anova.lm.rrpp`
     
 ### BUG FIXES 
 
