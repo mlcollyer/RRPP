@@ -1,9 +1,10 @@
 d4b772adc3776f02e1d2b5cf7c6067c1 *cran-comments.md
+9ede5ca4b7ad81caa5f57269549a2eb2 *CRAN-RELEASE
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-243fc86628d3533f74da4768e8af911c *DESCRIPTION
+db2c5b51ba22a251330a614b8ccd4f20 *DESCRIPTION
 13b4eb650ebacb9d39169ff3f93d5dff *doc/ANOVA.vs.MANOVA.html
 d16062cf59bdc27c9af73c5e4280c9e2 *doc/ANOVA.vs.MANOVA.R
 070e9a22fe4f8a290a46ac3598513879 *doc/ANOVA.vs.MANOVA.Rmd
@@ -58,7 +59,7 @@ a80a54cfe4673d90783a3ba49f9b4535 *man/summary.pairwise.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 bdf70e2e8fe66e061b34d3095c57c02a *Meta/vignette.rds
 8dd28dfe65e0542561bc6096514f7d94 *NAMESPACE
-fd77a7ea0152dc9d1efb36b41640519f *NEWS.md
+2689aa23e82a3cbbdec0fb7995e0c216 *NEWS.md
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
