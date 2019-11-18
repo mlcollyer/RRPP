@@ -4,7 +4,7 @@
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-7627f8092890e16aa4e4f4cb2c7d024b *DESCRIPTION
+ecd6cd0002e09d774604f076ddb3c1bd *DESCRIPTION
 13b4eb650ebacb9d39169ff3f93d5dff *doc/ANOVA.vs.MANOVA.html
 070e9a22fe4f8a290a46ac3598513879 *doc/ANOVA.vs.MANOVA.Rmd
 8cd1350e1a5d047e07fede540cd64dea *doc/Using.RRPP.html
@@ -61,7 +61,7 @@ a80a54cfe4673d90783a3ba49f9b4535 *man/summary.pairwise.Rd
 829ab7e9505dcee579a3546212fe4804 *man/trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 ed29b5b7e723aa7c89d09297bc985263 *NAMESPACE
-88782f17d354e4acb16d413e7b7e000b *NEWS.md
+53d8559755f070c908033c8603c0ab0a *NEWS.md
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
 c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 52536f21f7ea4cdcfa3ebfe15b4ffbac *R/coef.lm.rrpp.r
