@@ -83,7 +83,7 @@ fast.ginv <- function(X, tol = sqrt(.Machine$double.eps)){
 fast.solve <- function(x) { 
   if(det(x) > 1e-8) {
     res <- try(chol2inv(chol(x)), silent = TRUE)
-    if(inherits(res, "try-error") res <- fast.ginv(x)
+    if(inherits(res, "try-error")) res <- fast.ginv(x)
   } else  res <- fast.ginv(x)
   return(res)
 }
@@ -93,7 +93,7 @@ fast.solve <- function(x) {
 # used in all linear model functions with data input
 pcoa <- function(D){
   options(warn=-1)
-  if(!inherits(D, "dist") stop("function only works with distance matrices")
+  if(!inherits(D, "dist")) stop("function only works with distance matrices")
   cmd <- cmdscale(D, k=attr(D, "Size") -1, eig=TRUE)
   options(warn=0)
   d <- cmd$eig
