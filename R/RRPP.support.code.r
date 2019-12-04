@@ -174,7 +174,7 @@ rrpp.data.frame<- function(...){
         if(length(dim(dots[[i]])) == 1) dots.ns[i] <- dim(dots[[i]])[[1]]
       }
       if(is.matrix(dots[[i]])) dots.ns[i] <- dim(dots[[i]])[[1]]
-      if(class(dots[[i]]) == "dist") dots.ns[i] <- attr(dots[[i]], "Size")
+      if(inherits(dots[[i]], "dist")) dots.ns[i] <- attr(dots[[i]], "Size")
       if(is.data.frame(dots[[i]])) dots.ns[i] <- dim(dots[[i]])[[1]]
       if(is.vector(dots[[i]])) dots.ns[i] <- length(dots[[i]])
       if(is.factor(dots[[i]])) dots.ns[i] <- length(dots[[i]])
