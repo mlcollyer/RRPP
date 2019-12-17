@@ -204,6 +204,7 @@ print.summary.lm.rrpp <- function(x, ...) {
   cat("\n")
   invisible(x)
 }
+
 ## coef.lm.rrpp
 
 #' Print/Summary Function for RRPP
@@ -1709,8 +1710,14 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
                           call. = FALSE)
   v <- x$d/sum(x$d)
   plot.args <- list(x = x$x[, axis1], y = x$x[, axis2],  ...)
-  xlabel <- paste("C ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
-  ylabel <- paste("C ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
+  if(!is.null(x$sdev)) {
+    xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
+    ylabel <- paste("PC ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
+  } else {
+    xlabel <- paste("C ", axis1, ": ", round(v[axis1] * 100, 2), "% covariance", sep = "")
+    ylabel <- paste("C ", axis2, ": ", round(v[axis2] * 100, 2), "% covariance", sep = "")
+  }
+
   if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
   if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
   pcdata <- as.matrix(x$x[, c(axis1, axis2)])

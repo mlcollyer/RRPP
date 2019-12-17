@@ -156,12 +156,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   
   s$d <- (s$d/sqrt(n-1))^2
   
-  if(!ind.check) {
-    s$d <- if(!is.null(Cov)) apply(Pcov %*% x, 2, var) else
-      apply(x, 2, var)
-  }
-  
-  s$sdev <- sqrt(s$d)
+  if(ind.check) {
+    s$sdev <- sqrt(s$d)
+  } else s$sdev <- NULL
   
   if (!is.null(tol)) {
     rank <- sum(s$sdev > (s$sdev[1L] * tol))

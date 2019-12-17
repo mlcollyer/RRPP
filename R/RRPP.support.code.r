@@ -19,6 +19,7 @@
 #' least squares estimation (OLS or GLS, respectively), using theoretic covariance matrices.  Mixed linear
 #' effects can also be evaluated.
 #' 
+#' @import MASS
 #' @import parallel
 #' @import stats
 #' @import graphics
@@ -990,7 +991,7 @@ SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
 # generate U matrices
 # makes a U matrix based on model design
-# not used bt was used in compare.models, dureing development.  Retained
+# not used but was used in compare.models, during development.  Retained
 # in case it is useful down the road.
 
 cm.U <- function(x){

@@ -68,12 +68,12 @@ c2cda15833b34d15cbc97c9cd4530666 *R/classify.r
 00403f14bb9d498340ea34e1d0aac15d *R/lm.rrpp.r
 10b4f87d160a6c9a93012bea6ecddac3 *R/manova.update.r
 50d9a8e7e9d0b43b00566e2c30e6918b *R/model.comparison.r
-9ff07b099d1658bd69888a64dac05ed8 *R/ordinate.r
+951efced4c7ccc1ed49ae025609bd7cc *R/ordinate.r
 c6867066687afcd124b93086e60bd82b *R/pairwise.r
 d0ba1ce3ec27cb68ab30db856e025784 *R/predict.lm.rrpp.r
 be65a023ec04fe716867de7a1907b645 *R/reveal.model.designs.r
-baf693881865550aadadd5240ba70a13 *R/RRPP.support.code.r
-03283edb80646797d7f1f5adb3ead11e *R/RRPP.utils.r
+86fce58342f3e7794ea6af30cb48e5c1 *R/RRPP.support.code.r
+fddc2ab829d6379534529890441555cb *R/RRPP.utils.r
 701b591f2b0a75005f25244329190871 *R/shared.support.code.r
 2597996747f97674add0ef157d71e7ac *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md
