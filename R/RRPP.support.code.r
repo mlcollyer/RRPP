@@ -192,83 +192,18 @@ rrpp.data.frame<- function(...){
 # SUPPORT FUNCTIONS
 
 
-# makeDf
-# makes any list into a data.frame/model.frame object
-# used in lm.rrpp/rrpp.fit functions
-makeDf <- function(Terms, Y, data = NULL) {
-  if(length(attr(Terms, "term.labels")) == 0) {
-    
-    df <- list()
-    df$Y <- as.matrix(Y)
-    df <- as.data.frame(df)
-    
-  } else {
-    
-    ind.facts<- rownames(attr(Terms, "factors"))[-1]
-    nterms <- length(ind.facts)
-    ind.var.names <- union(ind.facts, all.vars(Terms)[-1])
-    df <- vector("list", length = nterms)
-    i <- k <- 1
-    while(i <= length(ind.var.names)) {
-      f <- as.formula(paste("~", ind.var.names[i]))
-      temp <- if(is.null(data)) try(eval(f[[2]]), silent = TRUE) else 
-        try(eval(f[[2]], as.environment(data), enclos = parent.frame()), silent = TRUE)
-      if(inherits(temp, "try-error")) temp <- try(eval(f[[2]]), silent = TRUE)
-      if(!inherits(temp, "try-error")) {
-        df[[k]] <- temp
-        names(df)[[k]] <- ind.var.names[[i]]
-        k <- k +1
-      }
-      i <- i+1
-    }
-    check <- sapply(df, length)
-    if(any(check == 0)) 
-      stop("One or more terms was not found in the data frame or global environment.\n",
-           call. = FALSE)
-    
-    df <- as.data.frame(df)
-    
-  }
-  
-  df$Y <- as.matrix(Y)
-  df <- droplevels(df)
-  df
-}
-  
-# rrpp.fit + subfunctions
+# lm.rrpp subfunctions
 # lm-like fit modified for all submodels
 # general workhorse for all 'rrpp.lm' functions
 # used in all 'rrpp.lm' functions
 
-lm.args.from.lm <- function(f1){
-  Terms <- terms(f1)
-  data <- model.frame(Terms, data = f1$model)
-  weights <- f1$weights
-  offset <- f1$offset
-  form <- formula(f1)
-  
-  dep <- eval(form[[2]], data, parent.frame())
-  if(inherits(dep, "dist")) {
-    if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
-    D <- dep
-  } else if((is.matrix(dep) || is.data.frame(dep))
-            && isSymmetric(unname(as.matrix(dep)))) {
-    D <- as.dist(dep)
-  } else D <- NULL
-  
-  if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
-  data$Y <- Y
-  form <- update(form, Y ~ .)
-  Terms <- terms(form)
-  data <- model.frame(Terms, data = data)
-  
-  list(Terms = Terms, data = data,  weights = weights, offset = offset, 
-       Y = Y, D = D)
-}
-
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
-  dep <- eval(f1[[2]], data, parent.frame())
+  var.names <- all.vars(Terms)
+  dat <- eval(attr(Terms, "variables"), data, parent.frame())
+  var.names[1] <- "Y"
+  names(dat) <- var.names
+  dep <- dat$Y
   if(is.array(dep) && length(dim(dep)) > 2)
     stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
          call. = FALSE)
@@ -279,95 +214,27 @@ lm.args.from.formula <- function(f1, data = NULL){
             && isSymmetric(unname(as.matrix(dep)))) {
     D <- as.dist(dep)
   } else D <- NULL
-  
   if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
-  data <- try(makeDf(Terms, Y, data), silent = TRUE)
-  if(inherits(data, "try-error"))
-    stop("It was not possible to find model terms in the global environment or the data frame used.\n",
-         call. = FALSE)
+  data <- if(length(dat) > 1) as.data.frame(dat[-1]) else data.frame(Y = Y)
+  data$Y <- Y
   form <- update(f1, Y ~ .)
   Terms <- terms(form)
-  list(Terms = Terms, data = data,  weights = NULL, offset = NULL, 
+  list(Terms = Terms, data = data, 
        Y = Y, D = D)
 }
 
-rrpp.fit <- function(Terms, data, weights = weights, offset = offset,
-                     Y, D, 
-                     keep.order, pca,
-                     SS.type = "I"){
-  
-  if(is.null(SS.type)) SS.type <- "I"
-  if(is.na(match(SS.type, c("I","II", "III")))) SS.type <- "I"
-  
-  dims.Y <- dim(Y)
-  n <- dims.Y[1]
-  p <- dims.Y[2]
-  Terms <- terms(Terms, keep.order = keep.order)
-  form <- formula(Terms)
-  form <- update(form, Y ~ .)
-  
-  if(pca) data$Y <- prcomp(Y, tol = sqrt(.Machine$double.eps))$x 
-  
-  pdf.args <- list(data=data,
-                   x = model.matrix(Terms, data = data),
-                   w = weights,
-                   offset = offset,
-                   terms = Terms,
-                   formula = form,
-                   SS.type = SS.type,
-                   D = D)
-  
-  if(is.null(pdf.args$w))
-    pdf.args$w <- rep(1, NROW(pdf.args$data))
-  if(is.null(pdf.args$offset))
-    pdf.args$offset <- rep(0, NROW(pdf.args$data))
-  if(sum(attr(pdf.args$x, "assign")) == 0)
-    out <- rrpp.fit.int(pdf.args) else
-      out <- rrpp.fit.lm(pdf.args)
-  out
-}
-
-# rrpp.lm.fit
-# helper for rrpp.fit, resembles lm.fit
-
-rrpp.lm.fit <- function(x, y, o = NULL){
-  k <- ncol(x)
-  p <- NCOL(y)
-  if(!is.null(o)) y <- y - o
-  n <- nrow(x)
-  Q <- qr(x)
-  out <- list()
-  out$coefficients <- qr.coef(Q, y)
-  out$residuals <- qr.resid(Q, y)
-  out$rank <- Q$rank
-  out$fitted.values <- qr.fitted(Q, y, Q$rank)
-  out$assign <- attr(x, "assign")
-  out$qr <- Q
-  out$df.residual <- n - Q$rank
-  out
-}
-
-
-# rrpp.fit.lm
-# base for rrpp.fit
-rrpp.fit.lm <- function(a){
-  # set-up
-  w <- a$w
-  if(any(w <= 0)) stop("Weights must be positive")
-  o <-a$offset
-  dat <- a$data
-  Y <- dat$Y
-  D <- a$D
-  X <- a$x
-  n <- NROW(Y)
-  SS.type <- a$SS.type
-  dat <- a$data
-  wY <- Y*sqrt(w); wX <- X*sqrt(w)
-  # data and design matrix
-  Terms <- a$terms
+lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", data) {
+  dat <- model.frame(formula(Terms), data = data)
+  X <- model.matrix(Terms, data = dat)
   X.k <- X.k.obs <- attr(X, "assign")
+  Y <- as.matrix(Y)
+  o <- if(!is.null(offset)) offset else NULL
+  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit <- do.call(lm.fit, fit.args)
+  Pcov <- NULL
+  
   X.n.k.obs <- length(X.k.obs)
-  QRx <- qr(X)
+  QRx <- fit$qr
   X.n.k <- QRx$rank
   X <- X[, QRx$pivot, drop = FALSE]
   X <- X[, 1:QRx$rank, drop = FALSE]
@@ -387,260 +254,603 @@ rrpp.fit.lm <- function(a){
   
   term.labels <- attr(Terms, "term.labels")
   k <- length(term.labels)
-
-
-  if(SS.type == "III"){
-    uk0 <- uk[-1]
-    xk0 <- unique(X.k[-1])
-    terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
-    terms.f <- lapply(1:k, function(.) Terms)
-    Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
-    Xfs <- lapply(2:length(uk), function(j)  X)
-  }
   
-  if(SS.type == "II") {
-    uk0 <- uk[-1]
-    xk0 <- unique(X.k[-1])
-    fac <- crossprod(attr(Terms, "factor"))
-    terms.r <- lapply(1:k, function(j){
-      ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
-      ind <- as.logical(ind)
-      Terms[xk0 %in% uk0[ind]]
-    })
-    terms.f <- lapply(1:k, function(j){
-      ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
-      ind[j] <- 1
-      ind <- as.logical(c(ind))
-      Terms[xk0 %in% uk0[ind]]
-    })
-    Xrs <- lapply(1:NROW(fac), function(j){
-      ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
-      ind <- as.logical(c(1,ind))
-      X[, X.k %in% uk[ind]]
-    })
-    Xfs <- lapply(1:NROW(fac), function(j){
-      ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
-      ind[j] <- 1
-      ind <- as.logical(c(1,ind))
-      X[, X.k %in% uk[ind]]
-    })
+  if(k > 0) {
+    
+    if(SS.type == "III"){
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+      terms.f <- lapply(1:k, function(.) Terms)
+      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      Xfs <- lapply(2:length(uk), function(j)  X)
+    }
+    
+    if(SS.type == "II") {
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      fac <- crossprod(attr(Terms, "factor"))
+      terms.r <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(ind)
+        Terms[xk0 %in% uk0[ind]]
+      })
+      terms.f <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(ind))
+        Terms[xk0 %in% uk0[ind]]
+      })
+      Xrs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+      Xfs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+    }
+    
+    if(SS.type == "I") {
+      terms.f <- lapply(1:k, function(j) Terms[1:j])
+      terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+      Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+      Xrs <- Xs[1:k]
+      Xfs <- Xs[2:(k+1)]
+    }
+    
+    names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
+    get.lm <- function(x) {
+      fit.args$x <- as.matrix(x)
+      do.call(lm.fit, fit.args)
+    }
+    
+    reduced <- lapply(Xrs, get.lm)
+    full <-lapply(Xfs, get.lm)
+    
+  } else {
+    reduced <- full <- fit
+    terms.r <- terms.f <- Terms
+    Xrs <- Xfs <- X
   }
-  
-  if(SS.type == "I") {
-    terms.f <- lapply(1:k, function(j) Terms[1:j])
-    terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
-    Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
-    Xrs <- Xs[1:k]
-    Xfs <- Xs[2:(k+1)]
-  }
-  
-  names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
-  
-  # unweighted output
-  QRs.reduced <- lapply(Xrs, function(x) qr(x))
-  fits.reduced <- lapply(Xrs, function(x) rrpp.lm.fit(as.matrix(x),Y, o = o))
-  fitted.reduced <- lapply(fits.reduced, function(x) as.matrix(x$fitted.values))
-  residuals.reduced <- lapply(fits.reduced, function(x) as.matrix(x$residuals))
-  coefficients.reduced <- lapply(fits.reduced, function(x) as.matrix(x$coefficients))
-  QRs.full <- lapply(Xfs, function(x) qr(x))
-  fits.full <- lapply(Xfs, function(x) rrpp.lm.fit(as.matrix(x),Y, o = o))
-  fitted.full <- lapply(fits.full, function(x) as.matrix(x$fitted.values))
-  residuals.full <- lapply(fits.full, function(x) as.matrix(x$residuals))
-  coefficients.full <- lapply(fits.full, function(x) as.matrix(x$coefficients))
-  # weighted output
-  if(sum(w) == n) {
-    wXrs <- Xrs
-    wQRs.reduced <- QRs.reduced
-    wFitted.reduced <- fitted.reduced
-    wResiduals.reduced <- residuals.reduced
-    wCoefficients.reduced <- coefficients.reduced
-    wXfs <- Xfs
-    wQRs.full <- QRs.full
-    wFitted.full <- fitted.full
-    wResiduals.full <- residuals.full
-    wCoefficients.full <- coefficients.full
-  } else{
-    wXrs <- lapply(Xrs, function(x) x*sqrt(w))
-    wQRs.reduced <- lapply(wXrs, function(x) qr(x))
-    wfits.reduced <- lapply(Xrs, function(x) lm.wfit(as.matrix(x),Y, w, offset = o))
-    wFitted.reduced <- lapply(wfits.reduced, function(x) as.matrix(x$fitted.values))
-    wResiduals.reduced <- lapply(wfits.reduced, function(x) as.matrix(x$residuals))
-    wCoefficients.reduced <- lapply(wfits.reduced, function(x) as.matrix(x$coefficients))
-    wXfs <- lapply(Xfs, function(x) x*sqrt(w))
-    wQRs.full <- lapply(wXfs, function(x) qr(x))
-    wfits.full <- lapply(Xfs, function(x) lm.wfit(as.matrix(x),Y, w, offset = o))
-    wFitted.full<- lapply(wfits.full, function(x) as.matrix(x$fitted.values))
-    wResiduals.full <- lapply(wfits.full, function(x) as.matrix(x$residuals))
-    wCoefficients.full <- lapply(wfits.full, function(x) as.matrix(x$coefficients))
-  }
-  # additional output
   
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
+  list(reduced = reduced, full = full, offset = offset, 
+       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       model.sets = model.sets)
   
-  out <- list(Y=Y, wY=wY, X=X, Xrs=Xrs, Xfs=Xfs,
-              wX=wX, wXrs=wXrs, wXfs=wXfs,
-              QRs.reduced = QRs.reduced,
-              QRs.full = QRs.full,
-              wQRs.reduced = wQRs.reduced,
-              wQRs.full = wQRs.full,
-              fitted.reduced = fitted.reduced,
-              fitted.full = fitted.full,
-              wFitted.reduced =wFitted.reduced,
-              wFitted.full = wFitted.full,
-              residuals.reduced = residuals.reduced,
-              residuals.full = residuals.full,
-              wResiduals.reduced = wResiduals.reduced,
-              wResiduals.full = wResiduals.full,
-              coefficients.reduced = coefficients.reduced,
-              coefficients.full = coefficients.full,
-              wCoefficients.reduced = wCoefficients.reduced,
-              wCoefficients.full = wCoefficients.full,
-              weights = w, offset = o, data = dat,
-              SS.type = SS.type, D = D,
-              Terms = Terms, term.labels = term.labels,
-              model.sets = model.sets)
-  class(out) <- "rrpp.fit"
-  invisible(out)
 }
 
-# rrpp.fit.int
-# base for rrpp.fit
-# same as rrpp.fit.lm, but special case where only an intercept is found
-rrpp.fit.int <- function(a) {
-  # set-up
-  w <- a$w
-  if(any(w <= 0)) stop("Weights must be positive")
-  o <-a$offset
-  dat <- a$data
-  Y <- dat$Y
-  D <- a$D
-  X <- a$x
-  n <- NROW(Y)
-  SS.type <- a$SS.type
-  dat <- a$data
-  wY <- Y*sqrt(w); wX <- X*sqrt(w)
-  Terms <- a$terms
-  # unweighted output
-  Xrs <- NULL
-  QRs.reduced <- NULL
-  fits.reduced <- NULL
-  fitted.reduced <- NULL
-  residuals.reduced <- NULL
-  coefficients.reduced <- NULL
-  Xfs <- list(X)
-  QRs.full <- list(qr(X))
-  fits.full <- rrpp.lm.fit(as.matrix(X),Y, o = o)
-  fitted.full <- list(as.matrix(fits.full$fitted.values))
-  residuals.full <- list(as.matrix(fits.full$residuals))
-  coefficients.full <- list(as.matrix(fits.full$coefficients))
-  # weighted output
-  if(sum(w) == n){
-    wQRs.reduced <- QRs.reduced
-    wFitted.reduced <- fitted.reduced
-    wResiduals.reduced <- residuals.reduced
-    wCoefficients.reduced <- coefficients.reduced
-    wXrs <- Xrs
-    wFitted.reduced <- fitted.reduced
-    wResiduals.reduced <- residuals.reduced
-    wCoefficients.reduced <- coefficients.reduced
-    wXfs <- Xfs
-    wQRs.full <- QRs.full
-    wFitted.full <- fitted.full
-    wResiduals.full <- residuals.full
-    wCoefficients.full <- coefficients.full
-  } else{
-    wXrs <- NULL
-    wQRs.reduced <- NULL
-    wFitted.reduced <- NULL
-    wResiduals.reduced <- NULL
-    wCoefficients.reduced <- NULL
-    wXfs <- list(X*sqrt(w))
-    wQRs.full <- list(qr(X*sqrt(w)))
-    wfits.full <- lm.wfit(as.matrix(X),Y, w = w, offset = o)
-    wFitted.full<- list(as.matrix(wfits.full$fitted.values))
-    wResiduals.full <- list(as.matrix(wfits.full$residuals))
-    wCoefficients.full <- list(as.matrix(wfits.full$coefficients))
-  }
+lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", data) {
+  dat <- model.frame(formula(Terms), data = data)
+  X <- model.matrix(Terms, data = dat)
+  X.k <- X.k.obs <- attr(X, "assign")
+  Y <- as.matrix(Y)
+  o <- if(!is.null(offset)) offset else NULL
+  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit <- do.call(lm.fit, fit.args)
+  Pcov <- NULL
+  
+  X.n.k.obs <- length(X.k.obs)
+  QRx <- fit$qr
+  X.n.k <- QRx$rank
+  X <- X[, QRx$pivot, drop = FALSE]
+  X <- X[, 1:QRx$rank, drop = FALSE]
+  X.k <- X.k[QRx$pivot][1:QRx$rank]
+  uk <- unique(c(0, X.k))
+  
+  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
+  
+  if(fix) Terms <- Terms[uk]
+  
   term.labels <- attr(Terms, "term.labels")
-  model.sets <- NULL
-  out <- list(Y=Y, wY=wY, X=X, Xrs=Xrs, Xfs=Xfs,
-              wX=wX, wXrs=wXrs, wXfs=wXfs,
-              QRs.reduced = QRs.reduced,
-              QRs.full = QRs.full,
-              wQRs.reduced = wQRs.reduced,
-              wQRs.full = wQRs.full,
-              fitted.reduced = fitted.reduced,
-              fitted.full = fitted.full,
-              wFitted.reduced =wFitted.reduced,
-              wFitted.full =wFitted.full,
-              residuals.reduced = residuals.reduced,
-              residuals.full = residuals.full,
-              wResiduals.reduced = wResiduals.reduced,
-              wResiduals.full = wResiduals.full,
-              coefficients.reduced = coefficients.reduced,
-              coefficients.full = coefficients.full,
-              wCoefficients.reduced = wCoefficients.reduced,
-              wCoefficients.full = wCoefficients.full,
-              weights = w, offset = o, data = dat,
-              SS.type = NULL, D = D,
-              Terms = Terms, term.labels = term.labels,
-              model.sets = model.sets)
-  class(out) <- "procD.fit"
-  invisible(out)
+  k <- length(term.labels)
+  
+  if(k > 0) {
+    
+    if(SS.type == "III"){
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+      terms.f <- lapply(1:k, function(.) Terms)
+      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      Xfs <- lapply(2:length(uk), function(j)  X)
+    }
+    
+    if(SS.type == "II") {
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      fac <- crossprod(attr(Terms, "factor"))
+      terms.r <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(ind)
+        Terms[xk0 %in% uk0[ind]]
+      })
+      terms.f <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(ind))
+        Terms[xk0 %in% uk0[ind]]
+      })
+      Xrs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+      Xfs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+    }
+    
+    if(SS.type == "I") {
+      terms.f <- lapply(1:k, function(j) Terms[1:j])
+      terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+      Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+      Xrs <- Xs[1:k]
+      Xfs <- Xs[2:(k+1)]
+    }
+    
+    names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
+    get.lm <- function(x) {
+      fit.args$x <- as.matrix(x)
+      do.call(lm.fit, fit.args)
+    }
+    
+    reduced <- lapply(Xrs, get.lm)
+    full <-lapply(Xfs, get.lm)
+    
+  } else {
+    reduced <- full <- fit
+    terms.r <- terms.f <- Terms
+    Xrs <- Xfs <- X
+  }
+  
+  model.sets <- list(terms.r = terms.r, terms.f = terms.f,
+                     Xrs = Xrs, Xfs = Xfs)
+  list(reduced = reduced, full = full, offset = offset, 
+       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       model.sets = model.sets)
+  
 }
 
-# rrpp.fit
-# calls one of previous functions, depending on conditions
 
-
-# rrpp + subfunctions
-# The principal function for RRPP
-# used in SS.iter
-
-# set-up
-rrpp.setup <- function(fit, ind){
-  fitted <- fit$fitted.reduced
-  residuals <- fit$residuals.reduced
-  n <- NROW(fit$Y)
-  perms <- length(ind)
-  if(sum(fit$weights) == n) w <- NULL else w <- sqrt(fit$weights)
-  if(sum(fit$offset) == 0) o <- NULL else o <- fit$offset
-  lapply(1:perms, function(j){
-    list(fitted = fitted, residuals = residuals,
-         w = w, o = o, ind.i = ind[[j]])
-  })
+lm.wfits <- function(Terms,Y, w, offset = NULL, tol = 1e-7, SS.type = "I", data) {
+  dat <- model.frame(formula(Terms), data = data)
+  X <- model.matrix(Terms, data = dat)
+  X.k <- X.k.obs <- attr(X, "assign")
+  Y <- as.matrix(Y)
+  o <- if(!is.null(offset)) offset else NULL
+  fit.args <- list(x = X, y = Y, w = w, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit <- do.call(lm.wfit, fit.args)
+  Pcov <- NULL
+  
+  X.n.k.obs <- length(X.k.obs)
+  QRx <- fit$qr
+  X.n.k <- QRx$rank
+  X <- X[, QRx$pivot, drop = FALSE]
+  X <- X[, 1:QRx$rank, drop = FALSE]
+  X.k <- X.k[QRx$pivot][1:QRx$rank]
+  uk <- unique(c(0, X.k))
+  
+  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
+  
+  if(fix) {
+    Terms <- Terms[uk]
+    cat("\nWarning: Because variables in the linear model are redundant,")
+    cat("\nthe linear model design has been truncated (via QR decomposition).")
+    cat("\nOriginal X columns:", X.n.k.obs)
+    cat("\nFinal X columns (rank):", X.n.k)
+    cat("\nCheck coefficients or degrees of freedom in ANOVA to see changes.\n\n")
+  } 
+  
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  
+  if(k > 0) {
+    
+    if(SS.type == "III"){
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+      terms.f <- lapply(1:k, function(.) Terms)
+      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      Xfs <- lapply(2:length(uk), function(j)  X)
+    }
+    
+    if(SS.type == "II") {
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      fac <- crossprod(attr(Terms, "factor"))
+      terms.r <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(ind)
+        Terms[xk0 %in% uk0[ind]]
+      })
+      terms.f <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(ind))
+        Terms[xk0 %in% uk0[ind]]
+      })
+      Xrs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+      Xfs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+    }
+    
+    if(SS.type == "I") {
+      terms.f <- lapply(1:k, function(j) Terms[1:j])
+      terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+      Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+      Xrs <- Xs[1:k]
+      Xfs <- Xs[2:(k+1)]
+    }
+    
+    names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
+    get.wlm <- function(x) {
+      fit.args$x <- as.matrix(x)
+      do.call(lm.wfit, fit.args)
+    }
+    
+    reduced <- lapply(Xrs, get.wlm)
+    full <-lapply(Xfs, get.wlm)
+    
+  } else {
+    reduced <- full <- fit
+    terms.r <- terms.f <- Terms
+    Xrs <- Xfs <- X
+  }
+  
+  model.sets <- list(terms.r = terms.r, terms.f = terms.f,
+                     Xrs = Xrs, Xfs = Xfs)
+  list(reduced = reduced, full = full, offset = offset,weights = w^2,
+       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       model.sets = model.sets)
+  
 }
 
-# RRPP for OLS
-rrpp.basic <- function(fitted, residuals, ind.i){
-  Map(function(f, r) f+r[ind.i,], fitted, residuals)
+
+lm.wfits.exchange <- function(Terms,Y, w, offset = NULL, tol = 1e-7, 
+                              SS.type = "I", data) {
+  dat <- model.frame(formula(Terms), data = data)
+  X <- model.matrix(Terms, data = dat)
+  X.k <- X.k.obs <- attr(X, "assign")
+  Y <- as.matrix(Y)
+  o <- offset
+  weighted <- if(!is.null(w)) TRUE else FALSE
+  offst <- if(!is.null(o)) TRUE else FALSE
+  if(weighted && offst) o <- o * w
+  
+  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fitf.args <- fit.args
+  fitf.args$w <- w
+  fit <- do.call(lm.wfit, fitf.args)
+  Pcov <- NULL
+  
+  X.n.k.obs <- length(X.k.obs)
+  QRx <- fit$qr
+  X.n.k <- QRx$rank
+  X <- X[, QRx$pivot, drop = FALSE]
+  X <- X[, 1:QRx$rank, drop = FALSE]
+  X.k <- X.k[QRx$pivot][1:QRx$rank]
+  uk <- unique(c(0, X.k))
+  
+  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
+  
+  if(fix) Terms <- Terms[uk]
+  
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  
+  if(k > 0) {
+    
+    if(SS.type == "III"){
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+      terms.f <- lapply(1:k, function(.) Terms)
+      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      Xfs <- lapply(2:length(uk), function(j)  X)
+    }
+    
+    if(SS.type == "II") {
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      fac <- crossprod(attr(Terms, "factor"))
+      terms.r <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(ind)
+        Terms[xk0 %in% uk0[ind]]
+      })
+      terms.f <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(ind))
+        Terms[xk0 %in% uk0[ind]]
+      })
+      Xrs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+      Xfs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+    }
+    
+    if(SS.type == "I") {
+      terms.f <- lapply(1:k, function(j) Terms[1:j])
+      terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+      Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+      Xrs <- Xs[1:k]
+      Xfs <- Xs[2:(k+1)]
+    }
+    
+    names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
+    
+    
+    fit.args$y <- fit.args$y * sqrt(w)
+    if(!is.null(o)) fit.args$offset <- o * sqrt(w)
+    get.lm <- function(x) {
+      fit.args$x <- as.matrix(x * sqrt(w))
+      do.call(lm.fit, fit.args)
+    }
+    
+    reduced <- lapply(Xrs, get.lm)
+    full <-lapply(Xfs, get.lm)
+    
+  } else {
+    reduced <- full <- fit
+    terms.r <- terms.f <- Terms
+    Xrs <- Xfs <- X
+  }
+  
+  model.sets <- list(terms.r = terms.r, terms.f = terms.f,
+                     Xrs = Xrs, Xfs = Xfs)
+  list(reduced = reduced, full = full, offset = offset, weights = w^2,
+       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       model.sets = model.sets)
+  
 }
 
-# RRPP for wLS
-rrpp.w <- function(fitted, residuals, ind.i, w){
-  Map(function(f, r) (f+r[ind.i,])*w, fitted, residuals)
+
+lm.glsfits.exchange <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7, 
+                                SS.type = "I", data) {
+  dat <- model.frame(formula(Terms), data = data)
+  X <- model.matrix(Terms, data = dat)
+  X.k <- X.k.obs <- attr(X, "assign")
+  Y <- as.matrix(Y)
+  Pcov <- Cov.proj(Cov, rownames(Y))
+  PX <- Pcov %*% X
+  PY <- Pcov %*% Y
+  o <- if(!is.null(offset)) offset else NULL
+  fit.args <- list(x = PX, y = PY, offset = o,  tol = tol, method = "qr", singular.ok = TRUE)
+  fit <- do.call(lm.fit, fit.args)
+  
+  X.n.k.obs <- length(X.k.obs)
+  QRx <- fit$qr
+  X.n.k <- QRx$rank
+  X <- X[, QRx$pivot, drop = FALSE]
+  X <- X[, 1:QRx$rank, drop = FALSE]
+  X.k <- X.k[QRx$pivot][1:QRx$rank]
+  uk <- unique(c(0, X.k))
+  
+  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
+  
+  if(fix) Terms <- Terms[uk]
+  
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  
+  if(k > 0) {
+    
+    if(SS.type == "III"){
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+      terms.f <- lapply(1:k, function(.) Terms)
+      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      Xfs <- lapply(2:length(uk), function(j)  X)
+    }
+    
+    if(SS.type == "II") {
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      fac <- crossprod(attr(Terms, "factor"))
+      terms.r <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(ind)
+        Terms[xk0 %in% uk0[ind]]
+      })
+      terms.f <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(ind))
+        Terms[xk0 %in% uk0[ind]]
+      })
+      Xrs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+      Xfs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+    }
+    
+    if(SS.type == "I") {
+      terms.f <- lapply(1:k, function(j) Terms[1:j])
+      terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+      Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+      Xrs <- Xs[1:k]
+      Xfs <- Xs[2:(k+1)]
+    }
+    
+    names(terms.r) <- names(terms.f) <- names(Xrs) <- names(Xfs) <- term.labels
+    get.lm <- function(x) {
+      fit.args$x <- Pcov %*% as.matrix(x)
+      do.call(lm.fit, fit.args)
+    }
+    
+    
+    reduced <- lapply(Xrs, get.lm)
+    full <-lapply(Xfs, get.lm)
+    
+  } else {
+    reduced <- full <- fit
+    terms.r <- terms.f <- Terms
+    Xrs <- Xfs <- X
+  }
+  
+  model.sets <- list(terms.r = terms.r, terms.f = terms.f,
+                     Xrs = Xrs, Xfs = Xfs)
+  list(reduced = reduced, full = full, offset = offset, 
+       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       model.sets = model.sets)
+  
 }
 
-# if there is an offset
-rrpp.o <- function(fitted, residuals, ind.i, o){
-  Map(function(f, r) (f+r[ind.i,]) - o, fitted, residuals)
-}
 
-# weighted LS with offset
-rrpp.w.o <- function(fitted, residuals, ind.i, w, o){
-  Map(function(f, r) (f+r[ind.i,])*w - o, fitted, residuals)
-}
 
-# calls other functions as needed
-rrpp <- function(fitted, residuals, ind.i, w, o){
-  if(!is.null(w) && !is.null(o)) r <- rrpp.w.o(fitted, residuals, ind.i, w, o)
-  if(!is.null(w) && is.null(o)) r <- rrpp.w(fitted, residuals, ind.i, w)
-  if(is.null(w) && !is.null(o)) r <- rrpp.o(fitted, residuals, ind.i, o)
-  if(is.null(w) && is.null(o)) r <- rrpp.basic(fitted, residuals, ind.i)
-  r
+lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7, 
+                       SS.type = "I", data) {
+  dat <- model.frame(formula(Terms), data = data)
+  X <- model.matrix(Terms, data = dat)
+  X.k <- X.k.obs <- attr(X, "assign")
+  Y <- as.matrix(Y)
+  X.n.k.obs <- length(X.k.obs)
+  QRx <- qr(X)
+  X.n.k <- QRx$rank
+  X <- X[, QRx$pivot, drop = FALSE]
+  X <- X[, 1:QRx$rank, drop = FALSE]
+  X.k <- X.k[QRx$pivot][1:QRx$rank]
+  uk <- unique(c(0, X.k))
+  
+  Pcov <- Cov.proj(Cov, rownames(Y))
+  PX <- Pcov %*% X
+  PY <- Pcov %*% Y
+  o <- if(!is.null(offset)) offset else NULL
+  fit.args <- list(x = PX, y = PY, offset = o,  tol = tol, method = "qr", singular.ok = TRUE)
+  fit <- do.call(lm.fit, fit.args)
+  
+  
+  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
+  
+  if(fix) {
+    Terms <- Terms[uk]
+    cat("\nWarning: Because variables in the linear model are redundant,")
+    cat("\nthe linear model design has been truncated (via QR decomposition).")
+    cat("\nOriginal X columns:", X.n.k.obs)
+    cat("\nFinal X columns (rank):", X.n.k)
+    cat("\nCheck coefficients or degrees of freedom in ANOVA to see changes.\n\n")
+  } 
+  
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  
+  if(k > 0) {
+    
+    if(SS.type == "III"){
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      terms.r <- lapply(1:k, function(j) Terms[xk0 %in% uk0[-j]])
+      terms.f <- lapply(1:k, function(.) Terms)
+      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      Xfs <- lapply(2:length(uk), function(j)  X)
+    }
+    
+    if(SS.type == "II") {
+      uk0 <- uk[-1]
+      xk0 <- unique(X.k[-1])
+      fac <- crossprod(attr(Terms, "factor"))
+      terms.r <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(ind)
+        Terms[xk0 %in% uk0[ind]]
+      })
+      terms.f <- lapply(1:k, function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(ind))
+        Terms[xk0 %in% uk0[ind]]
+      })
+      Xrs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+      Xfs <- lapply(1:NROW(fac), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(c(1,ind))
+        X[, X.k %in% uk[ind]]
+      })
+    }
+    
+    if(SS.type == "I") {
+      terms.f <- lapply(1:k, function(j) Terms[1:j])
+      terms.r <- lapply(1:k, function(j) Terms[0:(j - 1)])
+      Xs <- lapply(1:length(uk), function(j)  Xj <- X[, X.k %in% uk[1:j]])
+      Xrs <- Xs[1:k]
+      Xfs <- Xs[2:(k+1)]
+    }
+    
+    exchanges <- lm.glsfits.exchange(Terms, Y, Cov, offset = o,
+                                     tol = tol, SS.type = SS.type, data)
+    fits <- lm.fits(Terms, Y, offset = o,
+                    tol = tol, SS.type = SS.type, data = data)
+    refit <- function(L, E, Xs) {
+      lapply(1:length(L), function(j){
+        f <- L[[j]]
+        e <- E[[j]]
+        x <- as.matrix(Xs[[j]])
+        coef.j <- e$coefficients
+        f$coefficients <- coef.j
+        f$fitted.values <- x %*% coef.j
+        f$effects <- qr.qty(e$qr, PY)
+        f$residuals <- Y - f$fitted
+        f$qr <- e$qr
+        f$qraux <- e$qraux
+        f
+      })
+    }
+    
+    reduced <- refit(fits$reduced, exchanges$reduced, Xrs)
+    full <- refit(fits$full, exchanges$full, Xfs)
+    
+  } else {
+    reduced <- full <- fit
+    terms.r <- terms.f <- Terms
+    Xrs <- Xfs <- X
+  }
+  
+  model.sets <- list(terms.r = terms.r, terms.f = terms.f,
+                     Xrs = Xrs, Xfs = Xfs)
+  list(reduced = reduced, full = full, offset = offset, 
+       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       model.sets = model.sets)
+  
 }
-
 
 # droplevels.rrpp.data.frame
 # same as droplevels for data.frame objects
@@ -658,322 +868,296 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 # workhorse for lm.rrpp
 # used in lm.rrpp
 
-SS.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  fitted <- fit$wFitted.reduced
-  res <- fit$wResiduals.reduced
-  Y <- as.matrix(fit$wY)
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  trms <- fit$term.labels
+
+SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
+  reduced <- exchange$reduced
+  full <- exchange$full
+  Terms <- exchange$Terms
+  trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  rrpp.args <- list(fitted = fitted, residuals = res,
-                    ind.i = NULL, w = NULL, o = NULL)
-  if(offset) rrpp.args$o <- o
+  Y <- as.matrix(exchange$data[[1]])
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  w <- if(!is.null(exchange$weights)) exchange$weights else NULL
+  
+  perms <- length(ind)
+  if(k > 0) {
+    fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
+    res <- lapply(reduced, function(x) as.matrix(x$residuals))
+  } else {
+    fitted <- as.matrix(reduced$fitted.values)
+    res <- as.matrix(reduced$residuals)
+  }
+  
+  Pcov <- exchange$Pcov
+  
+  rrpp.args <- list(fitted = fitted, 
+                    residuals = res,
+                    ind.i = NULL)
+  
+  if(k > 0) {
+    Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
+    Qf <- lapply(full, function(x) x$qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Uf <- lapply(Qf, function(x) qr.Q(x))
+    Ufull <- Uf[[k]]
+  } else {
+    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
+    Qf <- full$qr
+    Ur <- qr.Q(Qr)
+    Uf <- Ufull <- qr.Q(Qf)
+  }
+  
+  int <- attr(Terms, "intercept")
+  Unull <- if(!is.null(Pcov)) 
+    qr.Q(qr(crossprod(Pcov, rep(int, n)))) else if(!is.null(w)) 
+      qr.Q(qr(rep(int, n) * sqrt(w))) else
+        qr.Q(qr(rep(int, n)))
+  if(!is.null(Pcov)) Y <- Pcov %*% Y
+  if(!is.null(w)) Y <- Y * sqrt(w)
+  
+  yh0 <- fastFit(Unull, Y, n, p)
+  r0 <- Y - yh0
+  
+  if(!RRPP) {
+    if(k > 0) {
+      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      rrpp.args$fitted <- matrix(0, n, p)
+      rrpp.args$residuals <- as.matrix(Y)
+    }
+  } 
+  
   if(print.progress){
     cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
-  if(gls){
-    Y <- crossprod(P, Y)
-    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
-    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Qr <- lapply(Xr, qr)
-    Qf <- lapply(Xf, qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Uf <- lapply(Qf, function(x) qr.Q(x))
-    Ufull <- Uf[[k]]
-    int <- attr(fit$Terms, "intercept")
-    Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
-    yh0 <- fastFit(Unull, Y, n, p)
-    r0 <- Y - yh0
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-    rrpp.args$fitted <- fitted
-    rrpp.args$residuals <- res
-    result <- lapply(1: perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
-      yy <- sum(y^2)
+  
+  rrpp <- function(fitted, residuals, ind.i) {
+    if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
+      fitted + residuals[ind.i,]
+  }
+  
+  result <- lapply(1:perms, function(j){
+    step <- j
+    if(print.progress) setTxtProgressBar(pb,step)
+    x <-ind[[j]]
+    rrpp.args$ind.i <- x
+    Yi <- do.call(rrpp, rrpp.args)
+    y <- yh0 + r0[x,]
+    yy <- sum(y^2)
+    if(k > 0) {
       SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
       SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
       RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
       TSS <- yy - sum(crossprod(Unull, y)^2)
       TSS <- rep(TSS, k)
-      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
-      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
-    })
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-      rrpp.args$fitted <- fitted
-      rrpp.args$residuals <- res
-    }
-    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x))
-    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x))
-    Ufull <- Uf[[k]]
-    int <- attr(fit$Terms, "intercept")
-    Unull <- qr.Q(qr(rep(int, n)))
-    yh0 <- fastFit(Unull, Y, n, p)
-    r0 <- Y - yh0
-    result <- lapply(1: perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
-      yy <- sum(y^2)
-      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
-      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
-      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
-      TSS <- yy - sum(crossprod(Unull, y)^2)
-      TSS <- rep(TSS, k)
-      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
-      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
-    })
-  }
-  SS <- sapply(1:perms, function(j) result[[j]]$SS)
-  RSS <- sapply(1:perms, function(j) result[[j]]$RSS)
-  TSS <- sapply(1:perms, function(j) result[[j]]$TSS)
-  RSS.model <- sapply(1:perms, function(j) result[[j]]$RSS.model)
-  if(k == 1) {
-    SS <- matrix(SS, 1, length(SS))
-    RSS <- matrix(RSS, 1, length(RSS))
-    TSS <- matrix(TSS, 1, length(TSS))
-  }
-  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- trms
-  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- names(RSS.model) <- 
+      SS = SSf - SSr
+    } else SSr <- SSf <- SS <- RSS <- TSS <- NA
+    RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+    if(k == 0) TSS <- RSS.model
+    list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
+  })
+  
+  SS <- matrix(sapply(1:perms, function(j) result[[j]]$SS), max(1,k), perms)
+  RSS <- matrix(sapply(1:perms, function(j) result[[j]]$RSS), max(1,k), perms)
+  TSS <- matrix(sapply(1:perms, function(j) result[[j]]$TSS), max(1,k), perms)
+  RSS.model <- matrix(sapply(1:perms, function(j) result[[j]]$RSS.model), max(1,k), perms)
+  
+  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- rownames(RSS.model) <- 
+    if(k > 0) trms else "Intercept"
+  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- colnames(RSS.model) <- 
     c("obs", paste("iter", 1:(perms-1), sep="."))
+  
+  if(all(is.na(SS))) SS <- NULL
+  if(all(is.na(SS))) RSS <- NULL
+  
   step <- perms + 1
   if(print.progress) {
     setTxtProgressBar(pb,step)
     close(pb)
   }
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
+  
 }
 
 # SS.iterPP
 # workhorse for lm.rrpp, same as SS.iter, but with parallel processing
 # used in lm.rrpp
 
-SS.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
+SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   cl <- detectCores() - 1
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  fitted <- fit$wFitted.reduced
-  res <- fit$wResiduals.reduced
-  Y <- as.matrix(fit$wY)
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  trms <- fit$term.labels
+  reduced <- exchange$reduced
+  full <- exchange$full
+  Terms <- exchange$Terms
+  trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  rrpp.args <- list(fitted = fitted, residuals = res,
-                    ind.i = NULL, w = NULL, o = NULL)
-  if(offset) rrpp.args$o <- o
-  if(print.progress){
-    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+  Y <- as.matrix(exchange$data[[1]])
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  w <- if(!is.null(exchange$weights)) exchange$weights else NULL
+  
+  perms <- length(ind)
+  if(k > 0) {
+    fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
+    res <- lapply(reduced, function(x) as.matrix(x$residuals))
+  } else {
+    fitted <- as.matrix(reduced$fitted.values)
+    res <- as.matrix(reduced$residuals)
   }
-  if(gls){
-    Y <- crossprod(P, Y)
-    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
-    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Qr <- lapply(Xr, qr)
-    Qf <- lapply(Xf, qr)
+  
+  Pcov <- exchange$Pcov
+  
+  rrpp.args <- list(fitted = fitted, 
+                    residuals = res,
+                    ind.i = NULL)
+  
+  if(k > 0) {
+    Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
+    Qf <- lapply(full, function(x) x$qr)
     Ur <- lapply(Qr, function(x) qr.Q(x))
     Uf <- lapply(Qf, function(x) qr.Q(x))
     Ufull <- Uf[[k]]
-    int <- attr(fit$Terms, "intercept")
-    Unull <- qr.Q(qr(crossprod(P, rep(int, n))))
-    yh0 <- fastFit(Unull, Y, n, p)
-    r0 <- Y - yh0
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-    rrpp.args$fitted <- fitted
-    rrpp.args$residuals <- res
-    result <- mclapply(1: perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
-      yy <- sum(y^2)
-      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
-      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
-      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
-      TSS <- yy - sum(crossprod(Unull, y)^2)
-      TSS <- rep(TSS, k)
-      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
-      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
-    }, mc.cores = cl)
   } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-      rrpp.args$fitted <- fitted
-      rrpp.args$residuals <- res
+    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
+    Qf <- full$qr
+    Ur <- qr.Q(Qr)
+    Uf <- Ufull <- qr.Q(Qf)
+  }
+  
+  int <- attr(Terms, "intercept")
+  Unull <- if(!is.null(Pcov)) 
+    qr.Q(qr(crossprod(Pcov, rep(int, n)))) else if(!is.null(w)) 
+      qr.Q(qr(rep(int, n) * sqrt(w))) else
+        qr.Q(qr(rep(int, n)))
+  if(!is.null(Pcov)) Y <- Pcov %*% Y
+  if(!is.null(w)) Y <- Y * sqrt(w)
+  
+  yh0 <- fastFit(Unull, Y, n, p)
+  r0 <- Y - yh0
+  
+  if(!RRPP) {
+    if(k > 0) {
+      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      rrpp.args$fitted <- matrix(0, n, p)
+      rrpp.args$residuals <- as.matrix(Y)
     }
-    Ur <- lapply(fit$wQRs.reduced, function(x) qr.Q(x))
-    Uf <- lapply(fit$wQRs.full, function(x) qr.Q(x))
-    Ufull <- Uf[[k]]
-    int <- attr(fit$Terms, "intercept")
-    Unull <- qr.Q(qr(rep(int, n)))
-    yh0 <- fastFit(Unull, Y, n, p)
-    r0 <- Y - yh0
-    result <- mclapply(1: perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
-      yy <- sum(y^2)
-      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
-      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
-      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
-      TSS <- yy - sum(crossprod(Unull, y)^2)
-      TSS <- rep(TSS, k)
-      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
-      list(SS = SSf - SSr, RSS=RSS, TSS=TSS, RSS.model = RSS.model)
-    }, mc.cores = cl)
-  }
-  SS <- sapply(1:perms, function(j) result[[j]]$SS)
-  RSS <- sapply(1:perms, function(j) result[[j]]$RSS)
-  TSS <- sapply(1:perms, function(j) result[[j]]$TSS)
-  RSS.model <- sapply(1:perms, function(j) result[[j]]$RSS.model)
-  if(k == 1) {
-    SS <- matrix(SS, 1, length(SS))
-    RSS <- matrix(RSS, 1, length(RSS))
-    TSS <- matrix(TSS, 1, length(TSS))
-  }
-  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- trms
-  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- names(RSS.model) <- 
-    c("obs", paste("iter", 1:(perms-1), sep="."))
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
-  list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-}
-
-SS.iter.null <- function(fit, ind, P = NULL, RRPP=TRUE, print.progress = TRUE) {
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
+  } 
+  
   if(print.progress){
     cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
   }
-  fitted <- fit$wFitted.full
-  res <- fit$wResiduals.full
-  Y <- as.matrix(fit$wY)
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  k <- 1
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(gls){
-    Y <- crossprod(P, Y)
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      int <- attr(fit$Terms, "intercept")
-      U <- qr.Q(qr(crossprod(P, rep(int, n))))
-      fitted <- crossprod(tcrossprod(U), Y)
-      res <- Y - fitted
-    }
-    SS <- lapply(1:perms, function(j){
-      x <-ind[[j]]
-      y <- fitted + res[x,]; yy <- sum(y^2)
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      yy - sum(crossprod(U, y)^2)
-    })
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    }
-    int <- attr(fit$Terms, "intercept")
-    U <- qr.Q(qr(rep(int, n)))
-    SS <- lapply(1:perms, function(j){
-      x <-ind[[j]]
-      y <- Y[x,]; yy <- sum(y^2)
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      yy - sum(crossprod(U, y)^2)
-    })
+  
+  rrpp <- function(fitted, residuals, ind.i) {
+    if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
+      fitted + residuals[ind.i,]
   }
-  SS <- matrix(unlist(SS), 1, perms)
-  rownames(SS) <- "Residuals"
-  colnames(SS) <- c("obs", paste("iter", 1:(perms-1), sep=":"))
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
-  SS
+  
+  result <- mclapply(1:perms, mc.cores = cl, function(j){
+    x <-ind[[j]]
+    rrpp.args$ind.i <- x
+    Yi <- do.call(rrpp, rrpp.args)
+    y <- yh0 + r0[x,]
+    yy <- sum(y^2)
+    if(k > 0) {
+      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
+      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
+      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- rep(TSS, k)
+      SS = SSf - SSr
+    } else SSr <- SSf <- SS <- RSS <- TSS <- NA
+    RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+    if(k == 0) TSS <- RSS.model
+    list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
+  })
+  
+  SS <- matrix(sapply(1:perms, function(j) result[[j]]$SS), max(1,k), perms)
+  RSS <- matrix(sapply(1:perms, function(j) result[[j]]$RSS), max(1,k), perms)
+  TSS <- matrix(sapply(1:perms, function(j) result[[j]]$TSS), max(1,k), perms)
+  RSS.model <- matrix(sapply(1:perms, function(j) result[[j]]$RSS.model), max(1,k), perms)
+  
+  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- rownames(RSS.model) <- 
+    if(k > 0) trms else "Intercept"
+  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- colnames(RSS.model) <- 
+    c("obs", paste("iter", 1:(perms-1), sep="."))
+  
+  if(all(is.na(SS))) SS <- NULL
+  if(all(is.na(SS))) RSS <- NULL
+  
+  list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
+  
 }
 
 # anova.parts
 # construct an ANOVA tablefrom random SS output
 # used in lm.rrpp
 
-anova.parts <- function(fit, SS){
-  SS.type <- fit$SS.type
+anova.parts <- function(exchange, SS){
+  SS.type <- exchange$SS.type
   perms <- NCOL(SS)
-  QRf <- fit$wQRs.full
-  QRr <- fit$wQRs.reduced
-  k <- length(QRf)
-  dims <- dim(as.matrix(fit$Y))
-  n <- dims[1]; p <- dims[2]
-  df <- unlist(Map(function(qf, qr) qf$rank - qr$rank, QRf, QRr))
-  dfe <- n - QRf[[k]]$rank
-  
-  RSS <- SS$RSS
-  TSS <- SS$TSS
-  RSS.model <- SS$RSS.model
-  SS <- SS$SS
-  Rsq <- SS/TSS
-  MS <- SS/df
-  RMS <- RSS/dfe
-  Fs <- MS/RMS
-  dft <- n - 1
-  df <- c(df, dfe, dft)
-  if(SS.type == "III") {
-    etas <- SS/TSS
-    cohenf <- etas/(1-etas)
+  reduced <- exchange$reduced
+  full <- exchange$full
+  Terms <- exchange$Terms
+  trms <- attr(Terms, "term.labels")
+  k <- length(trms)
+  n <- NROW(exchange$data)
+  if(k > 0) {
+    QRr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
+    QRf <- lapply(full, function(x) x$qr)
   } else {
-    etas <- Rsq
-    if(k == 1) unexp <- 1 - etas else unexp <- 1 - apply(etas, 2, cumsum)
-    cohenf <- etas/unexp
+    QRr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
+    QRf <- full$qr
   }
-  rownames(Fs) <- rownames(cohenf) <- rownames(SS)
+  
+  dims <- dim(as.matrix(exchange$data[[1]]))
+  n <- dims[1]; p <- dims[2]
+  
+  if(k > 0) {
+    df <- unlist(Map(function(qf, qr) qf$rank - qr$rank, QRf, QRr))
+    dfe <- n - QRf[[k]]$rank
+    RSS <- SS$RSS
+    TSS <- SS$TSS
+    RSS.model <- SS$RSS.model
+    SS <- SS$SS
+    Rsq <- SS/TSS
+    MS <- SS/df
+    RMS <- RSS/dfe
+    Fs <- MS/RMS
+    dft <- n - 1
+    df <- c(df, dfe, dft)
+    if(SS.type == "III") {
+      etas <- SS/TSS
+      cohenf <- etas/(1-etas)
+    } else {
+      etas <- Rsq
+      if(k == 1) unexp <- 1 - etas else unexp <- 1 - apply(etas, 2, cumsum)
+      cohenf <- etas/unexp
+    }
+    rownames(Fs) <- rownames(cohenf) <- rownames(SS)
+    
+  } else {
+    RSS <- NULL
+    TSS <- SS$TSS
+    RSS.model <- SS$RSS.model
+    SS <- NULL
+    Rsq <- NULL
+    MS <- NULL
+    RMS <- NULL
+    Fs <- NULL
+    cohenf <- NULL
+    df <- n - 1
+    SS.type <- NULL
+    
+  }
+  
+  
   out <- list(SS.type = SS.type, SS = SS, MS = MS, RSS = RSS,
               TSS = TSS, RSS.model = RSS.model, Rsq = Rsq,
               Fs = Fs, cohenf = cohenf,
@@ -990,7 +1174,7 @@ SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
 # generate U matrices
 # makes a U matrix based on model design
-# not used bt was used in compare.models, dureing development.  Retained
+# not used but was used in compare.models, during development.  Retained
 # in case it is useful down the road.
 
 cm.U <- function(x){
@@ -1004,294 +1188,327 @@ cm.U <- function(x){
   out
 }
 
+# beta.boot.iter
+# gets appropriate beta vectors for coefficients via bootstrap
+# used in predict.lm.rrpp
+
+beta.boot.iter <- function(fit, ind) {
+  Terms <- fit$LM$Terms
+  trms <- fit$LM$term.labels
+  k <- length(trms)
+  gls <- fit$LM$gls
+  
+  fitted <- if(gls) fit$LM$gls.fitted else fit$LM$fitted
+  res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
+  
+  
+  w <- fit$LM$weights
+  if(!is.null(w)) weighted = TRUE else weighted = FALSE
+  
+  if(weighted) {
+    fitted <- fitted * sqrt(w)
+    res <- res * sqrt(w)
+  }
+  
+  Y <- fitted + res
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  perms <- length(ind)
+  
+  Pcov <- fit$LM$Pcov
+  
+  rrpp.args <- list(fitted = as.matrix(fitted), 
+                    residuals = as.matrix(res),
+                    ind.i = NULL)
+  
+  rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
+  
+  Qf <- fit$LM$QR
+  Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+  
+  betas <- lapply(1:perms, function(j){
+    x <-ind[[j]]
+    rrpp.args$ind.i <- x
+    Yi <- do.call(rrpp, rrpp.args)
+    if(!is.null(Pcov)) Yi <- crossprod(Pcov, Yi)
+    as.matrix(Hf %*% Yi)
+  })
+  betas
+  
+}
+
 # beta.iter
 # gets appropriate beta vectors for random permutations in lm.rrpp
 # generates distances as statistics for summary
 
-beta.iter <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  fitted <- fit$wFitted.reduced
-  res <- fit$wResiduals.reduced
-  Y <- fit$wY
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  trms <- fit$term.labels
+
+beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
+  reduced <- exchange$reduced
+  full <- exchange$full
+  Terms <- exchange$Terms
+  trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  rrpp.args <- list(fitted = fitted, residuals = res,
-                    ind.i = NULL, w = NULL, o = NULL)
-  if(offset) rrpp.args$o <- o
+  Y <- as.matrix(exchange$data[[1]])
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  perms <- length(ind)
+  if(k > 0) {
+    fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
+    res <- lapply(reduced, function(x) as.matrix(x$residuals))
+  } else {
+    fitted <- as.matrix(reduced$fitted.values)
+    res <- as.matrix(reduced$residuals)
+  }
+  
+  o <- exchange$offset
+  if(!is.null(o)) offset = TRUE else offset = FALSE
+  
+  Pcov <- exchange$Pcov
+  
+  rrpp.args <- list(fitted = fitted, 
+                    residuals = res,
+                    ind.i = NULL, offset = offset,
+                    o = o)
+  
+  rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o) {
+    if(offset) {
+      
+      if(k > 0) Map(function(f, r) f + r[ind.i,] - o, fitted, residuals) else
+        as.matrix(fitted + residuals[ind.i,] - o)
+      
+    } else {
+      
+      if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
+        as.matrix(fitted + residuals[ind.i,])
+    }
+  }
+  
   if(print.progress){
     cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
-  if(gls){
-    Y <- crossprod(P, Y)
-    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
-    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Qr <- lapply(Xr, qr)
-    Qf <- lapply(Xf, qr)
+  
+  if(k > 0) {
+    Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
+    Qf <- lapply(full, function(x) x$qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
     Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
     Ur <- lapply(Qr, function(x) qr.Q(x))
-  
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-    rrpp.args$fitted <- fitted
-    rrpp.args$residuals <- res
-    betas <- lapply(1:perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h %*% y, Hf, Yi)
-    })
   } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-      rrpp.args$fitted <- fitted
-      rrpp.args$residuals <- res
-    }
-    Qf <- lapply(fit$wXfs, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    
-    betas <- lapply(1:perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h%*%y, Hf, Yi)
-    })
-  }
-  beta.mats <- lapply(1:k, function(j){
-    result <- lapply(betas, function(x) x[[j]])
-    result
-  })
-  beta.mat.d <- lapply(1:k, function(j){
-    b <- beta.mats[[j]]
-    kk <- length(b)
-    result <- sapply(1:kk, function(jj){
-      bb <- b[[jj]]
-      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
-    })
-    rownames(result) <- rownames(b[[1]])
-    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-    result
-  })
-  
-  names(beta.mats) <- names(beta.mat.d) <- trms
-  
-  if(k == 1) d.stitched <- beta.mat.d[[1]]
-  
-  if(k > 1) {
-    d.stitched <- beta.mat.d[[k]]
-    
-    beta.match <- lapply(1:k, function(j){
-      cr <- colnames(fit$wQRs.reduced[[j]]$qr)
-      cf <- colnames(fit$wQRs.full[[j]]$qr)
-      cf[!(cf %in% cr)]
-    })
-    
-    for(i in 1:(k-1)){
-      beta.check <- beta.match[[i]]
-      d.check <- beta.mat.d[[i]]
-      target <- which(rownames(d.stitched) %in% beta.check)
-      d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
-    }
+    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
+    Qf <- full$qr
+    Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+    Ur <- qr.Q(Qr)
   }
   
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
-  out <- list(random.coef = beta.mats,
-              random.coef.distances = d.stitched)
-  out
-}
-
-beta.iterPP <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  cl <- detectCores()-1
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  if(print.progress){
-    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
-  }
-  perms <- length(ind)
-  fitted <- fit$wFitted.reduced
-  res <- fit$wResiduals.reduced
-  Y <- fit$wY
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  trms <- fit$term.labels
-  k <- length(trms)
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  rrpp.args <- list(fitted = fitted, residuals = res,
-                    ind.i = NULL, w = NULL, o = NULL)
-  if(offset) rrpp.args$o <- o
-  if(gls){
-    Y <- crossprod(P, Y)
-    Xr <- lapply(fit$wXrs, function(x) crossprod(P, as.matrix(x)))
-    Xf <- lapply(fit$wXfs, function(x) crossprod(P, as.matrix(x)))
-    Qr <- lapply(Xr, qr)
-    Qf <- lapply(Xf, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
+  if(!RRPP) {
+    if(k > 0) {
+      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
     } else {
-      fitted <- Map(function(u) crossprod(tcrossprod(u), Y), Ur)
-      res <- lapply(fitted, function(f) Y - f)
+      rrpp.args$fitted <- matrix(0, n, p)
+      rrpp.args$residuals <- as.matrix(Y)
     }
-    rrpp.args$fitted <- fitted
-    rrpp.args$residuals <- res
-    betas <- mclapply(1:perms, function(j){
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h %*% y, Hf, Yi)
-    }, mc.cores = cl)
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-      rrpp.args$fitted <- fitted
-      rrpp.args$residuals <- res
-    }
-    Qf <- lapply(fit$wXfs, qr)
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    betas <- mclapply(1:perms, function(j){
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h,y) h%*%y, Hf, Yi)
-    }, mc.cores = cl)
-  }
-  beta.mats <- lapply(1:k, function(j){
-    result <- lapply(betas, function(x) x[[j]])
-    result
-  })
-  beta.mat.d <- lapply(1:k, function(j){
-    b <- beta.mats[[j]]
-    kk <- length(b)
-    result <- sapply(1:kk, function(jj){
-      bb <- b[[jj]]
-      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
-    })
-    rownames(result) <- rownames(b[[1]])
-    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-    result
-  })
+  } 
   
-  names(beta.mats) <- names(beta.mat.d) <- trms
-  
-  if(k == 1) d.stitched <- beta.mat.d[[1]]
-  
-  if(k > 1) {
-    d.stitched <- beta.mat.d[[k]]
-    
-    beta.match <- lapply(1:k, function(j){
-      cr <- colnames(fit$wQRs.reduced[[j]]$qr)
-      cf <- colnames(fit$wQRs.full[[j]]$qr)
-      cf[!(cf %in% cr)]
-    })
-    
-    for(i in 1:(k-1)){
-      beta.check <- beta.match[[i]]
-      d.check <- beta.mat.d[[i]]
-      target <- which(rownames(d.stitched) %in% beta.check)
-      d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
-    }
-  }
-  out <- list(random.coef = beta.mats,
-              random.coef.distances = d.stitched)
-  out
-}
-
-
-beta.iter.null <- function(fit, ind, P = NULL, RRPP = TRUE, print.progress = TRUE) {
-  if(!is.null(P)) gls = TRUE else gls = FALSE
-  perms <- length(ind)
-  fitted <- fit$wFitted.full
-  res <- fit$wResiduals.full
-  Y <- fit$wY
-  X <- fit$wX
-  dims <- dim(as.matrix(Y))
-  n <- dims[1]; p <- dims[2]
-  k <- 1
-  w <- sqrt(fit$weights)
-  o <- fit$offset
-  if(sum(o) != 0) offset = TRUE else offset = FALSE
-  if(print.progress){
-    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-  }
-  if(gls){
-    Y <- crossprod(P, Y)
-    X <- crossprod(P, X)
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    } else {
-      U <- qr.Q(qr(crossprod(P, matrix(1, n))))
-      fitted <- crossprod(tcrossprod(U), Y)
-      res <- lapply(fitted, function(f) Y - f)
-    }
-  } else {
-    if(!RRPP) {
-      fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      res <- lapply(res, function(.) Y)
-    }
-  }    
-  Q <- qr(X)
-  H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
   betas <- lapply(1:perms, function(j){
     step <- j
     if(print.progress) setTxtProgressBar(pb,step)
     x <-ind[[j]]
-    y <- fitted[[1]] + res[[1]][x,]
-    H %*% y
+    rrpp.args$ind.i <- x
+    Yi <- do.call(rrpp, rrpp.args)
+    if(k > 0) Map(function(h, y) h %*% y, Hf, Yi) else
+      Hf %*% Yi
+    
   })
-  coef.d <- function(b) sqrt(sum(b^2))
-  beta.d <- sapply(betas, coef.d)
-  betas <- lapply(1:perms, function(j){
-    names(betas[[j]]) <- "Intercept"
-  })
-  iter.names <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-  names(betas) <- iter.names
-  names(beta.d) <- iter.names
+  
+  beta.mats <- betas
+  
+  if(k > 0) {
+    
+    beta.mats <- lapply(1:k, function(j){
+      result <- lapply(betas, function(x) x[[j]])
+      result
+    })
+    
+    beta.mat.d <- lapply(1:k, function(j){
+      b <- beta.mats[[j]]
+      kk <- length(b)
+      result <- sapply(1:kk, function(jj){
+        bb <- b[[jj]]
+        if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
+      })
+      rownames(result) <- rownames(b[[1]])
+      colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+      result
+    })
+    
+    names(beta.mats) <- names(beta.mat.d) <- trms
+    
+    if(k == 1) d.stitched <- beta.mat.d[[1]]
+    
+    if(k > 1) {
+      d.stitched <- beta.mat.d[[k]]
+      
+      beta.match <- lapply(1:k, function(j){
+        cr <- rownames(reduced[[j]]$coefficients)
+        cf <- rownames(full[[j]]$coefficients)
+        cf[!(cf %in% cr)]
+      })
+      
+      for(i in 1:(k-1)){
+        beta.check <- beta.match[[i]]
+        d.check <- beta.mat.d[[i]]
+        target <- which(rownames(d.stitched) %in% beta.check)
+        d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
+      }
+    }
+  } else {
+    beta.mat.d <- d.stitched <- NULL
+  }
+  
   step <- perms + 1
   if(print.progress) {
     setTxtProgressBar(pb,step)
     close(pb)
   }
-  out <- list(random.coef = betas,
-              random.coef.distances = beta.d)
+  out <- list(random.coef = beta.mats,
+              random.coef.distances = d.stitched)
   out
 }
 
-# beta.boot
-# for calculating confidence intervals for predicted values
-# used in predcit.lm.rrpp
-
-beta.boot <- function(f, r, h, ind.i){
-  y <- f + r[ind.i,]
-  h %*% y
+beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
+  cl <- detectCores() - 1
+  reduced <- exchange$reduced
+  full <- exchange$full
+  Terms <- exchange$Terms
+  trms <- attr(Terms, "term.labels")
+  k <- length(trms)
+  Y <- as.matrix(exchange$data[[1]])
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  perms <- length(ind)
+  if(k > 0) {
+    fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
+    res <- lapply(reduced, function(x) as.matrix(x$residuals))
+  } else {
+    fitted <- as.matrix(reduced$fitted.values)
+    res <- as.matrix(reduced$residuals)
+  }
+  
+  o <- exchange$offset
+  if(!is.null(o)) offset = TRUE else offset = FALSE
+  
+  Pcov <- exchange$Pcov
+  
+  rrpp.args <- list(fitted = fitted, 
+                    residuals = res,
+                    ind.i = NULL, offset = offset,
+                    o = o)
+  
+  rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o) {
+    if(offset) {
+      
+      if(k > 0) Map(function(f, r) f + r[ind.i,] - o, fitted, residuals) else
+        as.matrix(fitted + residuals[ind.i,] - o)
+      
+    } else {
+      
+      if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
+        as.matrix(fitted + residuals[ind.i,])
+    }
+  }
+  
+  if(print.progress){
+    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
+    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
+  }
+  
+  if(k > 0) {
+    Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
+    Qf <- lapply(full, function(x) x$qr)
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+    Ur <- lapply(Qr, function(x) qr.Q(x))
+  } else {
+    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
+    Qf <- full$qr
+    Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+    Ur <- qr.Q(Qr)
+  }
+  
+  if(!RRPP) {
+    if(k > 0) {
+      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      rrpp.args$fitted <- matrix(0, n, p)
+      rrpp.args$residuals <- as.matrix(Y)
+    }
+  } 
+  
+  betas <- mclapply(1:perms, mc.cores = cl, function(j){
+    x <-ind[[j]]
+    rrpp.args$ind.i <- x
+    Yi <- do.call(rrpp, rrpp.args)
+    if(k > 0) Map(function(h, y) h %*% y, Hf, Yi) else
+      Hf %*% Yi
+    
+  })
+  
+  beta.mats <- betas
+  
+  if(k > 0) {
+    
+    beta.mats <- lapply(1:k, function(j){
+      result <- lapply(betas, function(x) x[[j]])
+      result
+    })
+    
+    beta.mat.d <- lapply(1:k, function(j){
+      b <- beta.mats[[j]]
+      kk <- length(b)
+      result <- sapply(1:kk, function(jj){
+        bb <- b[[jj]]
+        if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
+      })
+      rownames(result) <- rownames(b[[1]])
+      colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+      result
+    })
+    
+    names(beta.mats) <- names(beta.mat.d) <- trms
+    
+    if(k == 1) d.stitched <- beta.mat.d[[1]]
+    
+    if(k > 1) {
+      d.stitched <- beta.mat.d[[k]]
+      
+      beta.match <- lapply(1:k, function(j){
+        cr <- rownames(reduced[[j]]$coefficients)
+        cf <- rownames(full[[j]]$coefficients)
+        cf[!(cf %in% cr)]
+      })
+      
+      for(i in 1:(k-1)){
+        beta.check <- beta.match[[i]]
+        d.check <- beta.mat.d[[i]]
+        target <- which(rownames(d.stitched) %in% beta.check)
+        d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
+      }
+    }
+  } else {
+    beta.mat.d <- d.stitched <- NULL
+  }
+  
+  out <- list(random.coef = beta.mats,
+              random.coef.distances = d.stitched)
+  out
 }
+
 
 # ellipse.points
 # A helper function for plotting elipses from non-parametric CI data
@@ -1323,28 +1540,6 @@ ellipse.points <- function(m, pr, conf) {
   pc2lim <- c(min(ellP[,2,]), max(ellP[,2,]))
   list(ellP = ellP, pc1lim = pc1lim, pc2lim = pc2lim,
        means = m)
-}
-
-# refit
-# finds rrpp.fit from lm.rrpp object
-# used in Deviance
-refit <- function(fit){
-  dat <- fit$LM$data
-  dims <- dim(dat$Y)
-  pdf.args <- list(data=dat,
-                   x = model.matrix(fit$LM$Terms, data = dat),
-                   w = fit$LM$weights,
-                   offset = fit$LM$offset,
-                   terms = fit$LM$Terms,
-                   formula = NULL,
-                   SS.type = fit$ANOVA$SS.type)
-  form <- fit$LM$form
-  form <- update.formula(form, Y ~.)
-  pdf.args$formula <- form
-  if(sum(attr(pdf.args$x, "assign")) == 0)
-    out <- rrpp.fit.int(pdf.args) else
-      out <- rrpp.fit.lm(pdf.args)
-  out
 }
 
 # aov.single.model
@@ -1460,48 +1655,43 @@ aov.multi.model <- function(object, lm.list,
   ind <- refModel$PermInfo$perm.schedule
   perms <- length(ind)
   
-  X <- as.matrix(refModel$LM$X * sqrt(refModel$LM$weights))
-  B <- refModel$LM$coefficients
-  Y <- refModel$LM$Y
-  U <- as.matrix(qr.Q(qr(X)))
+  if(refModel$LM$gls) {
+    X <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, refModel$LM$X) else
+      refModel$LM$X * sqrt(refModel$LM$weights)
+  } else X <- refModel$LM$X
+  
+  if(refModel$LM$gls) {
+    Y <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, refModel$LM$Y) else
+      refModel$LM$Y * sqrt(refModel$LM$weights)
+  } else Y <- refModel$LM$Y
+  
+  B <- if(refModel$LM$gls) refModel$LM$gls.coefficients else refModel$LM$coefficients
+  U <- as.matrix(qr.Q(refModel$LM$QR))
   n <- refModel$LM$n
   p <- refModel$LM$p
-  if(refModel$LM$gls) {
-    P <- refModel$LM$Pcov
-    B <- refModel$LM$gls.coefficients
-    X <- as.matrix(crossprod(P, X))
-    Y <- crossprod(P, Y)
-    U <- as.matrix(qr.Q(qr(X)))
-  }
   Yh <- as.matrix(fastFit(U, Y, n, p))
   R <- as.matrix(Y) - Yh
   
   K <- length(lm.list)
   Ulist <- lapply(1:K, function(j){
     m <- lm.list[[j]]
-    X <- m$LM$X
-    w <- sqrt(m$LM$weights)
-    X <- X * w
-    if(m$LM$gls){
-      P <- m$LM$Pcov
-      X <- crossprod(P, X)
-    }
-    qr.Q(qr(X))
+    as.matrix(qr.Q(m$LM$QR))
   })
   
   if(print.progress){
     if(K > 1)
-      cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n")) else
-        cat(paste("\nSums of Squares calculations for", K, "model:", perms, "permutations.\n"))
+    cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n")) else
+      cat(paste("\nSums of Squares calculations for", K, "model:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
-  
+
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
-    int <- crossprod(refModel$LM$Pcov, rep(int, n))
+    int <- if(!is.null(refModel$LM$Pcov))  crossprod(refModel$LM$Pcov, rep(int, n)) else
+      sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
-  U0 <- as.matrix(qr.Q(qr(int * sqrt(refModel$LM$weights))))
+  U0 <- as.matrix(qr.Q(qr(int)))
   yh0 <- as.matrix(fastFit(U0, Y, n, p))
   r0 <- as.matrix(Y) - yh0
   
@@ -1546,8 +1736,8 @@ aov.multi.model <- function(object, lm.list,
   
   Rsq <-  SS / RSSy
   
-  dfe <- n - c(object$LM$wQR$rank, unlist(lapply(1:K, 
-                                                 function(j) lm.list[[j]]$LM$wQR$rank)))
+  dfe <- n - c(object$LM$QR$rank, unlist(lapply(1:K, 
+                                                 function(j) lm.list[[j]]$LM$QR$rank)))
   df <- dfe[1] - dfe
   df[1] <- 1
   
@@ -1613,9 +1803,9 @@ aov.multi.model <- function(object, lm.list,
               SS = SS[-1,], MS = MS[-1,], Rsq = Rsq[-1,], F = Fs[-1,],
               call = object$call)
   
-  class(out) <- "anova.lm.rrpp"
-  out
-  
+class(out) <- "anova.lm.rrpp"
+out
+
 }
 
 # getSlopes
@@ -1866,54 +2056,75 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   p <- fit$LM$p.prime
   k <- if (!is.null(pc.no)) {
     stopifnot(length(pc.no) == 1, is.finite(pc.no), as.integer(pc.no) > 0)
-                min(as.integer(pc.no), n, p)
+    min(as.integer(pc.no), n, p)
   } else min(n, p)
-  X <- as.matrix(fit$LM$X * sqrt(fit$LM$weights))
+  X <- as.matrix(fit$LM$X)
   Y <- as.matrix(fit$LM$Y)
   rdf <- fit$LM$data
-  if(fit$LM$gls){
-    Sig <- (crossprod(fit$LM$gls.residuals, 
-                      fast.solve(fit$LM$Cov)) %*%
-              fit$LM$gls.residuals) /n
-    s <- svd(Sig, nu = 0, nv = k)
-    sdev <- s$d/sqrt(max(1, n - 1))
-    rank <- min(sum(sdev > (sdev[1L] * tol)), k)
-    if(rank < k){
-      pr <- seq_len(rank)
-      s$v <- s$v[, pr, drop = FALSE]
-    }
+  gls <- fit$LM$gls
+  w <- fit$LM$weights
+  Pcov <- fit$LM$Pcov
+  
+  if(gls){
+    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% fit$LM$gls.residuals)/n else
+      Sig <- crossprod(fit$LM$gls.residuals * sqrt(w))/n
     
-    if(p > 1) P <- as.matrix(Y %*% s$v) else P <- center(Y)
-    fit$LM$data$Y <- P
-    pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
-                    Cov = fit$LM$Cov, data = fit$LM$data, 
-                    weights = fit$LM$weights, iter = 0)
-    Sig <- as.matrix((crossprod(pfit$LM$gls.residuals, fast.solve(pfit$LM$Cov)) %*%
-              pfit$LM$gls.residuals)) / n
-    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
-    
-    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
-      rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   }  else {
     
-    Sig <- crossprod(fit$LM$wResiduals) /n
-    s <- svd(Sig, nu = 0, nv = k)
-    sdev <- s$d/sqrt(max(1, n - 1))
-    rank <- min(sum(sdev > (sdev[1L] * tol)), k)
-    if(rank < k){
-      pr <- seq_len(rank)
-      s$v <- s$v[, pr, drop = FALSE]
-    }
+    Sig <- crossprod(fit$LM$residuals) /n
     
-    if(p > 1) P <- as.matrix(Y %*% s$v) else P <- center(Y)
-    fit$LM$data$Y <- P
-    pfit <- lm.rrpp(formula(fit$LM$Terms), print.progress = FALSE, 
-                    data = fit$LM$data, 
-                    weights = fit$LM$weights, iter = 0)
-    Sig <- as.matrix(crossprod(pfit$LM$residuals)) / n
-    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
-    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   }
+  
+  s <- svd(Sig, nu = 0, nv = k)
+  sdev <- s$d/sqrt(max(1, n - 1))
+  rank <- min(sum(sdev > (sdev[1L] * tol)), k)
+  if(rank < k){
+    pr <- seq_len(rank)
+    s$v <- s$v[, pr, drop = FALSE]
+  }
+  
+  Yc <- if(fit$LM$gls) scale(Y, scale = F, center = fit$LM$gls.mean) else
+    center(Y)
+  
+  if(p > 1) P <- as.matrix(Yc %*% s$v) else P <- Yc
+  
+  fit$LM$data$Y <- P
+  form <- formula(fit$LM$Terms)
+  form <- update(form, Y ~ .)
+  
+  if(!is.null(w)) {
+    pfit <- lm.rrpp(form, print.progress = FALSE, 
+                    Cov = fit$LM$Cov, data = fit$LM$data, 
+                    iter = 0, weights = w )
+  } else {
+    pfit <- lm.rrpp(form, print.progress = FALSE, 
+                    Cov = fit$LM$Cov, data = fit$LM$data, 
+                    iter = 0)
+  }
+  
+  if(gls){
+    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% pfit$LM$gls.residuals)/n else
+      Sig <- crossprod(pfit$LM$gls.residuals * sqrt(w))/n
+    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
+    
+  }  else {
+    
+    Sig <- crossprod(pfit$LM$residuals) /n
+    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
+    
+  }
+  
+  if(gls) {
+    if(!is.null(Pcov)) {
+      ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
+                    rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
+    } else {
+      ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] - 
+                    rank * sum(log(w)) + n * rank * log(2*pi))
+      
+    }
+  } else 
+    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
   
   list(logL = ll, rank = rank)
   
@@ -1923,13 +2134,12 @@ cov.trace <- function(fit) {
   n <- fit$LM$n
   p <- fit$LM$p.prime
   if(fit$LM$gls){
-    Sig <- (crossprod(fit$LM$gls.residuals, 
-                      fast.solve(fit$LM$Cov)) %*%
-              fit$LM$gls.residuals) /n
+    if(!is.null(fit$LM$Pcov)) Sig <- crossprod(fit$LM$Pcov %*% fit$LM$gls.residuals)/n else
+      Sig <- crossprod(fit$LM$gls.residuals * sqrt(fit$LM$weights))/n
     
   }  else {
     
-    Sig <- crossprod(fit$LM$wResiduals) /n
+    Sig <- crossprod(fit$LM$residuals) /n
     
   }
   
@@ -2035,3 +2245,92 @@ trajshape <- function(y){
   z <- t(sapply(z, function(x) as.vector(t(x))))
   as.matrix(dist(z))
 }
+
+# lda.prep
+# sets up lm.rrpp object to use in lda
+# used in: lda.rrpp
+lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
+  dat <- fit$LM$data
+  gls <- fit$LM$gls
+  w <- fit$LM$weights
+  Pcov <- fit$LM$Pcov
+  
+  dat.class <- sapply(dat, class)
+  fac.list <- which(dat.class == "factor")
+  if(length(fac.list) == 0) group <- factor(rep(1, n)) else {
+    datf <- dat[fac.list]
+    group <- factor(apply(datf, 1, paste, collapse = "."))
+  }
+  
+  
+  newY <- function(fit, group, w = NULL, Pcov=NULL) {
+    Xg <- model.matrix(~group)
+    Yg <- fit$LM$Y
+    res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
+    
+    if(!is.null(w)) {
+      nfit <- lm.fit(Xg * sqrt(w), Yg * sqrt(w))
+      fitted <- Yg * sqrt(w) - res * sqrt(w)
+      nY <- (fitted + nfit$residuals)/sqrt(w)
+    } else if(!is.null(Pcov)) {
+      PY <- crossprod(Pcov, Yg)
+      nfit <- lm.fit(crossprod(Pcov, Xg), PY)
+      fitted <- PY - crossprod(Pcov, res)
+      nY <- crossprod(fast.solve(Pcov), fitted + nfit$residuals)
+    } else {
+      nfit <- lm.fit(Xg, Yg)
+      nY <- fit$LM$fitted + nfit$res
+    }
+    nY
+  }
+  
+  Yn <- newY(fit, group, w, Pcov)
+  dims <- dim(Yn)
+  n <- dims[1]
+  p <- dims[2]
+  
+  Yc <- if(gls) Yn - matrix(fit$LM$gls.mean, n, p, byrow = TRUE) else
+    center(Yn)
+  
+  V <- crossprod(Yc)/n
+  if(!is.null(Pcov)) V <- crossprod(crossprod(Pcov, Yc))/n
+  if(!is.null(w)) V <-  crossprod(Yc * sqrt(w))/n
+  
+  if(gls) s <- svd(V)
+  
+  PCA <- prcomp(Yn, tol = tol)
+  if(gls) {
+    PCA$rotation <- s$v
+    PCA$sdev <- sqrt(s$d)
+    PCA$x <- Yc %*% s$v
+  }
+  
+  d <- zapsmall(PCA$sdev^2)
+  d <- 1:length(d[d > 0])
+  
+  if(!is.null(PC.no)) {
+    if(PC.no < length(d)) d <- 1:PC.no
+  }
+  
+  PCA$rotation <- PCA$rotation[, d]
+  PCA$sdev <- PCA$sdev[d]
+  PCA$x <- as.matrix(PCA$x[, d])
+  colnames(PCA$x) <- colnames(PCA$rotation) <- paste("PC", d, sep = "")
+  
+  Yn <- PCA$x
+  
+  if(!is.null(newdata)) {
+    Yt <- newdata
+    if(NCOL(newdata) != p) 
+      stop("\nNumber of variables in newdata does not match the number for the data in lm.rrpp fit.\n",
+           call. = FALSE)
+    Ytc <- if(gls) Yt - matrix(fit$LM$gls.mean, NROW(Yt), p, byrow = TRUE) else
+      center(Yt)
+    Yt <- Ytc %*% PCA$rotation
+    
+  } else Yt <- NULL
+  
+  list(Yn = Yn, Yt = Yt, group = group, gls = gls)
+  
+}
+

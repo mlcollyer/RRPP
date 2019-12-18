@@ -36,12 +36,13 @@
 #' coef(fit, test = TRUE, confidence = 0.99)
 coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   x <- object
+  k <- length(x$LM$term.labels)
   rc <- x$LM$random.coef
   rd <- x$LM$random.coef.distances
+  coef.obs <- if(k > 0) rc[[k]][[1]] else  rc[[1]]
   n <- x$LM$n; p <- x$LM$p; p.prime = x$LM$p.prime
   model.terms <- x$LM$Terms
-  k <- length(x$LM$term.labels)
-  coef.obs <- rc[[k]][[1]]
+  
   perms <- x$PermInfo$perms
   SS.type <- x$ANOVA$SS.type
   RRPP <- x$PermInfo$perm.method
@@ -54,15 +55,12 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
       Z <- apply(rd, 1, effect.size)
       ucl <- apply(rd, 1, function(x) quantile(x, confidence))
       stat.tab <- data.frame(d.obs = rd[,1], ucl=ucl, Zd=Z, P=PV)
+      colnames(stat.tab)[2] <- paste("UCL (", confidence*100,"%)", sep = "")
+      colnames(stat.tab)[4] <- "Pr(>d)"
     } else {
-      PV <- pval(rd)
-      Z <- pval(rd)
-      ucl <- quantile(rd, confidence)
-      stat.tab <- data.frame(d.obs = rd[1],  ucl=ucl, Zd=Z, P=PV)
+      PV <- Z <- ucl <- stat.tab <- NULL
     }
     
-    colnames(stat.tab)[2] <- paste("UCL (", confidence*100,"%)", sep = "")
-    colnames(stat.tab)[4] <- "Pr(>d)"
     out <- list(coef.obs = coef.obs,
                 random.coef = rc,
                 random.distances = rd,

@@ -4,12 +4,10 @@
 \alias{residuals.lm.rrpp}
 \title{Extract residuals}
 \usage{
-\method{residuals}{lm.rrpp}(object, weighted = TRUE, ...)
+\method{residuals}{lm.rrpp}(object, ...)
 }
 \arguments{
 \item{object}{plot object (from \code{\link{lm.rrpp}})}
-
-\item{weighted}{A logical argument to return weighted or unweighted residuals.}
 
 \item{...}{Arguments passed to other functions}
 }

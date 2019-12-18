@@ -99,9 +99,8 @@
 #' cex = 0.7, col = "gray")
 #' add.trajectories(TP, traj.pch = 21, traj.bg = 1:4)
 
-
 trajectory.analysis <- function(fit, fit.null = NULL, groups, 
-                                traj.pts, pca = TRUE, print.progress = FALSE){
+                                    traj.pts, pca = TRUE, print.progress = FALSE){
   
   n <- fit$LM$n
   perms <- fit$PermInfo$perms
@@ -124,7 +123,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   g1 <- as.factor(groups)
   
   if(!is.null(g2) && NCOL(g2) > 1) stop("traj.pts can be either a single value or a factor, not a matrix.\n",
-                        call. = FALSE)
+                                        call. = FALSE)
   if(NCOL(g1) > 1) stop("Groups must be a single factor.\n",
                         call. = FALSE)
   if(length(g1) != n)stop("The number of observations does not match group length.\n",
@@ -133,20 +132,19 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   if(is.null(tp)) groups <- interaction(g1, g2, lex.order = TRUE) else groups <- g1
   
   if(is.null(fit.null)) 
-  PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = FALSE) else 
-    PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = print.progress)
-  
+    PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = FALSE) else 
+      PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = print.progress)
   
   means <- PW$LS.means
   if(is.null(tp) && pca) {
-    PCA <- if(fit$LM$gls) prcomp(fit$LM$gls.fitted) else prcomp(fit$LM$wFitted)
+    PCA <- if(fit$LM$gls) prcomp(fit$LM$gls.fitted) else prcomp(fit$LM$fitted)
     rot <- PCA$rotation
     Y.cent <- matrix(colMeans(fit$LM$Y), NROW(means[[1]]), 
                      ncol(means[[1]]), byrow = TRUE)
     means <- lapply(means, function(x) (x - Y.cent) %*% rot)
   } else PCA <- NULL
- 
-
+  
+  
   if(!is.null(tp)){
     p <- ncol(means[[1]])/tp
     if(p != floor(p)) stop("The number of variables divided by the number of trajectory points is not an integer")
@@ -203,7 +201,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
     ts <- trajsize(tj)
     names(ts) <- gl
     ts
-    })
+  })
   
   MD <- lapply(PD, function(x) as.matrix(dist(x)))
   
@@ -239,7 +237,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
     if(print.progress) close(pb)
     
   } else SD <- NULL
-    
+  
   
   names(MD) <- names(PD) <- names(Tcor) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
   if(!is.null(SD)) names(SD) <- names(PD)
@@ -249,7 +247,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
               fit = fit, n.trajectories = if(is.matrix(trajectories[[1]])) 1 else length(trajectories[[1]]),
               n.points = p,
               type = if(is.null(g2)) "single.factor" else "factorial")
-
+  
   class(out) <- "trajectory.analysis"
   out
   

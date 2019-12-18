@@ -92,7 +92,7 @@ model.comparison<- function(..., type = c("cov.trace", "logLik"), tol = NULL, pc
       rank.list <- as.data.frame(matrix(rank.list, nrow = 1))
       rownames(rank.list) <- "pc.no"
       colnames(rank.list) <- dot.names
-   
+      
       if(any(pc.no > p.list)) {
         cat("Warning: The number of PCs requested exceeds possible dimensions for some model fits\n")
         cat("PC number will be dropped initially to\n\n")

@@ -4,8 +4,13 @@
 \alias{pairwise}
 \title{Pairwise comparisons of lm.rrpp fits}
 \usage{
-pairwise(fit, fit.null = NULL, groups, covariate = NULL,
-  print.progress = FALSE)
+pairwise(
+  fit,
+  fit.null = NULL,
+  groups,
+  covariate = NULL,
+  print.progress = FALSE
+)
 }
 \arguments{
 \item{fit}{A linear model fit using \code{\link{lm.rrpp}}.}
@@ -57,7 +62,7 @@ Over all permutations, these values can be calculated to generate random distrib
 null model is defined via \code{\link{lm.rrpp}}, but one can also use an alternative null model as an optional argument.
 In this case, residual randomization in the permutation procedure (RRPP) will be performed using the alternative null model 
 to generate fitted values.  If full randomization of values (FRPP) is preferred,
-it must be established in the lm.rrpp fit and an alternative model should not be chosen.
+it must be established in the lm.rrpp fit and an alternative model should not be chosen. 
 
 Observed statistics, effect sizes, P-values, and one-tailed confidence limits based on the confidence requested will
 be summarized with the \code{\link{summary.pairwise}} function.  The \code{\link{summary.pairwise}} function will allow one

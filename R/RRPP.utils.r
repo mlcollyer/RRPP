@@ -54,7 +54,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     if(is.null(RSS)) TSS <- RSS.model
     SS.type <- AN$SS.type
     k <- length(LM$term.labels)
-    if(LM$gls) P <- LM$Pcov
+    
     
     if(k > 0) {
       df <- AN$df
@@ -65,10 +65,9 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       Rsq <- SSM.obs/TSS[1]
       Fs <- (SSM/dfM)/(RSS.model/dfe)
       Fs.obs <- Fs[1]
-      P <- pval(Fs)
-      Z <- effect.size(log(Fs))
+      P <- pval(as.vector(Fs))
+      Z <- effect.size(as.vector(log(Fs)))
       
-      Fs.obs <- Fs[1]
     } else {
       df <- 0
       dfe <- AN$df
@@ -90,24 +89,36 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     if(formula) dimnames(tab)[[1]] <- deparse(formula(x$call$f1)[[3]]) else
       dimnames(tab)[[1]] <- deparse(substitute(object))
     
-    pca.fitted <- prcomp(x$LM$wFitted)
-    pca.residuals <- prcomp(x$LM$wResiduals)
-    pca.total <- prcomp(x$LM$Y)
+    if(LM$ols){
+      pca.fitted <- prcomp(LM$fitted)
+      pca.residuals <- prcomp(LM$residuals)
+      pca.total <- prcomp(LM$Y)
+    }
     
-    if(x$LM$gls) {
-      Pcov <- x$LM$Pcov
-      PY <- crossprod(Pcov, x$LM$Y * sqrt(x$LM$weights))
-      PX <- as.matrix(crossprod(Pcov, x$LM$X * sqrt(x$LM$weights)))
-      Uf <- qr.Q(qr(PX))
-      int <- attr(x$LM$Terms, "intercept")
-      Pint <- as.matrix(crossprod(Pcov, rep(int, n)))
-      Un <- qr.Q(qr(Pint))
-      glsfitted <- fastFit(Uf, PY, n, p)
-      glsmeans <- fastFit(Un, PY, n, p)
+    
+    if(LM$gls) {
+      int <- attr(LM$Terms, "intercept")
       
-      Sf <- crossprod(glsfitted) - crossprod(glsmeans)
-      Sr <- crossprod((PY - glsfitted))
-      Sy <- crossprod(PY) - crossprod(glsmeans)
+      if(is.null(LM$Pcov)) {
+        w <- sqrt(LM$weights)
+        PY <- LM$Y * w
+        PX <- LM$X * w
+        Pint <- as.matrix(rep(int, n) * w)
+        RM <- lm.fit(PX, PY)$residuals
+        Sr <- crossprod(RM)
+      }
+      if(!is.null(LM$Pcov)) {
+        Pcov <- LM$Pcov
+        PY <- crossprod(Pcov, LM$Y)
+        PX <- as.matrix(crossprod(Pcov, LM$X))
+        Pint <- as.matrix(crossprod(Pcov, rep(int, n)))
+        RM <- lm.fit(PX, PY)$residuals
+        Sr <- crossprod(RM)
+      }
+      
+      RT <- lm.fit(Pint, PY)$residuals
+      Sy <- crossprod(RT)
+      Sf <- Sy - Sr
       
       Cf <- Sf/(n - 1)
       Cr <- Sr/(n - 1)
@@ -119,7 +130,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       keep <- which(zapsmall(svd.Y$d) > 0)
       pca.total$sdev <- sqrt(svd.Y$d[keep])
       pca.total$rotation <- as.matrix(svd.Y$v[, keep])
-      pca.total$x <- (PY - glsmeans) %*% as.matrix(svd.Y$v[, keep])
+      pca.total$x <- RT %*% as.matrix(svd.Y$v[, keep])
       
       svd.f <- svd(Cf)
       keep <- which(zapsmall(svd.f$d) > 0)
@@ -128,16 +139,17 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       } else {
         pca.fitted$sdev <- sqrt(svd.f$d[keep])
         pca.fitted$rotation <- as.matrix(svd.f$v[, keep])
-        pca.fitted$x <- glsfitted %*% as.matrix(svd.f$v[, keep])
+        pca.fitted$x <- LM$gls.fitted %*% as.matrix(svd.f$v[, keep])
       }
       
       svd.r <- svd(Cr)
       keep <- which(zapsmall(svd.r$d) > 0)
       pca.residuals$sdev <- sqrt(svd.r$d[keep])
       pca.residuals$rotation <- as.matrix(svd.r$v[, keep])
-      pca.residuals$x <- (PY - glsfitted) %*% as.matrix(svd.r$v[, keep])
+      pca.residuals$x <- RM %*% as.matrix(svd.r$v[, keep])
       
     }
+    
     
     d.f <- pca.fitted$sdev^2
     d.r <- pca.residuals$sdev^2
@@ -154,6 +166,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     redund <- data.frame(Trace, Proportion, Rank)
     rownames(redund) <- c("Fitted", "Residuals", "Total")
     eigs.f <- eigs.r <- eigs.t <- rep(NA, rank.t)
+    if(rank.f > rank.t) rank.f <- rank.t
+    if(rank.r > rank.t) rank.r <- rank.t
     eigs.f[1:rank.f] <- d.f[1:rank.f]
     eigs.r[1:rank.r] <- d.r[1:rank.r]
     eigs.t[1:rank.t] <- d.t[1:rank.t]
@@ -161,18 +175,50 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     rownames(eigs) <- c("Fitted", "Residuals", "Total")
     colnames(eigs) <- paste("PC", 1:rank.t, sep="")
     
-    rfit <-refit(x)
-    RR <- rfit$wResiduals.reduced
-    RF <- rfit$wResiduals.full
-    SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
-    names(SSCP) <- LM$term.labels
-    SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[length(RF)]]))))
+    reduced <- x$Models$reduced
+    full <- x$Models$full
+    
+    if(k > 0) {
+      RR <- lapply(reduced, function(j) j$residuals)
+      RF <- lapply(full, function(j) j$residuals)
+      if(LM$gls) {
+        if(!is.null(LM$Cov)) {
+          RR <- lapply(RR, function(r) LM$Pcov %*%r)
+          RF <- lapply(RF, function(r) LM$Pcov %*%r)
+        } else {
+          RR <- lapply(RR, function(r) r * sqrt(LM$weights))
+          RF <- lapply(RF, function(r) r * sqrt(LM$weights))
+        }
+      }
+      
+      SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
+      names(SSCP) <- LM$term.labels
+      SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[k]]))))
+      
+    } else {
+      RR <- reduced$residuals
+      RF <- full$residuals
+      
+      if(LM$gls) {
+        if(!is.null(LM$Cov)) {
+          RR <- LM$Pcov %*% RR
+          RF <- LM$Pcov %*% RF
+        } else {
+          RR <- RR * sqrt(LM$weights)
+          RF <- RF * sqrt(LM$weights)
+        }
+      }
+      
+      SSCP <- list(Residuals = as.matrix(crossprod(RF)))
+      
+    }
+    
     out <- list(table = tab, SSCP = SSCP, n = n, p = p, p.prime = p.prime, k = k, 
                 perms = perms, dv = dv, SS = SS, SS.type = SS.type, redundancy = redund,
                 eigenvalues = eigs, gls = x$LM$gls)
     class(out) <- "summary.lm.rrpp"
   }
- out
+  out
 }
 
 #' Print/Summary Function for RRPP
@@ -204,6 +250,8 @@ print.summary.lm.rrpp <- function(x, ...) {
   cat("\n")
   invisible(x)
 }
+
+
 ## coef.lm.rrpp
 
 #' Print/Summary Function for RRPP
@@ -225,13 +273,19 @@ print.coef.lm.rrpp <- function(x, ...){
     print(x$coef.obs)
   }
   if(x$test){
-    rrpp.type <- x$RRPP
-    cat("\n\nStatistics (distances) of coefficients with ")
-    cat(x$confidence*100, "percent confidence intervals,") 
-    cat("\neffect sizes, and probabilities of exceeding observed values based on\n") 
-    cat(x$nperms, "random permutations using", rrpp.type, "\n\n")
-    print(x$stat.tab)
-    cat("\n\n")
+    if(is.null(x$stat.table)) {
+      cat("\n\nTests on coefficients are not possible (only an intercept).")
+      cat("\n\nObserved coefficients\n\n")
+      print(x$coef.obs)
+    } else {
+      rrpp.type <- x$RRPP
+      cat("\n\nStatistics (distances) of coefficients with ")
+      cat(x$confidence*100, "percent confidence intervals,") 
+      cat("\neffect sizes, and probabilities of exceeding observed values based on\n") 
+      cat(x$nperms, "random permutations using", rrpp.type, "\n\n")
+      print(x$stat.tab)
+      cat("\n\n")
+    }
   }
   invisible(x)
 }
@@ -380,11 +434,13 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                                       "PC"), predictor = NULL,
                           reg.type = c("PredLine", "RegScore"), ...){
   plot.args <- list(...)
-  r <- as.matrix(x$LM$wResiduals)
-  f <- as.matrix(x$LM$wFitted)
+  
   if(x$LM$gls) {
     r <- as.matrix(x$LM$gls.residuals)
     f <- as.matrix(x$LM$gls.fitted)
+  } else {
+    r <- as.matrix(x$LM$residuals)
+    f <- as.matrix(x$LM$fitted)
   }
   type <- match.arg(type)
   if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
@@ -441,7 +497,11 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     if(is.null(plot.args$xlab)) plot.args$xlab <- deparse(substitute(predictor))
 
     xc <- predictor
-    X <- cbind(xc, x$LM$X) * sqrt(x$LM$weights)
+    if(x$LM$gls) {
+      if(!is.null(x$LM$weights)) X <- cbind(xc, x$LM$X) * sqrt(x$LM$weights) else
+        X <- cbind(xc, x$LM$Pcov %*% x$LM$X)
+    } else X <- cbind(xc, x$LM$X)
+    
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     plot.args$y <- Reg.proj
@@ -683,16 +743,15 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
 #' Extract residuals
 #' 
 #' @param object plot object (from \code{\link{lm.rrpp}})
-#' @param weighted A logical argument to return weighted or unweighted residuals.
 #' @param ... Arguments passed to other functions 
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
 #' # See examples for lm.rrpp
-residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
-  if(!weighted) out <- object$LM$residuals else 
-    out <- object$LM$wResiduals
+residuals.lm.rrpp <- function(object, ...) {
+  if(object$LM$gls) out <- object$LM$gls.residuals else 
+    out <- object$LM$residuals
   out
 }
 
@@ -702,15 +761,14 @@ residuals.lm.rrpp <- function(object, weighted = TRUE, ...) {
 #' Extract fitted values
 #' 
 #' @param object plot object (from \code{\link{lm.rrpp}})
-#' @param weighted A logical argument to return weighted or unweighted residuals.
 #' @param ... Arguments passed to other functions 
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
 #' # See examples for lm.rrpp
-fitted.lm.rrpp <- function(object, weighted = TRUE, ...) {
-  if(!weighted) out <- object$LM$fitted else 
-    out <- object$LM$wFitted
+fitted.lm.rrpp <- function(object,  ...) {
+  if(object$LM$gls) out <- object$LM$gls.fitted else 
+    out <- object$LM$fitted
   out
 }
 
@@ -1090,6 +1148,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   perm.method <- object$PermInfo$perm.method
   if(perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
   ind <- object$PermInfo$perm.schedule
+  perms <- length(ind)
   trms <- object$LM$term.labels
   k <- length(trms)
   df <- object$ANOVA$df
@@ -1098,24 +1157,8 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   names(df) <- c(trms, "Full.Model", "Residuals")
   
   MANOVA <- object$MANOVA
-  if(MANOVA$verbose) {
-    
-    getEigs <- function(EH, EH.rank){
-      r <- min(dim(na.omit(EH)))
-      EH <- EH[1:r, 1:r]
-      Re(eigen(EH, symmetric = FALSE, only.values = TRUE)$values)[1:EH.rank]
-    }
-    
-    eigs <- lapply(1:(k+1), function(j){
-      rh <- MANOVA$invR.H[[j]]
-      rh.rank <- qr(rh[[1]])$rank
-      lapply(rh, function(x) getEigs(x, rh.rank))
-    })
-  } else eigs <- MANOVA$eigs
-  
+  eigs <- MANOVA$eigs
   error <- MANOVA$error
-  
-  
   stats <- as.data.frame(matrix(NA, nrow = k + 2, ncol = 5, byrow = FALSE,
                                 dimnames <- list(names(df), 
                                                  c("Df", "Rand", test, "Z", "Pr"))))
@@ -1124,28 +1167,29 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   
   if(test == "Pillai") {
     
-    rand.stats <- sapply(1:(k+1), function(j){
+    rand.stats <- sapply(1:perms, function(j){
       y <- eigs[[j]]
-      sapply(y, pillai)
+      apply(y, 1, pillai)
+      
     })
-    colnames(rand.stats) <- c(trms, "Full.Model")
-    test.stats <- rand.stats[1,]
-    Z <- apply(log(rand.stats), 2, effect.size)
-    P <- apply(rand.stats, 2, pval)
+    
+    test.stats <- rand.stats[, 1]
+    Z <- apply(log(rand.stats), 1, effect.size)
+    P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
     stats$Pillai[1:(k+1)] <- test.stats
   }
   else if(test == "Hotelling.Lawley") {
     
-    rand.stats <- sapply(1:(k+1), function(j){
+    rand.stats <- sapply(1:perms, function(j){
       y <- eigs[[j]]
-      sapply(y, hot.law)
+      apply(y, 1, hot.law)
     })
-    colnames(rand.stats) <- c(trms, "Full.Model")
-    test.stats <- rand.stats[1,]
-    Z <- apply(log(rand.stats), 2, effect.size)
-    P <- apply(rand.stats, 2, pval)
+    
+    test.stats <- rand.stats[, 1]
+    Z <- apply(log(rand.stats), 1, effect.size)
+    P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
     stats$Hotelling.Lawley[1:(k+1)] <- test.stats
@@ -1155,12 +1199,12 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     
     rand.stats <- sapply(1:(k+1), function(j){
       y <- eigs[[j]]
-      sapply(y, wilks)
+      apply(y, 1, wilks)
     })
-    colnames(rand.stats) <- c(trms, "Full.Model")
-    test.stats <- rand.stats[1,]
-    Z <- apply(log(rand.stats), 2, effect.size)
-    P <- apply(1 - rand.stats, 2, pval)
+    
+    test.stats <- rand.stats[, 1]
+    Z <- apply(log(rand.stats), 1, effect.size)
+    P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
     stats$Wilks[1:(k+1)] <- test.stats
@@ -1168,9 +1212,9 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   else {
     rand.stats <- sapply(1:(k+1), function(j){
       y <- eigs[[j]]
-      sapply(y, max)
+      apply(y, 1, max)
     })
-    colnames(rand.stats) <- c(trms, "Full.Model")
+    
     test.stats <- rand.stats[1,]
     Z <- apply(log(rand.stats), 2, effect.size)
     P <- apply(rand.stats, 2, pval)
@@ -1185,10 +1229,12 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   out <- list(stats.table = stats, rand.stats = rand.stats, stat.type = test,
               n = n, p = p, p.prime = p.prime, e.rank = MANOVA$e.rank, 
               manova.pc.dims = MANOVA$manova.pc.dims, PCA = MANOVA$PCA,
-              SS.type = object$ANOVA$SS.type, perms = object$PermInfo$perms)
+              SS.type = object$ANOVA$SS.type, SS.tot = MANOVA$SS.tot, 
+              perms = object$PermInfo$perms)
   class(out) <- "summary.manova.lm.rrpp"
   out
 }
+
 
 #' Print/Summary Function for RRPP
 #'
@@ -1210,11 +1256,11 @@ print.summary.manova.lm.rrpp <- function(x, ...){
     cat("\n   Data reduced to", pc.max, "PCs, as required or prescribed.")
     PCA <- x$PCA
     d2 <- PCA$sdev^2
-    d.p <- sum(d2[1:pc.max])/sum(d2)
+    d.p <- sum(d2[1:pc.max])/x$SS.tot
     cat("\n  ", round(d.p*100, 1), "% of overall variation explained by these PCs.")
     cat("\n   See $MANOVA$PCA from manova.lm.rrpp object for more information.")
   }
-    
+  
   if(!is.null(x$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
   cat(paste("\nNumber of permutations:", x$perms), "\n\n")
   
@@ -1470,7 +1516,7 @@ plot.trajectory.analysis <- function(x, ...) {
   }
   
   if(is.null(x$pca) && x$type == "factorial") {
-    f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$wFitted
+    f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$fitted
     pca <- prcomp(f)
     rot <- pca$rotation
     Y <- x$fit$LM$Y
@@ -1484,7 +1530,7 @@ plot.trajectory.analysis <- function(x, ...) {
   }
   
   if(x$type == "single.factor") {
-    f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$wFitted
+    f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$fitted
     tp <- x$n.points
     p <- NCOL(f)/tp
     n <- NROW(f)
@@ -1630,6 +1676,6 @@ add.trajectories <- function(TP,
     points(x[np], y[np], col = 1, pch = traj.pch[i], lwd = traj.lwd[i], cex = traj.cex[i], bg = end.bg[i])
   }
   
-  
 }
+
 

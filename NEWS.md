@@ -1,10 +1,18 @@
-# CHANGES IN RRPP 0.4.3.900 (Github updates)
+# CHANGES IN RRPP 0.5.0 (Minor Release)
 
 ### NEW FEATURES
+* `prep.lda` A new function to generate arguments for `lda` in the `MASS` library.
 
 ### OTHER CHANGES
+* `classify` deprecated (in favor of `prep.lda`)
+* Changed the ouput structure for lm.rrpp objects.  Either OLS or GLS statistics are returned, not both.  There is no longer differentiation between GLS and weighted stats, as weighted stats are GLS estimated stats.  The difference is obvious with the inclusion of weights or Cov matrix.
+* No longer a `verbose` option with `manova.update`.  The function was optimized to provide verbose output without having to slow down computation time.
 
 ### BUG FIXES 
+* Fixed some issues with linear model weights and offset, throughout many functions.
+* Sweeping changes to be CRAN 4.0 compliant
+
+
 
 # CHANGES IN RRPP 0.4.3 (Patch Release)
 
@@ -18,6 +26,7 @@
 * Fixed an issue with the centering of trajectories in `trajectoty.analysis`.
 * Fixed an issue for calculating fitted values for GLS in the `lm.rrpp` function.
 
+
 ------
 
 # CHANGES IN RRPP 0.4.2 (Patch Release)
@@ -28,7 +37,6 @@
 * Added `tol` and `pc.no` arguments to `model.comparison` (were fixed before) so that users have more control of the analysis.
 
 ### BUG FIXES 
-
 * Tweaked logL tolerance calculation to be consistent with `prcomp`.
 * Tweaked support code for `lm.rrpp` to work better with missing data frames.
 * Fixed absolute eigenvalue issue with Cov.proj.
@@ -78,7 +86,7 @@
 
 ### OTHER CHANGES
 
-* Added an update to allow classify to work on univeriate data.
+* Added an update to allow classify to work on univeraite data.
 
 ### BUG FIXES 
 
@@ -104,7 +112,7 @@
 
 ### OTHER CHANGES
 
-* Added multi-model inference capability to `anova.lm.rrpp`
+* Added multi-model inference capabaility to `anova.lm.rrpp`
     
 ### BUG FIXES 
 

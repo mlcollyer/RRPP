@@ -4,9 +4,15 @@
 \alias{summary.pairwise}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{summary}{pairwise}(object, stat.table = TRUE,
-  test.type = c("dist", "VC", "var"), angle.type = c("rad", "deg"),
-  confidence = 0.95, show.vectors = FALSE, ...)
+\method{summary}{pairwise}(
+  object,
+  stat.table = TRUE,
+  test.type = c("dist", "VC", "var"),
+  angle.type = c("rad", "deg"),
+  confidence = 0.95,
+  show.vectors = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{Object from \code{\link{pairwise}}}

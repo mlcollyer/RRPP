@@ -4,8 +4,14 @@
 \alias{trajectory.analysis}
 \title{Quantify and compare shape change trajectories}
 \usage{
-trajectory.analysis(fit, fit.null = NULL, groups, traj.pts, pca = TRUE,
-  print.progress = FALSE)
+trajectory.analysis(
+  fit,
+  fit.null = NULL,
+  groups,
+  traj.pts,
+  pca = TRUE,
+  print.progress = FALSE
+)
 }
 \arguments{
 \item{fit}{A linear model fit using \code{\link{lm.rrpp}}.}
@@ -49,9 +55,9 @@ The function quantifies multivariate trajectories from a set of observations, an
  This function is a modified version of \code{\link{pairwise}}, retaining the least squares (LS) means as trajectory points.
  Analysis starts with a \code{\link{lm.rrpp}} fit (but a procD.lm fit from geomorph can also be used).  LS means are calculated using a grouping
  variable.  Data can be trajectories, as a start(sensu Adams and Cerney 2007), or trajectories can be calculated from data using a factorial model (in which case
- trajectory points are defined by factor levels).
+ trajectory points are defined by factor levels).  
 
-This function produces statistics that can be summarized with the \code{\link{summary.trajectory.analysis}} function.  The summaries
+ This function produces statistics that can be summarized with the \code{\link{summary.trajectory.analysis}} function.  The summaries
  are consistent with those in the \code{\link{summary.pairwise}} function, pertaining to trajectory attributes including,
  magnitude difference (MD), the difference in path lengths of trajectories; trajectory correlations (TC), better
  thought of as angular differences between trajectory principal axes; and if trajectories have three or more points,

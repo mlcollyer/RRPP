@@ -4,9 +4,17 @@
 \alias{add.trajectories}
 \title{Plot Function for RRPP}
 \usage{
-add.trajectories(TP, traj.pch = 21, traj.col = 1, traj.lty = 1,
-  traj.lwd = 1, traj.cex = 1.5, traj.bg = 1, start.bg = 3,
-  end.bg = 2)
+add.trajectories(
+  TP,
+  traj.pch = 21,
+  traj.col = 1,
+  traj.lty = 1,
+  traj.lwd = 1,
+  traj.cex = 1.5,
+  traj.bg = 1,
+  start.bg = 3,
+  end.bg = 2
+)
 }
 \arguments{
 \item{TP}{plot object (from \code{\link{plot.trajectory.analysis}})}
