@@ -4,9 +4,15 @@
 \alias{summary.trajectory.analysis}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{summary}{trajectory.analysis}(object, stat.table = TRUE,
-  attribute = c("MD", "TC", "SD"), angle.type = c("rad", "deg"),
-  confidence = 0.95, show.trajectories = FALSE, ...)
+\method{summary}{trajectory.analysis}(
+  object,
+  stat.table = TRUE,
+  attribute = c("MD", "TC", "SD"),
+  angle.type = c("rad", "deg"),
+  confidence = 0.95,
+  show.trajectories = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{Object from \code{\link{trajectory.analysis}}}

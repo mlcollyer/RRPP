@@ -4,9 +4,19 @@
 \alias{lm.rrpp}
 \title{Linear Model Evaluation with a Randomized Residual Permutation Procedure}
 \usage{
-lm.rrpp(f1, iter = 999, seed = NULL, int.first = FALSE,
-  RRPP = TRUE, SS.type = c("I", "II", "III"), data = NULL,
-  Cov = NULL, print.progress = TRUE, Parallel = FALSE, ...)
+lm.rrpp(
+  f1,
+  iter = 999,
+  seed = NULL,
+  int.first = FALSE,
+  RRPP = TRUE,
+  SS.type = c("I", "II", "III"),
+  data = NULL,
+  Cov = NULL,
+  print.progress = TRUE,
+  Parallel = FALSE,
+  ...
+)
 }
 \arguments{
 \item{f1}{A formula for the linear model (e.g., y~x1+x2).  Can also be a linear model fit
@@ -29,7 +39,7 @@ sums of squares and cross-products computations.}
 \item{data}{A data frame for the function environment, see \code{\link{rrpp.data.frame}}}
 
 \item{Cov}{An optional argument for including a covariance matrix to address the non-independence
-of error in the estimation of coefficients (via GLS).}
+of error in the estimation of coefficients (via GLS).  If included, any weights are ignored.}
 
 \item{print.progress}{A logical value to indicate whether a progress bar should be printed to the screen.
 This is helpful for long-running analyses.}
@@ -41,7 +51,9 @@ parallel processing is performed on all but one core with no option to change th
 platforms will automatically default to a single-core application of this function.}
 
 \item{...}{Arguments typically used in \code{\link{lm}}, such as weights or offset, passed on to
-\code{rrpp.fit} for estimation of coefficients.}
+\code{rrpp.fit} for estimation of coefficients.  If both weights and a covariance matrix are included,
+weights are ignored (since inverses of weights are the diagonal elements of weight matrix, used in lieu
+of a covariance matrix.)}
 }
 \value{
 An object of class \code{lm.rrpp} is a list containing the following
@@ -49,9 +61,9 @@ An object of class \code{lm.rrpp} is a list containing the following
 \item{LM}{Linear Model objects, including data (Y), coefficients, design matrix (X), sample size
 (n), number of dependent variables (p), dimension of data space (p.prime),
 QR decomposition of the design matrix, fitted values, residuals,
-weights, offset, model terms, model frame (data), random coefficients (through permutations),
+weights, offset, model terms, data frame, random coefficients (through permutations),
 random vector distances for coefficients (through permutations), whether OLS or GLS was performed, 
-and the centroid for OLS and/or GLS methods.}
+and the mean for OLS and/or GLS methods.}
 \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,
 random R-squared outcomes, random F outcomes, random Cohen's f-squared outcomes, P-values based on random F
 outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for
@@ -59,6 +71,8 @@ model terms (df).  These objects are used to construct ANOVA tables.}
 \item{PermInfo}{Permutation procedure information, including the number of permutations (perms), The method
 of residual randomization (perm.method), and each permutation's sampling frame (perm.schedule), which
 is a list of reordered sequences of 1:n, for how residuals were randomized.}
+\item{Models}{Reduced and full model fits for every possible model combination, based on terms
+of the entire model, plus the method of SS estimation.}
 }
 \description{
 Function performs a linear model fit over many random permutations of data, using
@@ -94,7 +108,7 @@ The \code{\link{coef.lm.rrpp}} function can be used to test the specific coeffic
 statistics are the distances (d), which are also standardized (Z-scores).  The Z-scores might be easier to compare,
 as the expected values for random distances can vary among coefficient vectors (Adams and Collyer 2016).
 
-\subsection{ANOVA vs. MANOVA}{ 
+ \subsection{ANOVA vs. MANOVA}{ 
  Two SSCP matrices are calculated for each linear model effect, for every random permutation: R (Residuals or Random effects) and
  H, the difference between SSCPs for "full" and "reduced" models. (Full models contain and reduced models lack
  the effect tested; SSCPs are hypothesized to be the same under a null hypothesis, if there is no effect.  The 
@@ -118,7 +132,20 @@ as the expected values for random distances can vary among coefficient vectors (
  More detail is found in the vignette, ANOVA versus MANOVA.
 }
 
-\subsection{Notes for RRPP 0.3.1 and subsequent versions}{ 
+ \subsection{Notes for RRPP 0.5.0 and subsequent versions}{ 
+ The output from lm.rrpp has changed, compared to previous versions.  First, the $LM
+ component of output no longer includes both OLS and GLS statistics, when GLS fits are 
+ performed.  Only GLS statistics (coefficients, residuals, fitted values) are provided 
+ and noted with a "gls." tag.  GLS statistics can include those calculated
+ when weights are input (similar to the \code{\link[stats]{lm}} argument).  Unlike previous 
+ versions, GLS and weighted LS statistics are not labeled differently, as weighted
+ LS is one form of generalized LS estimation.  Second, a new object, $Models, is included
+ in output, which contains the linear model fits (\code{\link[stats]{lm}} attributes ) for
+ all reduced and full models that are possible to estimate fits.
+ 
+}
+
+ \subsection{Notes for RRPP 0.3.1 and subsequent versions}{ 
  F-values via RRPP are calculated with residual SS (RSS) found uniquely for any model terms, as per
  Anderson and ter Braak (2003).  This method uses the random pseudo-data generated by each term's
  null (reduced) model, meaning RSS can vary across terms.  Previous versions used an intercept-only 

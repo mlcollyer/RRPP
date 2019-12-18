@@ -4,8 +4,7 @@
 \alias{plot.predict.lm.rrpp}
 \title{Plot Function for RRPP}
 \usage{
-\method{plot}{predict.lm.rrpp}(x, PC = FALSE, ellipse = FALSE,
-  label = TRUE, ...)
+\method{plot}{predict.lm.rrpp}(x, PC = FALSE, ellipse = FALSE, label = TRUE, ...)
 }
 \arguments{
 \item{x}{plot object (from \code{\link{predict.lm.rrpp}})}

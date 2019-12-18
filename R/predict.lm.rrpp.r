@@ -6,11 +6,20 @@
 #' The bootstrap permutations use the same number of iterations and seed as used
 #' in the \code{\link{lm.rrpp}} model fit. A \code{\link{predict.lm.rrpp}} object can be plotted using various options.
 #' See \code{\link{plot.predict.lm.rrpp}}.
+#' 
+#' Note that if data offsets are used (if the offset argument is used when fitting a \code{\link{lm.rrpp}} model),
+#' they are ignored for estimating coefficients over iterations.  Offsets are subtracted from data in \code{\link[stats]{lm}} and 
+#' added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then unadjusting
+#' it for predictions.  This causes problems if the newdata have a different number of observations than the original
+#' model fit.
+#' 
 #'
 #' @param object Object from \code{\link{lm.rrpp}}.
 #' @param newdata Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.  If null,
 #' the data frame from the lm.rrpp fit will be used, effectively calculating all fitted values and
-#' their confidence intervals.
+#' their confidence intervals.  If a numeric variable is missing from newdata, an attempt to average the values
+#' will be made in predicition; i.e., least squares means for factor levels can be found.  All factors used in the
+#' \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, with appropriate factor levels.
 #' @param confidence The desired confidence interval level for prediction.
 #' @param ... Other arguments (currently none)
 #' @export
@@ -48,18 +57,51 @@
 predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
   if(!inherits(object, "lm.rrpp")) stop("Object is not class lm.rrpp")
   Terms <- object$LM$Terms
+  trms <- object$LM$term.labes
+  k <- length(trms)
+  TT <- delete.response(Terms)
   if (missing(newdata) || is.null(newdata)) {
-    newdata <- model.frame(Terms, data = object$LM$data)
+    newdata <- model.frame(TT, data = object$LM$data)
     full.predict <- TRUE
   } else full.predict = FALSE
+  
   if(!inherits(newdata, "data.frame") && !inherits(newdata, "rrpp.data.frame"))
     stop("newdata must be an object of class data.frame or rrpp.data.frame")
   if(confidence < 0 || confidence > 1) stop("Confidence level must be between 0 and 1")
-  Y <- object$LM$Y
+  
+  if(inherits(newdata, "rrpp.data.frame")) {
+    vars <- all.vars(TT)
+    refd <- names(newdata) %in% vars
+    if(!all(refd))
+      stop("\nOne or more variables in newdata are not model terms.\n",
+           call. = FALSE)
+    if(length(refd) != length(newdata))
+      stop("\nIt's not possible to coerce the rrpp.data.frame into a useable data frame for prediction.\n",
+           call. = FALSE)
+    if(length(nd) < length(vars)) {
+      cat("\nWarning: Not all variables in model accounted for in newdata.")
+      cat("\nMissing variables will be averaged from observed data for prediction.\n\n")
+    }
+    
+    class(newdata) <- "list"
+    newdata <- as.data.frame(newdata)
+  }
+  
+  o <- object$LM$offset
+  if(!is.null(o)) offst = TRUE else offst = FALSE
+  
   if(full.predict){
-    nX <- object$LM$X
-    n <- NROW(nX)
+    
+    nX <- X <- object$LM$X
+    
   } else {
+    
+    xm <- colMeans(object$LM$X)
+    xm <- xm[xm > 0]
+    
+    oX <- matrix(xm, NROW(newdata), length(xm), byrow = TRUE)
+    colnames(oX) <- names(xm)
+    
     fl <- object$LM$term.labels
     tl <- intersect(fl, names(object$LM$data))
     pl <- match(tl, names(newdata))
@@ -87,50 +129,26 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
     for(i in 1:length(df.add)) nd <- cbind(nd, 0)
     names(nd) <- c(nd.names, df.add)
     nX <- model.matrix(Terms, data = nd) 
-    oX <- object$LM$X
-    n <- NROW(nX)
-    nX <- nX[,intersect(colnames(nX), colnames(oX))]
-    cnm <- match(colnames(oX), colnames(nX))
-    if(any(is.na(cnm))){
-      df.add <- setdiff(colnames(oX), colnames(nX))
-      nX.names <- colnames(nX)
-      for(i in 1:length(df.add)) nX <- cbind(nX, 0)
-      colnames(nX) <- c(nX.names, df.add)
-      isall0 <- function(x) all(x == 0)
-      nX.check <- apply(nX, 2, isall0)
-      for(i in 1:length(nX.check)) 
-        if(isTRUE(nX.check[[i]])) nX[,i] <- mean(oX[i,])
-    }
+    
+    nX <- nX[, intersect(colnames(nX), colnames(oX))]
+    nX <- cbind(nX, oX[, -(match(colnames(nX), colnames(oX)))])
+    
   }
+  
+  n <- NROW(nX)
+  p <- NCOL(object$LM$Y)
+  
   PI <- object$PermInfo$perm.schedule
   seed <- attr(PI, "seed")
   perms <- length(PI)
   indb <- boot.index(length(PI[[1]]), perms -1, seed)
   k <- length(object$LM$term.labels)
-  res <- object$LM$wResiduals
-  fitted <- object$LM$wFitted
-  X <- object$LM$X * sqrt(object$LM$weights)
-  Q <- object$LM$wQR
-  H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
-  if(object$LM$gls) {
-    P <- object$LM$Pcov
-    PY <- crossprod(P, object$LM$Y * sqrt(object$LM$weights))
-    PX <- crossprod(P, X)
-    glsFit <- lm.fit(PX, PY)
-    fitted <- as.matrix(glsFit$fitted.values)
-    res <- as.matrix(glsFit$residuals)
-    Q <- qr(PX)
-    H <- tcrossprod(solve(qr.R(Q)), qr.Q(Q))
-  }
-  n <- NROW(nX)
-  beta.args <- list(f = fitted, r = res, h = H, ind.i = NULL)
-  coefs <- lapply(1:length(indb), function(j){
-    x <- indb[[j]]
-    beta.args$ind.i <- x
-    do.call(beta.boot, beta.args)
-  })
+  
+  betas <- beta.boot.iter(object, indb)
+  
   predM <- function(b) as.matrix(nX %*% b)
-  preds <- lapply(coefs, predM)
+  preds <- lapply(betas, predM)
+  
   alpha = 1 - confidence
   lcl <- function(x) quantile(x, prob = alpha/2)
   ucl <- function(x) quantile(x, prob = 1 - alpha/2)
@@ -145,10 +163,12 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
     if(dim(UCL)[2] == n) UCL <- t(UCL)
   }
   
-  if(dim(Y)[1] == 1){
+  if(p == 1){
     pc.preds <- preds
     pcLCL <- LCL
     pcUCL <- UCL
+    pc.meanV <- Reduce("+", pc.preds)/length(pc.preds)
+    pca <- NULL
   } else {
     pca <- prcomp(preds[[1]])
     d <- length(which(zapsmall(pca$sdev) > 0))

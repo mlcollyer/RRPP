@@ -55,6 +55,19 @@
 #'  
 #'  More detail is found in the vignette, ANOVA versus MANOVA.
 #' }
+#'
+#'  \subsection{Notes for RRPP 0.5.0 and subsequent versions}{ 
+#'  The output from lm.rrpp has changed, compared to previous versions.  First, the $LM
+#'  component of output no longer includes both OLS and GLS statistics, when GLS fits are 
+#'  performed.  Only GLS statistics (coefficients, residuals, fitted values) are provided 
+#'  and noted with a "gls." tag.  GLS statistics can include those calculated
+#'  when weights are input (similar to the \code{\link[stats]{lm}} argument).  Unlike previous 
+#'  versions, GLS and weighted LS statistics are not labeled differently, as weighted
+#'  LS is one form of generalized LS estimation.  Second, a new object, $Models, is included
+#'  in output, which contains the linear model fits (\code{\link[stats]{lm}} attributes ) for
+#'  all reduced and full models that are possible to estimate fits.
+#'  
+#' }
 #' 
 #'  \subsection{Notes for RRPP 0.3.1 and subsequent versions}{ 
 #'  F-values via RRPP are calculated with residual SS (RSS) found uniquely for any model terms, as per
@@ -77,7 +90,7 @@
 #' @param SS.type A choice between type I (sequential), type II (hierarchical), or type III (marginal)
 #' sums of squares and cross-products computations.
 #' @param Cov An optional argument for including a covariance matrix to address the non-independence
-#' of error in the estimation of coefficients (via GLS).
+#' of error in the estimation of coefficients (via GLS).  If included, any weights are ignored.
 #' @param data A data frame for the function environment, see \code{\link{rrpp.data.frame}}
 #' @param print.progress A logical value to indicate whether a progress bar should be printed to the screen.
 #' This is helpful for long-running analyses.
@@ -87,7 +100,9 @@
 #' parallel processing is performed on all but one core with no option to change the number of cores.  Systems with Windows
 #' platforms will automatically default to a single-core application of this function.
 #' @param ... Arguments typically used in \code{\link{lm}}, such as weights or offset, passed on to
-#' \code{rrpp.fit} for estimation of coefficients.
+#' \code{rrpp.fit} for estimation of coefficients.  If both weights and a covariance matrix are included,
+#' weights are ignored (since inverses of weights are the diagonal elements of weight matrix, used in lieu
+#' of a covariance matrix.)
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
@@ -96,9 +111,9 @@
 #' \item{LM}{Linear Model objects, including data (Y), coefficients, design matrix (X), sample size
 #' (n), number of dependent variables (p), dimension of data space (p.prime),
 #' QR decomposition of the design matrix, fitted values, residuals,
-#' weights, offset, model terms, model frame (data), random coefficients (through permutations),
+#' weights, offset, model terms, data frame, random coefficients (through permutations),
 #' random vector distances for coefficients (through permutations), whether OLS or GLS was performed, 
-#' and the centroid for OLS and/or GLS methods.}
+#' and the mean for OLS and/or GLS methods.}
 #' \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,
 #' random R-squared outcomes, random F outcomes, random Cohen's f-squared outcomes, P-values based on random F
 #' outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for
@@ -106,6 +121,8 @@
 #' \item{PermInfo}{Permutation procedure information, including the number of permutations (perms), The method
 #' of residual randomization (perm.method), and each permutation's sampling frame (perm.schedule), which
 #' is a list of reordered sequences of 1:n, for how residuals were randomized.}
+#' \item{Models}{Reduced and full model fits for every possible model combination, based on terms
+#' of the entire model, plus the method of SS estimation.}
 #' @references Anderson MJ. 2001. A new method for non-parametric multivariate analysis of variance.
 #'    Austral Ecology 26: 32-46.
 #' @references Anderson MJ. and C.J.F. ter Braak. 2003. Permutation tests for multi-factorial analysis of variance.
@@ -275,23 +292,35 @@
 #' plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
 
 lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
-                     RRPP = TRUE, SS.type = c("I", "II", "III"),
-                     data = NULL, Cov = NULL,
-                     print.progress = TRUE, Parallel = FALSE, ...) {
+                        RRPP = TRUE, SS.type = c("I", "II", "III"),
+                        data = NULL, Cov = NULL,
+                        print.progress = TRUE, Parallel = FALSE, ...) {
   if(int.first) ko = TRUE else ko = FALSE
   SS.type <- match.arg(SS.type)
-  
-  if(print.progress){
-    cat("\nPreliminary Model Fit...\n")
-    pb <- txtProgressBar(min = 0, max = 4, initial = 0, style=3)
-    step <- 1
-  }
   
   dots <- list(...)
   if(length(dots) > 0) {
     w <- dots$weights
     o <- dots$offset
   } else w <- o <- NULL
+  
+  if(!is.null(w) && !is.null(Cov)) {
+    w <- NULL
+    cat("\nWarning: It is not possible to use both a Cov matrix and weights.")
+    cat("\nBoth are inputs to perform generalized least squares estimation of coefficients,")
+    cat("\nbut at present only one covariance matrix can be used.")
+    cat("\nAs a result, weights are set to NULL.")
+    cat("\nYou could consider adjusting your Cov matrix; e.g., Cov <- Cov * 1/weights,")
+    cat("\nmaking sure the Cov matrix and weights are ordered consistently.\n\n")
+  }
+  
+  Terms <- D <- NULL
+  
+  if(print.progress){
+    cat("\nPreliminary Model Fit...\n")
+    pb <- txtProgressBar(min = 0, max = 3, initial = 0, style=3)
+    step <- 1
+  }
   
   if(!is.null(Cov)) {
     Cov.name <- deparse(substitute(Cov))
@@ -302,173 +331,182 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   
   if(inherits(f1, "lm")) {
-    lm.args <- lm.args.from.lm(f1)
-    lm.args$keep.order <- ko
-    lm.args$pca <- FALSE
-    lm.args$SS.type <- SS.type
+    exchange.args <- f1[attributes(f1)$names %in% 
+                          c("terms", "offset", "weights")]
+    exchange.args$Y <- Y <- as.matrix(f1$model[[1]])
+    exchange.args$tol <- f1$qr$tol
+    exchange.args$SS.type <- SS.type
+    exchange.args$data <- dat <- f1$model
+    names(exchange.args)[which(names(exchange.args) == "terms")] <- "Terms"
+    if("weights" %in% names(exchange.args))
+      names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
+    Terms <- f1$terms
   }
   
   if(inherits(f1, "formula")) {
-    lm.args <- lm.args.from.formula(f1, data = data)
-    if(!is.null(w)) lm.args$weights <- w
-    if(!is.null(o)) lm.args$offset <- o
-    lm.args$keep.order <- ko
-    lm.args$pca <- FALSE
-    lm.args$SS.type <- SS.type
+    exchange.args <- lm.args.from.formula(f1, data = data)
+    if(!is.null(exchange.args$D)) D <- exchange.args$D
+    exchange.args <- exchange.args[c("Terms", "Y", "data")]
+    if(!is.null(o)) {
+      exchange.args$offset <- o
+      offst <- TRUE
+    } else offst <- FALSE
+    exchange.args$tol <- 1e-7
+    exchange.args$SS.type <- SS.type
+    if(!is.null(w)) {
+      exchange.args$w <- w
+      weighted <- TRUE
+    } else weighted <- FALSE
+    Terms <- exchange.args$Terms
+    Y <- as.matrix(exchange.args$Y)
   }
+  
+  
+  if(!inherits(f1, c("lm", "formula")))
+    stop("\nf1 must be either a formula or class lm objects.\n",
+         call. = FALSE)
+  
+  if(!is.null(o)) exchange.args$offset <- o
+  if(!is.null(w)) exchange.args$w <- w
+  
+  offst <- if(!is.null(exchange.args$offset)) TRUE else FALSE
+  weighted <- if(!is.null(exchange.args$w)) TRUE else FALSE
+  
+  exchange.args.o <- fit.args <- exchange.args
+  o <- exchange.args$offset
+  w <- exchange.args$w
+  
+  X <- model.matrix(delete.response(Terms), data = exchange.args$data)
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  if(p > (n - 1)) {
+    exchange.args$Y <- prcomp(exchange.args$Y, 
+                              tol = sqrt(.Machine$double.eps))$x 
+    exchange.args$data$Y <- exchange.args$Y
+    if(offst) 
+      exchange.args$offset <- exchange.args$offset[,1:NCOL(exchange.args$Y)]
+    PCA <- TRUE
+  } else PCA <- FALSE
+  
+  if(!is.null(Cov)) {
+    exchange.args$Cov <- Cov
+    exchange.args.o$Cov <- Cov
+    fit.args$Cov <- Cov
+    exchange <- exchange.o <- do.call(lm.glsfits.exchange, exchange.args)
+    if(PCA) exchange.o <- do.call(lm.glsfits.exchange, exchange.args.o)
+    fits <- do.call(lm.glsfits, fit.args)
+  } else {
+    if(weighted) {
+      exchange.o <- do.call(lm.wfits.exchange, exchange.args.o)
+      exchange <- exchange.o
+      if(PCA) exchange <- do.call(lm.wfits.exchange, exchange.args)
+      fits <- do.call(lm.wfits, fit.args)
+    } else {
+      exchange.o <- do.call(lm.fits.exchange, exchange.args.o)
+      exchange <- exchange.o
+      if(PCA) exchange <- do.call(lm.fits.exchange, exchange.args)
+      fits <- do.call(lm.fits, fit.args)
+    }
+  }
+  
   
   if(print.progress) {
     step <- 2
     setTxtProgressBar(pb,step)
   }
   
-  fit.o <- do.call(rrpp.fit, lm.args)
-  
-  dimsY <- dim(as.matrix(fit.o$Y))
-  n <- dimsY[1]; p <- p.prime <- dimsY[2]
-  
-  if(p > n){
-    lm.args$pca <- TRUE
-    fit <- do.call(rrpp.fit, lm.args)
-    Y <- as.matrix(fit$Y)
-    dimsY <- dim(Y)
-    n <- dimsY[1]; p.prime <- dimsY[2]
-  } else {
-    fit <- fit.o
-    Y <- as.matrix(fit$Y)
-  }
-  
-  if(print.progress) {
-    step <- 3
-    setTxtProgressBar(pb,step)
-  }
-  k <- length(fit$term.labels)
+  trms <- attr(Terms, "term.labels")
+  k <- length(trms)
   id <- rownames(Y)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
   
   if(print.progress) {
-    step <- 4
+    step <- 3
     setTxtProgressBar(pb,step)
     close(pb)
   }
   
-  SS.args <- list(fit = fit, ind = ind, P = NULL,
-                  RRPP = RRPP, print.progress = print.progress)
-  beta.args <- SS.args
-  beta.args$fit <- fit.o
-  if(!is.null(Cov)){
-    dimsC <- dim(Cov)
-    if(!all(dimsC == n))
-      stop("Either one or both of the dimensions of the covariance matrix do not match the number of observations.")
-    Pcov <- Cov.proj(Cov, id)
-    SS.args$P <- Pcov
-    beta.args$P <- Pcov
-  } else Pcov <- NULL 
-  if(k > 0){
-    if(Parallel) {
-      if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, beta.args)
-      else betas <- do.call(beta.iterPP, beta.args)
-    } else betas <- do.call(beta.iter, beta.args)
-    if(Parallel) {
-      if(.Platform$OS.type == "windows") SS <- do.call(SS.iter, SS.args)
-      else SS <- do.call(SS.iterPP, SS.args)
-    } else SS <- do.call(SS.iter, SS.args)
-    ANOVA <- anova.parts(fit, SS)
-    LM <- list(form = formula(f1), coefficients = fit.o$wCoefficients.full[[k]],
-               Y = fit.o$Y,  X = fit.o$X, n = n, p = p, p.prime = p.prime,
-               QR = fit.o$QRs.full[[k]],
-               fitted = fit.o$fitted.full[[k]],
-               residuals = fit.o$residuals.full[[k]],
-               weights = fit.o$weights, offset = fit.o$offset,
-               wQR = fit.o$wQRs.full[[k]],
-               wFitted = fit.o$wFitted.full[[k]],
-               wResiduals = fit.o$wResiduals.full[[k]],
-               Terms = fit.o$Terms, term.labels = fit.o$term.labels,
-               data = fit.o$data, 
-               random.coef = betas$random.coef,
-               random.coef.distances = betas$random.coef.distances,
-               model.sets = fit.o$model.sets, ols = TRUE, gls = FALSE)
-    PermInfo <- list(perms = perms,
-                     perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
-                     perm.schedule = ind, perm.seed = seed)
-    out <- list(call = match.call(), 
-                LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
-    if(!is.null(Cov)) {
-      out$LM$Cov <- Cov
-      out$LM$Pcov <- Pcov
-      PY <- crossprod(Pcov, fit.o$wY); PX <- crossprod(Pcov, fit.o$wX)
-      w <- fit.o$weights
-      fit.cov <- lm.fit(PX, PY)
-      out$LM$gls = TRUE; out$LM$ols = FALSE
-      out$LM$gls.coefficients = fit.cov$coefficients
-      out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
-      out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
-      out$LM$gls.mean <- colMeans(out$LM$gls.fitted)
-    }
-  } else
-  {
-    if(print.progress) cat("\n No terms for ANOVA; only RSS calculated in each permutation\n")
-    if(!is.null(Cov)){
-      betas <- beta.iter.null(fit.o,  P = Pcov, ind = ind,  
-                              RRPP = RRPP, print.progress = print.progress)
-      SS <- SS.iter.null(fit,  P = Pcov, ind = ind,  
-                         RRPP = RRPP, print.progress = print.progress)
-    }  else {
-      betas <- beta.iter.null(fit.o, ind = ind, RRPP=RRPP, print.progress = print.progress)
-      SS <- SS.iter.null(fit, ind = ind, RRPP=RRPP, print.progress = print.progress)
-    }
-    SSY <- SS[1]
-    df <- n - fit$wQRs.full[[1]]$rank
-    LM <- list(form = formula(f1), coefficients=fit.o$wCoefficients.full[[1]],
-               Y=fit.o$Y,  X=fit.o$X, n = n, p = p, p.prime = p.prime,
-               QR = fit.o$QRs.full[[1]], fitted = fit.o$fitted.full[[1]],
-               residuals = fit.o$residuals.full[[1]],
-               weights = fit.o$weights, offset = fit.o$offset,
-               wQR = fit.o$wQRs.full[[1]],
-               wFitted = fit.o$wFitted.full[[1]],
-               wResiduals = fit.o$wResiduals.full[[1]],
-               Terms = fit.o$Terms,
-               term.labels = fit.o$term.labels, 
-               data = fit.o$data, 
-               random.coef = betas$random.coef,
-               random.coef.distances = betas$random.coef.distances,
-               model.sets = fit.o$model.sets, ols = TRUE, gls = FALSE)
-    ANOVA <- list(df = df, RSS.model = SS, MS = SS/df)
-    PermInfo <- list(perms = perms,
-                     perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
-                     perm.schedule = ind, perm.seed = seed)
-    out <- list(call = match.call(), 
-                LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
-    if(!is.null(Cov)){
-      out$LM$Cov <- Cov
-      out$LM$Pcov <- Pcov
-      PY <- Pcov%*%fit.o$wY; PX <- Pcov%*%fit.o$wX
-      fit.cov <- lm.fit(PX, PY)
-      out$LM$gls = TRUE; out$LM$ols = FALSE
-      out$LM$gls.coefficients = fit.cov$coefficients
-      out$LM$gls.fitted = qr.X(qr(fit.o$X)) %*% na.omit(fit.cov$coefficients)
-      out$LM$gls.residuals = fit.o$Y - out$LM$gls.fitted
-      out$LM$gls.mean <- colMeans(out$LM$gls.fitted)
-    }
+  SS.args <- beta.args <- list(exchange = exchange, ind = ind, 
+                               RRPP = RRPP, print.progress = print.progress)
+  
+  beta.args$exchange <- exchange.o
+  if(weighted && offst) 
+    beta.args$exchange$offset <- o * sqrt(w)
+  
+  if(Parallel) {
+    if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, beta.args)
+    else betas <- do.call(beta.iterPP, beta.args)
+  } else betas <- do.call(beta.iter, beta.args)
+  
+  if(Parallel) {
+    if(.Platform$OS.type == "windows") SS <- do.call(SS.iter, SS.args)
+    else SS <- do.call(SS.iterPP, SS.args)
+  } else SS <- do.call(SS.iter, SS.args)
+  
+  ANOVA <- anova.parts(exchange, SS)
+  fit <- if(k > 0) fits$full[[k]] else fits$full
+  
+  if(!is.null(w) || !is.null(Cov)) {
+    gls <- TRUE
+    ols <- FALSE
+  } else {
+    gls <- FALSE
+    ols <- TRUE
   }
-  if(!is.null(fit.o$D)) {
-    D <- fit.o$D
-    qrf <- fit$QRs.full[[k]]
-    wqrf <- fit$wQRs.full[[k]]
-    D.coef <- qr.coef(qrf, D)
-    D.wcoef <- qr.coef(wqrf, D)
-    out$LM$dist.coefficients <- D.coef
-    out$LM$dist.wCoefficients <- D.wcoef
+  
+  LM <- list(form = formula(Terms), coefficients = fit$coefficients,
+             ols = ols,
+             gls = gls,
+             Y = Y,  
+             X = X, 
+             n = n, p = p, p.prime = NCOL(exchange.args$Y),
+             QR = fit$qr,
+             Terms = Terms, term.labels = trms,
+             data = exchange.args.o$data,
+             model.sets = fits$model.sets,
+             random.coef = betas$random.coef,
+             random.coef.distances = betas$random.coef.distances
+  )
+  
+  LM$weights <- w
+  LM$offset <- o
+  
+  if(gls) {
+    names(LM)[[2]] <- "gls.coefficients"
+    LM$gls.fitted <- fit$fitted.values
+    LM$gls.residuals <- fit$residuals
+    LM$gls.mean <- if(NCOL(LM$gls.fitted) > 1) colMeans(LM$gls.fitted) else
+      mean(LM$gls.fitted)
+  } else {
+    LM$fitted <- fit$fitted.values
+    LM$residuals <- fit$residuals
+    LM$mean <- if(NCOL(LM$fitted) > 1) colMeans(LM$fitted) else
+      mean(LM$fitted)
   }
-  centroid <- gls.centroid <- NULL
-  int <- matrix(attr(fit$Terms, "intercept"), n)
-  centroid <- lm.fit(int, fit.o$wY)$coefficients
-  out$LM$centroid <- centroid
+  
   if(!is.null(Cov)) {
-    gls.centroid <- lm.fit(crossprod(Pcov, int), crossprod(Pcov, fit.o$Y))$coefficients
-    out$LM$gls.centroid <- gls.centroid
+    LM$Cov <- Cov[rownames(Y), rownames(Y)]
+    LM$Pcov <- Cov.proj(Cov, rownames(Y))
   }
+  PermInfo <- list(perms = perms,
+                   perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
+                   perm.schedule = ind, perm.seed = seed)
+  out <- list(call = match.call(), 
+              LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
+  
+  
+  if(k == 0 && print.progress)
+    cat("\n No terms for ANOVA; only RSS calculated in each permutation\n")
+  
+  if(!is.null(D)) {
+    qrf <- LM$QR
+    D.coef <- qr.coef(qrf, D)
+    out$LM$dist.coefficients <- D.coef
+  }
+  
+  out$Models <- fits[c("reduced", "full")]
   
   class(out) = "lm.rrpp"
   out

@@ -70,50 +70,52 @@
 #' # Observations are species means and a phylogenetic covariance matrix
 #' # describes the relatedness among observations.
 #'
-#' data("PlethMorph")
-#' R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
-#' Forelimb, Hindlimb) ~ SVL, iter = 0, 
-#' data = PlethMorph, print.progress = FALSE)$LM$residuals
-#' 
-#' PCA.ols <- ordinate(R, scale. = TRUE)
-#' PCA.ols$rot
-#' prcomp(R, scale. = TRUE)$rotation # should be the same
-#' 
-#' PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
-#' 
-#' # Align to phylogenetic signal
-#' 
-#' PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
-#' PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
-#' Cov = PlethMorph$PhyCov)
-#' 
-#' # Summaries
-#' 
-#' summary(PCA.ols)
-#' summary(PCA.gls)
-#' summary(PaCA.ols)
-#' summary(PaCA.gls)
-#' 
-#' # Plots
-#' 
-#' par(mfrow = c(2,2))
-#' plot(PCA.ols, main = "PCA OLS")
-#' plot(PCA.gls, main = "PCA GLS")
-#' plot(PaCA.ols, main = "PaCA OLS")
-#' plot(PaCA.gls, main = "PaCA GLS")
-#' par(mfrow = c(1,1))
+#' # data("PlethMorph")
+#' # R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
+#' # Forelimb, Hindlimb) ~ SVL, iter = 0, 
+#' # data = PlethMorph, print.progress = FALSE)$LM$residuals
+#' # 
+#' # PCA.ols <- ordinate(R, scale. = TRUE)
+#' # PCA.ols$rot
+#' # prcomp(R, scale. = TRUE)$rotation # should be the same
+#' # 
+#' # PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
+#' # 
+#' # # Align to phylogenetic signal
+#' # 
+#' # PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
+#' # PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
+#' # Cov = PlethMorph$PhyCov)
+#' # 
+#' # # Summaries
+#' # 
+#' # summary(PCA.ols)
+#' # summary(PCA.gls)
+#' # summary(PaCA.ols)
+#' # summary(PaCA.gls)
+#' # 
+#' # # Plots
+#' # 
+#' # par(mfrow = c(2,2))
+#' # plot(PCA.ols, main = "PCA OLS")
+#' # plot(PCA.gls, main = "PCA GLS")
+#' # plot(PaCA.ols, main = "PaCA OLS")
+#' # plot(PaCA.gls, main = "PaCA GLS")
+#' # par(mfrow = c(1,1))
 #' 
 ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE, 
                      tol = NULL, rank. = NULL, newdata = NULL) {
   Y <- try(as.matrix(Y), silent = TRUE)
   if(inherits(Y, "try-error"))
     stop("Y must be a matrix or data frame.\n", call. = FALSE)
-
+  
+  alignment <- if(!is.null(A)) deparse(substitute(A)) else "principal"
+  
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
   I <- diag(n)
-  alignment <- if(!is.null(A)) deparse(substitute(A)) else "principal"
+  
   if(is.null(A)) A <- I
   ind.check <- (sum(A) == n)
   if(!is.matrix(A))
@@ -130,6 +132,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
     if(isSymmetric(A)) A <- A[rownames(Y), rownames(Y)] else
       A <- A[rownames(Y),]
   }
+  
+  A <- center(A)
+  
   X <- matrix(1, n)
   rownames(X) <- rownames(Y)
   if(!is.null(Cov)) Pcov <- Cov.proj(Cov, rownames(Y))
@@ -149,6 +154,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   s <-  if(!is.null(Cov)) svd(crossprod(A, Pcov %*% Z), 
                               nu = 0, nv = k) else svd(crossprod(A, Z), 
                                                        nu = 0, nv = k)
+  
    
   j <- seq_len(k)
   s$v <- s$v[,j]
@@ -186,6 +192,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
     if(NCOL(Z) != NCOL(xn)) stop("Different number of variables in newdata\n", call. = FALSE) 
     r$xn <- xn %*% s$v
   }
+  
 
   class(r) <- "ordinate"
   r

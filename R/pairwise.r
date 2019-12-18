@@ -132,11 +132,11 @@
 #' summary(PW2, confidence = 0.95, test.type = "var")
 #' 
 pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL, 
-                      print.progress = FALSE) {
+                         print.progress = FALSE) {
   fitf <- fit
-  ind <- fit$PermInfo$perm.schedule
+  ind <- fitf$PermInfo$perm.schedule
   perms <- length(ind)
-  gls <- fit$LM$gls
+  gls <- fitf$LM$gls
   if(!inherits(fit, "lm.rrpp")) stop("The model fit must be a lm.rrpp class object")
   
   if(!is.null(fit.null)) {
@@ -147,58 +147,90 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       cat(paste("\nCoefficients estimation from RRPP on null model:", perms, "permutations.\n"))
       pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
     }
-    
-    gls <- fit.null$LM$gls
-    rrpp.args <- list()
-    fitted <- fit.null$LM$wFitted
-    res <- fit.null$LM$wResiduals
-    n <- fit.null$LM$n
-    p <- fit.null$LM$p
-    k <- length(fit.null$LM$term.labels)
-    o <- fit.null$LM$offset
-    if(sum(o) != 0) offset = TRUE else offset = FALSE
-    rrpp.args <- list(fitted = list(fitted), residuals = list(res),
-                      ind.i = NULL, w = NULL, o = NULL)
-    Y <- fit.null$LM$Y * sqrt(fit$LM$weights)
-    X0 <- fit.null$LM$X * sqrt(fit$LM$weights)
-    Q <- qr(X0)
-    U <- qr.Q(Q)
-    
-    if(gls) {
-      P <- fit.null$LM$Pcov
-      Y <- crossprod(P, Y)
-      X0 <- crossprod(P, X0)
-      Q <- qr(X0)
-      U <- qr.Q(Q)
-      fitted <- fastFit(U, Y, n, p)
-      res <- Y - fitted
-      rrpp.args$fitted <- list(fitted)
-      rrpp.args$residuals <- list(res)
-    }
-    
-    Xf <- fitf$LM$X * sqrt(fitf$LM$weights)
-    if(fitf$LM$gls) Xf <- crossprod(fitf$LM$Pcov, Xf)
-    Qf <- qr(Xf)
-    H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
-    getCoef <- function(y) H %*% y
-    coef.n <- lapply(1:perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      rrpp.args$ind.i <- ind[[j]]
-      y <- do.call(rrpp, rrpp.args)[[1]]
-      getCoef(y)
-    })
-    
-    kf <- length(fitf$LM$term.labels)
-    fitf$LM$random.coef[[kf]] <- coef.n
-    step <- perms + 1
-    if(print.progress) {
-      setTxtProgressBar(pb,step)
-      close(pb)
-    }
   }
   
-  groups <- as.factor(groups)
+  n <- fitf$LM$n
+  p <- fitf$LM$p
+  k <- length(fitf$LM$term.labels)
+  
+  if(k > 0) {
+    fitted <- fitf$Models$reduced[[k]]$fitted.values
+    res <- fitf$Models$reduced[[k]]$residuals
+    
+    if(!is.null(fit.null)) {
+      fitted <- if(fit.null$LM$gls) fit.null$LM$gls.fitted else fit.null$LM$fitted
+      res <- if(fit.null$LM$gls) fit.null$LM$gls.residuals else fit.null$LM$residuals
+    }
+  } else {
+    fitted <- matrix(0, n , p)
+    res <- as.matrix(fitf$LM$Y)
+  }
+  
+  gls <- fitf$LM$gls
+  rrpp.args <- list()
+  
+  w <- if(!is.null(fitf$LM$weights)) fitf$LM$weights else NULL
+  o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
+  offset <- if(!is.null(o)) TRUE else FALSE
+  
+  Y <- fitf$LM$Y 
+  X0 <- if(is.null(fit.null)) qr.X(fitf$Models$full[[k]]$qr) else
+    fit.null$LM$X
+  Q <- if(is.null(fit.null)) fitf$Models$full[[k]]$qr else
+    qr(X0)
+  U <- qr.Q(Q)
+  Xf <- fitf$LM$X
+  
+  rrpp.args <- list(fitted = as.matrix(fitted), residuals = as.matrix(res),
+                    ind.i = NULL, o = NULL)
+  
+  rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o = NULL) {
+    if(offset) fitted + residuals[ind.i,] - o else
+      fitted + residuals[ind.i,]
+  }
+  
+  if(gls) {
+    if(!is.null(fitf$LM$Pcov)) {
+      P <- fitf$LM$Pcov
+      Y <- crossprod(P, Y)
+      X0 <- crossprod(P, X0)
+      Xf <- crossprod(P, Xf)
+      Q <- qr(X0)
+      U <- qr.Q(Q)
+    } else {
+      w <- sqrt(fitf$LM$weights)
+      Y <- Y * w
+      X0 <- X0 * w
+      Xf <- Xf * w
+      Q <- qr(X0)
+      U <- qr.Q(Q)
+    }
+    
+    rrpp.args$fitted <- fastFit(U, Y, n, p)
+    rrpp.args$residuals <- Y - fitted
+  }
+  
+  Qf <- qr(Xf)
+  H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+  getCoef <- function(y) H %*% y
+  
+  coef.n <- lapply(1:perms, function(j){
+    step <- j
+    if(print.progress) setTxtProgressBar(pb,step)
+    rrpp.args$ind.i <- ind[[j]]
+    y <- do.call(rrpp, rrpp.args)
+    getCoef(y)
+  })
+  
+  kf <- length(fitf$LM$term.labels)
+  fitf$LM$random.coef[[kf]] <- coef.n
+  step <- perms + 1
+  if(print.progress) {
+    setTxtProgressBar(pb,step)
+    close(pb)
+  }
+  
+  groups <- factor(groups)
   gp.rep <- by(groups, groups, length)
   
   if(!all(gp.rep > 1)) stop("The groups factor does not have replication at each level.")
@@ -229,7 +261,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     slopes.vec.cor <- lapply(slopes, vec.cor.matrix)
   }
   
-  if(gls) res <- fitf$LM$gls.residuals else res <- fitf$LM$wResiduals
+  if(gls) res <- fitf$LM$gls.residuals else res <- fitf$LM$residuals
   disp.args <- list(res = as.matrix(res), ind.i = NULL, x = model.matrix(~groups + 0))
   if(gls) disp.args$x <- crossprod(fitf$LM$Pcov, disp.args$x)
   g.disp <- function(res, ind.i, x) {
@@ -238,7 +270,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       d <- r^2
     coef(lm.fit(x, d))
   }
-
+  
   vars <- sapply(1:perms, function(j){
     disp.args$ind.i <- ind[[j]]
     do.call(g.disp, disp.args)
@@ -246,7 +278,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   
   rownames(vars) <- levels(groups)
   colnames(vars) <- c("obs", paste("iter", 1:(perms -1), sep = "."))
-
+  
   out <- list(LS.means = means, slopes = slopes, means.dist = means.dist, means.vec.cor = means.vec.cor,
               slopes.length = slopes.length, slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
               vars = vars, n = fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)

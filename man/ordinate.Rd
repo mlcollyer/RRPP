@@ -4,8 +4,15 @@
 \alias{ordinate}
 \title{Ordination tool for data aligned to another matrix}
 \usage{
-ordinate(Y, A = NULL, Cov = NULL, scale. = FALSE, tol = NULL,
-  rank. = NULL, newdata = NULL)
+ordinate(
+  Y,
+  A = NULL,
+  Cov = NULL,
+  scale. = FALSE,
+  tol = NULL,
+  rank. = NULL,
+  newdata = NULL
+)
 }
 \arguments{
 \item{Y}{An n x p data matrix.}
@@ -84,38 +91,38 @@ is not an option (it is required).
 # Observations are species means and a phylogenetic covariance matrix
 # describes the relatedness among observations.
 
-data("PlethMorph")
-R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
-Forelimb, Hindlimb) ~ SVL, iter = 0, 
-data = PlethMorph, print.progress = FALSE)$LM$residuals
-
-PCA.ols <- ordinate(R, scale. = TRUE)
-PCA.ols$rot
-prcomp(R, scale. = TRUE)$rotation # should be the same
-
-PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
-
-# Align to phylogenetic signal
-
-PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
-PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
-Cov = PlethMorph$PhyCov)
-
-# Summaries
-
-summary(PCA.ols)
-summary(PCA.gls)
-summary(PaCA.ols)
-summary(PaCA.gls)
-
-# Plots
-
-par(mfrow = c(2,2))
-plot(PCA.ols, main = "PCA OLS")
-plot(PCA.gls, main = "PCA GLS")
-plot(PaCA.ols, main = "PaCA OLS")
-plot(PaCA.gls, main = "PaCA GLS")
-par(mfrow = c(1,1))
+# data("PlethMorph")
+# R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
+# Forelimb, Hindlimb) ~ SVL, iter = 0, 
+# data = PlethMorph, print.progress = FALSE)$LM$residuals
+# 
+# PCA.ols <- ordinate(R, scale. = TRUE)
+# PCA.ols$rot
+# prcomp(R, scale. = TRUE)$rotation # should be the same
+# 
+# PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
+# 
+# # Align to phylogenetic signal
+# 
+# PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
+# PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
+# Cov = PlethMorph$PhyCov)
+# 
+# # Summaries
+# 
+# summary(PCA.ols)
+# summary(PCA.gls)
+# summary(PaCA.ols)
+# summary(PaCA.gls)
+# 
+# # Plots
+# 
+# par(mfrow = c(2,2))
+# plot(PCA.ols, main = "PCA OLS")
+# plot(PCA.gls, main = "PCA GLS")
+# plot(PaCA.ols, main = "PaCA OLS")
+# plot(PaCA.gls, main = "PaCA GLS")
+# par(mfrow = c(1,1))
 
 }
 \references{

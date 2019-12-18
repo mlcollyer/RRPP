@@ -4,8 +4,12 @@
 \alias{model.comparison}
 \title{Model Comparisons, in terms of the log-likelihood or covariance trace}
 \usage{
-model.comparison(..., type = c("cov.trace", "logLik"), tol = NULL,
-  pc.no = NULL)
+model.comparison(
+  ...,
+  type = c("cov.trace", "logLik"),
+  tol = NULL,
+  pc.no = NULL
+)
 }
 \arguments{
 \item{...}{Any number of lm.rrpp class objects for model fits to be compared.}

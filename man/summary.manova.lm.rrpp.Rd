@@ -4,8 +4,7 @@
 \alias{summary.manova.lm.rrpp}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{summary}{manova.lm.rrpp}(object, test = c("Roy", "Pillai",
-  "Hotelling-Lawley", "Wilks"), ...)
+\method{summary}{manova.lm.rrpp}(object, test = c("Roy", "Pillai", "Hotelling-Lawley", "Wilks"), ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}, updated with \code{\link{manova.update}}}

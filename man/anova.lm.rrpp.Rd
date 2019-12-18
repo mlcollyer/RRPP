@@ -4,8 +4,13 @@
 \alias{anova.lm.rrpp}
 \title{ANOVA for lm.rrpp model fits}
 \usage{
-\method{anova}{lm.rrpp}(object, ..., effect.type = c("F", "cohenf", "SS",
-  "MS", "Rsq"), error = NULL, print.progress = TRUE)
+\method{anova}{lm.rrpp}(
+  object,
+  ...,
+  effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
+  error = NULL,
+  print.progress = TRUE
+)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}

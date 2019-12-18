@@ -4,8 +4,13 @@
 \alias{manova.update}
 \title{MANOVA update for lm.rrpp model fits}
 \usage{
-manova.update(fit, error = NULL, tol = 0.01, PC.no = NULL,
-  print.progress = TRUE, verbose = FALSE)
+manova.update(
+  fit,
+  error = NULL,
+  tol = 0.01,
+  PC.no = NULL,
+  print.progress = TRUE
+)
 }
 \arguments{
 \item{fit}{Linear model fit from \code{\link{lm.rrpp}}}
@@ -26,16 +31,18 @@ data PCs to use for analysis.  If a value larger than the possible number of PCs
 
 \item{print.progress}{A logical value to indicate whether a progress bar should be printed to the screen.
 This is helpful for long-running analyses.}
-
-\item{verbose}{A logical value to indicate whether invR.H matrices should be returned (if TRUE) or just their 
-eigen values (if FALSE).}
 }
 \value{
 An object of class \code{lm.rrpp} is updated to include class \code{manova.lm.rrpp}, and the object,
 $MANOVA, which includes
-\item{eiges}{The eigenvalues of invR.H, if verbose = FALSE.}
-\item{invR.H}{The inverse of the residuals SSCP times the H SSCP, if verbose = TRUE}
-\item{e.rank}{Rank of the error (residuals) covariance matrix.}
+\item{SSCP}{Terms and Model SSCP matrices.}
+\item{invR.H}{The inverse of the residuals SSCP times the H SSCP.}
+\item{eigs}{The eigenvalues of invR.H.}
+\item{e.rank}{Rank of the error (residuals) covariance matrix.  Currently NULL only.}
+\item{PCA}{Principal component analysis of data, using either tol or PC.no.}
+\item{manova.pc.dims}{Resulting number of PC vectors in teh analysis.}
+\item{e.rank}{Rank of the residual (error) covariance matrix, irrspective of the numberof dimensions 
+ used for analysis.}
 }
 \description{
 Function updates a lm.rrpp fit to add $MANOVA, which like $ANOVA, provides statistics
@@ -43,11 +50,9 @@ or matrices typically associated with multivariate analysis of variance (MANOVA)
 
 MANOVA statistics or sums of squares and cross-products (SSCP) matrices
 are calculated over the random permutations of a \code{\link{lm.rrpp}} fit.  SSCP matrices are 
-computed as the inverse of R time H (invR.H), where R is a SSCP for the residuals or random effects and H is
-the difference between SSCP matrices of full and reduced models (see below).  If
-the argument, verbose, is TRUE, invR.H matrices will be returned for every model effect and the entire model,
-for every permutation.  If verbose = FALSE, eigen-analysis is performed on the invR.H matrices and returned, allowing
-MANOVA statistics to be calculated, including Roy's maximum root (eigen value), Pillai trace, Hotelling-Lawley trace,
+computed, as are the inverse of R time H (invR.H), where R is a SSCP for the residuals or random effects and H is
+the difference between SSCP matrices of full and reduced models (see below).   From invR.H,
+MANOVA statistics are calculated, including Roy's maximum root (eigen value), Pillai trace, Hotelling-Lawley trace,
 and Wilks lambda (via \code{\link{summary.manova.lm.rrpp}}).
 
 The manova.update to add $MANOVA to \code{\link{lm.rrpp}} fits requires more computation time than the $ANOVA
@@ -113,10 +118,6 @@ summary(fit.m, test = "Pillai")
 
 fit.m$MANOVA$eigs$logSize[1:3] # eigenvalues first three iterations
 fit.m$MANOVA$eigs$Sex[1:3] # eigenvalues first three iterations
-
-fit.m <- manova.update(fit, verbose = TRUE, print.progress = FALSE)
-summary(fit.m, test = "Roy")
-summary(fit.m, test = "Pillai")
 
 fit.m$MANOVA$invR.H$logSize[1:3] # invR.H first three iterations
 fit.m$MANOVA$invR.H$Sex[1:3] # invR.H first three iterations

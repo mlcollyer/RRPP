@@ -4,8 +4,13 @@
 \alias{plot.lm.rrpp}
 \title{Plot Function for RRPP}
 \usage{
-\method{plot}{lm.rrpp}(x, type = c("diagnostics", "regression", "PC"),
-  predictor = NULL, reg.type = c("PredLine", "RegScore"), ...)
+\method{plot}{lm.rrpp}(
+  x,
+  type = c("diagnostics", "regression", "PC"),
+  predictor = NULL,
+  reg.type = c("PredLine", "RegScore"),
+  ...
+)
 }
 \arguments{
 \item{x}{plot object (from \code{\link{lm.rrpp}})}

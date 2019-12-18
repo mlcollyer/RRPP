@@ -74,10 +74,10 @@ attributes(fitm)
 attributes(fitm$MANOVA)
 ```
 
-The "eigs" object returns all the eigenvalues of $\mathbf{S}_{random}^{-1}\mathbf{S}_{effect}$, because the default argument, verbose, was FALSE.  One can return the matrices, themselves, with verbose = TRUE; i.e,
+The "eigs" object returns all the eigenvalues of $\mathbf{S}_{random}^{-1}\mathbf{S}_{effect}$, because the default argument.  One can return the matrices, themselves, with "invR.H".
 
 ```{r}
-fitm <- manova.update(fit, print.progress = FALSE, tol = 0, verbose = TRUE)
+fitm <- manova.update(fit, print.progress = FALSE, tol = 0)
 attributes(fitm)
 attributes(fitm$MANOVA)
 ```

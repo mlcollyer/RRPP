@@ -4,12 +4,10 @@
 \alias{fitted.lm.rrpp}
 \title{Extract fitted values}
 \usage{
-\method{fitted}{lm.rrpp}(object, weighted = TRUE, ...)
+\method{fitted}{lm.rrpp}(object, ...)
 }
 \arguments{
 \item{object}{plot object (from \code{\link{lm.rrpp}})}
-
-\item{weighted}{A logical argument to return weighted or unweighted residuals.}
 
 \item{...}{Arguments passed to other functions}
 }
