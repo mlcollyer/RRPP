@@ -12,7 +12,7 @@
 \item{newdata}{Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.  If null,
 the data frame from the lm.rrpp fit will be used, effectively calculating all fitted values and
 their confidence intervals.  If a numeric variable is missing from newdata, an attempt to average the values
-will be made in predicition; i.e., least squares means for factor levels can be found.  All factors used in the
+will be made in prediction; i.e., least squares means for factor levels can be found.  All factors used in the
 \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, with appropriate factor levels.}
 
 \item{confidence}{The desired confidence interval level for prediction.}

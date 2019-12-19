@@ -28,7 +28,7 @@
 #' @param tol A tolerance used to decide if the matrix of data is singular.  This value is passed onto both
 #' \code{\link[MASS]{lda}} and \code{\link[stats]{prcomp}}, internally.
 #' @param PC.no An optional argument to define the specific number of principal components (PC) used in analysis.
-#' The miminimum of this value or the number of PCs resultying from the tol argument will ne used.
+#' The minimum of this value or the number of PCs resulting from the tol argument will ne used.
 #' @param newdata An optional matrix (or object coercible to a matrix) for classification.  If NULL,
 #' all observed data are used.
 #' @param inherent.groups A logical argument in case one wishes to have the inherent groups in the model fit revealed.  If 

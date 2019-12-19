@@ -20,7 +20,7 @@ prep.lda(
 \code{\link[MASS]{lda}} and \code{\link[stats]{prcomp}}, internally.}
 
 \item{PC.no}{An optional argument to define the specific number of principal components (PC) used in analysis.
-The miminimum of this value or the number of PCs resultying from the tol argument will ne used.}
+The minimum of this value or the number of PCs resulting from the tol argument will ne used.}
 
 \item{newdata}{An optional matrix (or object coercible to a matrix) for classification.  If NULL,
 all observed data are used.}

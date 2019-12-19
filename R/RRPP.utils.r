@@ -1026,45 +1026,6 @@ print.summary.pairwise <- function(x, ...) {
 
 #' Print/Summary Function for RRPP
 #'
-#' @param x Object from \code{\link{classify}}
-#' @param ... Other arguments passed onto classify
-#' @export
-#' @author Michael Collyer
-#' @keywords utilities
-print.classify <- function(x ,...){
-  cat("\nGroups and group sizes\n")
-  print(x$group.n)
-  cat("\nPC means\n")
-  print(x$means)
-  cat("\nClassification for", length(x$class), "observations\n")
-  cat("\nUse summary() to produce a table of posterior classification probabilities\n")
-}
-
-#' Print/Summary Function for RRPP
-#'
-#' @param object Object from \code{\link{classify}}
-#' @param ... Other arguments passed onto classify
-#' @export
-#' @author Michael Collyer
-#' @keywords utilities
-summary.classify <- function(object ,...){
-  x <- object
-  cat("\nGroups and group sizes\n")
-  print(x$group.n)
-  cat("\nPC means\n")
-  print(x$means)
-  cat("\nClassification for", length(x$class), "observations\n")
-  cat("\nGeneralized (Mahalanobis) squared distances\n")
-  print(x$Mah.dist.sq)
-  cat("\nPrior probabilities\n")
-  print(x$prior)
-  cat("\nPosterior proabilities\n")
-  print(x$posterior)
-  cat("\n")
-}
-
-#' Print/Summary Function for RRPP
-#'
 #' @param x Object from \code{\link{model.comparison}}
 #' @param ... Other arguments passed onto model.comparison
 #' @export
