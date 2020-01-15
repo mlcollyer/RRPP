@@ -1714,8 +1714,16 @@ summary.ordinate <- function(object, ...){
   cp <- cumsum(d)/sum(d)
   r <- as.data.frame(rbind(d, p, cp))
   colnames(r) <- colnames(x$x)
-  rownames(r) <- c("Variance", "Proportion of Variance", "Cumulative Proportion")
-  if(x$alignment == "principal") rownames(r)[[1]] <- "Eigenvalues"
+  rownames(r) <- c("Singular Value", "Proportion of Covariance", "Cumulative Proportion")
+  
+  if(x$alignment == "principal") rownames(r)[1:2] <- c("Eigenvalues", "Proportion of Variance")
+  
+  if(x$alignment != "principal") {
+    rv <- x$RV
+    r <- rbind(r, rv, cumsum(rv))
+    rownames(r)[4:5] <- c("RV by Component", "Cumulative RV")
+  }
+
   cat("Importance of Components:\n")
   print(r)
   out <- r
@@ -1755,7 +1763,7 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
                           call. = FALSE)
   v <- x$d/sum(x$d)
   plot.args <- list(x = x$x[, axis1], y = x$x[, axis2],  ...)
-  if(!is.null(x$sdev)) {
+  if(x$alignment == "principal") {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
     ylabel <- paste("PC ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
   } else {

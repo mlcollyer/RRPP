@@ -117,7 +117,6 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   I <- diag(n)
   
   if(is.null(A)) A <- I
-  ind.check <- (sum(A) == n)
   if(!is.matrix(A))
     stop("A must be a matrix with the same number of rows as Y\n", 
          call. = FALSE)
@@ -132,8 +131,6 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
     if(isSymmetric(A)) A <- A[rownames(Y), rownames(Y)] else
       A <- A[rownames(Y),]
   }
-  
-  A <- center(A)
   
   X <- matrix(1, n)
   rownames(X) <- rownames(Y)
@@ -155,35 +152,48 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
                               nu = 0, nv = k) else svd(crossprod(A, Z), 
                                                        nu = 0, nv = k)
   
-   
   j <- seq_len(k)
   s$v <- s$v[,j]
   x <- Z %*% s$v
   
-  s$d <- (s$d/sqrt(n-1))^2
-  
-  if(ind.check) {
-    s$sdev <- sqrt(s$d)
-  } else s$sdev <- NULL
-  
+  sy <- sum(svd(Z)$d^2)
+  s$d <- s$d^2/sum(s$d^2) * sy / max(1, n - 1)
+  s$sdev <- sqrt(s$d)
+
   if (!is.null(tol)) {
     rank <- sum(s$sdev > (s$sdev[1L] * tol))
     if (rank < k) {
       j <- seq_len(k <- rank)
       s$v <- s$v[, j, drop = FALSE]
       s$d <- s$d[j]
+      s$sdev <- s$sdev[j]
       x <- x[j]
     }
   }
   s$v <- as.matrix(s$v)
   dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
+
+  rv <- function(x, y){
+    x <- as.matrix(x)
+    y <- as.matrix(y)
+    S11 <- var(x)
+    S22 <- var(y)
+    S12 <- crossprod(x, y)/(n - 1)
+    s <- svd(S12)
+    s$d^2 / sqrt(sum(S11^2) * sum(S22^2))
+  }
   
-  r <- list(d = s$d, sdev = s$sdev, rot = s$v, 
+  RV <- if(alignment != "principal") rv(A, Z) else NULL
+  
+  r <- list(d = s$d, sdev = s$sdev, 
+            rot = s$v, 
             center = cen, 
             scale = if(is.null(sc)) FALSE else sc,
             GLS = if(is.null(Cov)) FALSE else TRUE,
             alignment = alignment,
-            x = x)
+            x = x,
+            RV = RV)
+  
   colnames(r$x) <- colnames(s$v)
 
   if(!is.null(newdata)){
@@ -192,7 +202,6 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
     if(NCOL(Z) != NCOL(xn)) stop("Different number of variables in newdata\n", call. = FALSE) 
     r$xn <- xn %*% s$v
   }
-  
 
   class(r) <- "ordinate"
   r
