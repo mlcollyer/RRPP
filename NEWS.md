@@ -1,3 +1,9 @@
+# CHANGES IN RRPP 0.5.1 (Patch Release)
+
+### BUG FIXES 
+* Fixed data.frame error in lm.rrpp for within-formula transformations (like log or poly).
+* Arranged effect.type argument options in lm.rrpp to match anova.lm.rrpp).
+
 # CHANGES IN RRPP 0.5.0 (Minor Release)
 
 ### NEW FEATURES

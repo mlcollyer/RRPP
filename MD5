@@ -1,9 +1,10 @@
 f359d717a4325441f9732f326508691d *cran-comments.md
+2d3c89b888529241865eb91b95d20ee4 *CRAN-RELEASE
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-c659f73b05b62917d855bb6ffc101493 *DESCRIPTION
+4da682a7d714f33b517ff63f769ff9e0 *DESCRIPTION
 13b4eb650ebacb9d39169ff3f93d5dff *doc/ANOVA.vs.MANOVA.html
 d16062cf59bdc27c9af73c5e4280c9e2 *doc/ANOVA.vs.MANOVA.R
 070e9a22fe4f8a290a46ac3598513879 *doc/ANOVA.vs.MANOVA.Rmd
@@ -68,7 +69,7 @@ f7fc99ac345204a75497325e4c985ebe *R/pairwise.r
 f1b09d6c02c0034a487eb9fb2ce712e7 *R/predict.lm.rrpp.r
 d6aab71f9c24e9283ce16d5ccead3fa9 *R/prep.lda.r
 be65a023ec04fe716867de7a1907b645 *R/reveal.model.designs.r
-4252d43150a166b7fa6ae3d7d5640093 *R/RRPP.support.code.r
+efbde93dde712fd5c4fcc3b49cd6575f *R/RRPP.support.code.r
 6603b03a6326ad330bc5d4ac7d607d6a *R/RRPP.utils.r
 701b591f2b0a75005f25244329190871 *R/shared.support.code.r
 f7fb106c188d83fa4330ea68f900d02d *R/trajectory.analysis.r

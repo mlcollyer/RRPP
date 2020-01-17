@@ -200,7 +200,8 @@ rrpp.data.frame<- function(...){
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
   var.names <- all.vars(Terms)
-  dat <- eval(attr(Terms, "variables"), data, parent.frame())
+  var.exp <- formula(paste("~", paste(var.names, collapse = "+")))
+  dat <- eval(attr(terms(var.exp), "variables"), data, parent.frame())
   var.names[1] <- "Y"
   names(dat) <- var.names
   dep <- dat$Y
@@ -1340,6 +1341,7 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
         bb <- b[[jj]]
         if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
       })
+      if(is.vector(result)) result <- matrix(result, 1, kk)
       rownames(result) <- rownames(b[[1]])
       colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
       result
@@ -1475,6 +1477,7 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
         bb <- b[[jj]]
         if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
       })
+      if(is.vector(result)) result <- matrix(result, 1, kk)
       rownames(result) <- rownames(b[[1]])
       colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
       result

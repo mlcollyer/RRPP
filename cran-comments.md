@@ -1,5 +1,5 @@
 ## Resubmission
-This is a minor release, version 0.5.0, that fixes a few bugs in version 0.4.2, and adds  one function.This will have no effect on dependencies, as the new function has no dependencies..
+This is a patch release, version 0.5.1, that fixes a few bugs in version 0.5.0.  This will have no effect on dependencies.
 
 ## Test environments
 * local OS X install, R 3.6.2
