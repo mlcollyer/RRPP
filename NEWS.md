@@ -1,3 +1,9 @@
+# CHANGES IN RRPP 0.5.1 (Patch Release)
+
+### BUG FIXES 
+* Fixed data.frame error in lm.rrpp for within-formula transformations (like log or poly).
+* Arranged effect.type argument options in lm.rrpp to match anova.lm.rrpp).
+
 # CHANGES IN RRPP 0.5.0 (Minor Release)
 
 ### NEW FEATURES
@@ -73,7 +79,7 @@
 
 ### BUG FIXES 
 * Tuned F-stat calculations to allow for model-specific residual variances, for multiple terms.
-* Updated `procD.lm` to better work with data in the gloabl environment rather than a data frame. 
+* Updated `procD.lm` to better work with data in the global environment rather than a data frame. 
 
 ------
 

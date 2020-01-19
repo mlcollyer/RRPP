@@ -1762,13 +1762,14 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
   if(NCOL(x$x) == 1) stop("Only one component  No plotting capability with this function.\n", 
                           call. = FALSE)
   v <- x$d/sum(x$d)
+  if(!is.null(x$RV)) rv <- x$RV
   plot.args <- list(x = x$x[, axis1], y = x$x[, axis2],  ...)
   if(x$alignment == "principal") {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
     ylabel <- paste("PC ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
   } else {
-    xlabel <- paste("C ", axis1, ": ", round(v[axis1] * 100, 2), "% covariance", sep = "")
-    ylabel <- paste("C ", axis2, ": ", round(v[axis2] * 100, 2), "% covariance", sep = "")
+    xlabel <- paste("C ", axis1, ": RV = ", round(rv[axis1] * 100, 2), "%", sep = "")
+    ylabel <- paste("C ", axis2, ": RV = ", round(rv[axis2] * 100, 2), "%", sep = "")
   }
 
   if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel

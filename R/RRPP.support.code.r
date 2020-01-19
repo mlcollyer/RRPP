@@ -200,7 +200,8 @@ rrpp.data.frame<- function(...){
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
   var.names <- all.vars(Terms)
-  dat <- eval(attr(Terms, "variables"), data, parent.frame())
+  var.exp <- formula(paste("~", paste(var.names, collapse = "+")))
+  dat <- eval(attr(terms(var.exp), "variables"), data, parent.frame())
   var.names[1] <- "Y"
   names(dat) <- var.names
   dep <- dat$Y

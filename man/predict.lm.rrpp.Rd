@@ -12,7 +12,7 @@
 \item{newdata}{Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.  If null,
 the data frame from the lm.rrpp fit will be used, effectively calculating all fitted values and
 their confidence intervals.  If a numeric variable is missing from newdata, an attempt to average the values
-will be made in predicition; i.e., least squares means for factor levels can be found.  All factors used in the
+will be made in prediction; i.e., least squares means for factor levels can be found.  All factors used in the
 \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, with appropriate factor levels.}
 
 \item{confidence}{The desired confidence interval level for prediction.}
@@ -29,7 +29,7 @@ See \code{\link{plot.predict.lm.rrpp}}.
 
 Note that if data offsets are used (if the offset argument is used when fitting a \code{\link{lm.rrpp}} model),
 they are ignored for estimating coefficients over iterations.  Offsets are subtracted from data in \code{\link[stats]{lm}} and 
-added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then unadjusting
+added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then un-adjusting
 it for predictions.  This causes problems if the newdata have a different number of observations than the original
 model fit.
 }
@@ -41,7 +41,7 @@ data(Pupfish)
 names(Pupfish)
 Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
 
-fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish, iter = 499) 
 
 # Predictions (holding alternative effects constant)
 

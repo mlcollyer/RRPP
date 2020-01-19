@@ -40,8 +40,8 @@ $MANOVA, which includes
 \item{eigs}{The eigenvalues of invR.H.}
 \item{e.rank}{Rank of the error (residuals) covariance matrix.  Currently NULL only.}
 \item{PCA}{Principal component analysis of data, using either tol or PC.no.}
-\item{manova.pc.dims}{Resulting number of PC vectors in teh analysis.}
-\item{e.rank}{Rank of the residual (error) covariance matrix, irrspective of the numberof dimensions 
+\item{manova.pc.dims}{Resulting number of PC vectors in the analysis.}
+\item{e.rank}{Rank of the residual (error) covariance matrix, irrespective of the number of dimensions 
  used for analysis.}
 }
 \description{

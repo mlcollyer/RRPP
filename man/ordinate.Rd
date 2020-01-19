@@ -33,7 +33,7 @@ With the default null setting, no components are omitted (unless rank. is specif
 Other settings for tol could be tol = 0 or tol = sqrt(.Machine$double.eps), which would omit essentially constant components.
 This argument is exactly the same as in \code{\link{prcomp}}}
 
-\item{rank.}{Aptionally, a number specifying the maximal rank, i.e., maximal number of aligned components to be used. 
+\item{rank.}{Optionally, a number specifying the maximal rank, i.e., maximal number of aligned components to be used. 
 This argument can be set as alternative or in addition to tol, useful notably when the desired rank is considerably 
 smaller than the dimensions of the matrix.  This argument is exactly the same as in \code{\link{prcomp}}}
 
@@ -42,13 +42,13 @@ aligned components.}
 }
 \value{
 An object of class \code{ordinate} is a list containing the following
-\item{x}{Aigned component scores for all observations}
+\item{x}{Aligned component scores for all observations}
 \item{xn}{Optional projection of new data onto components.}
 \item{d}{The portion of the singular values attributed to the aligned components.}
 \item{sdev}{Standard deviations of d; i.e., the scale of the components.}
 \item{rot}{The matrix of variable loadings, i.e. the singular vectors, \bold{V}.}
 \item{center}{The OLS or GLS means vector used for centering.}
-\item{scale}{The sclaing used, or FALSE.}
+\item{scale}{The scaling used, or FALSE.}
 \item{alignment}{Whether data were aligned to principal axes or the name of another matrix.}
 \item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
 }
@@ -58,7 +58,7 @@ generalized least squares (GLS) residuals, aligned to an alternative matrix, plu
 data onto vectors obtained.
 }
 \details{
-The function performs a singular value decomosition, \bold{A'Z} = \bold{UDV'}, where
+The function performs a singular value decomposition, \bold{A'Z} = \bold{UDV'}, where
 \bold{Z} is a matrix of residuals (obtained from \bold{Y} - see below) and \bold{A}
 is an alignment matrix with the same number of rows as \bold{Z}.  
 (\bold{'} indicates matrix transposition.)  \bold{U}  and \bold{V}
@@ -75,13 +75,13 @@ then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard 
 Data are projected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
 an orthogonal projection and in the case of GLS is an oblique projection.
 
-The versatility of using an alignment approach is that alternive data space rotations are possible.
+The versatility of using an alignment approach is that alternative data space rotations are possible.
 Principal components are thus the vectors that maximize variance with respect to the data, themselves,
 but "components" of (co)variation can be described for any inter-matrix relationship, including
 phylogenetic signal, ecological signal, ontogenetic signal, size allometry, etc.
 More details are provided in Collyer and Adams (in review).
 
-Much of this function is consisten with the \code{\link{prcomp}} function, except that centering data
+Much of this function is consistent with the \code{\link{prcomp}} function, except that centering data
 is not an option (it is required).
 }
 \examples{
@@ -91,38 +91,40 @@ is not an option (it is required).
 # Observations are species means and a phylogenetic covariance matrix
 # describes the relatedness among observations.
 
-# data("PlethMorph")
-# R <- lm.rrpp(cbind (TailLength, HeadLength, Snout.eye, BodyWidth, 
-# Forelimb, Hindlimb) ~ SVL, iter = 0, 
-# data = PlethMorph, print.progress = FALSE)$LM$residuals
-# 
-# PCA.ols <- ordinate(R, scale. = TRUE)
-# PCA.ols$rot
-# prcomp(R, scale. = TRUE)$rotation # should be the same
-# 
-# PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
-# 
-# # Align to phylogenetic signal
-# 
-# PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
-# PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
-# Cov = PlethMorph$PhyCov)
-# 
-# # Summaries
-# 
-# summary(PCA.ols)
-# summary(PCA.gls)
-# summary(PaCA.ols)
-# summary(PaCA.gls)
-# 
-# # Plots
-# 
-# par(mfrow = c(2,2))
-# plot(PCA.ols, main = "PCA OLS")
-# plot(PCA.gls, main = "PCA GLS")
-# plot(PaCA.ols, main = "PaCA OLS")
-# plot(PaCA.gls, main = "PaCA GLS")
-# par(mfrow = c(1,1))
+data("PlethMorph")
+Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+"Snout.eye", "BodyWidth", 
+"Forelimb", "Hindlimb")])
+R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+iter = 0, print.progress = FALSE)$LM$residuals
+
+PCA.ols <- ordinate(R, scale. = TRUE)
+PCA.ols$rot
+prcomp(R, scale. = TRUE)$rotation # should be the same
+
+PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
+ 
+ # Align to phylogenetic signal
+ 
+ PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
+ PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
+ Cov = PlethMorph$PhyCov)
+ 
+ # Summaries
+ 
+ summary(PCA.ols)
+ summary(PCA.gls)
+ summary(PaCA.ols)
+ summary(PaCA.gls)
+ 
+ # Plots
+ 
+ par(mfrow = c(2,2))
+ plot(PCA.ols, main = "PCA OLS")
+ plot(PCA.gls, main = "PCA GLS")
+ plot(PaCA.ols, main = "PaCA OLS")
+ plot(PaCA.gls, main = "PaCA GLS")
+ par(mfrow = c(1,1))
 
 }
 \references{
