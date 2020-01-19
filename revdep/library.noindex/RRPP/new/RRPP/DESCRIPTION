@@ -1,0 +1,33 @@
+Package: RRPP
+Title: Linear Model Evaluation with Randomized Residuals in a
+        Permutation Procedure
+Version: 0.5.1
+Authors@R: c(
+    person("Michael", "Collyer", , "mlcollyer@gmail.com", c("aut", "cre")),
+    person("Dean", "Adams", , role = "aut")
+    )
+Description: Linear model calculations are made for many random versions of data.  
+    Using residual randomization in a permutation procedure, sums of squares are 
+    calculated over many permutations to generate empirical probability distributions 
+    for evaluating model effects.  This packaged is described by 
+    Collyer & Adams (2018) <doi:10.1111/2041-210X.13029>.  Additionally, coefficients, statistics, fitted values, and residuals generated over many 
+    permutations can be used for various procedures including pairwise tests, prediction, classification, and
+    model comparison.  This package should provide most tools one could need for the analysis of
+    high-dimensional data, especially in ecology and evolutionary biology, but certainly other fields, as well.
+License: GPL (>= 2)
+URL: https://github.com/mlcollyer/RRPP
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+Imports: parallel
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+RemoteType: local
+RemoteUrl:
+        /Users/m.collyer/Desktop/R.package.development/RRPP/Master/RRPP
+NeedsCompilation: no
+Packaged: 2020-01-19 15:20:05 UTC; m.collyer
+Author: Michael Collyer [aut, cre],
+  Dean Adams [aut]
+Maintainer: Michael Collyer <mlcollyer@gmail.com>
+Built: R 3.6.2; ; 2020-01-19 15:20:06 UTC; unix

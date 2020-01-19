@@ -29,7 +29,7 @@ See \code{\link{plot.predict.lm.rrpp}}.
 
 Note that if data offsets are used (if the offset argument is used when fitting a \code{\link{lm.rrpp}} model),
 they are ignored for estimating coefficients over iterations.  Offsets are subtracted from data in \code{\link[stats]{lm}} and 
-added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then unadjusting
+added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then un-adjusting
 it for predictions.  This causes problems if the newdata have a different number of observations than the original
 model fit.
 }

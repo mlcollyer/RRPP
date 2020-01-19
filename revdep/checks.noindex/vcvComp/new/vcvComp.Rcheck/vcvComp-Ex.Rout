@@ -1,0 +1,545 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "vcvComp"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('vcvComp')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("cov.B")
+> ### * cov.B
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: cov.B
+> ### Title: Between-group covariance matrix
+> ### Aliases: cov.B
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Between-group covariance matrix for all populations
+> B <- cov.B(proc.coord, groups = Tropheus$POP.ID)
+> 
+> # Between-group covariance matrix for all populations, pooled by sex
+> B.mf <- cov.B(proc.coord, groups = Tropheus$POP.ID, sex = Tropheus$Sex)
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("cov.W")
+> ### * cov.W
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: cov.W
+> ### Title: Within-group covariance matrix
+> ### Aliases: cov.W
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Within-group covariance matrix for all populations
+> W <- cov.W(proc.coord, groups = Tropheus$POP.ID)
+> 
+> # Within-group covariance matrix for all populations, pooled by sex
+> W.mf <- cov.W(proc.coord, groups = Tropheus$POP.ID, sex = Tropheus$Sex)
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("cov.group")
+> ### * cov.group
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: cov.group
+> ### Title: Group covariance matrices
+> ### Aliases: cov.group
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(proc.coord, groups = Tropheus$POP.ID)
+> 
+> # Covariance matrix of each population, pooled by sex
+> S.phen.pooled <- cov.group(proc.coord, groups = Tropheus$POP.ID, sex = Tropheus$Sex)
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("eigen.test")
+> ### * eigen.test
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: eigen.test
+> ### Title: Difference test for successive relative eigenvalues
+> ### Aliases: eigen.test
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Relative PCA = relative eigenanalysis between 2 covariance matrices
+> # (population IKA1 relative to IKS5)
+> relEigen.a1s5 <- relative.eigen(S.phen.pop[, , "IKA1"], S.phen.pop[, , "IKS5"])
+> 
+> # Test of the difference between 2 successives eigenvalues
+> # of the covariance matrix of IKA1 relative to IKS5
+> eigen.test(n = c(71, 75), relValues = relEigen.a1s5$relValues)  # 71 and 75 are the sample sizes
+[1] 0.001858113 0.691651941 0.256873353 0.458621422
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("euclidean.dist")
+> ### * euclidean.dist
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: euclidean.dist
+> ### Title: Euclidean distance between two covariance matrices
+> ### Aliases: euclidean.dist
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Euclidean distance between the covariance matrices of 2 populations
+> # (IKA1 relative to IKS5)
+> dist.a1s5 <- euclidean.dist(S.phen.pop[, , "IKA1"], S.phen.pop[, , "IKS5"])
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("mat.sq.dist")
+> ### * mat.sq.dist
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mat.sq.dist
+> ### Title: Squared distance matrix
+> ### Aliases: mat.sq.dist
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Squared Riemannian distance matrix of the covariance matrices of all populations
+> eigen.phen.r <- mat.sq.dist(S.phen.pop, dist. = "Riemannian")
+> 
+> # Squared Euclidean distance matrix of the covariance matrices of all populations
+> eigen.phen.e <- mat.sq.dist(S.phen.pop, dist. = "Euclidean")
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("minv")
+> ### * minv
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: minv
+> ### Title: Matrix pseudoinverse
+> ### Aliases: minv
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(proc.coord, groups = Tropheus$POP.ID)
+> 
+> # Pseudo-inversion of a square matrix (covariance matrix of the population IKS5)
+> S2 <- S.phen.pop[, , "IKS5"]
+> invS2 <- minv(S2, method = 0, pa = 0)  # Pseudoinverse keeping non-zero eigenvalues
+> invS2 <- minv(S2, method = 1, pa = 10^-8)  # Pseudoinverse keeping eigenvalues above 10^-8
+> invS2 <- minv(S2, method = 2, pa = 5)  # Pseudoinverse keeping the first five eigenvalues
+> invS2 <- minv(S2, method = 3, pa = 0.5)  # Ridge regression with Tikhonov factor of 0.5
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("pr.coord")
+> ### * pr.coord
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: pr.coord
+> ### Title: Principal coordinates ordination
+> ### Aliases: pr.coord
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Squared distance matrix of the covariance matrices of all populations
+> eigen.phen.pop <- mat.sq.dist(S.phen.pop, dist. = "Riemannian")  # Riemannian distances
+> 
+> # Ordination of the squared distance matrix
+> prcoa.pop <- pr.coord(eigen.phen.pop)
+> 
+> # Visualization
+> plot(prcoa.pop$PCoords[, 1], prcoa.pop$PCoords[, 2])
+> abline(h = 0) ; abline(v = 0)
+> text(prcoa.pop$PCoords[, 1], prcoa.pop$PCoords[, 1], labels = rownames(prcoa.pop$PCoords))
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("prop.vcv.test")
+> ### * prop.vcv.test
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: prop.vcv.test
+> ### Title: Proportionality test of two variance-covariance matrices
+> ### Aliases: prop.vcv.test
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Maximum likelihood test of proportionality between 2 covariance matrices
+> # (IKA1 relative to IKS5) - 71 and 75 are the sample sizes
+> prop.vcv.test(n = c(71, 75), S.phen.pop[,,"IKA1"], S.phen.pop[,,"IKS5"])
+[1] 0.001952758
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("relGV.multi")
+> ### * relGV.multi
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: relGV.multi
+> ### Title: Ratio of generalized variances
+> ### Aliases: relGV.multi
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Ratio of the generalized variances of 2 populations (IKA1 and IKS5)
+> relGV.multi(S.phen.pop[, , c("IKA1", "IKS5")], logGV = FALSE)
+          IKA1     IKS5
+IKA1 1.0000000 1.547605
+IKS5 0.6461597 1.000000
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("relative.eigen")
+> ### * relative.eigen
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: relative.eigen
+> ### Title: Relative eigenanalysis
+> ### Aliases: relative.eigen
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Data reduction
+> phen.pca <- prcomp(proc.coord, rank. = 5, tol = sqrt(.Machine$double.eps))
+> pc.scores <- phen.pca$x
+> 
+> # Covariance matrix of each population
+> S.phen.pop <- cov.group(pc.scores, groups = Tropheus$POP.ID)
+> 
+> # Relative PCA = relative eigenanalysis between 2 covariance matrices
+> # (population IKA1 relative to IKS5)
+> relEigen.a1s5 <- relative.eigen(S.phen.pop[, , "IKA1"], S.phen.pop[, , "IKS5"])
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> nameEx("scaling.BW")
+> ### * scaling.BW
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: scaling.BW
+> ### Title: Scaling factor between two matrices
+> ### Aliases: scaling.BW
+> 
+> ### ** Examples
+> 
+> 
+> # Data matrix of 2D landmark coordinates
+> data("Tropheus")
+> PHEN <- as.matrix(Tropheus[which(names(Tropheus) == "X1"):which(names(Tropheus) == "Y19")])
+> 
+> # Procrustes superimposition
+> library("geomorph")
+Loading required package: RRPP
+Loading required package: rgl
+> PHEN_array <- arrayspecs(PHEN, p = 19, k = 2)
+> phen.gpa <- gpagen(PHEN_array, print.progress = FALSE)
+> proc.coord <- two.d.array(phen.gpa$coords)
+> 
+> # Between-group (B) and within-group (W) covariance matrices for all populations
+> B <- cov.B(proc.coord, groups = Tropheus$POP.ID, sex = Tropheus$Sex)
+> W <- cov.W(proc.coord, groups = Tropheus$POP.ID, sex = Tropheus$Sex)
+> 
+> # ML estimate of the scaling factor between B and W
+> sc <- scaling.BW(B, W)
+> 
+> # Scaling of B to W
+> Bsc <- B / sc
+> 
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+
+detaching ‘package:geomorph’, ‘package:rgl’, ‘package:RRPP’
+
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  2.289 0.125 2.437 0.005 0.011 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')
