@@ -1,3 +1,9 @@
+# CHANGES IN RRPP 0.5.2 (Patch Release)
+
+### BUG FIXES 
+* Fixed issue with GLS estimation of coefficients in pairwise (used GLS residuals instead of
+transformed residuals, by mistake).
+
 # CHANGES IN RRPP 0.5.1 (Patch Release)
 
 ### BUG FIXES 
