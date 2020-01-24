@@ -1713,7 +1713,8 @@ summary.ordinate <- function(object, ...){
   p <- d/sum(d)
   cp <- cumsum(d)/sum(d)
   r <- as.data.frame(rbind(d, p, cp))
-  colnames(r) <- colnames(x$x)
+  r <- r[, 1:min(length(d), NCOL(x$x), NCOL(r))]
+  colnames(r) <- colnames(x$x)[1:NCOL(r)]
   rownames(r) <- c("Singular Value", "Proportion of Covariance", "Cumulative Proportion")
   
   if(x$alignment == "principal") rownames(r)[1:2] <- c("Eigenvalues", "Proportion of Variance")

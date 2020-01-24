@@ -153,64 +153,47 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   p <- fitf$LM$p
   k <- length(fitf$LM$term.labels)
   
-  if(k > 0) {
-    fitted <- fitf$Models$reduced[[k]]$fitted.values
-    res <- fitf$Models$reduced[[k]]$residuals
-    
-    if(!is.null(fit.null)) {
-      fitted <- if(fit.null$LM$gls) fit.null$LM$gls.fitted else fit.null$LM$fitted
-      res <- if(fit.null$LM$gls) fit.null$LM$gls.residuals else fit.null$LM$residuals
-    }
-  } else {
-    fitted <- matrix(0, n , p)
-    res <- as.matrix(fitf$LM$Y)
+  Y <- fitf$LM$Y
+  if(gls) {
+    Y <- if(!is.null(fitf$LM$Pcov)) fitf$LM$Pcov %*% Y else
+      Y %*% sqrt(fitf$LM$weights)
   }
   
-  gls <- fitf$LM$gls
-  rrpp.args <- list()
+  X <- qr.X(fitf$Models$reduced[[k]]$qr) 
+  if(!is.null(fit.null)) {
+    X <- fit.null$LM$X
+    if(fit.null$LM$gls) {
+      X <- if(!is.null(fit.null$LM$Pcov)) fit.null$LM$Pcov %*% X else
+        X %*% sqrt(fit.null$LM$weights)
+    }
+  }
   
-  w <- if(!is.null(fitf$LM$weights)) fitf$LM$weights else NULL
-  o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
-  offset <- if(!is.null(o)) TRUE else FALSE
-  
-  Y <- fitf$LM$Y 
-  X0 <- if(is.null(fit.null)) qr.X(fitf$Models$full[[k]]$qr) else
-    fit.null$LM$X
-  Q <- if(is.null(fit.null)) fitf$Models$full[[k]]$qr else
-    qr(X0)
-  U <- qr.Q(Q)
-  Xf <- fitf$LM$X
+  if(k > 0) {
+    lmf <- lm.fit(X, Y)
+    fitted <-lmf$fitted.values
+    res <- lmf$residuals
+  } else {
+    fitted <- matrix(0, n, p)
+    res <- Y
+  }
   
   rrpp.args <- list(fitted = as.matrix(fitted), residuals = as.matrix(res),
                     ind.i = NULL, o = NULL)
+  
+  o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
+  offset <- if(!is.null(o)) TRUE else FALSE
+  rrpp.args$o <- o
   
   rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o = NULL) {
     if(offset) fitted + residuals[ind.i,] - o else
       fitted + residuals[ind.i,]
   }
   
-  if(gls) {
-    if(!is.null(fitf$LM$Pcov)) {
-      P <- fitf$LM$Pcov
-      Y <- crossprod(P, Y)
-      X0 <- crossprod(P, X0)
-      Xf <- crossprod(P, Xf)
-      Q <- qr(X0)
-      U <- qr.Q(Q)
-    } else {
-      w <- sqrt(fitf$LM$weights)
-      Y <- Y * w
-      X0 <- X0 * w
-      Xf <- Xf * w
-      Q <- qr(X0)
-      U <- qr.Q(Q)
-    }
-    
-    rrpp.args$fitted <- fastFit(U, Y, n, p)
-    rrpp.args$residuals <- Y - fitted
-  }
+  rrpp.args$o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
+  rrpp.args$offset <- if(!is.null(o)) TRUE else FALSE
   
-  Qf <- qr(Xf)
+  Qf <- fit$Models$full[[k]]$qr
+  
   H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
   getCoef <- function(y) H %*% y
   

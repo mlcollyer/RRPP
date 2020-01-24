@@ -140,6 +140,8 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   p <- dims[2]
   I <- diag(n)
   
+  id <- if(!is.null(rownames(Y))) rownames(Y) else 1:n
+  
   if(is.null(A)) A <- I
   if(!is.matrix(A))
     stop("A must be a matrix with the same number of rows as Y\n", 
@@ -152,8 +154,8 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
     if(nnames > n)
       stop("The row names of A are not the same as the row names of Y\n",
            call. = FALSE)
-    if(isSymmetric(A)) A <- A[rownames(Y), rownames(Y)] else
-      A <- A[rownames(Y),]
+    if(isSymmetric(A)) A <- A[id, id] else
+      A <- A[id,]
   }
   
   X <- matrix(1, n)
