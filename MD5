@@ -4,12 +4,6 @@ c138bc879c6b257fd49df3b8c3392b7f *cran-comments.md
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 78a9e41ba4472ee0b83aa097123c5d5a *DESCRIPTION
-13b4eb650ebacb9d39169ff3f93d5dff *doc/ANOVA.vs.MANOVA.html
-d16062cf59bdc27c9af73c5e4280c9e2 *doc/ANOVA.vs.MANOVA.R
-070e9a22fe4f8a290a46ac3598513879 *doc/ANOVA.vs.MANOVA.Rmd
-8cd1350e1a5d047e07fede540cd64dea *doc/Using.RRPP.html
-0e482efe02b456ba5d259e8a514c8540 *doc/Using.RRPP.R
-6f61ac0efa7dab47ce7dd5f7b3401c82 *doc/Using.RRPP.Rmd
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
 1e715836fd2e1352879f2861a752cacb *man/add.trajectories.Rd
 d5786033a292b7452327596107a5ed3e *man/anova.lm.rrpp.Rd
