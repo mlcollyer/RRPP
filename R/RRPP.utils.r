@@ -1769,8 +1769,8 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
     ylabel <- paste("PC ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
   } else {
-    xlabel <- paste("C ", axis1, ": RV = ", round(rv[axis1] * 100, 2), "%", sep = "")
-    ylabel <- paste("C ", axis2, ": RV = ", round(rv[axis2] * 100, 2), "%", sep = "")
+    xlabel <- paste("C ", axis1,  sep = "")
+    ylabel <- paste("C ", axis2,  sep = "")
   }
 
   if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
