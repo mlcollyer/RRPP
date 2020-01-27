@@ -1,6 +1,6 @@
 Package: RRPP
 Title: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure
-Version: 0.5.2
+Version: 0.5.2.9000
 Authors@R: c(
     person("Michael", "Collyer", , "mlcollyer@gmail.com", c("aut", "cre")),
     person("Dean", "Adams", , role = "aut")
