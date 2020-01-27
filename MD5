@@ -3,7 +3,7 @@
 87b2565a0e24012435c3090aa3b96c06 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-78a9e41ba4472ee0b83aa097123c5d5a *DESCRIPTION
+07cda9d81305b4df38df5efa8bfc9122 *DESCRIPTION
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
 1e715836fd2e1352879f2861a752cacb *man/add.trajectories.Rd
 d5786033a292b7452327596107a5ed3e *man/anova.lm.rrpp.Rd
@@ -51,7 +51,7 @@ f34747373315d2e5b588392110279271 *man/summary.trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 bdf70e2e8fe66e061b34d3095c57c02a *Meta/vignette.rds
 b9e0425a875a77f5078230c30b57efc2 *NAMESPACE
-0787b25eb19d3e94b8ddc3ce9aa87140 *NEWS.md
+b0a1bcdb181079a552f7acff165bf362 *NEWS.md
 8e28b11c3e35487ac146d25c0d538154 *R/anova.lm.rrpp.r
 b418ff0ab44206de3811658e5287d502 *R/coef.lm.rrpp.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
