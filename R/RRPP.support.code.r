@@ -205,9 +205,9 @@ lm.args.from.formula <- function(f1, data = NULL){
   dat <- eval(attr(terms(var.exp), "variables"), data, parent.frame())
   var.names[1] <- "Y"
   names(dat) <- var.names
+  dep <- dat$Y
   
   if(inherits(f, "try-error")) {
-    dep <- dat$Y
     if(is.array(dep) && length(dim(dep)) > 2)
       stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
            call. = FALSE)
@@ -224,7 +224,12 @@ lm.args.from.formula <- function(f1, data = NULL){
     Terms <- terms(f)
     mf <- model.frame(Terms)
     Y <- dat[[1]] <- mf[[1]]
-    D <- NULL
+    
+    if((is.matrix(Y) || is.data.frame(Y))
+       && isSymmetric(unname(as.matrix(Y)))) {
+      D <- as.dist(Y)
+      Y <- dat[[1]] <- pcoa(D)
+    } else D <- NULL
   }
   
   data <- if(length(dat) > 1) as.data.frame(dat) else data.frame(Y = Y)
