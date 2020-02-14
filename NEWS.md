@@ -1,3 +1,14 @@
+# CHANGES IN RRPP 0.5.2.9000 
+
+### BUG FIXES 
+* Fixed issue with transformation of dependent variable - e.g., log(y) - in formula for lm.rrpp. The bug was a failure to transform the variable(s).
+
+# CHANGES IN RRPP 0.5.2 (Patch Release)
+
+### BUG FIXES 
+* Fixed issue with GLS estimation of coefficients in pairwise (used GLS residuals instead of
+transformed residuals, by mistake).
+
 # CHANGES IN RRPP 0.5.1 (Patch Release)
 
 ### BUG FIXES 
