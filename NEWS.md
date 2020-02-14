@@ -1,6 +1,7 @@
 # CHANGES IN RRPP 0.5.2.9000 
 
-* Nothing yet!
+### BUG FIXES 
+* Fixed issue with transformation of dependent variable - e.g., log(y) - in formula for lm.rrpp. The bug was a failure to transform the variable(s).
 
 # CHANGES IN RRPP 0.5.2 (Patch Release)
 

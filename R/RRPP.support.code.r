@@ -199,25 +199,35 @@ rrpp.data.frame<- function(...){
 
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
+  f <- try(lm(f1, data = data), silent = TRUE)
   var.names <- all.vars(Terms)
   var.exp <- formula(paste("~", paste(var.names, collapse = "+")))
   dat <- eval(attr(terms(var.exp), "variables"), data, parent.frame())
   var.names[1] <- "Y"
   names(dat) <- var.names
-  dep <- dat$Y
-  if(is.array(dep) && length(dim(dep)) > 2)
-    stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
-         call. = FALSE)
-  if(inherits(dep, "dist")) {
-    if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
-    D <- dep
-  } else if((is.matrix(dep) || is.data.frame(dep))
-            && isSymmetric(unname(as.matrix(dep)))) {
-    D <- as.dist(dep)
-  } else D <- NULL
-  if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
-  data <- if(length(dat) > 1) as.data.frame(dat[-1]) else data.frame(Y = Y)
-  data$Y <- Y
+  
+  if(inherits(f, "try-error")) {
+    dep <- dat$Y
+    if(is.array(dep) && length(dim(dep)) > 2)
+      stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
+           call. = FALSE)
+    if(inherits(dep, "dist")) {
+      if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
+      D <- dep
+    } else if((is.matrix(dep) || is.data.frame(dep))
+              && isSymmetric(unname(as.matrix(dep)))) {
+      D <- as.dist(dep)
+    } else D <- NULL
+    if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
+    
+  } else {
+    Terms <- terms(f)
+    mf <- model.frame(Terms)
+    Y <- dat[[1]] <- mf[[1]]
+    D <- NULL
+  }
+  
+  data <- if(length(dat) > 1) as.data.frame(dat) else data.frame(Y = Y)
   form <- update(f1, Y ~ .)
   Terms <- terms(form)
   list(Terms = Terms, data = data, 
