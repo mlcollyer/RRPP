@@ -199,43 +199,58 @@ rrpp.data.frame<- function(...){
 
 lm.args.from.formula <- function(f1, data = NULL){
   Terms <- terms(f1)
-  f <- try(lm(f1, data = data), silent = TRUE)
   var.names <- all.vars(Terms)
   var.exp <- formula(paste("~", paste(var.names, collapse = "+")))
-  dat <- eval(attr(terms(var.exp), "variables"), data, parent.frame())
-  var.names[1] <- "Y"
+  dat <- try(eval(attr(terms(var.exp), "variables"), data, parent.frame()),
+             silent = TRUE)
+  if(inherits(dat, "try-error"))
+    stop("Either data or variables are missing from the data frame or global environment,\n", 
+         call. = FALSE)
   names(dat) <- var.names
-  dep <- dat$Y
+  Y <- dat[[1]]
+  D <- NULL
   
-  if(inherits(f, "try-error")) {
-    if(is.array(dep) && length(dim(dep)) > 2)
-      stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
-           call. = FALSE)
-    if(inherits(dep, "dist")) {
-      if(any(dep < 0)) stop("Distances in distance matrix cannot be less than 0")
-      D <- dep
-    } else if((is.matrix(dep) || is.data.frame(dep))
-              && isSymmetric(unname(as.matrix(dep)))) {
-      D <- as.dist(dep)
-    } else D <- NULL
-    if(!is.null(D)) Y <- pcoa(D) else Y <- as.matrix(dep)
-
-  } else {
-    Terms <- terms(f)
-    mf <- model.frame(Terms)
-    Y <- dat[[1]] <- mf[[1]]
-    
-    if((is.matrix(Y) || is.data.frame(Y))
-       && isSymmetric(unname(as.matrix(Y)))) {
-      D <- as.dist(Y)
-      Y <- dat[[1]] <- pcoa(D)
-    } else D <- NULL
+  if(inherits(Y, "dist")) {
+    if(any(Y < 0)) stop("Distances in distance matrix cannot be less than 0")
+    D <- Y
+    Y <- pcoa(Y)
   }
   
-  data <- if(length(dat) > 1) as.data.frame(dat) else data.frame(Y = Y)
+  if(is.matrix(Y) || is.data.frame(Y)) {
+    if(isSymmetric(Y)) {
+      D <- as.dist(Y)
+      if(any(D < 0)) stop("Distances in distance matrix cannot be less than 0")
+      Y <- pcoa(D)
+    }
+  }
+  
+  if(is.vector(Y)) {
+    Y <- matrix(Y)
+    D <- NULL
+  }
+  
+  if(is.array(Y) && length(dim(Y)) > 2) 
+    stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
+         call. = FALSE)
+  
+  n <- NROW(Y)
+  dat[[1]] <- rep(1, n)
+  dat <- as.data.frame(dat)
+  dat[[1]] <- Y
+  
+  f <- try(lm(f1, data = dat), silent = TRUE)
+  if(inherits(f, "try-error"))
+    stop("Either data are not an object that can be converted to a matrix or one of the independent variables\n
+         is not a vector. Please check and consider using a data frame.\n", 
+         call. = FALSE)
+  
+  Terms <- terms(f)
+  mf <- model.frame(Terms, data = dat)
+  Y <- mf[[1]]
   form <- update(f1, Y ~ .)
   Terms <- terms(form)
-  list(Terms = Terms, data = data, 
+  names(dat)[[1]] <- "Y"
+  list(Terms = Terms, data = dat, 
        Y = Y, D = D)
 }
 
