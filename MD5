@@ -21,7 +21,7 @@ dff6caea396ff2673da0448d3b1fc44d *man/lm.rrpp.Rd
 c2387222a458625683f440bd4a88b033 *man/manova.update.Rd
 bbc58fb8954b29f0580376d8e95144c7 *man/model.comparison.Rd
 c75db7099ad7a5d9bf80757369e495ea *man/motionpaths.Rd
-d432b3e7eeba51f099d98acd598290c5 *man/ordinate.Rd
+232b98ec3d10fec1918dbd1ff660e610 *man/ordinate.Rd
 bb74a3710fb268fcd2f0eca87e0c8a6f *man/pairwise.Rd
 4ba4f9fdbeffa3718c5c2bca0db78ad2 *man/PlethMorph.Rd
 a4e449286a0dffe84c32bc27410936b5 *man/plot.lm.rrpp.Rd
@@ -71,7 +71,7 @@ b418ff0ab44206de3811658e5287d502 *R/coef.lm.rrpp.r
 39a075814cd66935d84b5cca9c183dc8 *R/lm.rrpp.r
 f4ae9e9bf34fd2954ef1b8b4bfb1dcaa *R/manova.update.r
 3e7ab8146a2bf28a525394286b6995c3 *R/model.comparison.r
-6b947f9bfb2b0f8c8e08afe1d9e12a05 *R/ordinate.r
+b77ca7c76e2b8a15ba5c499260541d78 *R/ordinate.r
 5d2c7fea1604e7e5da98dc5350308da4 *R/pairwise.r
 32c2cd277245fdf71b84ca1b3f34b269 *R/predict.lm.rrpp.r
 66bf8bce8d27844d988f6d5d8aa7496b *R/prep.lda.r

@@ -8,6 +8,7 @@ ordinate(
   Y,
   A = NULL,
   Cov = NULL,
+  transform. = TRUE,
   scale. = FALSE,
   tol = NULL,
   rank. = NULL,
@@ -24,6 +25,10 @@ be associated with the p variables of Y.  If NULL, an n x n identity matrix will
 observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
 wishes to align GLS residuals to the same matrix used to obtain them.  Note also that no explicit GLS-centering
 is performed on A.  If this is desired, A should be GLS-centered beforehand.}
+
+\item{transform.}{An optional argument if a covariance is provided to transform GLS-centered residuals, if TRUE.  If FALSE, 
+only GLS-centering is performed.  Only if transform = TRUE (the default) can one expect the variances of ordinate scores 
+in a principal component analysis to match eigenvalues.}
 
 \item{scale.}{a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
 takes place. The default is FALSE.}

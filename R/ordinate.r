@@ -56,6 +56,9 @@
 #' observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
 #' wishes to align GLS residuals to the same matrix used to obtain them.  Note also that no explicit GLS-centering
 #' is performed on A.  If this is desired, A should be GLS-centered beforehand.
+#' @param transform. An optional argument if a covariance is provided to transform GLS-centered residuals, if TRUE.  If FALSE, 
+#' only GLS-centering is performed.  Only if transform = TRUE (the default) can one expect the variances of ordinate scores 
+#' in a principal component analysis to match eigenvalues.
 #' @param scale. a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
 #' takes place. The default is FALSE.
 #' @param tol A value indicating the magnitude below which components should be omitted. (Components are omitted if their 
@@ -125,7 +128,7 @@
 #'  plot(PaCA.gls, main = "PaCA GLS")
 #'  par(mfrow = c(1,1))
 #' 
-ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE, 
+ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, scale. = FALSE, 
                      tol = NULL, rank. = NULL, newdata = NULL) {
   Y <- try(as.matrix(Y), silent = TRUE)
   if(inherits(Y, "try-error"))
@@ -175,15 +178,22 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
     min(as.integer(rank.), n, p)
   } else min(n, p)
   
-  s <-  if(!is.null(Cov)) svd(crossprod(A, Pcov %*% Z), 
-                              nu = 0, nv = k) else svd(crossprod(A, Z), 
-                                                       nu = 0, nv = k)
+  tf <- if(!is.null(Cov) && transform.) TRUE else FALSE
+  if(tf) Z <- Pcov %*% Z
+  Saz <-  if(tf || is.null(Cov)) crossprod(A, Z) else crossprod(A, Pcov %*% Z)
+  s <- svd(Saz, nu = 0, nv = k)
+  
+  if(alignment != "principal") {
+    Sa <- crossprod(A)
+    Sz <- crossprod(Z)
+    RV <- s$d^2 / sqrt(sum(Sa^2) * sum(Sz^2))
+  } else RV <- NULL
   
   j <- seq_len(k)
   s$v <- s$v[,j]
   x <- Z %*% s$v
   
-  sy <- if(!is.null(Cov)) sum(svd(Pcov %*% Z)$d^2) else sum(svd(Z)$d^2)
+  sy <- if(tf || is.null(Cov)) sum(svd(Z)$d^2) else sum(svd(Pcov %*% Z)$d^2)
   s$d <- s$d^2/sum(s$d^2) * sy / max(1, n - 1)
   s$sdev <- sqrt(s$d)
 
@@ -199,24 +209,6 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   }
   s$v <- as.matrix(s$v)
   dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
-
-  rv <- function(x, y) {
-    x <- as.matrix(x)
-    y <- as.matrix(y)
-    S11 <- crossprod(x)
-    S22 <- crossprod(y)
-    S12 <- crossprod(x, y)
-    s <- svd(S12)
-    s$d^2 / sqrt(sum(S11^2) * sum(S22^2))
-  }
-  
-  if(alignment != "principal") {
-    Sa <- crossprod(A)
-    Sz <- crossprod(Z)
-    Saz <- crossprod(A, Z)
-    s <- svd(Saz)
-    RV <- s$d^2 / sqrt(sum(Sa^2) * sum(Sz^2))
-  } else RV <- NULL
   
   r <- list(d = s$d, sdev = s$sdev, 
             rot = s$v, 
@@ -230,6 +222,8 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   colnames(r$x) <- colnames(s$v)
 
   if(!is.null(newdata)){
+    if(tf) stop("\nNew data cannot be projected onto vectors that were calculated\n
+                with respect to the covariances among original observations\n", call. = FALSE)
     xn <- as.matrix(newdata)
     xn <- scale(xn, center = cen, scale = scale.)
     if(NCOL(Z) != NCOL(xn)) stop("Different number of variables in newdata\n", call. = FALSE) 
