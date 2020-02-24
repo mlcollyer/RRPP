@@ -22,7 +22,8 @@ be associated with the p variables of Y.  If NULL, an n x n identity matrix will
 
 \item{Cov}{An optional n x n covariance matrix to describe the non-independence among
 observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
-wishes to align GLS residuals to the same matrix used to obtain them.}
+wishes to align GLS residuals to the same matrix used to obtain them.  Note also that no explicit GLS-centering
+is performed on A.  If this is desired, A should be GLS-centered beforehand.}
 
 \item{scale.}{a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
 takes place. The default is FALSE.}

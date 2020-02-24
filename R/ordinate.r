@@ -54,7 +54,8 @@
 #' be associated with the p variables of Y.  If NULL, an n x n identity matrix will be used.
 #' @param Cov An optional n x n covariance matrix to describe the non-independence among
 #' observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
-#' wishes to align GLS residuals to the same matrix used to obtain them.
+#' wishes to align GLS residuals to the same matrix used to obtain them.  Note also that no explicit GLS-centering
+#' is performed on A.  If this is desired, A should be GLS-centered beforehand.
 #' @param scale. a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
 #' takes place. The default is FALSE.
 #' @param tol A value indicating the magnitude below which components should be omitted. (Components are omitted if their 
@@ -182,7 +183,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   s$v <- s$v[,j]
   x <- Z %*% s$v
   
-  sy <- sum(svd(Z)$d^2)
+  sy <- if(!is.null(Cov)) sum(svd(Pcov %*% Z)$d^2) else sum(svd(Z)$d^2)
   s$d <- s$d^2/sum(s$d^2) * sy / max(1, n - 1)
   s$sdev <- sqrt(s$d)
 
@@ -199,18 +200,23 @@ ordinate <- function(Y, A = NULL, Cov = NULL, scale. = FALSE,
   s$v <- as.matrix(s$v)
   dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
 
-  rv <- function(x, y){
+  rv <- function(x, y) {
     x <- as.matrix(x)
     y <- as.matrix(y)
-    if(!is.null(Cov)) y <- Pcov %*% y
-    S11 <- var(x)
-    S22 <- var(y)
-    S12 <- crossprod(x, y)/(n - 1)
+    S11 <- crossprod(x)
+    S22 <- crossprod(y)
+    S12 <- crossprod(x, y)
     s <- svd(S12)
     s$d^2 / sqrt(sum(S11^2) * sum(S22^2))
   }
   
-  RV <- if(alignment != "principal") rv(A, Z) else NULL
+  if(alignment != "principal") {
+    Sa <- crossprod(A)
+    Sz <- crossprod(Z)
+    Saz <- crossprod(A, Z)
+    s <- svd(Saz)
+    RV <- s$d^2 / sqrt(sum(Sa^2) * sum(Sz^2))
+  } else RV <- NULL
   
   r <- list(d = s$d, sdev = s$sdev, 
             rot = s$v, 
