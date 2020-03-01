@@ -97,6 +97,7 @@
 #' Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
 #' "Snout.eye", "BodyWidth", 
 #' "Forelimb", "Hindlimb")])
+#' Y <- as.matrix(Y)
 #' R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' iter = 0, print.progress = FALSE)$LM$residuals
 #' 

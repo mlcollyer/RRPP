@@ -299,7 +299,7 @@ PlethMorph$Snout.eye,
 PlethMorph$BodyWidth,
 PlethMorph$Forelimb,
 PlethMorph$Hindlimb))
-PlethMorph <- rrpp.data.frame(PlethMorph, Y=Y)
+PlethMorph$Y <- Y
 fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 print.progress = FALSE, iter = 199)
 fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov,
