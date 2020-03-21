@@ -23,6 +23,8 @@
 #' @import stats
 #' @import graphics
 #' @import utils
+#' @importFrom ape multi2di.phylo
+#' @importFrom ape root.phylo
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp

@@ -2,48 +2,60 @@
 % Please edit documentation in R/add.tree.r
 \name{add.tree}
 \alias{add.tree}
-\title{Plot tool to add trees to ordination plots}
+\title{Plot tool to add phylogenetic trees to ordination plots}
 \usage{
-add.tree(OP, newdata = NULL, edges, edge.col = 1, edge.lty = 1, edge.lwd = 1)
+add.tree(
+  OP,
+  tree,
+  edge.col = 1,
+  edge.lty = 1,
+  edge.lwd = 1,
+  anc.pts = FALSE,
+  return.ancs = FALSE,
+  ...
+)
 }
 \arguments{
 \item{OP}{An object with class \code{\link{plot.ordinate}}.}
 
-\item{newdata}{An optional matrix or data frame with two columns only, corresponding to the x
-and y values in the plot.  It is assumed and data transformations have been performed, already.}
-
-\item{edges}{A matrix or data frame with two columns, with the first value in each row indicating
-the point to start and the second value the point to end an edge connection.}
+\item{tree}{An object of class phylo.}
 
 \item{edge.col}{A single value or vector equal to the number of edges for edge colors.}
 
 \item{edge.lty}{A single value or vector equal to the number of edges for edge line type}
 
 \item{edge.lwd}{A single value or vector equal to the number of edges for edge line weight.}
+
+\item{anc.pts}{A logical value for whether to add points for ancestral values.}
+
+\item{return.ancs}{A logical value for whether ancestral values should be printed.}
+
+\item{...}{Arguments passed onto \code{\link{points}}, used only for ancestral points.}
 }
 \description{
-Function adds a tree based on a description of edges to an existing
-plot made from an ordinate object.
+Function adds a tree based on a description of edges from a class phylo object 
+to an existing plot made from an ordinate object.
 }
 \details{
 With some \code{\link{ordinate}} plots, it might be desirable to add a tree connecting points
 in a prescribed way, which would be tedious using \code{\link{points}} or \code{\link{lines}}.
-This function will project a tree into a plot with class, \code{\link{plot.ordinate}}.  New data 
-can olso be projected into the plot (but it is assumed that such data will not require transformation).
-Using an edges matrix, this function will systematically connect plot points with lines,
-based on a numeric identification of points.  This funcrion might only work after determining the order
-of points from the \code{\link{plot.ordinate}} object.
-
-Generally, if new data are used, this function will only be employed after the points
-in a \code{\link{plot.ordinate}} object have been summarized, somehow.  For example, if one wants
-to project a phylogenetic tree into a principal component (PC) plot, the ancestral states (nodes of tree) would 
-have to be first estimated with respect to the PC scores that were generated.  Thsi function
-will not convert ancestral states estimated from original data into PC scores.
+This function will project a tree from an object of class phylo into a plot with class, 
+\code{\link{plot.ordinate}}.  Using an edges matrix from a phylo object, this function will 
+systematically connect plot points with lines that pass through estimated ancestral character 
+points in the same plot space.  Ancestral states are estimated assuming a Brownian motion model 
+of evolutionary divergence.
 }
 \examples{
+
+# Examples use residuals from a regression of salamander morphological 
+# traits against body size (snout to vent length, SVL).
+# Observations are species means and a phylogenetic covariance matrix
+# describes the relatedness among observations.
+
 data("PlethMorph")
 Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
-"Snout.eye", "BodyWidth", "Forelimb", "Hindlimb")])
+"Snout.eye", "BodyWidth", 
+"Forelimb", "Hindlimb")])
 Y <- as.matrix(Y)
 R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 iter = 0, print.progress = FALSE)$LM$residuals
@@ -51,17 +63,14 @@ iter = 0, print.progress = FALSE)$LM$residuals
 PCA <- ordinate(R, scale. = TRUE)
 pc.plot <- plot(PCA, pch = 19, col = "blue")
 
-# To run the following, do so without the # tags
-# (this example uses a function that RRPP does not import)
-# library(phytools)
-# ancs <- sapply(1:2, function(j) 
-# fastAnc(PlethMorph$tree, pc.plot$points[,j]))
-# add.tree(pc.plot, newdata = ancs, edges = PlethMorph$tree$edge)
+add.tree(pc.plot, tree = PlethMorph$tree, anc.pts = TRUE, 
+pch = 19, cex = 0.5, col = "red")
+
 }
 \seealso{
-\code{\link{lines}} and \code{points}
+\code{\link{lines}} and \code{\link{points}}
 }
 \author{
 Michael Collyer
 }
-\keyword{analysis}
+\keyword{graphics}
