@@ -130,6 +130,10 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
                           call. = FALSE)
   
   if(is.null(tp)) groups <- interaction(g1, g2, lex.order = TRUE) else groups <- g1
+  groups <- factor(groups)
+  gp.rep <- by(groups, groups, length)
+  if(!all(gp.rep > 1)) stop("Not every trajectory point has replication (more than one observation).\n",
+                            call. = FALSE)
   
   if(is.null(fit.null)) 
     PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = FALSE) else 
