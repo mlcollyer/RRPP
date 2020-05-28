@@ -61,9 +61,11 @@ An object of class \code{lm.rrpp} is a list containing the following
 \item{LM}{Linear Model objects, including data (Y), coefficients, design matrix (X), sample size
 (n), number of dependent variables (p), dimension of data space (p.prime),
 QR decomposition of the design matrix, fitted values, residuals,
-weights, offset, model terms, data frame, random coefficients (through permutations),
+weights, offset, model terms, data (model) frame, random coefficients (through permutations),
 random vector distances for coefficients (through permutations), whether OLS or GLS was performed, 
-and the mean for OLS and/or GLS methods.}
+and the mean for OLS and/or GLS methods. Note that the data returned resemble a model frame rather than 
+a data frame; i.e., it contains the values used in analysis, which might have been transformed according to 
+the formula.  The response variables are always labeled Y.1, Y.2, ..., in this frame.}
 \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,
 random R-squared outcomes, random F outcomes, random Cohen's f-squared outcomes, P-values based on random F
 outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for

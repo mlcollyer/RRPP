@@ -32,7 +32,7 @@
 #' 
 #' SUMMARY STATISTICS: For principal component plots, the traditional statistics to summarize the analysis include
 #' eigenvalues (variance by component), proportion of variance by component, and cumulative proportion of variance. 
-#' When data are aligned to a phylogenetic covariance matrix, the statistics are less straightforward.  A summary of
+#' When data are aligned to an alternative matrix, the statistics are less straightforward.  A summary of
 #' of such an analysis (performed with \code{\link{summary.ordinate}}) will produce these additional statistics:
 #'
 #' \itemize{
@@ -40,7 +40,7 @@
 #' cross-product of the scaled alignment matrix and the data.}
 #' \item{\bold{Proportion of Covariance}}{  Each component's singular value divided by the sum of singular values.  The cumulative
 #' proportion is also returned.  Note that these values do not explain the amount of covariance between the alignment matrix and data, but
-#' explain the distribution of the covariance.  Large proprotions can be misleading.}
+#' explain the distribution of the covariance.  Large proportions can be misleading.}
 #' \item{\bold{RV by Component}}{  The partial RV statistic by component.  Cumulative values are also returned.  The sum of partial
 #' RVs is Escoffier's RV statistic, which measures the amount of covariation between the alignment matrix and data.  Caution should
 #' be used in interpreting these values, which can vary with the number of observations and number of variables.  However,
@@ -56,7 +56,7 @@
 #' observations in Y, and provide a GLS-centering of data.  Note that Cov and A can be the same, if one
 #' wishes to align GLS residuals to the same matrix used to obtain them.  Note also that no explicit GLS-centering
 #' is performed on A.  If this is desired, A should be GLS-centered beforehand.
-#' @param transform. An optional argument if a covariance is provided to transform GLS-centered residuals, if TRUE.  If FALSE, 
+#' @param transform. An optional argument if a covariance matrix is provided to transform GLS-centered residuals, if TRUE.  If FALSE, 
 #' only GLS-centering is performed.  Only if transform = TRUE (the default) can one expect the variances of ordinate scores 
 #' in a principal component analysis to match eigenvalues.
 #' @param scale. a logical value indicating whether the variables should be scaled to have unit variance before the analysis 
@@ -70,7 +70,7 @@
 #' This argument can be set as alternative or in addition to tol, useful notably when the desired rank is considerably 
 #' smaller than the dimensions of the matrix.  This argument is exactly the same as in \code{\link{prcomp}}
 #' @param newdata An optional data frame of values for the same variables of Y to be projected onto 
-#' aligned components.
+#' aligned components.  This is only possible with OLS (transform = FALSE).
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
@@ -84,8 +84,9 @@
 #' \item{scale}{The scaling used, or FALSE.}
 #' \item{alignment}{Whether data were aligned to principal axes or the name of another matrix.}
 #' \item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
-#' @references Collyer and Adams, in prep.
-#' @seealso \code{\link{prcomp}} and \code{gm.prcomp} within \code{geomorph}
+#' @references Collyer, M.L. and D.C. Adams.  2020. Phylogenetically-aligned Component Analysis. Methods 
+#' in Ecology and evolution. In review.
+#' @seealso \code{\link{plot.ordinate}}, \code{\link{prcomp}}, \code{gm.prcomp} within \code{geomorph}
 #' @examples
 #' 
 #' # Examples use residuals from a regression of salamander morphological 

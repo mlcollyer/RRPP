@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # APPENDIX S2
 
-This is a more detailed version of the section, "**Analytical Demonstrations**," within the Methods in Ecology and Evolution article, "**RRPP: An R package for fitting linear models to high-dimensional data using residual randomization**," by Michael L. Collyer and Dean C. Adams.  The purpose of this vignette is to offer an opportunity for people reading that article to see code and results together.  Some changes to code have been made, especially to enhance features that are difficult to introduce in the article, but the overall presentation should be basically the same.  As the package has been updated, this document has also been slightly edited to make sure any functional changes have been illsutrated.
+This is a more detailed version of the section, "**Analytical Demonstrations**," within the Methods in Ecology and Evolution article, "**RRPP: An R package for fitting linear models to high-dimensional data using residual randomization**," by Michael L. Collyer and Dean C. Adams.  The purpose of this vignette is to offer an opportunity for people reading that article to see code and results together.  Some changes to code have been made, especially to enhance features that are difficult to introduce in the article, but the overall presentation should be basically the same.  As the package has been updated, this document has also been slightly edited to make sure any functional changes have been illustrated.
 
 (Note parallel processing is available on Unix systems for `lm.rrpp`; see `lm.rrpp` help page for description on its use.  This is helpful for large data sets.)
 
