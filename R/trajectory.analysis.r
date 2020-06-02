@@ -212,12 +212,17 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   # Pairwise correlations
   
   tn <- length(gl)
-  Tcor <- lapply(1:perms, function(j){
+  Tcor <- if(fit$LM$p > 1) lapply(1:perms, function(j){
     x <- trajectories[[j]]
     to <- trajorient(x, tn)
     dimnames(to) <- list(gl, gl)
     to
-  }) 
+  }) else NULL
+  
+  if(fit$LM$p == 1) {
+    cat("\nWarning: Univariate response detected...")
+    cat("No angular differences can be considered.\n")
+  }
   
   # Pairwise shape differences
   
@@ -243,8 +248,10 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   } else SD <- NULL
   
   
-  names(MD) <- names(PD) <- names(Tcor) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
+  names(MD) <- names(PD) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
+  if(!is.null(Tcor)) names(Tcor) <- names(PD)
   if(!is.null(SD)) names(SD) <- names(PD)
+  
   # output
   out <- list(LS.means = means, trajectories = trajectories, PD = PD, 
               MD = MD, TC = Tcor, SD = SD, pca = PCA, 

@@ -59,7 +59,7 @@ f34747373315d2e5b588392110279271 *man/summary.trajectory.analysis.Rd
 3e8a5f4601358921a3437caf2bfdd60d *man/trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 fcfffdbebe3ccb520b79782bd450891a *NAMESPACE
-7c8eaae9cc5c60ead33cb287f5cc5d5f *NEWS.md
+960f96ad522d01980c970c1245b92c50 *NEWS.md
 c954d82e7c975708710810bb2de96cd4 *R/add.tree.r
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
 b418ff0ab44206de3811658e5287d502 *R/coef.lm.rrpp.r
@@ -75,8 +75,8 @@ be65a023ec04fe716867de7a1907b645 *R/reveal.model.designs.r
 6553eca005cff9566e4a382965c37c6e *R/RRPP.support.code.r
 0858e8a2d87f39b30de48593ed5a1ffc *R/RRPP.utils.r
 087fd5c640f774e93ea08ebf5490dda6 *R/shared.support.code.r
-e37f5ff781cdc2ccef6965833c4be296 *R/trajectory.analysis.r
+246c3ff4643e8f32fb2639a3e90a198f *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md
-7db72b7e01004751c5cf9d9eb2c9122c *RRPP-develop.Rproj
+7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 0b925ccf03f5c9ee44875fb1e6a083ea *vignettes/ANOVA.vs.MANOVA.Rmd
 6b6cb384c7c0985b0097368070ac4f6e *vignettes/Using.RRPP.Rmd
