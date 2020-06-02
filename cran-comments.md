@@ -10,5 +10,8 @@ The package, `geomorph`, is developed by the same authors as `RRPP`.  The revers
 
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
