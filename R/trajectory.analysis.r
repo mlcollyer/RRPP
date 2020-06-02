@@ -212,12 +212,17 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   # Pairwise correlations
   
   tn <- length(gl)
-  Tcor <- lapply(1:perms, function(j){
+  Tcor <- if(fit$LM$p > 1) lapply(1:perms, function(j){
     x <- trajectories[[j]]
     to <- trajorient(x, tn)
     dimnames(to) <- list(gl, gl)
     to
-  }) 
+  }) else NULL
+  
+  if(is.null(Tcor)) {
+    cat("Warning: Univariate response variable detected...")
+    cat("Trajectory correlation analyses not possible.")
+  }
   
   # Pairwise shape differences
   
