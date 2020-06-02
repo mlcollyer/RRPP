@@ -218,16 +218,10 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
     dimnames(to) <- list(gl, gl)
     to
   }) else NULL
-  
-<<<<<<< Updated upstream
-  if(fit$LM$p == 1) {
-    cat("\nWarning: Univariate response detected...")
-    cat("No angular differences can be considered.\n")
-=======
-  if(is.null(Tcor)){
-    cat("\nWarning: univariate response variable deteced...")
-    cat("\n Vector correlation analyses will not be included.\n")
->>>>>>> Stashed changes
+
+  if(is.null(Tcor)) {
+    cat("Warning: Univariate response variable detected...")
+    cat("Trajectory correlation analyses not possible.")
   }
   
   # Pairwise shape differences
