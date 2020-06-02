@@ -220,8 +220,8 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   }) else NULL
   
   if(is.null(Tcor)) {
-    cat("Warning: Univariate response variable detected...")
-    cat("Trajectory correlation analyses not possible.")
+    cat("\nWarning: Univariate response variable detected...")
+    cat("\nTrajectory correlation analyses not possible.")
   }
   
   # Pairwise shape differences

@@ -1,3 +1,10 @@
+# CHANGES IN RRPP 0.6.0.9000
+
+### NEW FEATURES
+### OTHER CHANGES
+### BUG FIXES
+* Made it possible to use `trajectory.analysis` with univariate response data, omitting vector correlations output.
+
 # CHANGES IN RRPP 0.6.0 (Minor Release)
 
 ### NEW FEATURES
