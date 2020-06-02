@@ -1,7 +1,16 @@
-# CHANGES IN RRPP 0.5.2.9000 
+# CHANGES IN RRPP 0.6.0 (Minor Release)
+
+### NEW FEATURES
+* `ordinate` function.
+* `summary.ordinate` and `plot.ordinate` S3 functions
+* `add.tree` function (for plotting with `plot.ordinate`)
+
+### OTHER CHANGES
+* Updated support functions for `lm.rrpp` to provide better flexibility for different formulas.  
+* Changed `$LM$data` in `lm.rrpp` to be a model frame rather than a data frame, consistent with `$model` from `lm`.
 
 ### BUG FIXES 
-* Fixed issue with transformation of dependent variable - e.g., log(y) - in formula for lm.rrpp. The bug was a failure to transform the variable(s).
+* Fixed issue with transformation of dependent variable -- e.g., log(y) -- in formula for lm.rrpp. The bug was a failure to transform the variable(s).
 
 # CHANGES IN RRPP 0.5.2 (Patch Release)
 
@@ -144,7 +153,7 @@ transformed residuals, by mistake).
 ###	New features
 
 *	`anova.lm.rrpp.r`
-* `coef.lm.rrpp.r`
+*   `coef.lm.rrpp.r`
 *	`lm.rrpp.r`
 *	`predict.lm.rrpp.r`
 *	`RRPP.support.code.r`

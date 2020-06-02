@@ -111,9 +111,11 @@
 #' \item{LM}{Linear Model objects, including data (Y), coefficients, design matrix (X), sample size
 #' (n), number of dependent variables (p), dimension of data space (p.prime),
 #' QR decomposition of the design matrix, fitted values, residuals,
-#' weights, offset, model terms, data frame, random coefficients (through permutations),
+#' weights, offset, model terms, data (model) frame, random coefficients (through permutations),
 #' random vector distances for coefficients (through permutations), whether OLS or GLS was performed, 
-#' and the mean for OLS and/or GLS methods.}
+#' and the mean for OLS and/or GLS methods. Note that the data returned resemble a model frame rather than 
+#' a data frame; i.e., it contains the values used in analysis, which might have been transformed according to 
+#' the formula.  The response variables are always labeled Y.1, Y.2, ..., in this frame.}
 #' \item{ANOVA}{Analysis of variance objects, including the SS type, random SS outcomes, random MS outcomes,
 #' random R-squared outcomes, random F outcomes, random Cohen's f-squared outcomes, P-values based on random F
 #' outcomes, effect sizes for random outcomes, sample size (n), number of variables (p), and degrees of freedom for
@@ -279,7 +281,7 @@
 #' PlethMorph$BodyWidth,
 #' PlethMorph$Forelimb,
 #' PlethMorph$Hindlimb))
-#' PlethMorph <- rrpp.data.frame(PlethMorph, Y=Y)
+#' PlethMorph$Y <- Y
 #' fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' print.progress = FALSE, iter = 199)
 #' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov,
@@ -295,6 +297,10 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                         RRPP = TRUE, SS.type = c("I", "II", "III"),
                         data = NULL, Cov = NULL,
                         print.progress = TRUE, Parallel = FALSE, ...) {
+  
+  L <- c(as.list(environment()), list(...))
+  names(L)[which(names(L) == "f1")] <- "formula"
+  
   if(int.first) ko = TRUE else ko = FALSE
   SS.type <- match.arg(SS.type)
   
@@ -316,11 +322,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   
   Terms <- D <- NULL
   
-  if(print.progress){
-    cat("\nPreliminary Model Fit...\n")
-    pb <- txtProgressBar(min = 0, max = 3, initial = 0, style=3)
-    step <- 1
-  }
+  if(print.progress) cat("\nPreliminary Model Fit...\n\n")
   
   if(!is.null(Cov)) {
     Cov.name <- deparse(substitute(Cov))
@@ -328,15 +330,17 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     if(length(Cov.match) > 1) stop("More than one object matches covariance matrix name")
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
     if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
+    ev <- zapsmall(eigen(Cov, only.values = TRUE)$values)
+    if(any(ev == 0)) cat("\nWarning: singular covariance matrix. Proceed with caution\n")
   }
   
   if(inherits(f1, "lm")) {
     exchange.args <- f1[attributes(f1)$names %in% 
                           c("terms", "offset", "weights")]
+    exchange.args$model <- f1$model
     exchange.args$Y <- Y <- as.matrix(f1$model[[1]])
     exchange.args$tol <- f1$qr$tol
     exchange.args$SS.type <- SS.type
-    exchange.args$data <- dat <- f1$model
     names(exchange.args)[which(names(exchange.args) == "terms")] <- "Terms"
     if("weights" %in% names(exchange.args))
       names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
@@ -344,9 +348,9 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   
   if(inherits(f1, "formula")) {
-    exchange.args <- lm.args.from.formula(f1, data = data)
+    exchange.args <- lm.args.from.formula(L)
     if(!is.null(exchange.args$D)) D <- exchange.args$D
-    exchange.args <- exchange.args[c("Terms", "Y", "data")]
+    exchange.args <- exchange.args[c("Terms", "Y", "model")]
     if(!is.null(o)) {
       exchange.args$offset <- o
       offst <- TRUE
@@ -360,7 +364,6 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     Terms <- exchange.args$Terms
     Y <- as.matrix(exchange.args$Y)
   }
-  
   
   if(!inherits(f1, c("lm", "formula")))
     stop("\nf1 must be either a formula or class lm objects.\n",
@@ -376,14 +379,14 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   o <- exchange.args$offset
   w <- exchange.args$w
   
-  X <- model.matrix(delete.response(Terms), data = exchange.args$data)
+  X <- model.matrix(delete.response(Terms), data = exchange.args$model)
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
   if(p > (n - 1)) {
     exchange.args$Y <- prcomp(exchange.args$Y, 
                               tol = sqrt(.Machine$double.eps))$x 
-    exchange.args$data$Y <- exchange.args$Y
+    exchange.args$model$Y <- exchange.args$Y
     if(offst) 
       exchange.args$offset <- exchange.args$offset[,1:NCOL(exchange.args$Y)]
     PCA <- TRUE
@@ -410,23 +413,11 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
     }
   }
   
-  
-  if(print.progress) {
-    step <- 2
-    setTxtProgressBar(pb,step)
-  }
-  
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   id <- rownames(Y)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
-  
-  if(print.progress) {
-    step <- 3
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
   
   SS.args <- beta.args <- list(exchange = exchange, ind = ind, 
                                RRPP = RRPP, print.progress = print.progress)
@@ -464,7 +455,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
              n = n, p = p, p.prime = NCOL(exchange.args$Y),
              QR = fit$qr,
              Terms = Terms, term.labels = trms,
-             data = exchange.args.o$data,
+             data = exchange.args.o$model,
              model.sets = fits$model.sets,
              random.coef = betas$random.coef,
              random.coef.distances = betas$random.coef.distances

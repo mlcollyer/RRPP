@@ -176,7 +176,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     fitted <- matrix(0, n, p)
     res <- Y
   }
-
+  
   rrpp.args <- list(fitted = as.matrix(fitted), residuals = as.matrix(res),
                     ind.i = NULL, o = NULL)
   
@@ -188,12 +188,12 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     if(offset) fitted + residuals[ind.i,] - o else
       fitted + residuals[ind.i,]
   }
-
+  
   rrpp.args$o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
   rrpp.args$offset <- if(!is.null(o)) TRUE else FALSE
   
   Qf <- fit$Models$full[[k]]$qr
-
+  
   H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
   getCoef <- function(y) H %*% y
   

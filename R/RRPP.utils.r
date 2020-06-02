@@ -1026,6 +1026,45 @@ print.summary.pairwise <- function(x, ...) {
 
 #' Print/Summary Function for RRPP
 #'
+#' @param x Object from \code{\link{classify}}
+#' @param ... Other arguments passed onto classify
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.classify <- function(x ,...){
+  cat("\nGroups and group sizes\n")
+  print(x$group.n)
+  cat("\nPC means\n")
+  print(x$means)
+  cat("\nClassification for", length(x$class), "observations\n")
+  cat("\nUse summary() to produce a table of posterior classification probabilities\n")
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{classify}}
+#' @param ... Other arguments passed onto classify
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.classify <- function(object ,...){
+  x <- object
+  cat("\nGroups and group sizes\n")
+  print(x$group.n)
+  cat("\nPC means\n")
+  print(x$means)
+  cat("\nClassification for", length(x$class), "observations\n")
+  cat("\nGeneralized (Mahalanobis) squared distances\n")
+  print(x$Mah.dist.sq)
+  cat("\nPrior probabilities\n")
+  print(x$prior)
+  cat("\nPosterior proabilities\n")
+  print(x$posterior)
+  cat("\n")
+}
+
+#' Print/Summary Function for RRPP
+#'
 #' @param x Object from \code{\link{model.comparison}}
 #' @param ... Other arguments passed onto model.comparison
 #' @export
@@ -1639,4 +1678,124 @@ add.trajectories <- function(TP,
   
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{ordinate}}
+#' @param ... Other arguments passed onto print.ordinate
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.ordinate <- function(x, ...){
+  ord.type <- if(x$alignment == "principal") "Principal Component Analysis" else
+    "Alignment to an alternative matrix"
+  cat("\nOrdination type:", ord.type, "\n")
+  if(x$alignment != "principal")
+    cat("Alignment matrix:", x$alignment, "\n")
+  cen <- if(x$GLS) "GLS" else "OLS"
+  cat("Centering and projection:", cen, "\n")
+  cat("Number of observations", NROW(x$x), "\n")
+  cat("Number of vectors", NCOL(x$x), "\n\n")
+} 
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{ordinate}}
+#' @param ... Other arguments passed onto print.ordinate
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+summary.ordinate <- function(object, ...){
+  x <- object
+  print.ordinate(x, ...)
+  d <- x$d
+  p <- d/sum(d)
+  cp <- cumsum(d)/sum(d)
+  r <- as.data.frame(rbind(d, p, cp))
+  r <- r[, 1:min(length(d), NCOL(x$x), NCOL(r))]
+  colnames(r) <- colnames(x$x)[1:NCOL(r)]
+  rownames(r) <- c("Singular Value", "Proportion of Covariance", "Cumulative Proportion")
+  
+  if(x$alignment == "principal") rownames(r)[1:2] <- c("Eigenvalues", "Proportion of Variance")
+  
+  if(x$alignment != "principal") {
+    rv <- x$RV
+    r <- rbind(r, rv, cumsum(rv))
+    rownames(r)[4:5] <- c("RV by Component", "Cumulative RV")
+  }
+
+  cat("Importance of Components:\n")
+  print(r)
+  out <- r
+  invisible(out)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{summary.ordinate}}
+#' @param ... Other arguments passed onto print.ordinate
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.summary.ordinate <- function(x, ...){
+  cat("\nImportance of Components:\n")
+  print(x$table)
+} 
+
+#' Plot Function for RRPP
+#' 
+#' @param x An object of class \code{\link{ordinate}}
+#' @param axis1 A value indicating which component should be displayed as the X-axis (default = C1)
+#' @param axis2 A value indicating which component should be displayed as the Y-axis (default = C2)
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' @return An object of class "plot.ordinate" is a list with components
+#'  that can be used in other plot functions, such as the type of plot, points, 
+#'  a group factor, and other information depending on the plot parameters used.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
+  options(warn = -1)
+  if(NCOL(x$x) == 1) stop("Only one component  No plotting capability with this function.\n", 
+                          call. = FALSE)
+  v <- x$d/sum(x$d)
+  if(!is.null(x$RV)) rv <- x$RV
+  plot.args <- list(x = x$x[, axis1], y = x$x[, axis2],  ...)
+  if(x$alignment == "principal") {
+    xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
+    ylabel <- paste("PC ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
+  } else {
+    xlabel <- paste("C ", axis1,  sep = "")
+    ylabel <- paste("C ", axis2,  sep = "")
+  }
+
+  if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
+  if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
+  pcdata <- as.matrix(x$x[, c(axis1, axis2)])
+  if(!is.null(plot.args$axes)) axes <- plot.args$axes else axes <- TRUE
+  if(!is.logical(axes)) axes <- as.logical(axes)
+  plot.args$xlim <- 1.05*range(plot.args$x)
+  plot.args$ylim <- 1.05*range(plot.args$y)
+  if(is.null(plot.args$asp)) plot.args$asp <- 1
+  
+  do.call(plot, plot.args)
+  
+  if(axes){
+    abline(h = 0, lty=2, ...)
+    abline(v = 0, lty=2, ...)
+  }
+  
+  options(warn = 0)
+  out <- list(points = pcdata,   
+              call = match.call())
+  
+  out$plot.args <- plot.args
+  class(out) <- "plot.ordinate"
+  invisible(out)
+  
+}
 

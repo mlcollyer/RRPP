@@ -23,6 +23,8 @@
 #' @import stats
 #' @import graphics
 #' @import utils
+#' @importFrom ape multi2di.phylo
+#' @importFrom ape root.phylo
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp
@@ -197,66 +199,121 @@ rrpp.data.frame<- function(...){
 # general workhorse for all 'rrpp.lm' functions
 # used in all 'rrpp.lm' functions
 
-lm.args.from.formula <- function(f1, data = NULL){
-  Terms <- terms(f1)
-  var.names <- all.vars(Terms)
-  var.exp <- formula(paste("~", paste(var.names, collapse = "+")))
-  dat <- try(eval(attr(terms(var.exp), "variables"), data, parent.frame()),
-             silent = TRUE)
-  if(inherits(dat, "try-error"))
-    stop("Either data or variables are missing from the data frame or global environment,\n", 
-         call. = FALSE)
-  names(dat) <- var.names
-  Y <- dat[[1]]
-  D <- NULL
+makeDF <- function(form, data, n) {
   
-  if(inherits(Y, "dist")) {
-    if(any(Y < 0)) stop("Distances in distance matrix cannot be less than 0")
-    D <- Y
-    Y <- pcoa(Y)
+  if(!is.list(data)) 
+    stop("\nThe data frame provide is not class rrpp.data.frame, data.frame, or list, and therefore, unusable.\n", call. = FALSE)
+  
+  dat <- data
+  class(dat) <- "list"
+  
+  form <- try(as.formula(form), silent = TRUE)
+  if(inherits(form, "try-error"))
+    stop("Formula is not coercible into a formula object.  Please fix the formula.\n",
+         call. = FALSE)
+              
+  var.names <- if(length(form) == 3) all.vars(form)[-1] else if(length(form) == 2) 
+      all.vars(form) else
+        stop("\nFormula is not appropriately formatted.\n", call. = FALSE)
+  
+  dat <- dat[names(dat) %in% var.names]
+  
+  if(length(dat) > 0) {
+    
+    var.check <- sapply(seq_len(length(dat)), function(j) {
+      x <- dat[[j]]
+      length(x) == n
+    })
+    
+    if(any(!var.check)) 
+      stop("One or more independent variables does not match the number of observations in the data.\n",
+           call. = FALSE)
   }
+   
+  dat <- if(length(dat) == 0)  NULL else as.data.frame(dat)
+  
+  dat
+}
+  
+
+lm.args.from.formula <- function(cl){
+  
+  lm.args <- list(formula = NULL, data = NULL, subset = NULL, weights = NULL,
+                  na.action = NULL, method = "qr", model = TRUE, 
+                  x = FALSE, y = FALSE, qr = TRUE,
+                  singular.ok = TRUE, contrasts = NULL, offset = NULL, tol = 1e-7)
+  
+  lm.nms <- names(lm.args)
+  
+  m1 <- match(names(cl), lm.nms)
+  m2 <- match(lm.nms, names(cl))
+  lm.args[na.omit(m1)] <- cl[na.omit(m2)]
+  
+  form <- lm.args$formula
+  if(is.null(form))
+    stop("The formula is either missing or not formatted correctly.\n", call. = FALSE)
+  
+  Dy <- NULL
+  Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
+           silent = TRUE)
+  
+  if(inherits(Y, "try-error"))
+    stop("Data are missing from either the data frame or global environment.\n", 
+         call. = FALSE)
   
   if(is.matrix(Y) || is.data.frame(Y)) {
     if(isSymmetric(Y)) {
-      D <- as.dist(Y)
-      if(any(D < 0)) stop("Distances in distance matrix cannot be less than 0")
-      Y <- pcoa(D)
+      Dy <- Y <- as.dist(Y)
+      if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
+                           call. = FALSE)
+      lm.args$formula <- update(lm.args$formula, Y ~ .)
     }
+  }
+  
+  if(inherits(Y, "dist")) {
+    if(any(Y < 0)) stop("Distances in distance matrix cannot be less than 0")
+    Dy <- Y
+    Y <- pcoa(Y)
   }
   
   if(is.vector(Y)) {
     Y <- matrix(Y)
-    D <- NULL
+    Dy <- NULL
   }
   
   if(is.array(Y) && length(dim(Y)) > 2) 
     stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
          call. = FALSE)
   
+  if(form[[3]] == ".") {
+    xs <- paste(names(lm.args$data), collapse = "+")
+    form <- as.formula(noquote(c("~", xs)))
+  }
+  form <- update(form, Y ~.,)
+  lm.args$formula <- form
+  
   n <- NROW(Y)
-  dat[[1]] <- rep(1, n)
-  dat <- as.data.frame(dat)
-  dat[[1]] <- Y
   
-  f <- try(lm(f1, data = dat), silent = TRUE)
-  if(inherits(f, "try-error"))
-    stop("Either data are not an object that can be converted to a matrix or one of the independent variables\n
-         is not a vector. Please check and consider using a data frame.\n", 
-         call. = FALSE)
+  if(!is.null(lm.args$data)) lm.args$data <- makeDF(form, lm.args$data, n)
   
-  Terms <- terms(f)
-  mf <- model.frame(Terms, data = dat)
-  Y <- mf[[1]]
-  form <- update(f1, Y ~ .)
-  Terms <- terms(form)
-  names(dat)[[1]] <- "Y"
-  list(Terms = Terms, data = dat, 
-       Y = Y, D = D)
+  f <- try(do.call(lm, lm.args), silent = TRUE)
+  
+  if(inherits(f, "try-error")) {
+    lm.args$data$Y <- Y
+    f <- try(do.call(lm, lm.args), silent = TRUE)
+  }
+  
+  if(inherits(f, "try-error")) 
+      stop("Independent variables are missing from either the data frame or global environment,\n", 
+           call. = FALSE)
+
+  list(Terms = f$terms, model = f$model, 
+       Y = Y, D = Dy)
 }
 
-lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", data) {
-  dat <- model.frame(formula(Terms), data = data)
-  X <- model.matrix(Terms, data = dat)
+lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {
+  
+  X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- if(!is.null(offset)) offset else NULL
@@ -351,14 +408,14 @@ lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", data) {
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
   list(reduced = reduced, full = full, offset = offset, 
-       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       Terms = Terms, model = model, Pcov = Pcov, SS.type = SS.type, 
        model.sets = model.sets)
   
 }
 
-lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", data) {
-  dat <- model.frame(formula(Terms), data = data)
-  X <- model.matrix(Terms, data = dat)
+lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {
+  
+  X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- if(!is.null(offset)) offset else NULL
@@ -446,15 +503,14 @@ lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I",
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
   list(reduced = reduced, full = full, offset = offset, 
-       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       Terms = Terms, model = model, Pcov = Pcov, SS.type = SS.type, 
        model.sets = model.sets)
   
 }
 
-
-lm.wfits <- function(Terms,Y, w, offset = NULL, tol = 1e-7, SS.type = "I", data) {
-  dat <- model.frame(formula(Terms), data = data)
-  X <- model.matrix(Terms, data = dat)
+lm.wfits <- function(Terms,Y, w, offset = NULL, tol = 1e-7, SS.type = "I", model) {
+  
+  X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- if(!is.null(offset)) offset else NULL
@@ -549,16 +605,16 @@ lm.wfits <- function(Terms,Y, w, offset = NULL, tol = 1e-7, SS.type = "I", data)
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
   list(reduced = reduced, full = full, offset = offset,weights = w^2,
-       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       Terms = Terms, model = model, Pcov = Pcov, SS.type = SS.type, 
        model.sets = model.sets)
   
 }
 
 
 lm.wfits.exchange <- function(Terms,Y, w, offset = NULL, tol = 1e-7, 
-                              SS.type = "I", data) {
-  dat <- model.frame(formula(Terms), data = data)
-  X <- model.matrix(Terms, data = dat)
+                              SS.type = "I", model) {
+  
+  X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- offset
@@ -656,16 +712,16 @@ lm.wfits.exchange <- function(Terms,Y, w, offset = NULL, tol = 1e-7,
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
   list(reduced = reduced, full = full, offset = offset, weights = w^2,
-       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       Terms = Terms, model = model, Pcov = Pcov, SS.type = SS.type, 
        model.sets = model.sets)
   
 }
 
 
 lm.glsfits.exchange <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7, 
-                                SS.type = "I", data) {
-  dat <- model.frame(formula(Terms), data = data)
-  X <- model.matrix(Terms, data = dat)
+                                SS.type = "I", model) {
+  
+  X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   Pcov <- Cov.proj(Cov, rownames(Y))
@@ -743,7 +799,6 @@ lm.glsfits.exchange <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
       do.call(lm.fit, fit.args)
     }
     
-    
     reduced <- lapply(Xrs, get.lm)
     full <-lapply(Xfs, get.lm)
     
@@ -756,7 +811,7 @@ lm.glsfits.exchange <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
   list(reduced = reduced, full = full, offset = offset, 
-       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       Terms = Terms, model = model, Pcov = Pcov, SS.type = SS.type, 
        model.sets = model.sets)
   
 }
@@ -764,9 +819,9 @@ lm.glsfits.exchange <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
 
 
 lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7, 
-                       SS.type = "I", data) {
-  dat <- model.frame(formula(Terms), data = data)
-  X <- model.matrix(Terms, data = dat)
+                       SS.type = "I", model) {
+  
+  X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   X.n.k.obs <- length(X.k.obs)
@@ -847,9 +902,9 @@ lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
     }
     
     exchanges <- lm.glsfits.exchange(Terms, Y, Cov, offset = o,
-                                     tol = tol, SS.type = SS.type, data)
+                                     tol = tol, SS.type = SS.type, model)
     fits <- lm.fits(Terms, Y, offset = o,
-                    tol = tol, SS.type = SS.type, data = data)
+                    tol = tol, SS.type = SS.type, model = model)
     refit <- function(L, E, Xs) {
       lapply(1:length(L), function(j){
         f <- L[[j]]
@@ -878,7 +933,7 @@ lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
   model.sets <- list(terms.r = terms.r, terms.f = terms.f,
                      Xrs = Xrs, Xfs = Xfs)
   list(reduced = reduced, full = full, offset = offset, 
-       Terms = Terms, data = dat, Pcov = Pcov, SS.type = SS.type, 
+       Terms = Terms, model = model, Pcov = Pcov, SS.type = SS.type, 
        model.sets = model.sets)
   
 }
@@ -899,46 +954,51 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 # workhorse for lm.rrpp
 # used in lm.rrpp
 
-
 SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   reduced <- exchange$reduced
   full <- exchange$full
   Terms <- exchange$Terms
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  Y <- as.matrix(exchange$data[[1]])
+  Y <- as.matrix(exchange$model[[1]])
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
   w <- if(!is.null(exchange$weights)) exchange$weights else NULL
   
   perms <- length(ind)
+  
   if(k > 0) {
     fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
     res <- lapply(reduced, function(x) as.matrix(x$residuals))
   } else {
-    fitted <- as.matrix(reduced$fitted.values)
-    res <- as.matrix(reduced$residuals)
+    fitted <- list(fitted = as.matrix(reduced$fitted.values))
+    res <- list(residuals = as.matrix(reduced$residuals))
   }
   
-  Pcov <- exchange$Pcov
+  if(!RRPP) {
+    if(k > 0) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      fitted <- list(fitted = matrix(0, n, p))
+      res <- list(res = as.matrix(Y))
+    }
+  } 
   
-  rrpp.args <- list(fitted = fitted, 
-                    residuals = res,
-                    ind.i = NULL)
+  Pcov <- exchange$Pcov
   
   if(k > 0) {
     Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
     Qf <- lapply(full, function(x) x$qr)
+  } else {
+    Qr <- list(Qr = if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n)))
+    Qf <- list(Qf = full$qr)
+  }
+  
     Ur <- lapply(Qr, function(x) qr.Q(x))
     Uf <- lapply(Qf, function(x) qr.Q(x))
-    Ufull <- Uf[[k]]
-  } else {
-    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
-    Qf <- full$qr
-    Ur <- qr.Q(Qr)
-    Uf <- Ufull <- qr.Q(Qf)
-  }
+    Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
   Unull <- if(!is.null(Pcov)) 
@@ -951,25 +1011,20 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
   
-  if(!RRPP) {
-    if(k > 0) {
-      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
-    } else {
-      rrpp.args$fitted <- matrix(0, n, p)
-      rrpp.args$residuals <- as.matrix(Y)
-    }
-  } 
-  
   if(print.progress){
     cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   
-  rrpp <- function(fitted, residuals, ind.i) {
-    if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
-      fitted + residuals[ind.i,]
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  rrpp.args <- list(FR = FR, ind.i = NULL)
+  
+  rrpp <- function(FR, ind.i) {
+    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
+  
+  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
+                              sum(y^2) - sum(crossprod(Ufull, y)^2))
   
   result <- lapply(1:perms, function(j){
     step <- j
@@ -979,10 +1034,16 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     Yi <- do.call(rrpp, rrpp.args)
     y <- yh0 + r0[x,]
     yy <- sum(y^2)
+    
     if(k > 0) {
-      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
-      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
-      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      res <- vapply(1:k, function(j){
+        ss(Ur[[j]], Uf[[j]], Yi[[j]])
+      }, numeric(3))
+      
+      SSr <- res[1, ]
+      SSf <- res[2, ]
+      RSS <- res[3, ]
+      
       TSS <- yy - sum(crossprod(Unull, y)^2)
       TSS <- rep(TSS, k)
       SS = SSf - SSr
@@ -992,18 +1053,15 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   })
   
-  SS <- matrix(sapply(1:perms, function(j) result[[j]]$SS), max(1,k), perms)
-  RSS <- matrix(sapply(1:perms, function(j) result[[j]]$RSS), max(1,k), perms)
-  TSS <- matrix(sapply(1:perms, function(j) result[[j]]$TSS), max(1,k), perms)
-  RSS.model <- matrix(sapply(1:perms, function(j) result[[j]]$RSS.model), max(1,k), perms)
+  SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms)
+  RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms)
+  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
+  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
   
-  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- rownames(RSS.model) <- 
-    if(k > 0) trms else "Intercept"
-  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- colnames(RSS.model) <- 
-    c("obs", paste("iter", 1:(perms-1), sep="."))
+  res.names <- list(if(k > 0) trms else "Intercept", c("obs", paste("iter", 1:(perms-1), sep=".")))
+  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- res.names
   
-  if(all(is.na(SS))) SS <- NULL
-  if(all(is.na(SS))) RSS <- NULL
+  if(all(is.na(SS))) RSS <- SS <- NULL
   
   step <- perms + 1
   if(print.progress) {
@@ -1025,39 +1083,45 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   Terms <- exchange$Terms
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  Y <- as.matrix(exchange$data[[1]])
+  Y <- as.matrix(exchange$model[[1]])
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
   w <- if(!is.null(exchange$weights)) exchange$weights else NULL
   
   perms <- length(ind)
+  
   if(k > 0) {
     fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
     res <- lapply(reduced, function(x) as.matrix(x$residuals))
   } else {
-    fitted <- as.matrix(reduced$fitted.values)
-    res <- as.matrix(reduced$residuals)
+    fitted <- list(fitted = as.matrix(reduced$fitted.values))
+    res <- list(residuals = as.matrix(reduced$residuals))
   }
   
-  Pcov <- exchange$Pcov
+  if(!RRPP) {
+    if(k > 0) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      fitted <- list(fitted = matrix(0, n, p))
+      res <- list(res = as.matrix(Y))
+    }
+  } 
   
-  rrpp.args <- list(fitted = fitted, 
-                    residuals = res,
-                    ind.i = NULL)
+  Pcov <- exchange$Pcov
   
   if(k > 0) {
     Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
     Qf <- lapply(full, function(x) x$qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Uf <- lapply(Qf, function(x) qr.Q(x))
-    Ufull <- Uf[[k]]
   } else {
-    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
-    Qf <- full$qr
-    Ur <- qr.Q(Qr)
-    Uf <- Ufull <- qr.Q(Qf)
+    Qr <- list(Qr = if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n)))
+    Qf <- list(Qf = full$qr)
   }
+  
+  Ur <- lapply(Qr, function(x) qr.Q(x))
+  Uf <- lapply(Qf, function(x) qr.Q(x))
+  Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
   Unull <- if(!is.null(Pcov)) 
@@ -1070,25 +1134,20 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
   
-  if(!RRPP) {
-    if(k > 0) {
-      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
-    } else {
-      rrpp.args$fitted <- matrix(0, n, p)
-      rrpp.args$residuals <- as.matrix(Y)
-    }
-  } 
-  
   if(print.progress){
     cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
+    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   
-  rrpp <- function(fitted, residuals, ind.i) {
-    if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
-      fitted + residuals[ind.i,]
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  rrpp.args <- list(FR = FR, ind.i = NULL)
+  
+  rrpp <- function(FR, ind.i) {
+    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
+  
+  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
+                              sum(y^2) - sum(crossprod(Ufull, y)^2))
   
   result <- mclapply(1:perms, mc.cores = cl, function(j){
     x <-ind[[j]]
@@ -1097,9 +1156,14 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     y <- yh0 + r0[x,]
     yy <- sum(y^2)
     if(k > 0) {
-      SSr <- sapply(1:k, function(j) sum(crossprod(Ur[[j]], Yi[[j]])^2))
-      SSf <- sapply(1:k, function(j) sum(crossprod(Uf[[j]], Yi[[j]])^2))
-      RSS <- sapply(1:k, function(j) sum(Yi[[j]]^2) - sum(crossprod(Ufull, Yi[[j]])^2))
+      res <- vapply(1:k, function(j){
+        ss(Ur[[j]], Uf[[j]], Yi[[j]])
+      }, numeric(3))
+      
+      SSr <- res[1, ]
+      SSf <- res[2, ]
+      RSS <- res[3, ]
+      
       TSS <- yy - sum(crossprod(Unull, y)^2)
       TSS <- rep(TSS, k)
       SS = SSf - SSr
@@ -1109,18 +1173,16 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   })
   
-  SS <- matrix(sapply(1:perms, function(j) result[[j]]$SS), max(1,k), perms)
-  RSS <- matrix(sapply(1:perms, function(j) result[[j]]$RSS), max(1,k), perms)
-  TSS <- matrix(sapply(1:perms, function(j) result[[j]]$TSS), max(1,k), perms)
-  RSS.model <- matrix(sapply(1:perms, function(j) result[[j]]$RSS.model), max(1,k), perms)
+  SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms, byrow = TRUE)
+  RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms, byrow = TRUE)
+  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms, byrow = TRUE)
+  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms, byrow = TRUE)
   
-  rownames(SS) <- rownames(RSS) <- rownames(TSS) <- rownames(RSS.model) <- 
-    if(k > 0) trms else "Intercept"
-  colnames(SS) <- colnames(RSS) <- colnames(TSS) <- colnames(RSS.model) <- 
-    c("obs", paste("iter", 1:(perms-1), sep="."))
+  res.names <- list(if(k > 0) trms else "Intercept", 
+                    c("obs", paste("iter", 1:(perms-1), sep=".")))
+  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- res.names
   
-  if(all(is.na(SS))) SS <- NULL
-  if(all(is.na(SS))) RSS <- NULL
+  if(all(is.na(SS))) RSS <- SS <- NULL
   
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   
@@ -1138,7 +1200,7 @@ anova.parts <- function(exchange, SS){
   Terms <- exchange$Terms
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  n <- NROW(exchange$data)
+  n <- NROW(exchange$model)
   if(k > 0) {
     QRr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
     QRf <- lapply(full, function(x) x$qr)
@@ -1147,7 +1209,7 @@ anova.parts <- function(exchange, SS){
     QRf <- full$qr
   }
   
-  dims <- dim(as.matrix(exchange$data[[1]]))
+  dims <- dim(as.matrix(exchange$model[[1]]))
   n <- dims[1]; p <- dims[2]
   
   if(k > 0) {
@@ -1280,7 +1342,7 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   Terms <- exchange$Terms
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  Y <- as.matrix(exchange$data[[1]])
+  Y <- as.matrix(exchange$model[[1]])
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
@@ -1289,31 +1351,31 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
     res <- lapply(reduced, function(x) as.matrix(x$residuals))
   } else {
-    fitted <- as.matrix(reduced$fitted.values)
-    res <- as.matrix(reduced$residuals)
+    fitted <- list(fitted = as.matrix(reduced$fitted.values))
+    res <- list(residuals = as.matrix(reduced$residuals))
   }
+  
+  if(!RRPP) {
+    if(k > 0) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      fitted <- list(fitted = matrix(0, n, p))
+      res <- list(res = as.matrix(Y))
+    }
+  } 
   
   o <- exchange$offset
   if(!is.null(o)) offset = TRUE else offset = FALSE
   
   Pcov <- exchange$Pcov
   
-  rrpp.args <- list(fitted = fitted, 
-                    residuals = res,
-                    ind.i = NULL, offset = offset,
-                    o = o)
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  rrpp.args <- list(FR = FR, ind.i = NULL, offset = offset, o = o)
   
-  rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o) {
-    if(offset) {
-      
-      if(k > 0) Map(function(f, r) f + r[ind.i,] - o, fitted, residuals) else
-        as.matrix(fitted + residuals[ind.i,] - o)
-      
-    } else {
-      
-      if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
-        as.matrix(fitted + residuals[ind.i,])
-    }
+  rrpp <- function(FR, ind.i, offset, o) {
+    if(offset) lapply(FR, function(x) x$fitted + x$residuals[ind.i, ] - o) else 
+      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
   
   if(print.progress){
@@ -1321,95 +1383,75 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   
-  if(k > 0) {
-    Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
-    Qf <- lapply(full, function(x) x$qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-  } else {
-    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
-    Qf <- full$qr
-    Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
-    Ur <- qr.Q(Qr)
-  }
-  
-  if(!RRPP) {
-    if(k > 0) {
-      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
-    } else {
-      rrpp.args$fitted <- matrix(0, n, p)
-      rrpp.args$residuals <- as.matrix(Y)
-    }
-  } 
-  
+  Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)
+  Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+
   betas <- lapply(1:perms, function(j){
     step <- j
     if(print.progress) setTxtProgressBar(pb,step)
     x <-ind[[j]]
     rrpp.args$ind.i <- x
     Yi <- do.call(rrpp, rrpp.args)
-    if(k > 0) Map(function(h, y) h %*% y, Hf, Yi) else
-      Hf %*% Yi
-    
+    Map(function(h, y)  h %*% y, Hf, Yi) 
+  
+  })
+
+beta.mats <- betas
+
+if(k > 0) {
+  
+  beta.mats <- lapply(1:k, function(j){
+    result <- lapply(betas, function(x) x[[j]])
+    result
   })
   
-  beta.mats <- betas
+  beta.mat.d <- lapply(1:k, function(j){
+    b <- beta.mats[[j]]
+    kk <- length(b)
+    result <- sapply(1:kk, function(jj){
+      bb <- b[[jj]]
+      if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
+    })
+    if(is.vector(result)) result <- matrix(result, 1, kk)
+    rownames(result) <- rownames(b[[1]])
+    colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+    result
+  })
   
-  if(k > 0) {
+  names(beta.mats) <- names(beta.mat.d) <- trms
+  
+  if(k == 1) d.stitched <- beta.mat.d[[1]]
+  
+  if(k > 1) {
+    d.stitched <- beta.mat.d[[k]]
     
-    beta.mats <- lapply(1:k, function(j){
-      result <- lapply(betas, function(x) x[[j]])
-      result
+    beta.match <- lapply(1:k, function(j){
+      cr <- rownames(reduced[[j]]$coefficients)
+      cf <- rownames(full[[j]]$coefficients)
+      cf[!(cf %in% cr)]
     })
     
-    beta.mat.d <- lapply(1:k, function(j){
-      b <- beta.mats[[j]]
-      kk <- length(b)
-      result <- sapply(1:kk, function(jj){
-        bb <- b[[jj]]
-        if(p == 1) res <- abs(bb) else res <- sqrt(diag(tcrossprod(bb)))
-      })
-      if(is.vector(result)) result <- matrix(result, 1, kk)
-      rownames(result) <- rownames(b[[1]])
-      colnames(result) <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
-      result
-    })
-    
-    names(beta.mats) <- names(beta.mat.d) <- trms
-    
-    if(k == 1) d.stitched <- beta.mat.d[[1]]
-    
-    if(k > 1) {
-      d.stitched <- beta.mat.d[[k]]
-      
-      beta.match <- lapply(1:k, function(j){
-        cr <- rownames(reduced[[j]]$coefficients)
-        cf <- rownames(full[[j]]$coefficients)
-        cf[!(cf %in% cr)]
-      })
-      
-      for(i in 1:(k-1)){
-        beta.check <- beta.match[[i]]
-        d.check <- beta.mat.d[[i]]
-        target <- which(rownames(d.stitched) %in% beta.check)
-        d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
-      }
+    for(i in 1:(k-1)){
+      beta.check <- beta.match[[i]]
+      d.check <- beta.mat.d[[i]]
+      target <- which(rownames(d.stitched) %in% beta.check)
+      d.stitched[target, ] <- d.check[rownames(d.check) %in% beta.check,]
     }
-  } else {
-    beta.mat.d <- d.stitched <- NULL
   }
-  
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
-  out <- list(random.coef = beta.mats,
-              random.coef.distances = d.stitched)
-  out
+} else {
+  beta.mat.d <- d.stitched <- NULL
 }
+
+step <- perms + 1
+if(print.progress) {
+  setTxtProgressBar(pb,step)
+  close(pb)
+}
+out <- list(random.coef = beta.mats,
+            random.coef.distances = d.stitched)
+out
+}
+
 
 beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   cl <- detectCores() - 1
@@ -1418,7 +1460,7 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   Terms <- exchange$Terms
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
-  Y <- as.matrix(exchange$data[[1]])
+  Y <- as.matrix(exchange$model[[1]])
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
@@ -1427,67 +1469,46 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
     res <- lapply(reduced, function(x) as.matrix(x$residuals))
   } else {
-    fitted <- as.matrix(reduced$fitted.values)
-    res <- as.matrix(reduced$residuals)
+    fitted <- list(fitted = as.matrix(reduced$fitted.values))
+    res <- list(res = as.matrix(reduced$residuals))
   }
+  
+  if(!RRPP) {
+    if(k > 0) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      fitted <- list(fitted = matrix(0, n, p))
+      res <- list(residuals = as.matrix(Y))
+    }
+  } 
   
   o <- exchange$offset
   if(!is.null(o)) offset = TRUE else offset = FALSE
   
   Pcov <- exchange$Pcov
   
-  rrpp.args <- list(fitted = fitted, 
-                    residuals = res,
-                    ind.i = NULL, offset = offset,
-                    o = o)
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  rrpp.args <- list(FR = FR, ind.i = NULL, offset = offset, o = o)
   
-  rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o) {
-    if(offset) {
-      
-      if(k > 0) Map(function(f, r) f + r[ind.i,] - o, fitted, residuals) else
-        as.matrix(fitted + residuals[ind.i,] - o)
-      
-    } else {
-      
-      if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
-        as.matrix(fitted + residuals[ind.i,])
-    }
+  rrpp <- function(FR, ind.i, offset, o) {
+    if(offset) lapply(FR, function(x) x$fitted + x$residuals[ind.i, ] - o) else 
+      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
   
   if(print.progress){
     cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    cat(paste("Progress bar not possible with parallel processing, but this shouldn't take long...\n"))
+    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   
-  if(k > 0) {
-    Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
-    Qf <- lapply(full, function(x) x$qr)
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-  } else {
-    Qr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
-    Qf <- full$qr
-    Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
-    Ur <- qr.Q(Qr)
-  }
-  
-  if(!RRPP) {
-    if(k > 0) {
-      rrpp.args$fitted <- lapply(fitted, function(.) matrix(0, n, p))
-      rrpp.args$residuals <- lapply(res, function(.) as.matrix(Y))
-    } else {
-      rrpp.args$fitted <- matrix(0, n, p)
-      rrpp.args$residuals <- as.matrix(Y)
-    }
-  } 
+  Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)
+  Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
   
   betas <- mclapply(1:perms, mc.cores = cl, function(j){
     x <-ind[[j]]
     rrpp.args$ind.i <- x
     Yi <- do.call(rrpp, rrpp.args)
-    if(k > 0) Map(function(h, y) h %*% y, Hf, Yi) else
-      Hf %*% Yi
+    Map(function(h, y)  h %*% y, Hf, Yi) 
     
   })
   
