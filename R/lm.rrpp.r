@@ -393,6 +393,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   } else PCA <- FALSE
   
   if(!is.null(Cov)) {
+    if(!is.null(rownames(Y)) && !is.null(rownames(Cov)))
+      Cov <- Cov[rownames(Y), rownames(Y)]
     exchange.args$Cov <- Cov
     exchange.args.o$Cov <- Cov
     fit.args$Cov <- Cov
@@ -478,7 +480,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   
   if(!is.null(Cov)) {
-    LM$Cov <- Cov[rownames(Y), rownames(Y)]
+    LM$Cov <- Cov
     LM$Pcov <- Cov.proj(Cov, rownames(Y))
   }
   PermInfo <- list(perms = perms,
