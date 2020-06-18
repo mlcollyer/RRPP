@@ -3,6 +3,7 @@
 ### NEW FEATURES
 ### OTHER CHANGES
 ### BUG FIXES
+* Fixed a bug that eliminated row names for `lm.rrpp` data when converting a vector of data to a matrix.
 * Added a step to coerce single-column matrices to vectors in `rrpp.data.frame` to prevent downstream issues.
 * Made it possible to use `trajectory.analysis` with univariate response data, omitting vector correlations output.
 

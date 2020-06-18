@@ -177,7 +177,11 @@ rrpp.data.frame<- function(...){
       }
       if(is.matrix(dots[[i]])) {
         dots.ns[i] <- dim(dots[[i]])[[1]]
-        if(dots.ns[i] == length(dots[[i]])) dots[[i]] <- as.vector(dots[[i]])
+        dt.nms <- rownames(dots[[i]])
+        if(dots.ns[i] == length(dots[[i]])) {
+          dots[[i]] <- as.vector(dots[[i]])
+          names(dots[[i]]) <- dt.nms
+        }
       }
       
       if(inherits(dots[[i]], "dist")) dots.ns[i] <- attr(dots[[i]], "Size")
@@ -281,7 +285,7 @@ lm.args.from.formula <- function(cl){
   }
   
   if(is.vector(Y)) {
-    Y <- matrix(Y)
+    Y <- as.matrix(Y)
     Dy <- NULL
   }
   
