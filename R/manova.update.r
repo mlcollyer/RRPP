@@ -198,23 +198,54 @@ manova.update <- function(fit, error = NULL,
   
   Ur <- lapply(Qr, qr.Q)
   Uf <- lapply(Qf, qr.Q)
+  Ufull <- Uf[[max(1, k)]]
   
-  if(is.null(w) && !is.null(Pcov)) {
-    Unull <- qr.Q(qr(crossprod(Pcov, rep(int, n))))
-  } else if(gls){
-    Unull <- qr.Q(qr(rep(int, n) * sqrt(w)))
-  } else Unull <- qr.Q(qr(rep(int, n)))
+  int <- attr(Terms, "intercept")
+  Unull <- if(!is.null(Pcov)) 
+    qr.Q(qr(crossprod(Pcov, rep(int, n)))) else if(!is.null(w)) 
+      qr.Q(qr(rep(int, n) * sqrt(w))) else
+        qr.Q(qr(rep(int, n)))
+  if(!is.null(Pcov)) Y <- Pcov %*% Y
+  if(!is.null(w)) Y <- Y * sqrt(w)
   
-  Ufull <- Uf[[k]]
-  if(!is.null(Pcov)) yh0 <- fastFit(Unull, Pcov %*% Y, n, p) else
-    if(!is.null(w)) yh0 <- fastFit(Unull, Y * sqrt(w), n, p) else
-      yh0 <- fastFit(Unull, Y, n, p)
-  
+  yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
   
-  fitted <- Map(function(u) fastFit(u, Y, n, p.prime), Ur)
-  res <- Map(function(u) Y - fastFit(u, Y, n, p.prime), Ur)
+  rrpp <- function(FR, ind.i) {
+    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+  }
   
+  if(k > 0) {
+    fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
+    res <- lapply(reduced, function(x) as.matrix(x$residuals))
+  } else {
+    fitted <- list(fitted = as.matrix(reduced$fitted.values))
+    res <- list(residuals = as.matrix(reduced$residuals))
+  }
+  
+  if(!RRPP) {
+    if(k > 0) {
+      fitted <- lapply(fitted, function(.) matrix(0, n, p))
+      res <- lapply(res, function(.) as.matrix(Y))
+    } else {
+      fitted <- list(fitted = matrix(0, n, p))
+      res <- list(res = as.matrix(Y))
+    }
+  } 
+  
+
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  rrpp.args <- list(FR = FR, ind.i = ind[[1]])
+  
+  rrpp <- function(FR, ind.i) {
+    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+  }
+  
+  sscp.args <- list(Uf = Uf, Ur = Ur, 
+                    Ufull = Ufull, Unull = Unull,
+                    Y = NULL, 
+                    n = n, p = p.prime,
+                    Yt = Y)
   sscp <- function(Uf, Ur, Ufull, Unull, Y, n, p, Yt) {
     ss <- Map(function(uf, ur, y) crossprod(fastFit(uf, y, n, p.prime) -
                                               fastFit(ur, y, n, p.prime)), Uf, Ur, Y)
@@ -226,18 +257,6 @@ manova.update <- function(fit, error = NULL,
     
   }
   
-  rrpp <- function(fitted, residuals, ind.i) {
-    if(k > 0) Map(function(f, r) f + r[ind.i,], fitted, residuals) else
-      fitted + residuals[ind.i,]
-  }
-  
-  sscp.args <- list(Uf = Uf, Ur = Ur, 
-                    Ufull = Ufull, Unull = Unull,
-                    Y = rrpp(fitted, res, ind[[1]]), 
-                    n = n, p = p.prime,
-                    Yt = Y)
-  
-  
   invR.H <- function(ss){
     k <- length(ss) - 2
     rss <- ss[[k+2]]
@@ -245,7 +264,7 @@ manova.update <- function(fit, error = NULL,
     result <- lapply(1:(k+1), function(j){
       rss.inv %*% ss[[j]]
     })
-    names(result)[1:k] <- names(ss)[1:k]
+    names(result)<- c(names(ss)[1:k], "Model")
     result
   }
   
@@ -254,9 +273,6 @@ manova.update <- function(fit, error = NULL,
   
   getEigsL <- function(L) t(sapply(L, getEigs))
   
-  rrpp.args <- list(fitted = fitted, 
-                    residuals = res,
-                    ind.i = NULL)
   
   if(print.progress){
     cat(paste("\nCalculation of SSCP matrix products:", perms, "permutations.\n")) 
