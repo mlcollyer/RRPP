@@ -1170,7 +1170,6 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     rand.stats <- sapply(1:perms, function(j){
       y <- eigs[[j]]
       apply(y, 1, pillai)
-      
     })
     
     test.stats <- rand.stats[, 1]
@@ -1197,7 +1196,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   
   else if(test == "Wilks"){
     
-    rand.stats <- sapply(1:(k+1), function(j){
+    rand.stats <- sapply(1:perms, function(j){
       y <- eigs[[j]]
       apply(y, 1, wilks)
     })
@@ -1210,14 +1209,14 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     stats$Wilks[1:(k+1)] <- test.stats
   }
   else {
-    rand.stats <- sapply(1:(k+1), function(j){
+    rand.stats <- sapply(1:perms, function(j){
       y <- eigs[[j]]
       apply(y, 1, max)
     })
     
-    test.stats <- rand.stats[1,]
-    Z <- apply(log(rand.stats), 2, effect.size)
-    P <- apply(rand.stats, 2, pval)
+    test.stats <- rand.stats[,1]
+    Z <- apply(log(rand.stats), 1, effect.size)
+    P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
     stats$Roy[1:(k+1)] <- test.stats
