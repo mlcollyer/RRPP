@@ -7,7 +7,7 @@
 manova.update(
   fit,
   error = NULL,
-  tol = 0.01,
+  tol = 1e-07,
   PC.no = NULL,
   print.progress = TRUE
 )
@@ -23,11 +23,13 @@ will update this argument.)}
 of eigenvalues for the data will be examined and if the decay becomes less than the tolerance,
 the data will be truncated to principal components ahead of this point.  This will possibly prevent spurious results
 calculated from eigenvalues near 0.  If tol = 0, all possible PC axes are used, which is likely
-not a problem if observations outnumber variables.}
+not a problem if observations outnumber variables.  If tol = 0 and the number of variables exceeds the number of observations,
+the value of tol will be made slightly positive to prevent problems with eigen-analysis.}
 
-\item{PC.no}{A value that, if not NULL,  overrides the tolerance argument, and forces a desired number of 
+\item{PC.no}{A value that, if not NULL, can override the tolerance argument, and forces a desired number of 
 data PCs to use for analysis.  If a value larger than the possible number of PCs is chosen, the full compliment of PCs
-(the full data space) will be used.}
+(the full data space) will be used.  If a number larger than tol would permit is chosen, the minimum number of PCs between the tol
+argument and PC.no argument is returned.}
 
 \item{print.progress}{A logical value to indicate whether a progress bar should be printed to the screen.
 This is helpful for long-running analyses.}
@@ -52,7 +54,7 @@ MANOVA statistics or sums of squares and cross-products (SSCP) matrices
 are calculated over the random permutations of a \code{\link{lm.rrpp}} fit.  SSCP matrices are 
 computed, as are the inverse of R time H (invR.H), where R is a SSCP for the residuals or random effects and H is
 the difference between SSCP matrices of full and reduced models (see below).   From invR.H,
-MANOVA statistics are calculated, including Roy's maximum root (eigen value), Pillai trace, Hotelling-Lawley trace,
+MANOVA statistics are calculated, including Roy's maximum root (eigenvalue), Pillai trace, Hotelling-Lawley trace,
 and Wilks lambda (via \code{\link{summary.manova.lm.rrpp}}).
 
 The manova.update to add $MANOVA to \code{\link{lm.rrpp}} fits requires more computation time than the $ANOVA
@@ -61,9 +63,8 @@ be found with either approach, when observations outnumber response variables.  
 than observations) data are projected into a Euclidean space of appropriate dimensions (rank of residual covariance matrix).  
 One can vary the tolerance for eigenvalue decay or specify the number of PCs, if a smaller set of PCs than the maximum is desired.  
 This is advised if there is strong correlation among variables (the data space could be simplified to fewer dimensions), as spurious
-results are possible.  When observations outnumber variables, projection of data onto PCs yields the same results as the original 
-variables.  Because distributions of MANOVA stats can be generated from the random permutations,
-there is no need to approximate F-values, like with parametric MANOVA. By restricting analysis to the real, positive eigen values calculated,
+results are possible.  Because distributions of MANOVA stats can be generated from the random permutations,
+there is no need to approximate F-values, like with parametric MANOVA. By restricting analysis to the real, positive eigenvalues calculated,
 all statistics can be calculated (but Wilks lambda, as a product but not a trace, might be less reliable as variable number approaches
 the number of observations).
 
@@ -79,9 +80,17 @@ the number of observations).
  and provide univariate-like statistics for multivariate data.  These statistics are dispersion measures only (covariances
  among variables do not contribute) and are the same as "distance-based" stats proposed by Goodall (1991) and Anderson (2001).
  MANOVA stats require multivariate data and are implicitly affected by variable covariances.  For MANOVA, the inverse of R times
- H (invR.H) is first calculated for each effect, then eigenanalysis is performed on these matrix products.  Multivariate
+ H (invR.H) is first calculated for each effect, then eigen-analysis is performed on these matrix products.  Multivariate
  statistics are calculated from the positive, real eigenvalues.  In general, inferential
  conclusions will be similar with either approach, but effect sizes might differ.
+ 
+ Two important differences between manova.update and \code{\link{summary.manova}} (for \code{\link{lm}} objects) are that manova.update
+ does not attempt to normalize residual SSCP matrices (unneeded for non-parametric statistical solutions) and (2) uses a generalized
+ inverse of the residual SSCP, if needed, when the number of variables could render eigen-analysis problematic.  This approach is consistent
+ with covariance regularization methods that attempt to make covariance matrices positive-definite for calculating model likelihoods or
+ multivariate statistics.  If the number of observations far exceeds the number of response variables, observed statistics from manova.update and 
+ \code{\link{summary.manova}} will be quite similar.  If the number of response variables approaches or exceeds the number of observations, manova.update
+ statistics will be much more reliable.
  
  ANOVA tables are generated by \code{\link{anova.lm.rrpp}} on lm.rrpp fits and MANOVA tables are generated
  by \code{\link{summary.manova.lm.rrpp}}, after running manova.update on lm.rrpp fits.
@@ -125,7 +134,7 @@ fit.m$MANOVA$invR.H$Sex[1:3] # invR.H first three iterations
 # Distributions of test statistics
 
 summ.roy <- summary(fit.m, test = "Roy")
-dens <- apply(summ.roy$rand.stats, 2, density)
+dens <- apply(summ.roy$rand.stats, 1, density)
 par(mfcol = c(1, length(dens)))
 for(i in 1:length(dens)) {
      plot(dens[[i]], xlab = "Roy max root", ylab = "Density",
