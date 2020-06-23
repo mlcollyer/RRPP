@@ -920,10 +920,13 @@ lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
         x <- as.matrix(Xs[[j]])
         coef.j <- e$coefficients
         f$coefficients <- coef.j
-        f$fitted.values <- x %*% coef.j
-        f$effects <- qr.qty(e$qr, PY)
-        f$residuals <- Y - f$fitted
-        f$qr <- e$qr
+        f$fitted.values <- if(length(coef.j > 0)) as.matrix(x %*% coef.j) else f$fitted.values
+        if(!is.null(e$effects)) f$effects <- qr.qty(e$qr, PY) else {
+          Q <- qr(rep(0, NROW(X)))
+          f$effects <- qr.qty(Q, PY)
+        }
+        f$residuals <- if(!is.null(f$fitted.values)) Y - f$fitted.values else Y
+        f$qr <- if(!is.null(e$effects)) e$qr else Q
         f$qraux <- e$qraux
         f
       })
