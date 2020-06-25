@@ -171,6 +171,10 @@ pval = function(s){# s = sampling distribution
 # Effect sizes (standard deviates) form random outcomes
 # any analytical function
 effect.size <- function(x, center = TRUE) {
+  bc <- boxcox(lm(x ~ 1), plotit = FALSE)
+  lambda <- bc$x[which.max(bc$y)]
+  lambda <- round(lambda, 2)
+  x <- if(lambda == 0) log(x) else (x^lambda - 1)/lambda
   z = scale(x, center=center)
   n <- length(z)
   z[1]*sqrt((n-1)/(n))
