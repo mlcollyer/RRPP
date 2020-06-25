@@ -1676,7 +1676,7 @@ aov.single.model <- function(object, ...,
     if(!is.null(Z)) {
       if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
       P.val <- apply(Z, 1, pval) 
-      Z <- apply(log(Z), 1, effect.size)
+      Z <- apply(Z, 1, effect.size)
       } else P.val <- NULL
     
     Residuals <- c(df[k+1], RSS[[1]], RSS[[1]]/df[k+1], RSS[[1]]/TSS[[1]], rep(NA, 3))
@@ -1817,16 +1817,16 @@ aov.multi.model <- function(object, lm.list,
   
   if(effect.type == "SS") {
     Pvals <- apply(SS, 1, pval)
-    Z <- apply(log(SS), 1, effect.size)
+    Z <- apply(SS, 1, effect.size)
   } else   if(effect.type == "MS") {
     Pvals <- apply(MS, 1, pval)
-    Z <- apply(log(MS), 1, effect.size)
+    Z <- apply(MS, 1, effect.size)
   } else   if(effect.type == "Rsq") {
     Pvals <- apply(Rsq, 1, pval)
-    Z <- apply(log(Rsq), 1, effect.size)
+    Z <- apply(Rsq, 1, effect.size)
   } else{
     Pvals <- apply(Fs, 1, pval)
-    Z <- apply(log(Fs), 1, effect.size)
+    Z <- apply(Fs, 1, effect.size)
   }
   SS[1,] <- NA
   MS[1,] <- NA
