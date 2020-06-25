@@ -176,7 +176,7 @@ box.cox <- function(y, eps = 0.02) {
   n <- length(y)
   yy <- y/exp(mean(log(y)))
   logy <- log(yy)
-  lambda <- seq(-2, 2, 0.4)
+  lambda <- seq(-2.4, 2.4, 0.4)
   m <- length(lambda)
   
   loglik <- sapply(1:m, function(j){ # same as MASS::boxcox loglik f
@@ -189,8 +189,9 @@ box.cox <- function(y, eps = 0.02) {
   
   lambda.opt <- lambda[which.max(loglik)][[1]]
   
-  if(abs(lambda.opt) == 2) {
+  if(abs(lambda.opt) == 2.4) {
     lambda <- seq(-3.2, 3.2, 0.2)
+    m <- length(lambda)
     
     loglik <- sapply(1:m, function(j){ # same as MASS::boxcox loglik f
       la <- lambda[j]
