@@ -66,7 +66,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       Fs <- (SSM/dfM)/(RSS.model/dfe)
       Fs.obs <- Fs[1]
       P <- pval(as.vector(Fs))
-      Z <- effect.size(as.vector(log(Fs)))
+      Z <- effect.size(as.vector(Fs))
       
     } else {
       df <- 0
@@ -1173,7 +1173,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     })
     
     test.stats <- rand.stats[, 1]
-    Z <- apply(log(rand.stats), 1, effect.size)
+    Z <- apply(rand.stats, 1, effect.size)
     P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
@@ -1187,7 +1187,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     })
     
     test.stats <- rand.stats[, 1]
-    Z <- apply(log(rand.stats), 1, effect.size)
+    Z <- apply(rand.stats, 1, effect.size)
     P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
@@ -1202,7 +1202,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     })
     
     test.stats <- rand.stats[, 1]
-    Z <- apply(log(rand.stats), 1, effect.size)
+    Z <- apply(rand.stats, 1, effect.size)
     P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
@@ -1215,7 +1215,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     })
     
     test.stats <- rand.stats[,1]
-    Z <- apply(log(rand.stats), 1, effect.size)
+    Z <- apply(rand.stats, 1, effect.size)
     P <- apply(rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P

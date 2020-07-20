@@ -167,19 +167,66 @@ pval = function(s){# s = sampling distribution
   pv
 }
 
+# box.cox
+# Box-Cox transformation for normalizing distributions.  Similar to MASS::boxcox
+# without unneeded arguments, plus faster
+# Used in effect.size
+box.cox <- function(y, eps = 0.02) {
+  if(any(y <= 0)) y = y - min(y) + 0.0001
+  n <- length(y)
+  yy <- y/exp(mean(log(y)))
+  logy <- log(yy)
+  lambda <- seq(-2.4, 2.4, 0.4)
+  m <- length(lambda)
+  
+  loglik <- sapply(1:m, function(j){ # same as MASS::boxcox loglik f
+    la <- lambda[j]
+    yt <- if(abs(la) > eps) yt <- (yy^la - 1)/la else
+      logy * (1 + (la * logy)/2 * (1 + (la * logy)/3 * (1 + (la * logy)/4)))
+    
+    -n/2 * log(sum(center(yt)^2))
+  })
+  
+  lambda.opt <- lambda[which.max(loglik)][[1]]
+  
+  if(abs(lambda.opt) == 2.4) {
+    lambda <- seq(-3.2, 3.2, 0.2)
+    m <- length(lambda)
+    
+    loglik <- sapply(1:m, function(j){ # same as MASS::boxcox loglik f
+      la <- lambda[j]
+      yt <- if(abs(la) > eps) yt <- (yy^la - 1)/la else
+        logy * (1 + (la * logy)/2 * (1 + (la * logy)/3 * (1 + (la * logy)/4)))
+      
+      -n/2 * log(sum(center(yt)^2))
+    })
+    lambda.opt <- lambda[which.max(loglik)][[1]]
+  }
+  
+  sp <- spline(lambda, loglik, n = 100)
+  lambda.opt <- sp$x[which.max(sp$y)]
+  if(abs(lambda.opt) < eps) lambda.opt <- 0
+  res <- if(lambda.opt == 0) log(y) else (y^lambda.opt - 1)/lambda.opt
+  list(opt.lambda = lambda.opt, transformed = res, lambda = sp$x, loglik = sp$y)
+}
+
 # effect.size
 # Effect sizes (standard deviates) form random outcomes
 # any analytical function
-effect.size <- function(x, center = TRUE) {
-  bc <- boxcox(lm(x ~ 1), plotit = FALSE)
-  lambda <- bc$x[which.max(bc$y)]
-  lambda <- round(lambda, 2)
-  x <- if(lambda == 0) log(x) else (x^lambda - 1)/lambda
-  z = scale(x, center=center)
-  n <- length(z)
-  z[1]*sqrt((n-1)/(n))
-}
 
+effect.size <- function(x, center = TRUE) {
+  if(length(unique(x)) == 1) {
+    sdx <- 1
+    x <- 0
+  } else {
+    x <- box.cox(x)$transformed
+    n <- length(x)
+    if(center) x <- center(x)
+    sdx <- sqrt((sum(x^2)/n))
+  }
+  
+  (x[1]- mean(x)) / sdx
+}
 
 # Pval.matrix
 # P-values form random outcomes that comprise matrices
