@@ -1778,8 +1778,8 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
   pcdata <- as.matrix(x$x[, c(axis1, axis2)])
   if(!is.null(plot.args$axes)) axes <- plot.args$axes else axes <- TRUE
   if(!is.logical(axes)) axes <- as.logical(axes)
-  plot.args$xlim <- 1.05*range(plot.args$x)
-  plot.args$ylim <- 1.05*range(plot.args$y)
+  if(is.null(plot.args$xlim)) plot.args$xlim <- 1.05*range(plot.args$x)
+  if(is.null(plot.args$ylim)) plot.args$ylim <- 1.05*range(plot.args$y)
   if(is.null(plot.args$asp)) plot.args$asp <- 1
   
   do.call(plot, plot.args)

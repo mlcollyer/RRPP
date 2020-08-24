@@ -188,7 +188,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, scale. = FALSE,
   if(alignment != "principal") {
     Sa <- crossprod(A)
     Sz <- crossprod(Z)
-    RV <- s$d^2 / sqrt(sum(Sa^2) * sum(Sz^2))
+    RV <- svd(crossprod(A, Z))$d^2 / sqrt(sum(Sa^2) * sum(Sz^2))
   } else RV <- NULL
   
   j <- seq_len(k)

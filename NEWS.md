@@ -3,6 +3,9 @@
 ### NEW FEATURES
 * Added Box-Cox transformation to `effect.size`.
 
+### BUG FIXES
+* Fixed `xlim` and `ylim` to be adjustable in `plot.ordinate`.
+
 # CHANGES IN RRPP 0.6.1 (Patch Release)
 
 ### NEW FEATURES
