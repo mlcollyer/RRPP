@@ -5,6 +5,8 @@
 
 ### BUG FIXES
 * Fixed `xlim` and `ylim` to be adjustable in `plot.ordinate`.
+* Added transform logical output to ordinate.
+* Fixed intercept only model issue in lm.rrpp.
 
 # CHANGES IN RRPP 0.6.1 (Patch Release)
 
