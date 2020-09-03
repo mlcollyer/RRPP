@@ -362,7 +362,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
       weighted <- TRUE
     } else weighted <- FALSE
     Terms <- exchange.args$Terms
-    Y <- as.matrix(exchange.args$Y)
+    exchange.args$Y <- Y <- as.matrix(exchange.args$Y)
   }
   
   if(!inherits(f1, c("lm", "formula")))

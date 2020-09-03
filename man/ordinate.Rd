@@ -44,7 +44,7 @@ This argument can be set as alternative or in addition to tol, useful notably wh
 smaller than the dimensions of the matrix.  This argument is exactly the same as in \code{\link{prcomp}}}
 
 \item{newdata}{An optional data frame of values for the same variables of Y to be projected onto 
-aligned components.  This is only possible with OLS (transform = FALSE).}
+aligned components.  This is only possible with OLS (transform. = FALSE).}
 }
 \value{
 An object of class \code{ordinate} is a list containing the following
@@ -54,6 +54,8 @@ An object of class \code{ordinate} is a list containing the following
 \item{sdev}{Standard deviations of d; i.e., the scale of the components.}
 \item{rot}{The matrix of variable loadings, i.e. the singular vectors, \bold{V}.}
 \item{center}{The OLS or GLS means vector used for centering.}
+\item{transform}{Whether GLS transformation was used in projection of residuals 
+(only possible in conjunction with GLS-centering).}
 \item{scale}{The scaling used, or FALSE.}
 \item{alignment}{Whether data were aligned to principal axes or the name of another matrix.}
 \item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
@@ -74,12 +76,15 @@ If \bold{A} = \bold{I}, an n x n identity matrix, \bold{V} are the
 eigen vectors (principal components) of \bold{Y}.
 
 \bold{Z} represents a centered and potentially standardized form of \bold{Y}.  This
-function can center data via OLS or GLS means (the latter if a covariance matrix  to describe
+function can center data via OLS or GLS means (the latter if a covariance matrix to describe
 the non-independence among observations is provided).  If standardizing variables is preferred,
-then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard deviations.
+then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard deviations.  
 
-Data are projected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
-an orthogonal projection and in the case of GLS is an oblique projection.
+Data are projected onto aligned vectors, \bold{ZV}.  If a 
+GLS computation is made, the option to transform centered values (residuals) before projection is 
+available.  This is required for orthogonal projection, but from a transformed data space.  Not transforming
+residuals maintains the Euclidean distances among observations and the OLS multivariate variance, but
+the projection is oblique (scores can be correlated).
 
 The versatility of using an alignment approach is that alternative data space rotations are possible.
 Principal components are thus the vectors that maximize variance with respect to the data, themselves,
