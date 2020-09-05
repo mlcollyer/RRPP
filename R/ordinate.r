@@ -14,12 +14,15 @@
 #' eigen vectors (principal components) of \bold{Y}.
 #' 
 #' \bold{Z} represents a centered and potentially standardized form of \bold{Y}.  This
-#' function can center data via OLS or GLS means (the latter if a covariance matrix  to describe
+#' function can center data via OLS or GLS means (the latter if a covariance matrix to describe
 #' the non-independence among observations is provided).  If standardizing variables is preferred,
-#' then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard deviations.
+#' then \bold{Z} both centers and scales the vectors of \bold{Y} by their standard deviations.  
 #' 
-#' Data are projected onto aligned vectors, \bold{ZV}, which in the case of OLS residuals is
-#' an orthogonal projection and in the case of GLS is an oblique projection.
+#' Data are projected onto aligned vectors, \bold{ZV}.  If a 
+#' GLS computation is made, the option to transform centered values (residuals) before projection is 
+#' available.  This is required for orthogonal projection, but from a transformed data space.  Not transforming
+#' residuals maintains the Euclidean distances among observations and the OLS multivariate variance, but
+#' the projection is oblique (scores can be correlated).
 #'
 #' The versatility of using an alignment approach is that alternative data space rotations are possible.
 #' Principal components are thus the vectors that maximize variance with respect to the data, themselves,
@@ -70,7 +73,7 @@
 #' This argument can be set as alternative or in addition to tol, useful notably when the desired rank is considerably 
 #' smaller than the dimensions of the matrix.  This argument is exactly the same as in \code{\link{prcomp}}
 #' @param newdata An optional data frame of values for the same variables of Y to be projected onto 
-#' aligned components.  This is only possible with OLS (transform = FALSE).
+#' aligned components.  This is only possible with OLS (transform. = FALSE).
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
@@ -81,11 +84,16 @@
 #' \item{sdev}{Standard deviations of d; i.e., the scale of the components.}
 #' \item{rot}{The matrix of variable loadings, i.e. the singular vectors, \bold{V}.}
 #' \item{center}{The OLS or GLS means vector used for centering.}
+#' \item{transform}{Whether GLS transformation was used in projection of residuals 
+#' (only possible in conjunction with GLS-centering).}
 #' \item{scale}{The scaling used, or FALSE.}
 #' \item{alignment}{Whether data were aligned to principal axes or the name of another matrix.}
 #' \item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
 #' @references Collyer, M.L. and D.C. Adams.  2020. Phylogenetically-aligned Component Analysis. Methods 
 #' in Ecology and evolution. In review.
+#' @references Revell, L. J.  2009. Size‐correction and principal components for interspecific comparative 
+#' studies. Evolution, 63:3258-3268.
+#' 
 #' @seealso \code{\link{plot.ordinate}}, \code{\link{prcomp}}, \code{gm.prcomp} within \code{geomorph}
 #' @examples
 #' 
@@ -102,32 +110,57 @@
 #' R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' iter = 0, print.progress = FALSE)$LM$residuals
 #' 
+#' # PCA (on correlation matrix)
+#' 
 #' PCA.ols <- ordinate(R, scale. = TRUE)
 #' PCA.ols$rot
 #' prcomp(R, scale. = TRUE)$rotation # should be the same
 #' 
-#' PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
+#' # phyPCA (sensu Revell, 2009)
+#' # with projection of untransformed residuals (Collyer & Adams 2020)
+#' 
+#' PCA.gls <- ordinate(R, scale. = TRUE, 
+#' transform. = FALSE, 
+#' Cov = PlethMorph$PhyCov)
+#' 
+#' # phyPCA with transformed residuals (orthogonal projection, Collyer & Adams 2020)
+#' 
+#' PCA.t.gls <- ordinate(R, scale. = TRUE, 
+#' transform. = TRUE, 
+#' Cov = PlethMorph$PhyCov)
 #'  
-#'  # Align to phylogenetic signal
+#'  # Align to phylogenetic signal (in each case)
 #'  
 #'  PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
-#'  PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
+#'  
+#'  PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, 
+#'  scale. = TRUE,
+#'  transform. = FALSE, 
+#'  Cov = PlethMorph$PhyCov)
+#'  
+#'  PaCA.t.gls <- ordinate(R, A = PlethMorph$PhyCov, 
+#'  scale. = TRUE,
+#'  transform. = TRUE, 
 #'  Cov = PlethMorph$PhyCov)
 #'  
 #'  # Summaries
 #'  
 #'  summary(PCA.ols)
 #'  summary(PCA.gls)
+#'  summary(PCA.t.gls)
 #'  summary(PaCA.ols)
 #'  summary(PaCA.gls)
+#'  summary(PaCA.t.gls)
 #'  
 #'  # Plots
 #'  
-#'  par(mfrow = c(2,2))
+#'  par(mfrow = c(2,3))
 #'  plot(PCA.ols, main = "PCA OLS")
 #'  plot(PCA.gls, main = "PCA GLS")
+#'  plot(PCA.t.gls, main = "PCA t-GLS")
 #'  plot(PaCA.ols, main = "PaCA OLS")
 #'  plot(PaCA.gls, main = "PaCA GLS")
+#'  plot(PaCA.t.gls, main = "PaCA t-GLS")
 #'  par(mfrow = c(1,1))
 #' 
 ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, scale. = FALSE, 
@@ -217,6 +250,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, scale. = FALSE,
             center = cen, 
             scale = if(is.null(sc)) FALSE else sc,
             GLS = if(is.null(Cov)) FALSE else TRUE,
+            transform = tf,
             alignment = alignment,
             x = x,
             RV = RV)

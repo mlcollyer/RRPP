@@ -269,6 +269,8 @@ lm.args.from.formula <- function(cl){
     stop("Data are missing from either the data frame or global environment.\n", 
          call. = FALSE)
   
+  if(is.vector(Y)) Y <- as.matrix(Y)
+  
   if(is.matrix(Y) || is.data.frame(Y)) {
     if(isSymmetric(Y)) {
       Dy <- Y <- as.dist(Y)
@@ -303,11 +305,15 @@ lm.args.from.formula <- function(cl){
   n <- NROW(Y)
   
   if(!is.null(lm.args$data)) lm.args$data <- makeDF(form, lm.args$data, n)
+  if(is.null(lm.args$data)) {
+    lm.args$data <- list()
+    lm.args$data$Y <- as.matrix(Y)
+  }
   
   f <- try(do.call(lm, lm.args), silent = TRUE)
   
   if(inherits(f, "try-error")) {
-    lm.args$data$Y <- Y
+    lm.args$data$Y <- as.matrix(Y)
     f <- try(do.call(lm, lm.args), silent = TRUE)
   }
   
