@@ -1694,11 +1694,21 @@ print.ordinate <- function(x, ...){
     cat("Alignment matrix:", x$alignment, "\n")
   cen <- if(x$GLS) "GLS" else "OLS"
   cat("Centering by", cen, "mean\n")
-  if(x$GLS && x$transform)
-    cat("GLS residuals transformed for orthogonal projection\n") else
-      if(x$GLS) cat("Oblique projection of GLS-centered residuals\n") else
-        cat("Orthogonal projection of OLS residuals\n")
-  cat("Number of observations", NROW(x$x), "\n")
+  
+  if(x$alignment == "principal") {
+    if(x$GLS && x$transform)
+      cat("GLS residuals transformed for orthogonal projection\n") else
+        if(x$GLS) cat("Oblique projection of GLS-centered residuals\n") else
+          cat("Orthogonal projection of OLS residuals\n")
+  } else {
+    if(x$GLS && x$transform)
+      cat("GLS residuals transformed\n") else
+        if(x$GLS) cat("GLS-centered residuals, not transformed\n") else
+          cat("OLS residuals\n")
+    cat("Alignment to ", x$alignment, "means residual projection is not orthogonal.\n")
+  }
+  
+  cat("Number of observations:", NROW(x$x), "\n")
   cat("Number of vectors", NCOL(x$x), "\n\n")
 } 
 
