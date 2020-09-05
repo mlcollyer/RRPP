@@ -91,6 +91,9 @@
 #' \item{GLS}{A logical value to indicate if GLS-centering and projection was used.}
 #' @references Collyer, M.L. and D.C. Adams.  2020. Phylogenetically-aligned Component Analysis. Methods 
 #' in Ecology and evolution. In review.
+#' @references Revell, L. J.  2009. Size‐correction and principal components for interspecific comparative 
+#' studies. Evolution, 63:3258-3268.
+#' 
 #' @seealso \code{\link{plot.ordinate}}, \code{\link{prcomp}}, \code{gm.prcomp} within \code{geomorph}
 #' @examples
 #' 
@@ -107,32 +110,57 @@
 #' R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' iter = 0, print.progress = FALSE)$LM$residuals
 #' 
+#' # PCA (on correlation matrix)
+#' 
 #' PCA.ols <- ordinate(R, scale. = TRUE)
 #' PCA.ols$rot
 #' prcomp(R, scale. = TRUE)$rotation # should be the same
 #' 
-#' PCA.gls <- ordinate(R, scale. = TRUE, Cov = PlethMorph$PhyCov)
+#' # phyPCA (sensu Revell, 2009)
+#' # with projection of untransformed residuals (Collyer & Adams 2020)
+#' 
+#' PCA.gls <- ordinate(R, scale. = TRUE, 
+#' transform. = FALSE, 
+#' Cov = PlethMorph$PhyCov)
+#' 
+#' # phyPCA with transformed residuals (orthogonal projection, Collyer & Adams 2020)
+#' 
+#' PCA.t.gls <- ordinate(R, scale. = TRUE, 
+#' transform. = TRUE, 
+#' Cov = PlethMorph$PhyCov)
 #'  
-#'  # Align to phylogenetic signal
+#'  # Align to phylogenetic signal (in each case)
 #'  
 #'  PaCA.ols <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE)
-#'  PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE,
+#'  
+#'  PaCA.gls <- ordinate(R, A = PlethMorph$PhyCov, 
+#'  scale. = TRUE,
+#'  transform. = FALSE, 
+#'  Cov = PlethMorph$PhyCov)
+#'  
+#'  PaCA.t.gls <- ordinate(R, A = PlethMorph$PhyCov, 
+#'  scale. = TRUE,
+#'  transform. = TRUE, 
 #'  Cov = PlethMorph$PhyCov)
 #'  
 #'  # Summaries
 #'  
 #'  summary(PCA.ols)
 #'  summary(PCA.gls)
+#'  summary(PCA.t.gls)
 #'  summary(PaCA.ols)
 #'  summary(PaCA.gls)
+#'  summary(PaCA.t.gls)
 #'  
 #'  # Plots
 #'  
-#'  par(mfrow = c(2,2))
+#'  par(mfrow = c(2,3))
 #'  plot(PCA.ols, main = "PCA OLS")
 #'  plot(PCA.gls, main = "PCA GLS")
+#'  plot(PCA.t.gls, main = "PCA t-GLS")
 #'  plot(PaCA.ols, main = "PaCA OLS")
 #'  plot(PaCA.gls, main = "PaCA GLS")
+#'  plot(PaCA.t.gls, main = "PaCA t-GLS")
 #'  par(mfrow = c(1,1))
 #' 
 ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, scale. = FALSE, 
@@ -222,7 +250,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, scale. = FALSE,
             center = cen, 
             scale = if(is.null(sc)) FALSE else sc,
             GLS = if(is.null(Cov)) FALSE else TRUE,
-            tranform = tf,
+            transform = tf,
             alignment = alignment,
             x = x,
             RV = RV)
