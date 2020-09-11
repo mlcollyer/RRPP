@@ -1249,7 +1249,7 @@ print.summary.manova.lm.rrpp <- function(x, ...){
   cat("\nNumber of dependent variables:", x$p)
   cat("\nData space dimensions:", x$p.prime)
   cat("\nResidual covariance matrix rank:", x$e.rank)
-  pc.max <- max(x$manova.pc.dims)
+  pc.max <- x$manova.pc.dims
   
   if(pc.max < x$e.rank) {
     cat("\n   Data reduced to", pc.max, "PCs, as required or prescribed.")

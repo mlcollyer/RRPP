@@ -125,11 +125,9 @@ fit.m <- manova.update(fit, print.progress = FALSE, tol = 0.001)
 summary(fit.m, test = "Roy")
 summary(fit.m, test = "Pillai")
 
-fit.m$MANOVA$eigs$logSize[1:3] # eigenvalues first three iterations
-fit.m$MANOVA$eigs$Sex[1:3] # eigenvalues first three iterations
-
-fit.m$MANOVA$invR.H$logSize[1:3] # invR.H first three iterations
-fit.m$MANOVA$invR.H$Sex[1:3] # invR.H first three iterations
+fit.m$MANOVA$eigs$obs # observed eigenvalues
+fit.m$MANOVA$SSCP$obs # observed SSCP
+fit.m$MANOVA$invR.H$obs # observed invR.H 
 
 # Distributions of test statistics
 
