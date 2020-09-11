@@ -113,11 +113,9 @@
 #' summary(fit.m, test = "Roy")
 #' summary(fit.m, test = "Pillai")
 #' 
-#' fit.m$MANOVA$eigs$logSize[1:3] # eigenvalues first three iterations
-#' fit.m$MANOVA$eigs$Sex[1:3] # eigenvalues first three iterations
-#' 
-#' fit.m$MANOVA$invR.H$logSize[1:3] # invR.H first three iterations
-#' fit.m$MANOVA$invR.H$Sex[1:3] # invR.H first three iterations
+#' fit.m$MANOVA$eigs$obs # observed eigenvalues
+#' fit.m$MANOVA$SSCP$obs # observed SSCP
+#' fit.m$MANOVA$invR.H$obs # observed invR.H 
 #' 
 #' # Distributions of test statistics
 #' 
@@ -323,7 +321,7 @@ manova.update <- function(fit, error = NULL,
   
   out <- fit
   out$MANOVA <- list(SSCP = SSCP, invR.H = invR.H, eigs = eigs,
-                     error = error, PCA = PCA, manova.pc.dims = d, 
+                     error = error, PCA = PCA, manova.pc.dims = length(d), 
                      e.rank = E.rank, SS.tot = SS.tot)
   
   class(out) <- c("manova.lm.rrpp", class(fit))
