@@ -80,7 +80,7 @@
 #' @return An object of class \code{ordinate} is a list containing the following
 #' \item{x}{Aligned component scores for all observations}
 #' \item{xn}{Optional projection of new data onto components.}
-#' \item{d}{The portion of the singular values attributed to the aligned components.}
+#' \item{d}{The portion of the squared singular values attributed to the aligned components.}
 #' \item{sdev}{Standard deviations of d; i.e., the scale of the components.}
 #' \item{rot}{The matrix of variable loadings, i.e. the singular vectors, \bold{V}.}
 #' \item{center}{The OLS or GLS means vector used for centering.}
