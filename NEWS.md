@@ -1,4 +1,4 @@
-# CHANGES IN RRPP 0.6.1.9000 
+# CHANGES IN RRPP 0.6.2
 
 ### NEW FEATURES
 * Added Box-Cox transformation to `effect.size`.
