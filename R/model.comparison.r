@@ -77,8 +77,8 @@
 model.comparison<- function(..., type = c("cov.trace", "logLik"), tol = NULL, pc.no = NULL) {
   
   dots <- list(...)
-  check <- lapply(dots, class)
-  if(any(check != "lm.rrpp")) stop("\nObjects must be lm.rrpp fits\n.")
+  check <- unlist(lapply(dots, inherits, "lm.rrpp"))
+  if(any(!check)) stop("\nObjects must be lm.rrpp fits\n.")
   dot.names <- lapply(dots, function(x) x$LM$Terms[[3]])
   type = match.arg(type)
   
