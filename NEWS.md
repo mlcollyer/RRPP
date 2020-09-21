@@ -4,6 +4,7 @@
 * Added Box-Cox transformation to `effect.size`.
 
 ### BUG FIXES
+* Fixed class check in `model.comparison`.
 * Fixed `manova.update` pc dimension issue (output)
 * Fixed `xlim` and `ylim` to be adjustable in `plot.ordinate`.
 * Added transform logical output to ordinate.

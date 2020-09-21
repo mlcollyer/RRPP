@@ -58,14 +58,14 @@ f34747373315d2e5b588392110279271 *man/summary.trajectory.analysis.Rd
 3e8a5f4601358921a3437caf2bfdd60d *man/trajectory.analysis.Rd
 600001722c89e75928dbe4984812fdc5 *man/vec.cor.matrix.Rd
 fcfffdbebe3ccb520b79782bd450891a *NAMESPACE
-f508bdd82d5d389cf6e174b52e7a69ea *NEWS.md
+c176a027b5f1d8697123151e7bf2eb13 *NEWS.md
 c954d82e7c975708710810bb2de96cd4 *R/add.tree.r
 1eeb1c1bf2a1e622543831c976dd0887 *R/anova.lm.rrpp.r
 b418ff0ab44206de3811658e5287d502 *R/coef.lm.rrpp.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 c328574b503a1a36b27aec9a4654399d *R/lm.rrpp.r
 24ad7136be980bfbfe0a106b83ca735f *R/manova.update.r
-3e7ab8146a2bf28a525394286b6995c3 *R/model.comparison.r
+086ef74f580ea7355c262d21107bdf2e *R/model.comparison.r
 1c28e0b71a80d734d429afa0bc4a1913 *R/ordinate.r
 5d2c7fea1604e7e5da98dc5350308da4 *R/pairwise.r
 32c2cd277245fdf71b84ca1b3f34b269 *R/predict.lm.rrpp.r
