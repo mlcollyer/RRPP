@@ -1763,6 +1763,9 @@ print.summary.ordinate <- function(x, ...){
 #' @param x An object of class \code{\link{ordinate}}
 #' @param axis1 A value indicating which component should be displayed as the X-axis (default = C1)
 #' @param axis2 A value indicating which component should be displayed as the Y-axis (default = C2)
+#' @param flip An argument that if not NULL can be used to flip components in the plot.  
+#' The values need to match axis1 or axis2.  For example, if axis1 = 3 and axis2 = 4, flip = 1 will not
+#' change either axis; flip = 3 will flip only the horizontal axis; flip = c(3, 4) will flip both axes.
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See
 #' @return An object of class "plot.ordinate" is a list with components
@@ -1772,13 +1775,22 @@ print.summary.ordinate <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 #' @keywords visualization
-plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
+plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
   options(warn = -1)
   if(NCOL(x$x) == 1) stop("Only one component  No plotting capability with this function.\n", 
                           call. = FALSE)
   v <- x$d/sum(x$d)
   if(!is.null(x$RV)) rv <- x$RV
-  plot.args <- list(x = x$x[, axis1], y = x$x[, axis2],  ...)
+  
+  pcdata <- as.matrix(x$x[, c(axis1, axis2)])
+  if(!is.null(flip)) {
+    if(length(flip) > 2) flip <- flip[1:2]
+    flip <- flip[(flip %in% 1:ncol(pcdata))]
+    if(length(flip > 0)) pcdata[, flip] <- pcdata[, flip] * -1
+  }
+  
+  plot.args <- list(x = pcdata[,1], y = pcdata[,2],  ...)
+  
   if(x$alignment == "principal") {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
     ylabel <- paste("PC ", axis2, ": ", round(v[axis2] * 100, 2), "%", sep = "")
@@ -1789,7 +1801,6 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, ...) {
 
   if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
   if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
-  pcdata <- as.matrix(x$x[, c(axis1, axis2)])
   if(!is.null(plot.args$axes)) axes <- plot.args$axes else axes <- TRUE
   if(!is.logical(axes)) axes <- as.logical(axes)
   if(is.null(plot.args$xlim)) plot.args$xlim <- 1.05*range(plot.args$x)
