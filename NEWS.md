@@ -2,9 +2,10 @@
 
 ### NEW FEATURES
 * Added Box-Cox transformation to `effect.size`.
+* Added option to flip axes in `plot.ordinate`.
 
 ### BUG FIXES
-* Fixed class check in `model.comparison`.
+* Fixed class check on `model.comparison`.
 * Fixed `manova.update` pc dimension issue (output)
 * Fixed `xlim` and `ylim` to be adjustable in `plot.ordinate`.
 * Added transform logical output to ordinate.

@@ -15,6 +15,10 @@
 
 \item{...}{other arguments passed to plot (helpful to employ
 different colors or symbols for different groups).  See}
+
+\item{flip}{An argument that if not NULL can be used to flip components in the plot.
+The values need to match axis1 or axis2.  For example, if axis1 = 3 and axis2 = 4, flip = 1 will not
+change either axis; flip = 3 will flip only the horizontal axis; flip = c(3, 4) will flip both axes.}
 }
 \value{
 An object of class "plot.ordinate" is a list with components
