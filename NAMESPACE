@@ -2,6 +2,7 @@
 
 S3method(anova,lm.rrpp)
 S3method(coef,lm.rrpp)
+S3method(model.matrix,lm.rrpp)
 S3method(plot,lm.rrpp)
 S3method(plot,model.comparison)
 S3method(plot,ordinate)

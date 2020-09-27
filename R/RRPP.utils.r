@@ -252,6 +252,20 @@ print.summary.lm.rrpp <- function(x, ...) {
 }
 
 
+## model.matrix.lm.rrpp
+
+#' Construct Design matrix
+#' 
+#' \code{model.matrix.lm.rrpp} returns the design matrix constructed for an \code{lm.rrpp} object.
+#'
+#' @param x Object from \code{\link{lm.rrpp}}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+model.matrix.lm.rrpp <- function(x) return(x$LM$X)
+
+
 ## coef.lm.rrpp
 
 #' Print/Summary Function for RRPP
@@ -447,39 +461,52 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     type <- "diagnostics"
   PL <- Reg.proj <- PC.points <- NULL
   if(type == "diagnostics") {
-    plot.args <- NULL
-    pca.r <- prcomp(r)
-    var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
-    plot(pca.r$x, pch=19, asp =1,
-         xlab = paste("PC 1", var.r[1],"%"),
-         ylab = paste("PC 2", var.r[2],"%"),
-         main = "PCA Residuals")
-    pca.f <- prcomp(f)
-    var.f <- round(pca.f$sdev^2/sum(pca.f$sdev^2)*100,2)
-    dr <- scale(sqrt(diag(tcrossprod(center(r)))))
-    plot.QQ(r)
-    plot(pca.f$x[,1], dr, pch=19, 
-         xlab = paste("PC 1", var.f[1],"%"),
-         ylab = "Standardized Euclidean Distance Residuals",
-         main = "Residuals vs. PC 1 fitted")
-    abline(h = 0, col = "gray", lty =3)
-    if(length(unique(round(pca.f$x[,1], 7))) <= 2) {
-      lfr <- list()
-      lfr$x <- pca.f$x[,1]
-      lfr$y <- dr
-      fit <- lm(dr ~ pca.f$x[,1])
-      lfr$fitted <- fit$fitted.values
-      lfr$residuals <- fit$residuals
+    
+    if(x$LM$p == 1) {
+      plot.args <- NULL
+      xx <- x$Models$full[[length(x$LM$term.labels)]]
+      xx$terms <- x$LM$Terms
+      xx$model <- x$LM$data
+      xx$call <- x$call
+      class(xx) <- "lm"
+      plot(xx, ...)
     } else {
-      options(warn = -1)
-      lfr <- loess(dr~pca.f$x[,1], span = 1)
-      options(warn = 0)
-    } 
-    lfr <- cbind(lfr$x, lfr$fitted); lfr <- lfr[order(lfr[,1]),]
-    points(lfr, type="l", col="red")
-    plot.het(r,f)
-    p <- ncol(r)
+      plot.args <- NULL
+      pca.r <- prcomp(r)
+      var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
+      plot(pca.r$x, pch=19, asp =1,
+           xlab = paste("PC 1", var.r[1],"%"),
+           ylab = paste("PC 2", var.r[2],"%"),
+           main = "PCA Residuals")
+      pca.f <- prcomp(f)
+      var.f <- round(pca.f$sdev^2/sum(pca.f$sdev^2)*100,2)
+      dr <- scale(sqrt(diag(tcrossprod(center(r)))))
+      plot.QQ(r)
+      plot(pca.f$x[,1], dr, pch=19, 
+           xlab = paste("PC 1", var.f[1],"%"),
+           ylab = "Standardized Euclidean Distance Residuals",
+           main = "Residuals vs. PC 1 fitted")
+      abline(h = 0, col = "gray", lty =3)
+      if(length(unique(round(pca.f$x[,1], 7))) <= 2) {
+        lfr <- list()
+        lfr$x <- pca.f$x[,1]
+        lfr$y <- dr
+        fit <- lm(dr ~ pca.f$x[,1])
+        lfr$fitted <- fit$fitted.values
+        lfr$residuals <- fit$residuals
+      } else {
+        options(warn = -1)
+        lfr <- loess(dr~pca.f$x[,1], span = 1)
+        options(warn = 0)
+      } 
+      lfr <- cbind(lfr$x, lfr$fitted); lfr <- lfr[order(lfr[,1]),]
+      points(lfr, type="l", col="red")
+      plot.het(r,f)
+      p <- ncol(r)
+    }
+    
   }
+    
   if(type == "regression"){
     PL <- prcomp(f)$x[,1]
     reg.type <- match.arg(reg.type)
