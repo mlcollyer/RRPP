@@ -789,6 +789,7 @@ residuals.lm.rrpp <- function(object, ...) {
 #' 
 #' @param object plot object (from \code{\link{lm.rrpp}})
 #' @param ... Arguments passed to other functions 
+#' @export
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
