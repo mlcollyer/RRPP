@@ -97,7 +97,7 @@ predict.lm.rrpp <- function(object, newdata, confidence = 0.95, ...) {
   } else {
     
     xm <- colMeans(object$LM$X)
-    xm <- xm[xm > 0]
+    xm <- xm[abs(xm) > 0]
     
     oX <- matrix(xm, NROW(newdata), length(xm), byrow = TRUE)
     colnames(oX) <- names(xm)
