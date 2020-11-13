@@ -1936,6 +1936,7 @@ getLSmeans <- function(fit, g){
     x
   }
   means <- lapply(means, rename)
+  names(means) <- c("obs", paste("iter", 1:(length(means) - 1), sep = "."))
   means
 }
 
