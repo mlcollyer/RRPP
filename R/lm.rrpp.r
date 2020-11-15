@@ -416,7 +416,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   }
   
   trms <- attr(Terms, "term.labels")
-  k <- length(trms)
+  k <- length(fits$full)
   id <- rownames(Y)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
