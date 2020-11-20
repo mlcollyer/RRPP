@@ -252,18 +252,51 @@ print.summary.lm.rrpp <- function(x, ...) {
 }
 
 
-## model.matrix.lm.rrpp
+## terms.lm.rrpp
 
-#' Construct Design matrix
+#' Extract the terms from an lm.rrpp object
 #' 
-#' \code{model.matrix.lm.rrpp} returns the design matrix constructed for an \code{lm.rrpp} object.
+#' \code{terms.lm.rrpp} returns the terms constructed for an \code{lm.rrpp} object.
 #'
 #' @param x Object from \code{\link{lm.rrpp}}
+#' @param ...	further arguments passed to or from other methods
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 
-model.matrix.lm.rrpp <- function(x) return(x$LM$X)
+terms.lm.rrpp <- function(x, ...) return(x$LM$Terms)
+
+## model.frame.lm.rrpp
+
+#' Extract model frame from a lm.rrpp object
+#' 
+#' \code{model.frame.lm.rrpp} returns the model frame constructed for an \code{lm.rrpp} object.
+#'
+#' @param formula Object from \code{\link{lm.rrpp}}
+#' @param ...	further arguments passed to or from other methods
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+model.frame.lm.rrpp <- function(formula, ...) {
+  res <- if(inherits(formula, "lm.rrpp")) formula$LM$data else
+    model.frame.default(formula)
+  return(res)
+}
+
+## model.matrix.lm.rrpp
+
+#' Extract the model design matrix from an lm.rrpp object
+#' 
+#' \code{model.matrix.lm.rrpp} returns the design matrix constructed for an \code{lm.rrpp} object.
+#'
+#' @param object Object from \code{\link{lm.rrpp}}
+#' @param ...	further arguments passed to or from other methods
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+model.matrix.lm.rrpp <- function(object, ...) return(object$LM$X)
 
 
 ## coef.lm.rrpp

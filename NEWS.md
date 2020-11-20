@@ -3,17 +3,14 @@
 ### NEW FEATURES
 * Added Box-Cox transformation to `effect.size`.
 * Added option to flip axes in `plot.ordinate`.
-* Added `model.matrix.lm.rrpp` S3 function.
+* Updated `predict.lm.rrpp` so that functions in formulae are permissible.
 
 ### BUG FIXES
 * Fixed class check on `model.comparison`.
 * Fixed `manova.update` pc dimension issue (output)
 * Fixed `xlim` and `ylim` to be adjustable in `plot.ordinate`.
 * Added transform logical output to ordinate.
-* Fixed intercept only model issue in `lm.rrpp`.
-
-### OTHER CHANGES
-* Changed `plot.lm.rrpp` for diagnostics to default to `plot.lm` for univariate data, so that PC scores were unnedeed.
+* Fixed intercept only model issue in lm.rrpp.
 
 # CHANGES IN RRPP 0.6.1 (Patch Release)
 

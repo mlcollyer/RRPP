@@ -4,10 +4,10 @@
 #' generalized least squares (GLS) residuals, aligned to an alternative matrix, plus projection of 
 #' data onto vectors obtained.  
 #' 
-#' The function performs a singular value decomposition,\bold{t(A)Z} = \bold{UDt(V)}, where
+#' The function performs a singular value decomposition, \bold{A'Z} = \bold{UDV'}, where
 #' \bold{Z} is a matrix of residuals (obtained from \bold{Y} - see below) and \bold{A}
 #' is an alignment matrix with the same number of rows as \bold{Z}.  
-#' (\bold{t} indicates matrix transposition.)  \bold{U}  and \bold{V}
+#' (\bold{'} indicates matrix transposition.)  \bold{U}  and \bold{V}
 #' are the matrices of left and right singular vectors, and \bold{D} is a diagonal matrix of singular
 #' values. \bold{V} are the vectors that describe maximized covariation between \bold{Y} and \bold{A}. 
 #' If \bold{A} = \bold{I}, an n x n identity matrix, \bold{V} are the
