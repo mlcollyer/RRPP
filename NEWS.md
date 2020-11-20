@@ -3,6 +3,7 @@
 ### NEW FEATURES
 * Added Box-Cox transformation to `effect.size`.
 * Added option to flip axes in `plot.ordinate`.
+* Updated `predict.lm.rrpp` so that functions in formulae are permissible.
 
 ### BUG FIXES
 * Fixed class check on `model.comparison`.

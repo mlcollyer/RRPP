@@ -4,7 +4,7 @@
 \alias{predict.lm.rrpp}
 \title{predict for lm.rrpp model fits}
 \usage{
-\method{predict}{lm.rrpp}(object, newdata, confidence = 0.95, ...)
+\method{predict}{lm.rrpp}(object, newdata = NULL, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}.}
@@ -38,10 +38,10 @@ model fit.
 # with other functions
 
 data(Pupfish)
-names(Pupfish)
-Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
 
-fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish, iter = 499) 
+# CS is centroid (fish) size
+fit <- lm.rrpp(coords ~ log(CS)  + Sex*Pop, 
+SS.type = "I", data = Pupfish, iter = 499) 
 
 # Predictions (holding alternative effects constant)
 
@@ -62,6 +62,7 @@ plot(shapePreds, PC = TRUE)
 plot(shapePreds, PC = TRUE, ellipse = TRUE)
 plot(shapePreds99, PC = TRUE)
 plot(shapePreds99, PC = TRUE, ellipse = TRUE)
+
 }
 \author{
 Michael Collyer

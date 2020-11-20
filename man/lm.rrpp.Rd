@@ -166,17 +166,11 @@ names(PupfishHeads)
 
 # Head Size Analysis (Univariate)-------------------------------------------------------
 
-# Note: lm.rrpp works best if one avoids functions within formulas
-# Thus,
-
-PupfishHeads$logHeadSize <- log(PupfishHeads$headSize)
-names(PupfishHeads)
-
 # Note: one should increase RRPP iterations but a smaller number is used here for demonstration 
 # efficiency.  Generally, iter = 999 will take less
 # than 1s for this example with a modern computer.
 
-fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "I", 
+fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "I", 
 data = PupfishHeads, print.progress = FALSE, iter = 199)
 summary(fit)
 anova(fit, effect.type = "F") # Maybe not most appropriate
@@ -188,7 +182,7 @@ anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals
 
 # Change to Type III SS
 
-fit <- lm.rrpp(logHeadSize ~ sex + locality/year, SS.type = "III", 
+fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
 data = PupfishHeads, print.progress = FALSE, iter = 199)
 summary(fit)
 anova(fit, effect.type = "F", error = c("Residuals", "locality:year", "Residuals"))
@@ -218,14 +212,11 @@ names(Pupfish)
 
 dim(Pupfish$coords) # highly multivariate!
 
-Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
-names(Pupfish)
-
 # Note: one should increase RRPP iterations but they are not used at all
 # here for a fast example.  Generally, iter = 999 will take less
 # than 1s for this example with a modern computer.
 
-fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", 
+fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
 data = Pupfish, print.progress = FALSE, iter = 0) 
 summary(fit, formula = FALSE)
 anova(fit) 
@@ -258,7 +249,7 @@ plot(fit, type = "PC", pch = 19, col = as.numeric(groups))
 # Regression-like plot
 
 plot(fit, type = "regression", reg.type = "PredLine", 
-    predictor = Pupfish$logSize, pch=19,
+    predictor = log(Pupfish$CS), pch=19,
     col = as.numeric(groups))
 
 # Body Shape Analysis (Distances)----------------------------------------------------
@@ -271,7 +262,7 @@ Pupfish$D <- D
 # here for a fast example.  Generally, iter = 999 will take less
 # than 1s for this example with a modern computer.
 
-fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", 
+fitD <- lm.rrpp(D ~ log(CS) + Sex*Pop, SS.type = "I", 
 data = Pupfish, print.progress = FALSE, iter = 0) 
 
 # These should be the same:
