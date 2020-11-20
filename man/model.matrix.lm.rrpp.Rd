@@ -2,12 +2,14 @@
 % Please edit documentation in R/RRPP.utils.r
 \name{model.matrix.lm.rrpp}
 \alias{model.matrix.lm.rrpp}
-\title{Construct Design matrix}
+\title{Extract the model design matrix from an lm.rrpp object}
 \usage{
-\method{model.matrix}{lm.rrpp}(x)
+\method{model.matrix}{lm.rrpp}(object, ...)
 }
 \arguments{
-\item{x}{Object from \code{\link{lm.rrpp}}}
+\item{object}{Object from \code{\link{lm.rrpp}}}
+
+\item{...}{further arguments passed to or from other methods}
 }
 \description{
 \code{model.matrix.lm.rrpp} returns the design matrix constructed for an \code{lm.rrpp} object.
