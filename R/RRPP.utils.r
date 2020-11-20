@@ -365,7 +365,7 @@ print.predict.lm.rrpp <- function(x, PC = FALSE, ...){
   cat(paste("\nConfidence level:", x$confidence*100, "%"))
       cat(paste("\nNumber of bootstrap permutations:", length(x$random.predicted)))
       if(PC)  cat(paste("\nPredicted values are rotated to their PCs"))
-      cat("\n\nPredicted values:\n\n")
+      cat("\n\nPredicted values (mean of bootstrapped values):\n\n")
       if(PC) print(x$pc.mean) else print(x$mean)
       cat("\n\n", x$confidence*100, "% Lower confidence limits:\n\n") 
       if(PC) print(x$pc.lcl) else print(x$lcl)
