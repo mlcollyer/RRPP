@@ -5,6 +5,9 @@
 * Added option to flip axes in `plot.ordinate`.
 * Updated `predict.lm.rrpp` so that functions in formulae are permissible.
 
+### OTHER CHANGES 
+* Adapted `summary.pairwise` to perform degree transformations rather than `print.summary.pairwise`, so that objects saved are the same as objects printed.
+
 ### BUG FIXES
 * Fixed class check on `model.comparison`.
 * Fixed `manova.update` pc dimension issue (output)

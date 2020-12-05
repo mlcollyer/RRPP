@@ -908,15 +908,14 @@ summary.pairwise <- function(object, stat.table = TRUE,
     
     if(test.type == "VC") {
       L <- r.summary.from.list(x$means.vec.cor, confidence = confidence)
-      if(stat.table) {
-        tab <- makePWCorTable(L)
-        if(angle.type == "deg") {
-          options(warn = -1)
-          tab$angle <- tab$angle*180/pi
-          tab[,3] <- tab[,3]*180/pi
-          options(warn = 0)
-        }
+      if(angle.type == "deg") {
+        options(warn = -1)
+        L$angle <- L$angle * 180 / pi
+        L$aCL <- L$aCL * 180 / pi
+        options(warn = 0)
       }
+      
+      if(stat.table) tab <- makePWCorTable(L)
     }
   }
   
@@ -929,15 +928,15 @@ summary.pairwise <- function(object, stat.table = TRUE,
     
     if(test.type == "VC") {
       L <- r.summary.from.list(x$slopes.vec.cor) 
-      if(stat.table) {
-        tab <- makePWCorTable(L)
-        if(angle.type == "deg") {
-          options(warn = -1)
-          tab$angle <- tab$angle*180/pi
-          tab[,3] <- tab[,3]*180/pi
-          options(warn = -1)
-        }
+      if(angle.type == "deg") {
+        options(warn = -1)
+        L$angle <- L$angle * 180 / pi
+        L$aCL <- L$aCL * 180 / pi
+        options(warn = 0)
       }
+      
+      if(stat.table) tab <- makePWCorTable(L)
+  
     }
   }
   out <- list()
@@ -1029,9 +1028,9 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise vector correlations between mean vectors\n")
         print(L$r)
         cat("\nPairwise angles between mean vectors\n")
-        if(x$angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+        print(L$angle)
         cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
-        if(x$angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+        print(L$aCL)
         cat("\nPairwise effect sizes (Z) for angles between mean vectors\n")
         print(L$Z)
         cat("\nPairwise P-values for angles between mean vectors\n")
@@ -1071,9 +1070,9 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise vector correlations between slope vectors\n")
         print(L$r)
         cat("\nPairwise angles between slope vectors\n")
-        if(x$angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+        print(L$angle)
         cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
-        if(x$angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+        print(L$aCL)
         cat("\nPairwise effect sizes (Z) for angles between slope vectors\n")
         print(L$Z)
         cat("\nPairwise P-values for angles between slope vectors\n")
@@ -1385,13 +1384,15 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   if(attribute == "TC"){
     if(is.null(TC)) stop("Trajectory correlations not available\n", call = FALSE)
     L <- r.summary.from.list(TC, confidence = confidence)
-    tab <- makePWCorTable(L)
+    
     if(angle.type == "deg") {
       options(warn = -1)
-      tab$angle <- tab$angle*180/pi
-      tab[,3] <- tab[,3]*180/pi
-      options(warn = -1)
+      L$angle <- L$angle * 180 / pi
+      L$aCL <- L$aCL * 180 / pi
+      options(warn = 0)
     }
+    
+    tab <- makePWCorTable(L)
   }
   
   if(attribute == "SD"){
@@ -1487,9 +1488,9 @@ print.summary.trajectory.analysis <- function(x, ...) {
       cat("\nPairwise vector correlations between trajectories\n")
       print(L$r)
       cat("\nPairwise angles between trajectories\n")
-      if(x$angle.type == "deg") print(L$angle*180/pi) else print(L$angle)
+      print(L$angle)
       cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles\n")
-      if(x$angle.type == "deg") print(L$aCL*180/pi) else print(L$aCL)
+      print(L$aCL)
       cat("\nPairwise effect sizes (Z) for angles\n")
       print(L$Z)
       cat("\nPairwise P-values for angles\n")
