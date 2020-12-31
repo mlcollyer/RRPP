@@ -863,10 +863,34 @@ print.pairwise <- function(x, ...){
 
 #' Print/Summary Function for RRPP
 #'
+#' See \code{\link{pairwise}} for further description.  
+#' 
+#' The following summarize the test that can be performed: 
+#' 
+#' #' \itemize{
+#' \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or slopes originate at the origin and point to some location, having both a magnitude
+#' and direction.  A distance between two vectors is the inner-product of of the vector difference, i.e., the distance between their endpoints.  For
+#' LS means, this distance is the difference between means.  For multivariate slope vectors, this is the difference in location between estimated change 
+#' for the dependent variables, per one-unit change of the covariate considered.  For univariate slopes, this is the absolute difference between slopes.}
+#' \item{\bold{Vector correlation, "VC"}}{ If LS mean or slope vectors are scaled to unit size, the vector correlation is the inner-product of the scaled vectors.
+#' The arccosine (acos) of this value is the angle between vectors, which can be expressed in radians or degrees.  Vector correlation indicates the similarity of 
+#' vector orientation, independent of vector length.}
+#' \item{\bold{Difference in vector lengths, "DL"}}{  If the length of a vector is an important attribute -- e.g., the amount of multivariate change per one-unit
+#' change in a covariate -- then the absolute value of the difference in vector lengths is a practical statistic to compare vector lengths.  Let d1 and
+#' d2 be the distances (length) of vectors.  Then |d1 - d2| is a statistic that compares their lengths.}
+#' \item{\bold{Variance, "var"}}{  Vectors of residuals from a linear model indicate can express the distances of observed values from fitted values.  Mean
+#' squared distances of values (variance), by group, can be used to measure the amount of dispersion around estimated values for groups.  Absolute
+#' differences between variances are used as test statistics to compare mean dispersion of values among groups.  Variance degrees of freedom equal n, 
+#' the group size, rather than n-1, as the purpose is to compare mean dispersion 
+#' in the sample.  (Additionally, tests with one subject in a group are possible, or at least not a hindrance to the analysis.)}
+#' }
+#' 
+#' The argument, \code{test.type} is used to select one of the tests above.  See \code{\link{pairwise}} for examples.
+#' 
 #' @param object Object from \code{\link{pairwise}}
 #' @param stat.table Logical argument for whether results should be returned in one table 
 #' (if TRUE) or separate pairwise tables (if FALSE)
-#' @param test.type Whether distances or vector correlations between vectors or variances (dispersion of residuals)
+#' @param test.type the type of statistic to test.  See below
 #' should be used in the test.
 #' @param angle.type If test.type = "VC", whether angle results are expressed in radians or degrees.
 #' @param confidence Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)
@@ -876,7 +900,7 @@ print.pairwise <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 summary.pairwise <- function(object, stat.table = TRUE, 
-                             test.type = c("dist", "VC", "var"),
+                             test.type = c("dist", "VC", "DL", "var"),
                              angle.type = c("rad", "deg"),
                              confidence = 0.95, show.vectors = FALSE, ...){
   test.type <- match.arg(test.type)
@@ -914,9 +938,14 @@ summary.pairwise <- function(object, stat.table = TRUE,
         L$aCL <- L$aCL * 180 / pi
         options(warn = 0)
       }
-      
       if(stat.table) tab <- makePWCorTable(L)
     }
+    
+    if(test.type == "DL") {
+      L <- d.summary.from.list(x$means.diff.length, confidence = confidence)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    
   }
   
   if(type == "slopes") {
@@ -934,11 +963,16 @@ summary.pairwise <- function(object, stat.table = TRUE,
         L$aCL <- L$aCL * 180 / pi
         options(warn = 0)
       }
-      
       if(stat.table) tab <- makePWCorTable(L)
-  
     }
+    
+    if(test.type == "DL") {
+      L <- d.summary.from.list(x$slopes.diff.length, confidence = confidence)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    
   }
+  
   out <- list()
   out$pairwise.tables <- L
   if(stat.table){
@@ -1011,7 +1045,7 @@ print.summary.pairwise <- function(x, ...) {
       } else {
         cat("\nPairwise distances between means\n")
         print(L$D)
-        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits between means\n")
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "Upper confidence limits between means\n")
         print(L$CL)
         cat("\nPairwise effect sizes (Z) between means\n")
         print(L$Z)
@@ -1029,7 +1063,7 @@ print.summary.pairwise <- function(x, ...) {
         print(L$r)
         cat("\nPairwise angles between mean vectors\n")
         print(L$angle)
-        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits for angles between mean vectors\n")
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "Upper confidence limits for angles between mean vectors\n")
         print(L$aCL)
         cat("\nPairwise effect sizes (Z) for angles between mean vectors\n")
         print(L$Z)
@@ -1037,6 +1071,23 @@ print.summary.pairwise <- function(x, ...) {
         print(L$P)
       }
     }
+    
+    if(test.type == "DL") {
+      if(stat.table) {
+        cat("\nPairwise absolute difference (d) between vector lengths, plus statistics\n")
+        print(tab)
+      } else {
+        cat("\nPairwise absolute differences (d) between mean vector lengths\n")
+        print(L$D)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "Upper confidence limits between mean vector lengths\n")
+        print(L$CL)
+        cat("\nPairwise effect sizes (Z) between mean vector lengths\n")
+        print(L$Z)
+        cat("\nPairwise P-values between mean vector lengths\n")
+        print(L$P)
+      }
+    }
+    
   }
   
   if(type == "slopes") {
@@ -1044,19 +1095,17 @@ print.summary.pairwise <- function(x, ...) {
     if(x$show.vectors) print(x$x$slopes[[1]]) else cat("Vectors hidden (use show.vectors = TRUE to view)\n")
     
     if(test.type == "dist") {
-      cat("\nSlope vector lengths\n")
-      print(x$x$slopes.length[[1]])
       if(stat.table) {
-        cat("\nPairwise absolute difference (d) between vector lengths, plus statistics\n")
+        cat("\nPairwise distances between slope vector (end-points), plus statistics\n")
         print(tab)
       } else {
-        cat("\nPairwise absolute differences (d) between slope lengths\n")
+        cat("\nPairwise distances between slope vector (end-points\n")
         print(L$D)
-        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "upper confidence limits between slope lengths\n")
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "Upper confidence limits between slopes\n")
         print(L$CL)
-        cat("\nPairwise effect sizes (Z) between slope lengths\n")
+        cat("\nPairwise effect sizes (Z) between slopes\n")
         print(L$Z)
-        cat("\nPairwise P-values between slope lengths\n")
+        cat("\nPairwise P-values between slopes\n")
         print(L$P)
       }
     }
@@ -1079,6 +1128,25 @@ print.summary.pairwise <- function(x, ...) {
         print(L$P)
       }
     }
+    
+    if(test.type == "DL") {
+      cat("\nSlope vector lengths\n")
+      print(x$x$slopes.length[[1]])
+      if(stat.table) {
+        cat("\nPairwise absolute difference (d) between vector lengths, plus statistics\n")
+        print(tab)
+      } else {
+        cat("\nPairwise absolute differences (d) between slope vector lengths\n")
+        print(L$D)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), "Upper confidence limits between slope vector lengths\n")
+        print(L$CL)
+        cat("\nPairwise effect sizes (Z) between slope vector lengths\n")
+        print(L$Z)
+        cat("\nPairwise P-values between slope vector lengths\n")
+        print(L$P)
+      }
+    }
+    
   }
   invisible(x)
 }

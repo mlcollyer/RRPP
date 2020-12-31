@@ -7,6 +7,7 @@
 
 ### OTHER CHANGES 
 * Adapted `summary.pairwise` to perform degree transformations rather than `print.summary.pairwise`, so that objects saved are the same as objects printed.
+* Removed error trap from pairwise for n = 1 groups.
 
 ### BUG FIXES
 * Fixed class check on `model.comparison`.

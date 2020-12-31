@@ -5,32 +5,41 @@
 #'
 #' Based on an lm.rrpp fit, this function will find fitted values over all permutations and based 
 #' on a grouping factor, calculate either least squares (LS) means or slopes, and pairwise statistics among
-#' them.  Pairwise statistics have two flavors: distances and vector correlations (or angles).  The distance
-#' statistics calculate either the length of vectors between LS mean vectors or the absolute difference between 
-#' slope vector lengths.  The vector correlations are the inner product of vectors that have been transformed to unit length.
-#' The arccosine (acos) of this value is the angle between vectors, which can be expressed in radians or degrees, and is
-#' used as a test statistic (with the null hypothesis that vectors are parallel; angle = 0).
-#' Over all permutations, these values can be calculated to generate random distributions using the null model.  The 
-#' null model is defined via \code{\link{lm.rrpp}}, but one can also use an alternative null model as an optional argument.
+#' them.  Pairwise statistics have multiple flavors, related to vector attributes: 
+#' 
+#' \itemize{
+#' \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or slopes originate at the origin and point to some location, having both a magnitude
+#' and direction.  A distance between two vectors is the inner-product of of the vector difference, i.e., the distance between their endpoints.  For
+#' LS means, this distance is the difference between means.  For multivariate slope vectors, this is the difference in location between estimated change 
+#' for the dependent variables, per one-unit change of the covariate considered.  For univariate slopes, this is the absolute difference between slopes.}
+#' \item{\bold{Vector correlation, "VC"}}{ If LS mean or slope vectors are scaled to unit size, the vector correlation is the inner-product of the scaled vectors.
+#' The arccosine (acos) of this value is the angle between vectors, which can be expressed in radians or degrees.  Vector correlation indicates the similarity of 
+#' vector orientation, independent of vector length.}
+#' \item{\bold{Difference in vector lengths, "DL"}}{  If the length of a vector is an important attribute -- e.g., the amount of multivariate change per one-unit
+#' change in a covariate -- then the absolute value of the difference in vector lengths is a practical statistic to compare vector lengths.  Let d1 and
+#' d2 be the distances (length) of vectors.  Then |d1 - d2| is a statistic that compares their lengths.}
+#' \item{\bold{Variance, "var}}{  Vectors of residuals from a linear model indicate can express the distances of observed values from fitted values.  Mean
+#' squared distances of values (variance), by group, can be used to measure the amount of dispersion around estimated values for groups.  Absolute
+#' differences between variances are used as test statistics to compare mean dispersion of values among groups.  Variance degrees of freedom equal n, 
+#' the group size, rather than n-1, as the purpose is to compare mean dispersion 
+#' in the sample.  (Additionally, tests with one subject in a group are possible, or at least not a hindrance to the analysis.)}
+#' }
+#' 
+#' The \code{\link{summary.pairwise}} function is used to select a test statistic for the statistics described above, as
+#' "dist", "VC", "DL", and "var", respectively.  If vector correlation is tested, the \code{angle.type} argument can be used to choose between radians and
+#' degrees.
+#' 
+#' The null model is defined via \code{\link{lm.rrpp}}, but one can also use an alternative null model as an optional argument.
 #' In this case, residual randomization in the permutation procedure (RRPP) will be performed using the alternative null model 
 #' to generate fitted values.  If full randomization of values (FRPP) is preferred,
-#' it must be established in the lm.rrpp fit and an alternative model should not be chosen. 
+#' it must be established in the lm.rrpp fit and an alternative model should not be chosen. If one is unsure about the inherent
+#' null model used if an alternative is not specified as an argument, the function \code{\link{reveal.model.designs}} can be used.
 #' 
 #' Observed statistics, effect sizes, P-values, and one-tailed confidence limits based on the confidence requested will
-#' be summarized with the \code{\link{summary.pairwise}} function.  The \code{\link{summary.pairwise}} function will allow one
-#' to select between distance or vector correlation tests, whether angles are measured in radians or degrees, and the level of
-#' confidence for the test.  Confidence limits are inherently one-tailed as
+#' be summarized with the \code{\link{summary.pairwise}} function.  Confidence limits are inherently one-tailed as
 #' the statistics are similar to absolute values.  For example, a distance is analogous to an absolute difference.  Therefore,
 #' the one-tailed confidence limits are more akin to two-tailed hypothesis tests.  (A comparable example is to use the absolute 
-#' value of a t-statistic, in which case the distribution has a lower bound of 0.)  If rather than comparing the LS means or slopes,
-#' one wishes to compare the dispersion of residuals among groups, given the model, an option for comparing variances is also
-#' available.  Variance degrees of freedom equal n, the group size, rather than n-1, as the purpose is to compare mean dispersion 
-#' in the sample.  (Additionally, tests with one subject in a group are possible, or at least not a hindrance to the analysis.)
-#' 
-#' If data are univariate, test.type = 'cor' should not be chosen because the vector correlation between univariate 
-#' vectors is always 1.  Rather, cor.type = 'dist' will return the absolute difference between slopes or between means.  
-#' Please note that this function will generate results if test.type = 'cor' for univariate data, but the results will 
-#' not make much sense.
+#' value of a t-statistic, in which case the distribution has a lower bound of 0.)  
 #' 
 #' @param fit A linear model fit using \code{\link{lm.rrpp}}.
 #' @param fit.null An alternative linear model fit to use as a null model for RRPP, if the null model
@@ -49,23 +58,27 @@
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
+#' 
 #' @return An object of class \code{pairwise} is a list containing the following
 #' \item{LS.means}{LS means for groups, across permutations.}
 #' \item{slopes}{Slopes for groups, across permutations.}
 #' \item{means.dist}{Pairwise distances between means, across permutations.}
 #' \item{means.vec.cor}{Pairwise vector correlations between means, across permutations.}
-#' \item{slopes.lengths}{Slope lengths, by group, across permutations.}
-#' \item{slopes.dist}{Pairwise distances between slope lengths, across permutations.}
+#' \item{means.lengths}{LS means vector lengths, by group, across permutations.}
+#' \item{means.diff.length}{Pairwise absolute differences between mean vector lengths, across permutations.}
+#' \item{slopes.dist}{Pairwise distances between slopes (end-points), across permutations.}
 #' \item{slopes.vec.cor}{Pairwise vector correlations between slope vectors, across permutations.}
+#' \item{slopes.lengths}{Slope vector lengths, by group, across permutations.}
+#' \item{slopes.diff.length}{Pairwise absolute differences between slope vector lengths, across permutations.}
 #' \item{n}{Sample size}
 #' \item{p}{Data dimensions; i.e., variable number}
 #' \item{PermInfo}{Information for random permutations, passed on from lm.rrpp fit and possibly
 #' modified if an alternative null model was used.}
 #' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described
 #' by high-dimensional data. Heredity. 115:357-365.
-#' @references Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
+#' @references Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic ANOVA: group-clade aggregation, biological 
 #' challenges, and a refined permutation procedure. Evolution. In press.
-#' @seealso \code{advanced.procD.lm} within \code{geomorph}; \code{\link{lm.rrpp}} for model fits
+#' @seealso 
 #' @examples 
 #' 
 #' # Examples use geometric morphometric data on pupfishes
@@ -103,6 +116,7 @@
 #' PW1
 #' summary(PW1, confidence = 0.95, test.type = "dist") # distances between means
 #' summary(PW1, confidence = 0.95, test.type = "dist", stat.table = FALSE)
+#' summary(PW1, confidence = 0.95, test.type = "DL") # absolute difference between mean vector lengths
 #' summary(PW1, confidence = 0.95, test.type = "VC", 
 #'    angle.type = "deg") # correlation between mean vectors (angles in degrees)
 #'
@@ -122,8 +136,9 @@
 #' PW2 <- pairwise(fit2, fit.null = fit1, groups = pup.group, 
 #' covariate = Pupfish$logSize, print.progress = FALSE) 
 #' PW2
-#' summary(PW2, confidence = 0.95, test.type = "dist") # distances between slope vector lengths
+#' summary(PW2, confidence = 0.95, test.type = "dist") # distances between slope vectors (end-points)
 #' summary(PW2, confidence = 0.95, test.type = "dist", stat.table = FALSE)
+#' summary(PW2, confidence = 0.95, test.type = "DL") # absolute difference between slope vector lengths
 #' summary(PW2, confidence = 0.95, test.type = "VC",
 #'    angle.type = "deg") # correlation between slope vectors (and angles)
 #'    
@@ -216,7 +231,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   groups <- factor(groups)
   gp.rep <- by(groups, groups, length)
   
-  if(!all(gp.rep > 1)) stop("The groups factor does not have replication at each level.")
+
   if(length(groups) != fitf$LM$n) 
     stop("The length of the groups factor does not match the number of observations in the lm.rrpp fit")
   if(!is.null(covariate)) {
@@ -227,20 +242,31 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       stop("The length of the covariate does not match the number of observations in the lm.rrpp fit")
   }
   if(is.null(covariate)) {
+    
     means <- getLSmeans(fit = fitf, g = groups)
     slopes <- NULL
     means.dist <- lapply(means, function(x) as.matrix(dist(x)))
     means.vec.cor <- lapply(means, vec.cor.matrix)
+    means.length <- lapply(means, function(x) sqrt(rowSums(x^2)))
+    means.diff.length <- lapply(means.length, function(x) as.matrix(dist(as.matrix(x))))
+    
     slopes.length <- NULL
     slopes.dist <- NULL
+    slopes.diff.length <- NULL
     slopes.vec.cor <- NULL
+    
   } else {
+    
     means <- NULL
     slopes <- getSlopes(fit = fitf, x = covariate, g = groups)
     means.dist <- NULL
     means.vec.cor <- NULL
+    means.length <- NULL
+    means.diff.length <- NULL
+    
     slopes.length <- lapply(slopes, function(x) sqrt(rowSums(x^2)))
-    slopes.dist <- lapply(slopes.length, function(x) as.matrix(dist(as.matrix(x))))
+    slopes.dist <- lapply(slopes, function(x) as.matrix(dist(as.matrix(x))))
+    slopes.diff.length <- lapply(slopes.length, function(x) as.matrix(dist(as.matrix(x))))
     slopes.vec.cor <- lapply(slopes, vec.cor.matrix)
   }
   
@@ -262,8 +288,11 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   rownames(vars) <- levels(groups)
   colnames(vars) <- c("obs", paste("iter", 1:(perms -1), sep = "."))
   
-  out <- list(LS.means = means, slopes = slopes, means.dist = means.dist, means.vec.cor = means.vec.cor,
-              slopes.length = slopes.length, slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
+  out <- list(LS.means = means, slopes = slopes, 
+              means.dist = means.dist, means.vec.cor = means.vec.cor, 
+              means.length = means.length, means.diff.length = means.diff.length,
+              slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
+              slopes.length = slopes.length, slopes.diff.length = slopes.diff.length,
               vars = vars, n = fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)
   
   class(out) <- "pairwise"
