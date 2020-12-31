@@ -216,7 +216,6 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   groups <- factor(groups)
   gp.rep <- by(groups, groups, length)
   
-  if(!all(gp.rep > 1)) stop("The groups factor does not have replication at each level.")
   if(length(groups) != fitf$LM$n) 
     stop("The length of the groups factor does not match the number of observations in the lm.rrpp fit")
   if(!is.null(covariate)) {
