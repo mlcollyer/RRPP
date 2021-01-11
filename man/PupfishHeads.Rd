@@ -5,18 +5,23 @@
 \alias{PupfishHeads}
 \title{Landmarks on pupfish heads}
 \description{
-Landmark data from Cyprinodon pecosensis head shapes, with variables for 
-sex, month and year sampled, locality, head size, and coordinates of landmarks for head shape,
+Landmark data from Cyprinodon pecosensis head shapes, with 
+variables for 
+sex, month and year sampled, locality, head size, and coordinates of 
+landmarks for head shape,
 per specimen.  These data are a subset of a larger data set.
 }
 \details{
 The variable, "coords", are data that were previously aligned
-with GPA.  The variable, "headSize", is the Centroid size of each vector of coordinates.
+with GPA.  The variable, "headSize", is the Centroid size of each vector 
+of coordinates.
 See the \pkg{geomorph} package for details.
 }
 \references{
-Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
-threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
+Gilbert, M.C. 2016. Impacts of habitat fragmentation on the 
+cranial morphology of a 
+threatened desert fish (Cyprinodon pecosensis). Masters Thesis, 
+Western Kentucky University.
 }
 \author{
 Michael Collyer

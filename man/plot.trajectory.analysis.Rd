@@ -18,39 +18,50 @@ If an object is assigned, it will return:
  \item{pca}{Principal component analysis performed using \code{\link{prcomp}}.}
  \item{pc.points}{Principal component scores for all data.}
  \item{trajectory.analysis}{Trajectory analysis passed on.}
- \item{trajectories}{pca Observed trajectories projected onto principal components.}
+ \item{trajectories}{pca Observed trajectories projected onto principal 
+ components.}
 }
 \description{
 Function generates a principal component plot for trajectories
 }
 \details{
 The function calculates and plots principal components of fitted values from 
- \code{\link{lm.rrpp}} that are passed onto \code{\link{trajectory.analysis}}, and projects
- data onto them.  This function is a set.up, and \code{\link{add.trajectories}} is needed to 
- add trajectories to the plot.  By having two stages of control, the plotting functions are more 
- flexible.  This function also returns plotting information that can be valuable for making
+ \code{\link{lm.rrpp}} that are passed onto \code{\link{trajectory.analysis}}, 
+ and projects
+ data onto them.  This function is a set.up, and \code{\link{add.trajectories}} 
+ is needed to 
+ add trajectories to the plot.  By having two stages of control, the plotting 
+ functions are more 
+ flexible.  This function also returns plotting information that can be 
+ valuable for making
  individualized plots, if \code{\link{add.trajectories}} is not preferred.
 }
 \examples{
 # See \code{\link{trajectory.analysis}} for examples
 }
 \references{
-Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical motion using Procrustes 
+Adams, D. C., and M. M. Cerney. 2007. 
+Quantifying biomechanical motion using Procrustes 
   motion analysis. J. Biomech. 40:437-444.
 
-Adams, D. C., and M. L. Collyer. 2007. The analysis of character divergence along environmental 
+Adams, D. C., and M. L. Collyer. 2007. 
+The analysis of character divergence along environmental 
   gradients and other covariates. Evolution 61:510-515.
 
-Adams, D. C., and M. L. Collyer. 2009. A general framework for the analysis of phenotypic 
+Adams, D. C., and M. L. Collyer. 2009. 
+A general framework for the analysis of phenotypic 
   trajectories in evolutionary studies. Evolution 63:1143-1154.
 
-Collyer, M. L., and D. C. Adams. 2007. Analysis of two-state multivariate phenotypic change 
+Collyer, M. L., and D. C. Adams. 2007. 
+Analysis of two-state multivariate phenotypic change 
   in ecological studies. Ecology 88:683-692.
 
-Collyer, M. L., and D. C. Adams. 2013. Phenotypic trajectory analysis: comparison of shape change patterns 
+Collyer, M. L., and D. C. Adams. 2013. 
+Phenotypic trajectory analysis: comparison of shape change patterns 
 in evolution and ecology. Hystrix 24: 75-83.
 
-Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described 
+Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. 
+A method for analysis of phenotypic change for phenotypes described 
 by high-dimensional data. Heredity. 115:357-365.
 }
 \seealso{

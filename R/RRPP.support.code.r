@@ -5,18 +5,28 @@
 #' @author Michael Collyer and Dean Adams
 #' @return Key functions for this package:
 #' \item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
-#' \item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, plus model comparisons.}
-#' \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test on coefficients, using RRPP.}
-#' \item{\code{\link{predict.lm.rrpp}}}{Predict values from lm.rrpp fits and generate bootstrapped confidence intervals.}
-#' \item{\code{\link{pairwise}}}{Perform pairwise tests, based on lm.rrpp model fits.}
+#' \item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, 
+#' plus model comparisons.}
+#' \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test 
+#' on coefficients, using RRPP.}
+#' \item{\code{\link{predict.lm.rrpp}}}{Predict values from lm.rrpp fits 
+#' and generate bootstrapped confidence intervals.}
+#' \item{\code{\link{pairwise}}}{Perform pairwise tests, based on lm.rrpp 
+#' model fits.}
 #' 
-#' @description Functions in this package allow one to evaluate linear models with residual randomization.
-#' The name, "RRPP", is an acronym for, "Randomization of Residuals in a Permutation Procedure."  Through
-#' the various functions in this package, one can use randomization of residuals to generate empirical probability
-#' distributions for linear model effects, for high-dimensional data or distance matrices.
+#' @description Functions in this package allow one to evaluate linear models 
+#' with residual randomization.
+#' The name, "RRPP", is an acronym for, "Randomization of Residuals in a 
+#' Permutation Procedure."  Through
+#' the various functions in this package, one can use randomization of 
+#' residuals to generate empirical probability
+#' distributions for linear model effects, for high-dimensional data or 
+#' distance matrices.
 #' 
-#' An especially useful option of this package is to fit models with either ordinary or generalized
-#' least squares estimation (OLS or GLS, respectively), using theoretic covariance matrices.  Mixed linear
+#' An especially useful option of this package is to fit models with 
+#' either ordinary or generalized
+#' least squares estimation (OLS or GLS, respectively), using theoretic 
+#' covariance matrices.  Mixed linear
 #' effects can also be evaluated.
 #' 
 #' @import parallel
@@ -53,13 +63,17 @@ NULL
 #' @docType data
 #' @author Michael Collyer
 #' @keywords datasets
-#' @description Landmark data from Cyprinodon pecosensis body shapes, with indication of Sex and
+#' @description Landmark data from Cyprinodon pecosensis body shapes, with 
+#' indication of Sex and
 #' Population from which fish were sampled (Marsh or Sinkhole).
-#' @details These data were previously aligned with GPA.  Centroid size (CS) is also provided.  
+#' @details These data were previously aligned with GPA.  Centroid size (CS) 
+#' is also provided.  
 #' See the \pkg{geomorph} package for details.
 #' 
-#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic
-#' change for phenotypes described by high-dimensional data. Heredity. 113: doi:10.1038/hdy.2014.75.
+#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for 
+#' analysis of phenotypic
+#' change for phenotypes described by high-dimensional data. Heredity. 113: 
+#' doi:10.1038/hdy.2014.75.
 NULL
 
 #' Landmarks on pupfish heads
@@ -67,14 +81,19 @@ NULL
 #' @name PupfishHeads
 #' @docType data
 #' @author Michael Collyer
-#' @description Landmark data from Cyprinodon pecosensis head shapes, with variables for 
-#' sex, month and year sampled, locality, head size, and coordinates of landmarks for head shape,
+#' @description Landmark data from Cyprinodon pecosensis head shapes, with 
+#' variables for 
+#' sex, month and year sampled, locality, head size, and coordinates of 
+#' landmarks for head shape,
 #' per specimen.  These data are a subset of a larger data set.
 #' @details The variable, "coords", are data that were previously aligned
-#' with GPA.  The variable, "headSize", is the Centroid size of each vector of coordinates.
+#' with GPA.  The variable, "headSize", is the Centroid size of each vector 
+#' of coordinates.
 #' See the \pkg{geomorph} package for details.
-#' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the cranial morphology of a 
-#' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, Western Kentucky University.
+#' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the 
+#' cranial morphology of a 
+#' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, 
+#' Western Kentucky University.
 NULL
 
 #' Plethodon comparative morphological data 
@@ -83,15 +102,21 @@ NULL
 #' @docType data
 #' @author Michael Collyer and Dean Adams
 #' @keywords datasets
-#' @description Data for 37 species of plethodontid salamanders.  Variables include snout to vent length
-#' (SVL) as species size, tail length, head length, snout to eye length, body width, forelimb length,
-#' and hind limb length, all measured in mm.  A grouping variable is also included for functional guild size.  
-#' The data set also includes a phylogenetic covariance matrix based on a Brownian model of evolution, to assist in 
+#' @description Data for 37 species of plethodontid salamanders.  
+#' Variables include snout to vent length
+#' (SVL) as species size, tail length, head length, snout to eye length, 
+#' body width, forelimb length,
+#' and hind limb length, all measured in mm.  A grouping variable is also 
+#' included for functional guild size.  
+#' The data set also includes a phylogenetic covariance matrix based on a 
+#' Brownian model of evolution, to assist in 
 #' generalized least squares (GLS) estimation.
-#' @details The covariance matrix was estimated with the vcv.phylo function of the R package, ape, based on the tree
+#' @details The covariance matrix was estimated with the vcv.phylo function 
+#' of the R package, ape, based on the tree
 #' described in Adams and Collyer (2018).
-#' @references Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
-#' challenges, and a refined permutation procedure. Evolution. In press.
+#' @references Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic 
+#' anova: group-clade aggregation, biological 
+#' challenges, and a refined permutation procedure. Evolution, 72: 1204-1215.
 NULL
 
 #' Simulated motion paths
@@ -99,7 +124,8 @@ NULL
 #' @name motionpaths
 #' @docType data
 #' @author Dean Adams
-#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for the analysis of phenotypic
+#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for 
+#' the analysis of phenotypic
 #'   trajectories in evolutionary studies. Evolution 63:1143-1154.
 #' @keywords datasets
 NULL
@@ -110,16 +136,23 @@ NULL
 
 #' Create a data frame for lm.rrpp analysis
 #'
-#' Create a data frame for lm.rrpp analysis, when covariance or distance matrices are used
+#' Create a data frame for lm.rrpp analysis, when covariance or distance 
+#' matrices are used
 #'
-#' This function is not much different than \code{\link{data.frame}} but is more flexible to allow
-#' distance matrices and covariance matrices to be included.  Essentially, this function creates a list,
-#' much like an object of class \code{data.frame} is also a list.  However, \code{rrpp.data.frame} is
-#' less concerned with coercing the list into a matrix and more concerned with matching the number of observations (n).
-#' It is wise to use this function with any \code{lm.rrpp} analysis so that \code{\link{lm.rrpp}} does not have to search
+#' This function is not much different than \code{\link{data.frame}} but is 
+#' more flexible to allow
+#' distance matrices and covariance matrices to be included.  Essentially, 
+#' this function creates a list,
+#' much like an object of class \code{data.frame} is also a list.  However, 
+#' \code{rrpp.data.frame} is
+#' less concerned with coercing the list into a matrix and more concerned 
+#' with matching the number of observations (n).
+#' It is wise to use this function with any \code{lm.rrpp} analysis so that 
+#' \code{\link{lm.rrpp}} does not have to search
 #' the global environment for needed data.
 #'
-#' It is assumed that multiple data sets for the same subjects are in the same order.
+#' It is assumed that multiple data sets for the same subjects are in the 
+#' same order.
 #'
 #' See \code{\link{lm.rrpp}} for examples.
 #'
@@ -155,9 +188,11 @@ rrpp.data.frame<- function(...){
     class(dots) <- "rrpp.data.frame"
   } else if(length(dots) == 1 && inherits(dots[[1]], "geomorph.data.frame")) {
     dots <- dots[[1]]
-    cat("\nWarning: Some geomorph.data.frame objects might not be compatible with RRPP functions.")
+    cat("\nWarning: Some geomorph.data.frame objects might not be 
+        compatible with RRPP functions.")
     cat("\nIf any part of the geomorph.data.frame conatins a 3D array,")
-    cat("\nconsider converting it to a matrix before attempting to make an rrpp.data.frame.")
+    cat("\nconsider converting it to a matrix before attempting to 
+        make an rrpp.data.frame.")
     class(dots) <- "rrpp.data.frame"
   } else if(length(dots) == 1 && inherits(dots[[1]], "rrpp.data.frame")) {
     dots <- dots[[1]]
@@ -190,14 +225,16 @@ rrpp.data.frame<- function(...){
       if(is.factor(dots[[i]])) dots.ns[i] <- length(dots[[i]])
       if(is.logical(dots[[i]])) dots.ns[i] <- length(dots[[i]])
     }
-    if(any(is.na(dots.ns))) stop("Some input is either dimensionless or inappropriate for data frames")
-    if(length(unique(dots.ns)) > 1) stop("Inputs have different numbers of observations")
+    if(any(is.na(dots.ns))) 
+      stop("Some input is either dimensionless or inappropriate for data frames")
+    if(length(unique(dots.ns)) > 1) 
+      stop("Inputs have different numbers of observations")
     class(dots) <- c("rrpp.data.frame")
   }
   dots
 }
 
-#####----------------------------------------------------------------------------------------------------
+#####--------------------------------------------------------------\
 
 # SUPPORT FUNCTIONS
 
@@ -210,14 +247,16 @@ rrpp.data.frame<- function(...){
 makeDF <- function(form, data, n) {
   
   if(!is.list(data)) 
-    stop("\nThe data frame provide is not class rrpp.data.frame, data.frame, or list, and therefore, unusable.\n", call. = FALSE)
+    stop("\nThe data frame provide is not class rrpp.data.frame, 
+         data.frame, or list, and therefore, unusable.\n", call. = FALSE)
   
   dat <- data
   class(dat) <- "list"
   
   form <- try(as.formula(form), silent = TRUE)
   if(inherits(form, "try-error"))
-    stop("Formula is not coercible into a formula object.  Please fix the formula.\n",
+    stop("Formula is not coercible into a formula object.  
+         Please fix the formula.\n",
          call. = FALSE)
               
   var.names <- if(length(form) == 3) all.vars(form)[-1] else if(length(form) == 2) 
@@ -234,7 +273,8 @@ makeDF <- function(form, data, n) {
     })
     
     if(any(!var.check)) 
-      stop("One or more independent variables does not match the number of observations in the data.\n",
+      stop("One or more independent variables does not match the number 
+           of observations in the data.\n",
            call. = FALSE)
   }
    
@@ -259,7 +299,8 @@ lm.args.from.formula <- function(cl){
   
   form <- lm.args$formula
   if(is.null(form))
-    stop("The formula is either missing or not formatted correctly.\n", call. = FALSE)
+    stop("The formula is either missing or not formatted correctly.\n", 
+         call. = FALSE)
   
   Dy <- NULL
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
@@ -292,7 +333,8 @@ lm.args.from.formula <- function(cl){
   }
   
   if(is.array(Y) && length(dim(Y)) > 2) 
-    stop("Data are arranged in an array rather than a matrix.  Please convert data to a matrix. \n", 
+    stop("Data are arranged in an array rather than a matrix.  
+         Please convert data to a matrix. \n", 
          call. = FALSE)
   
   if(form[[3]] == ".") {
@@ -318,7 +360,8 @@ lm.args.from.formula <- function(cl){
   }
   
   if(inherits(f, "try-error")) 
-      stop("Independent variables are missing from either the data frame or global environment,\n", 
+      stop("Independent variables are missing from either the data frame or 
+           global environment,\n", 
            call. = FALSE)
 
   list(Terms = f$terms, model = f$model, 
@@ -331,7 +374,8 @@ lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- if(!is.null(offset)) offset else NULL
-  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", 
+                   singular.ok = TRUE)
   fit <- do.call(lm.fit, fit.args)
   Pcov <- NULL
   
@@ -427,13 +471,15 @@ lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {
   
 }
 
-lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {
+lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, 
+                             SS.type = "I", model) {
   
   X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- if(!is.null(offset)) offset else NULL
-  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", 
+                   singular.ok = TRUE)
   fit <- do.call(lm.fit, fit.args)
   Pcov <- NULL
   
@@ -522,13 +568,15 @@ lm.fits.exchange <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I",
   
 }
 
-lm.wfits <- function(Terms,Y, w, offset = NULL, tol = 1e-7, SS.type = "I", model) {
+lm.wfits <- function(Terms,Y, w, offset = NULL, tol = 1e-7, 
+                     SS.type = "I", model) {
   
   X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   Y <- as.matrix(Y)
   o <- if(!is.null(offset)) offset else NULL
-  fit.args <- list(x = X, y = Y, w = w, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit.args <- list(x = X, y = Y, w = w, offset = o, tol = tol, 
+                   method = "qr", singular.ok = TRUE)
   fit <- do.call(lm.wfit, fit.args)
   Pcov <- NULL
   
@@ -636,7 +684,8 @@ lm.wfits.exchange <- function(Terms,Y, w, offset = NULL, tol = 1e-7,
   offst <- if(!is.null(o)) TRUE else FALSE
   if(weighted && offst) o <- o * w
   
-  fit.args <- list(x = X, y = Y, offset = o, tol = tol, method = "qr", singular.ok = TRUE)
+  fit.args <- list(x = X, y = Y, offset = o, tol = tol, 
+                   method = "qr", singular.ok = TRUE)
   fitf.args <- fit.args
   fitf.args$w <- w
   fit <- do.call(lm.wfit, fitf.args)
@@ -742,7 +791,8 @@ lm.glsfits.exchange <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
   PX <- Pcov %*% X
   PY <- Pcov %*% Y
   o <- if(!is.null(offset)) offset else NULL
-  fit.args <- list(x = PX, y = PY, offset = o,  tol = tol, method = "qr", singular.ok = TRUE)
+  fit.args <- list(x = PX, y = PY, offset = o,  tol = tol, method = "qr", 
+                   singular.ok = TRUE)
   fit <- do.call(lm.fit, fit.args)
   
   X.n.k.obs <- length(X.k.obs)
@@ -850,7 +900,8 @@ lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
   PX <- Pcov %*% X
   PY <- Pcov %*% Y
   o <- if(!is.null(offset)) offset else NULL
-  fit.args <- list(x = PX, y = PY, offset = o,  tol = tol, method = "qr", singular.ok = TRUE)
+  fit.args <- list(x = PX, y = PY, offset = o,  tol = tol, method = "qr", 
+                   singular.ok = TRUE)
   fit <- do.call(lm.fit, fit.args)
   
   
@@ -926,7 +977,8 @@ lm.glsfits <- function(Terms,Y, Cov, offset = NULL, tol = 1e-7,
         x <- as.matrix(Xs[[j]])
         coef.j <- e$coefficients
         f$coefficients <- coef.j
-        f$fitted.values <- if(length(coef.j > 0)) as.matrix(x %*% coef.j) else f$fitted.values
+        f$fitted.values <- if(length(coef.j > 0)) as.matrix(x %*% coef.j) else 
+          f$fitted.values
         if(!is.null(e$effects)) f$effects <- qr.qty(e$qr, PY) else {
           Q <- qr(rep(0, NROW(X)))
           f$effects <- qr.qty(Q, PY)
@@ -1033,7 +1085,8 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
+                                             residuals = res[[j]]))
   rrpp.args <- list(FR = FR, ind.i = NULL)
   
   rrpp <- function(FR, ind.i) {
@@ -1075,8 +1128,10 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
   RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
   
-  res.names <- list(if(k > 0) trms else "Intercept", c("obs", paste("iter", 1:(perms-1), sep=".")))
-  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- res.names
+  res.names <- list(if(k > 0) trms else "Intercept", 
+                    c("obs", paste("iter", 1:(perms-1), sep=".")))
+  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- 
+    dimnames(RSS.model) <- res.names
   
   if(all(is.na(SS))) RSS <- SS <- NULL
   
@@ -1156,7 +1211,8 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
   }
   
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
+                                             residuals = res[[j]]))
   rrpp.args <- list(FR = FR, ind.i = NULL)
   
   rrpp <- function(FR, ind.i) {
@@ -1193,11 +1249,13 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms, byrow = TRUE)
   RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms, byrow = TRUE)
   TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms, byrow = TRUE)
-  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms, byrow = TRUE)
+  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), 
+                      perms, byrow = TRUE)
   
   res.names <- list(if(k > 0) trms else "Intercept", 
                     c("obs", paste("iter", 1:(perms-1), sep=".")))
-  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- res.names
+  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- 
+    res.names
   
   if(all(is.na(SS))) RSS <- SS <- NULL
   
@@ -1387,7 +1445,8 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   
   Pcov <- exchange$Pcov
   
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
+                                             residuals = res[[j]]))
   rrpp.args <- list(FR = FR, ind.i = NULL, offset = offset, o = o)
   
   rrpp <- function(FR, ind.i, offset, o) {
@@ -1505,7 +1564,8 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   
   Pcov <- exchange$Pcov
   
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], residuals = res[[j]]))
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
+                                             residuals = res[[j]]))
   rrpp.args <- list(FR = FR, ind.i = NULL, offset = offset, o = o)
   
   rrpp <- function(FR, ind.i, offset, o) {
@@ -1631,13 +1691,18 @@ aov.single.model <- function(object, ...,
   trms <- object$LM$term.labels
   
   if(!is.null(error)) {
-    if(!inherits(error, "character")) stop("The error description is illogical.  It should be a string of character values matching ANOVA terms.",
+    if(!inherits(error, "character")) 
+      stop("The error description is illogical.  It should be a string of character 
+           values matching ANOVA terms.",
                                            call. = FALSE)
     kk <- length(error)
-    if(kk != k) stop("The error description should match in length the number of ANOVA terms (not including Residuals)",
+    if(kk != k) 
+      stop("The error description should match in length the number of ANOVA terms 
+           (not including Residuals)",
                      call. = FALSE)
     MSEmatch <- match(error, c(trms, "Residuals"))
-    if(any(is.na(MSEmatch))) stop("At least one of the error terms is not an ANOVA term",
+    if(any(is.na(MSEmatch))) 
+      stop("At least one of the error terms is not an ANOVA term",
                                   call. = FALSE)
   } else MSEmatch <- NULL
   if(k >= 1) {
@@ -1685,9 +1750,11 @@ aov.single.model <- function(object, ...,
       Z <- apply(Z, 1, effect.size)
       } else P.val <- NULL
     
-    Residuals <- c(df[k+1], RSS[[1]], RSS[[1]]/df[k+1], RSS[[1]]/TSS[[1]], rep(NA, 3))
+    Residuals <- c(df[k+1], RSS[[1]], RSS[[1]]/df[k+1], 
+                   RSS[[1]]/TSS[[1]], rep(NA, 3))
     Total <- c(df[k+2], TSS[[1]], rep(NA, 5))
-    tab <- data.frame(Df=df[1:k], SS=SS, MS = MS, Rsq = Rsq, F = Fs, Z = Z, P.val = P.val)
+    tab <- data.frame(Df=df[1:k], SS=SS, MS = MS, Rsq = Rsq, 
+                      F = Fs, Z = Z, P.val = P.val)
     tab <- rbind(tab, Residuals = Residuals, Total = Total)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
@@ -1727,16 +1794,19 @@ aov.multi.model <- function(object, lm.list,
   perms <- length(ind)
   
   if(refModel$LM$gls) {
-    X <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, refModel$LM$X) else
+    X <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, 
+                                                  refModel$LM$X) else
       refModel$LM$X * sqrt(refModel$LM$weights)
   } else X <- refModel$LM$X
   
   if(refModel$LM$gls) {
-    Y <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, refModel$LM$Y) else
+    Y <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, 
+                                                  refModel$LM$Y) else
       refModel$LM$Y * sqrt(refModel$LM$weights)
   } else Y <- refModel$LM$Y
   
-  B <- if(refModel$LM$gls) refModel$LM$gls.coefficients else refModel$LM$coefficients
+  B <- if(refModel$LM$gls) refModel$LM$gls.coefficients else 
+    refModel$LM$coefficients
   U <- as.matrix(qr.Q(refModel$LM$QR))
   n <- refModel$LM$n
   p <- refModel$LM$p
@@ -1751,14 +1821,17 @@ aov.multi.model <- function(object, lm.list,
   
   if(print.progress){
     if(K > 1)
-    cat(paste("\nSums of Squares calculations for", K, "models:", perms, "permutations.\n")) else
-      cat(paste("\nSums of Squares calculations for", K, "model:", perms, "permutations.\n"))
+    cat(paste("\nSums of Squares calculations for", K, "models:", 
+              perms, "permutations.\n")) else
+      cat(paste("\nSums of Squares calculations for", K, "model:", 
+                perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
 
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
-    int <- if(!is.null(refModel$LM$Pcov))  crossprod(refModel$LM$Pcov, rep(int, n)) else
+    int <- if(!is.null(refModel$LM$Pcov))  crossprod(refModel$LM$Pcov, 
+                                                     rep(int, n)) else
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
@@ -1800,7 +1873,8 @@ aov.multi.model <- function(object, lm.list,
   RSSp <- as.matrix(RSSp[-(nrow(RSSp)),])
   RSSy <- as.matrix(matrix(RSSy, nrow(RSSp), perms, byrow = TRUE))
   
-  fit.names <- c(refModel$call[[2]], lapply(1:K, function(j) lm.list[[j]]$call[[2]]))
+  fit.names <- c(refModel$call[[2]], lapply(1:K, function(j) 
+    lm.list[[j]]$call[[2]]))
   rownames(RSSp) <- rownames(RSSy) <- fit.names
   
   SS <- rep(RSSp[1,], each = K + 1) - RSSp
@@ -1808,7 +1882,7 @@ aov.multi.model <- function(object, lm.list,
   Rsq <-  SS / RSSy
   
   dfe <- n - c(object$LM$QR$rank, unlist(lapply(1:K, 
-                                                 function(j) lm.list[[j]]$LM$QR$rank)))
+                                    function(j) lm.list[[j]]$LM$QR$rank)))
   df <- dfe[1] - dfe
   df[1] <- 1
   
@@ -1856,7 +1930,8 @@ aov.multi.model <- function(object, lm.list,
   if(effect.type == "SS") p.type <- "Pr(>SS)" else
     if(effect.type == "MS") p.type <- "Pr(>MS)" else
       if(effect.type == "Rsq") p.type <- "Pr(>Rsq)" else
-        if(effect.type == "cohenf") p.type <- "Pr(>cohenf)" else p.type <- "Pr(>F)" 
+        if(effect.type == "cohenf") p.type <- "Pr(>cohenf)" else 
+          p.type <- "Pr(>F)" 
   names(tab)[length(names(tab))] <- p.type
   rownames(tab)[1] <- paste(rownames(tab)[1], "(Null)")
   class(tab) <- c("anova", class(tab))
@@ -1913,7 +1988,8 @@ getSlopes <- function(fit, x, g){
 }
 
 # getLSmeans
-# gets the LS means for groups from a lm.rrpp fit, after constaining covariates to mean values
+# gets the LS means for groups from a lm.rrpp fit, 
+# after constaining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
   k <- length(fit$LM$term.labels)
@@ -1921,7 +1997,8 @@ getLSmeans <- function(fit, g){
   beta <- fit$LM$random.coef[[k]]
   dat <- fit$LM$data
   covCheck <- sapply(dat, class)
-  for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") dat[[i]] <- mean(dat[[i]])
+  for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") 
+    dat[[i]] <- mean(dat[[i]])
   L <- model.matrix(fit$LM$Terms, data = dat)
   L <- L[, colnames(L)  %in% rownames(beta[[1]])]
   getFitted <- function(b) L %*% b
@@ -1943,7 +2020,8 @@ getLSmeans <- function(fit, g){
 
 #' Support function for RRPP
 #'
-#' Calculate vector correlations for a matrix (by rows).  Used for pairwise comparisons.
+#' Calculate vector correlations for a matrix (by rows).  
+#' Used for pairwise comparisons.
 #'
 #' @param M Matrix for vector correlations.
 #' @keywords utilities
@@ -2189,14 +2267,16 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   if(gls) {
     if(!is.null(Pcov)) {
       ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
-                    rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
+                    rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + 
+                    n * rank * log(2*pi))
     } else {
       ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] - 
                     rank * sum(log(w)) + n * rank * log(2*pi))
       
     }
   } else 
-    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + n * rank * log(2*pi))
+    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
+                  n * rank * log(2*pi))
   
   list(logL = ll, rank = rank)
   
@@ -2206,7 +2286,8 @@ cov.trace <- function(fit) {
   n <- fit$LM$n
   p <- fit$LM$p.prime
   if(fit$LM$gls){
-    if(!is.null(fit$LM$Pcov)) Sig <- crossprod(fit$LM$Pcov %*% fit$LM$gls.residuals)/n else
+    if(!is.null(fit$LM$Pcov)) Sig <- crossprod(fit$LM$Pcov %*% 
+                                                 fit$LM$gls.residuals)/n else
       Sig <- crossprod(fit$LM$gls.residuals * sqrt(fit$LM$weights))/n
     
   }  else {
@@ -2394,7 +2475,8 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
   if(!is.null(newdata)) {
     Yt <- newdata
     if(NCOL(newdata) != p) 
-      stop("\nNumber of variables in newdata does not match the number for the data in lm.rrpp fit.\n",
+      stop("\nNumber of variables in newdata does not match the number 
+           for the data in lm.rrpp fit.\n",
            call. = FALSE)
     Ytc <- if(gls) Yt - matrix(fit$LM$gls.mean, NROW(Yt), p, byrow = TRUE) else
       center(Yt)

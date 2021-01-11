@@ -12,7 +12,8 @@
 \item{...}{further arguments passed to or from other methods}
 }
 \description{
-\code{model.frame.lm.rrpp} returns the model frame constructed for an \code{lm.rrpp} object.
+\code{model.frame.lm.rrpp} returns the model frame constructed for 
+an \code{lm.rrpp} object.
 }
 \author{
 Michael Collyer

@@ -3,12 +3,14 @@
 #' Function adds a tree based on a description of edges from a class phylo object 
 #' to an existing plot made from an ordinate object.
 #' 
-#' With some \code{\link{ordinate}} plots, it might be desirable to add a tree connecting points
-#' in a prescribed way, which would be tedious using \code{\link{points}} or \code{\link{lines}}.
-#' This function will project a tree from an object of class phylo into a plot with class, 
-#' \code{\link{plot.ordinate}}.  Using an edges matrix from a phylo object, this function will 
-#' systematically connect plot points with lines that pass through estimated ancestral character 
-#' points in the same plot space.  Ancestral states are estimated assuming a Brownian motion model 
+#' With some \code{\link{ordinate}} plots, it might be desirable to add a tree 
+#' connecting points in a prescribed way, which would be tedious using 
+#' \code{\link{points}} or \code{\link{lines}}.  This function will project a 
+#' tree from an object of class phylo into a plot with class, 
+#' \code{\link{plot.ordinate}}.  Using an edges matrix from a phylo object, 
+#' this function will systematically connect plot points with lines that pass 
+#' through estimated ancestral character points in the same plot space.  
+#' Ancestral states are estimated assuming a Brownian motion model 
 #' of evolutionary divergence.
 
 #' @param OP An object with class \code{\link{plot.ordinate}}.

@@ -7,7 +7,8 @@
 \method{summary}{manova.lm.rrpp}(object, test = c("Roy", "Pillai", "Hotelling-Lawley", "Wilks"), ...)
 }
 \arguments{
-\item{object}{Object from \code{\link{lm.rrpp}}, updated with \code{\link{manova.update}}}
+\item{object}{Object from \code{\link{lm.rrpp}}, updated with 
+\code{\link{manova.update}}}
 
 \item{test}{Type of multivariate test statistic to use.}
 

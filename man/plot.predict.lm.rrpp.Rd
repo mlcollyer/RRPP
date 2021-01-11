@@ -4,26 +4,43 @@
 \alias{plot.predict.lm.rrpp}
 \title{Plot Function for RRPP}
 \usage{
-\method{plot}{predict.lm.rrpp}(x, PC = FALSE, ellipse = FALSE, label = TRUE, ...)
+\method{plot}{predict.lm.rrpp}(x, PC = FALSE, ellipse = FALSE, abscissa = NULL, label = TRUE, ...)
 }
 \arguments{
 \item{x}{plot object (from \code{\link{predict.lm.rrpp}})}
 
-\item{PC}{A logical argument for whether the data space should be rotated to its 
+\item{PC}{A logical argument for whether the data space should be 
+rotated to its 
 principal components}
 
-\item{ellipse}{A logical argument to change error bars to ellipses in multivariate plots.
-It has no function for univariate plots.}
+\item{ellipse}{A logical argument to change error bars to ellipses 
+in multivariate plots.  
+It has no function for univariate plots or is abscissa is not NULL.}
+
+\item{abscissa}{An optional vector (numeric of factor) equal in length 
+to predictions to use for 
+plotting as the abscissa (x-axis), in which case predictions are the 
+ordinate (y-axis).  This might be 
+helpful if predictions are made for a continuous independent variable.  
+The abscissa would be the
+same variable used to make predictions (and can be the data.frame used 
+for 
+newdata in \code{\link{predict.lm.rrpp}}).}
 
 \item{label}{A logical argument for whether points should be labeled 
 (in multivariate plots).}
 
-\item{...}{other arguments passed to plot (helpful to employ
+\item{...}{other arguments passed to plot, arrows, points, or text (helpful 
+to employ
 different colors or symbols for different groups).  See
-\code{\link{plot.default}} and \code{\link{par}}}
+\code{\link{plot.default}},  \code{\link{arrows}}, \code{\link{points}},
+\code{\link{par}}, and \code{\link{text}}}
 }
 \description{
 Plot Function for RRPP
+}
+\examples{
+# See \code{\link{lm.rrpp}} for examples.
 }
 \author{
 Michael Collyer

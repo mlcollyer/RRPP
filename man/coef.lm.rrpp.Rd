@@ -9,27 +9,40 @@
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}
 
-\item{test}{Logical argument that if TRUE, performs hypothesis tests (Null hypothesis is vector distance = 0)
-for the observed coefficients.  If FALSE, only the observed coefficients are returned.}
+\item{test}{Logical argument that if TRUE, performs hypothesis tests 
+(Null hypothesis is vector distance = 0)
+for the observed coefficients.  If FALSE, only the observed coefficients 
+are returned.}
 
-\item{confidence}{The desired confidence limit to print with a table of summary statistics,
-if test = TRUE.  Because distances are directionless, confidence limits are one-tailed.}
+\item{confidence}{The desired confidence limit to print with a table of 
+summary statistics,
+if test = TRUE.  Because distances are directionless, confidence limits 
+are one-tailed.}
 
 \item{...}{Other arguments (currently none)}
 }
 \description{
 Computes ordinary or generalized least squares coefficients
-over the permutations of an \code{\link{lm.rrpp}} model fit with predefined random permutations.
-For each coefficient vector, the Euclidean distance is calculated as an estimate of
-the amount of change in Y, the n x p matrix of dependent variables; larger distances mean more change 
-in location in the data space associated with a one unit change in the model design, for the parameter
-described.  Random coefficients are based on either RRPP or FRPP, as defined by the 
-\code{\link{lm.rrpp}} model fit.  If RRPP is used, all distributions of coefficient vector distances are 
+over the permutations of an \code{\link{lm.rrpp}} model fit with predefined 
+random permutations.
+For each coefficient vector, the Euclidean distance is calculated as an 
+estimate of
+the amount of change in Y, the n x p matrix of dependent variables; larger 
+distances mean more change 
+in location in the data space associated with a one unit change in the model 
+design, for the parameter
+described.  Random coefficients are based on either RRPP or FRPP, as defined 
+by the 
+\code{\link{lm.rrpp}} model fit.  If RRPP is used, all distributions of 
+coefficient vector distances are 
 based on appropriate null models as defined by SS type.
 
-This function can be used to test the specific coefficients of an lm.rrpp fit.  The test
-statistics are the distances (d), which are also standardized (Z-scores).  The Z-scores might be easier to compare,
-as the expected values for random distances can vary among coefficient vectors (Adams and Collyer 2016).
+This function can be used to test the specific coefficients of an 
+lm.rrpp fit.  The test
+statistics are the distances (d), which are also standardized (Z-scores).  
+The Z-scores might be easier to compare,
+as the expected values for random distances can vary among coefficient 
+vectors (Adams and Collyer 2016).
 }
 \examples{
 # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
@@ -37,7 +50,7 @@ as the expected values for random distances can vary among coefficient vectors (
 
 data(Pupfish)
 names(Pupfish)
-Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
+Pupfish$logSize <- log(Pupfish$CS)
 
 fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
 

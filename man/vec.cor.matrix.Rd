@@ -10,7 +10,8 @@ vec.cor.matrix(M)
 \item{M}{Matrix for vector correlations.}
 }
 \description{
-Calculate vector correlations for a matrix (by rows).  Used for pairwise comparisons.
+Calculate vector correlations for a matrix (by rows).  
+Used for pairwise comparisons.
 }
 \author{
 Michael Collyer

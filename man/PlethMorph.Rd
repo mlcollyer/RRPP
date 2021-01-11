@@ -5,19 +5,25 @@
 \alias{PlethMorph}
 \title{Plethodon comparative morphological data}
 \description{
-Data for 37 species of plethodontid salamanders.  Variables include snout to vent length
-(SVL) as species size, tail length, head length, snout to eye length, body width, forelimb length,
-and hind limb length, all measured in mm.  A grouping variable is also included for functional guild size.  
-The data set also includes a phylogenetic covariance matrix based on a Brownian model of evolution, to assist in 
+Data for 37 species of plethodontid salamanders.  
+Variables include snout to vent length
+(SVL) as species size, tail length, head length, snout to eye length, 
+body width, forelimb length,
+and hind limb length, all measured in mm.  A grouping variable is also 
+included for functional guild size.  
+The data set also includes a phylogenetic covariance matrix based on a 
+Brownian model of evolution, to assist in 
 generalized least squares (GLS) estimation.
 }
 \details{
-The covariance matrix was estimated with the vcv.phylo function of the R package, ape, based on the tree
+The covariance matrix was estimated with the vcv.phylo function 
+of the R package, ape, based on the tree
 described in Adams and Collyer (2018).
 }
 \references{
-Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic anova: group-clade aggregation, biological 
-challenges, and a refined permutation procedure. Evolution. In press.
+Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic 
+anova: group-clade aggregation, biological 
+challenges, and a refined permutation procedure. Evolution, 72: 1204-1215.
 }
 \author{
 Michael Collyer and Dean Adams

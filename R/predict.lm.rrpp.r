@@ -1,25 +1,38 @@
 #' predict for lm.rrpp model fits
 #'
-#' @description Computes predicted values from an \code{\link{lm.rrpp}} model fit, using bootstrapped residuals
-#' to generate confidence intervals.  (Residuals are the residuals of the lm.rppp fit, not its null model.  The bootstrap
+#' @description Computes predicted values from an \code{\link{lm.rrpp}} 
+#' model fit, using bootstrapped residuals
+#' to generate confidence intervals.  (Residuals are the residuals of 
+#' the lm.rppp fit, not its null model.  The bootstrap
 #' procedure resamples residual vectors with replacement.)
-#' The bootstrap permutations use the same number of iterations and seed as used
-#' in the \code{\link{lm.rrpp}} model fit. A \code{\link{predict.lm.rrpp}} object can be plotted using various options.
+#' The bootstrap permutations use the same number of iterations and 
+#' seed as used
+#' in the \code{\link{lm.rrpp}} model fit. A \code{\link{predict.lm.rrpp}} 
+#' object can be plotted using various options.
 #' See \code{\link{plot.predict.lm.rrpp}}.
 #' 
-#' Note that if data offsets are used (if the offset argument is used when fitting a \code{\link{lm.rrpp}} model),
-#' they are ignored for estimating coefficients over iterations.  Offsets are subtracted from data in \code{\link[stats]{lm}} and 
-#' added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then un-adjusting
-#' it for predictions.  This causes problems if the newdata have a different number of observations than the original
+#' Note that if data offsets are used (if the offset argument is used 
+#' when fitting a \code{\link{lm.rrpp}} model),
+#' they are ignored for estimating coefficients over iterations.  
+#' Offsets are subtracted from data in \code{\link[stats]{lm}} and 
+#' added to predicted values in \code{\link[stats]{predict.lm}}, 
+#' effectively adjusted the intercept and then un-adjusting
+#' it for predictions.  This causes problems if the newdata have a 
+#' different number of observations than the original
 #' model fit.
 #' 
 #'
 #' @param object Object from \code{\link{lm.rrpp}}.
-#' @param newdata Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.  If null,
-#' the data frame from the lm.rrpp fit will be used, effectively calculating all fitted values and
-#' their confidence intervals.  If a numeric variable is missing from newdata, an attempt to average the values
-#' will be made in prediction; i.e., least squares means for factor levels can be found.  All factors used in the
-#' \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, with appropriate factor levels.
+#' @param newdata Data frame of either class \code{\link{data.frame}} 
+#' or \code{\link{rrpp.data.frame}}.  If null,
+#' the data frame from the lm.rrpp fit will be used, effectively calculating 
+#' all fitted values and
+#' their confidence intervals.  If a numeric variable is missing from newdata, 
+#' an attempt to average the values
+#' will be made in prediction; i.e., least squares means for factor levels 
+#' can be found.  All factors used in the
+#' \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, 
+#' with appropriate factor levels.
 #' @param confidence The desired confidence interval level for prediction.
 #' @param ... Other arguments (currently none)
 #' @export
@@ -66,7 +79,8 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
     
     if(!inherits(newdata, "data.frame") && !inherits(newdata, "rrpp.data.frame"))
       stop("newdata must be an object of class data.frame or rrpp.data.frame")
-    if(confidence < 0 || confidence > 1) stop("Confidence level must be between 0 and 1")
+    if(confidence < 0 || confidence > 1) 
+      stop("Confidence level must be between 0 and 1")
     
     if(inherits(newdata, "rrpp.data.frame")) {
       vars <- all.vars(TT)
@@ -75,7 +89,8 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
         stop("\nOne or more variables in newdata are not model terms.\n",
              call. = FALSE)
       if(length(refd) != length(newdata))
-        stop("\nIt's not possible to coerce the rrpp.data.frame into a useable data frame for prediction.\n",
+        stop("\nIt's not possible to coerce the rrpp.data.frame into a 
+             useable data frame for prediction.\n",
              call. = FALSE)
       
       class(newdata) <- "list"
@@ -91,6 +106,7 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
     nX <- matrix(colMeans(object$LM$X), NROW(newdata), NCOL(object$LM$X), 
                  byrow = TRUE)
     colnames(nX) <- colnames(object$LM$X)
+    rownames(nX) <- rownames(newdata)
     
     o.names <- all.vars(TT)
     n.names <- names(newdata)
@@ -177,7 +193,7 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
     }
   }
   
-  data.name = all.vars(object$LM$form)[1]
+  data.name = as.character(object$call[[2]][[2]])
   rn <- rownames(nX)
   if(is.null(rownames(nX))) rn <- as.character(1:NROW(nX))
   colnames(meanV) <- colnames(LCL) <- colnames(UCL) <- colnames(object$LM$Y)

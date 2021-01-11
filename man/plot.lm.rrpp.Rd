@@ -40,10 +40,12 @@ different colors or symbols for different groups).  See
 Plot Function for RRPP
 }
 \references{
-Drake, A. G., and C. P. Klingenberg. 2008. The pace of morphological change: Historical 
+Drake, A. G., and C. P. Klingenberg. 2008. 
+The pace of morphological change: Historical 
 transformation of skull shape in St Bernard dogs. Proc. R. Soc. B. 275:71-76.
 
-Adams, D. C., and A. Nistri. 2010. Ontogenetic convergence and evolution of foot morphology 
+Adams, D. C., and A. Nistri. 2010. Ontogenetic convergence 
+and evolution of foot morphology 
 in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
 }
 \author{

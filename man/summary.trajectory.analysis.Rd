@@ -17,17 +17,23 @@
 \arguments{
 \item{object}{Object from \code{\link{trajectory.analysis}}}
 
-\item{stat.table}{Logical argument for whether results should be returned in one table 
+\item{stat.table}{Logical argument for whether results should be 
+returned in one table 
 (if TRUE) or separate pairwise tables (if FALSE)}
 
-\item{attribute}{Whether magnitude differences (MD, absolute difference in trajectory path lengths), 
-trajectory correlations (TC), or trajectory shape differences (SD) are summarized.}
+\item{attribute}{Whether magnitude differences (MD, absolute difference 
+in trajectory path lengths), 
+trajectory correlations (TC), or trajectory shape differences (SD) are 
+summarized.}
 
-\item{angle.type}{If attribute = "TC", whether angle results are expressed in radians or degrees.}
+\item{angle.type}{If attribute = "TC", whether angle results are 
+expressed in radians or degrees.}
 
-\item{confidence}{Confidence level to use for upper confidence limit; default = 0.95 (alpha = 0.05)}
+\item{confidence}{Confidence level to use for upper confidence limit; 
+default = 0.95 (alpha = 0.05)}
 
-\item{show.trajectories}{Logical value to indicate whether trajectories should be printed.}
+\item{show.trajectories}{Logical value to indicate whether trajectories 
+should be printed.}
 
 \item{...}{Other arguments passed onto trajectory.analysis}
 }
