@@ -74,15 +74,7 @@ attributes(fitm)
 attributes(fitm$MANOVA)
 ```
 
-The "eigs" object returns all the eigenvalues of $\mathbf{S}_{random}^{-1}\mathbf{S}_{effect}$, because the default argument.  One can return the matrices, themselves, with "invR.H".
-
-```{r}
-fitm <- manova.update(fit, print.progress = FALSE, tol = 0)
-attributes(fitm)
-attributes(fitm$MANOVA)
-```
-
-The eigs object is replaced with the invR.H object, where $\mathbf{H} = \mathbf{S}_{effect}$, and $\mathbf{R} = \mathbf{S}_{residual}$, in line with common notation.  ($\mathbf{H}$ and $\mathbf{R}$ are SSCP matrices for model effects and residuals, respectively.)  The class lm.rrpp fit has class manova.lm.rrpp added, and the S3 summary function produces a MANOVA-like table.
+The "eigs" object returns all the eigenvalues of $\mathbf{S}_{random}^{-1}\mathbf{S}_{effect}$, because the default argument.  One can return the matrices, themselves, with "invR.H", where $\mathbf{H} = \mathbf{S}_{effect}$, and $\mathbf{R} = \mathbf{S}_{residual}$, in line with common notation.  ($\mathbf{H}$ and $\mathbf{R}$ are SSCP matrices for model effects and residuals, respectively.)  The class lm.rrpp fit has class manova.lm.rrpp added, and the S3 summary function produces a MANOVA-like table.
 
 ```{r}
 summary(fitm, test = "Roy")

@@ -1,6 +1,7 @@
 # CHANGES IN RRPP 0.6.2
 
 ### NEW FEATURES
+* Added option to add abscissa to `plot.predict.lm.rrpp`.
 * Added Box-Cox transformation to `effect.size`.
 * Added option to flip axes in `plot.ordinate`.
 * Updated `predict.lm.rrpp` so that functions in formulae are permissible.

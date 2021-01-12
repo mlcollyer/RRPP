@@ -133,7 +133,8 @@ boot.index <-function(n, iter, seed=NULL){
     if(seed == "random") seed = sample(1:iter,1) else
       if(!is.numeric(seed)) seed = iter
       set.seed(seed)
-      ind <- c(list(1:n),(Map(function(x) sample.int(n, n, replace = TRUE), 1:iter)))
+      ind <- c(list(1:n),(Map(function(x) sample.int(n, n, replace = TRUE), 
+                              1:iter)))
       rm(.Random.seed, envir=globalenv())
       attr(ind, "seed") <- seed
       ind
@@ -199,7 +200,8 @@ box.cox.true <- function(y, eps = 0.001){
   y <- c(y.obs, y)
   res <- if(lambda.opt == 0) log(y) else (y^lambda.opt - 1)/lambda.opt
   
-  list(opt.lambda = lambda.opt, transformed = res, lambda = lambda, loglik = loglik)
+  list(opt.lambda = lambda.opt, transformed = res, lambda = lambda, 
+       loglik = loglik)
   
 }
 
@@ -236,7 +238,8 @@ box.cox.spline <- function(y, eps = 0.001) {
 
 box.cox.iter <- function(y, eps = 0.001) {
   bc <- box.cox.spline(y, eps = eps)
-  if(bc$opt.lambda == -0.5 || bc$opt.lambda == 1.5) bc <- box.cox.true(y, eps = eps)
+  if(bc$opt.lambda == -0.5 || bc$opt.lambda == 1.5) 
+    bc <- box.cox.true(y, eps = eps)
   return(bc)
 }
 
@@ -343,10 +346,11 @@ Cov.proj <- function(Cov, id = NULL){
 }
 
 
-# ape replacement functions below ----------------------------------------------------
+# ape replacement functions below --------------------------------------------
 
 # sim.char has a similar function to this but it is called in every simulation
-# and defers to C for help.  This is done once only here. (Produces a projection matrix)
+# and defers to C for help.  This is done once only here. 
+# (Produces a projection matrix)
 phy.sim.mat <- function(phy) {
   N <- length(phy$tip.label)
   n <- nrow(phy$edge)

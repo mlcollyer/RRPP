@@ -2,66 +2,102 @@
 #'
 #'  Function estimates attributes of multivariate trajectories 
 #'
-#'  The function quantifies multivariate trajectories from a set of observations, and assesses variation 
-#'  in attributes of the trajectories via RRPP. A trajectory is defined by a sequence 
-#'  of points in the data space. These trajectories can be quantified for various attributes (their size, orientation, 
-#'  and shape), and comparisons of these attribute enable the statistical comparison of shape change 
-#'  trajectories (Collyer and Adams 2007; Adams and Collyer 2007; Adams and Collyer 2009; Turner et al. 2010; Collyer and Adams 2013). 
+#'  The function quantifies multivariate trajectories from a set 
+#'  of observations, and assesses variation 
+#'  in attributes of the trajectories via RRPP. A trajectory is defined 
+#'  by a sequence 
+#'  of points in the data space. These trajectories can be quantified for 
+#'  various attributes (their size, orientation, 
+#'  and shape), and comparisons of these attribute enable the statistical 
+#'  comparison of shape change 
+#'  trajectories (Collyer and Adams 2007; Adams and Collyer 2007; 
+#'  Adams and Collyer 2009; Turner et al. 2010; Collyer and Adams 2013). 
 #'  
-#'  This function is a modified version of \code{\link{pairwise}}, retaining the least squares (LS) means as trajectory points.
-#'  Analysis starts with a \code{\link{lm.rrpp}} fit (but a procD.lm fit from geomorph can also be used).  LS means are calculated using a grouping
-#'  variable.  Data can be trajectories, as a start(sensu Adams and Cerney 2007), or trajectories can be calculated from data using a factorial model (in which case
+#'  This function is a modified version of \code{\link{pairwise}}, retaining 
+#'  the least squares (LS) means as trajectory points.
+#'  Analysis starts with a \code{\link{lm.rrpp}} fit (but a procD.lm fit from 
+#'  geomorph can also be used).  LS means are calculated using a grouping
+#'  variable.  Data can be trajectories, as a start(sensu Adams and Cerney 2007), 
+#'  or trajectories can be calculated from data using a factorial model 
+#'  (in which case
 #'  trajectory points are defined by factor levels).  
 #'
-#'  This function produces statistics that can be summarized with the \code{\link{summary.trajectory.analysis}} function.  The summaries
-#'  are consistent with those in the \code{\link{summary.pairwise}} function, pertaining to trajectory attributes including,
-#'  magnitude difference (MD), the difference in path lengths of trajectories; trajectory correlations (TC), better
-#'  thought of as angular differences between trajectory principal axes; and if trajectories have three or more points,
-#'  shape difference (SD), the square root of summed squared point differences, after scaling, centering, and rotating trajectories.  The SD is
-#'  the "Procrustes" distance between trajectories (Adams and Collyer 2009), much the same way as the shape difference between anatomical landmark
-#'  configurations in geometric morphometrics.  If attribute = "TC" is chosen for the summary, then the angle type ("rad" or "deg",
-#'  can be chosen for either radians and degrees, respectively, to return angles between principal axes.)
+#'  This function produces statistics that can be summarized with the 
+#'  \code{\link{summary.trajectory.analysis}} function.  The summaries
+#'  are consistent with those in the \code{\link{summary.pairwise}} 
+#'  function, pertaining to trajectory attributes including,
+#'  magnitude difference (MD), the difference in path lengths of trajectories; 
+#'  trajectory correlations (TC), better
+#'  thought of as angular differences between trajectory principal axes; and if 
+#'  trajectories have three or more points,
+#'  shape difference (SD), the square root of summed squared point differences, 
+#'  after scaling, centering, and rotating trajectories.  The SD is
+#'  the "Procrustes" distance between trajectories (Adams and Collyer 2009), 
+#'  much the same way as the shape difference between anatomical landmark
+#'  configurations in geometric morphometrics.  If attribute = "TC" is chosen 
+#'  for the summary, then the angle type ("rad" or "deg",
+#'  can be chosen for either radians and degrees, respectively, to return 
+#'  angles between principal axes.)
 #'  
-#'  Plotting can be performed with \code{\link{plot.trajectory.analysis}} and \code{\link{add.trajectories}}.  The former
-#'  plots all principal component scores for the data, and allows point-by-point control of plot parameters.  The later
-#'  adds trajectories points and lines, with constrained control.  By saving the plot.trajectory.analysis
-#'  object, plotting information can be retained and advanced plotting can be performed.  See examples below.
+#'  Plotting can be performed with \code{\link{plot.trajectory.analysis}} and 
+#'  \code{\link{add.trajectories}}.  The former
+#'  plots all principal component scores for the data, and allows point-by-point 
+#'  control of plot parameters.  The later
+#'  adds trajectories points and lines, with constrained control.  By saving the 
+#'  plot.trajectory.analysis
+#'  object, plotting information can be retained and advanced plotting can be 
+#'  performed.  See examples below.
 #'  
 #' @param fit A linear model fit using \code{\link{lm.rrpp}}.
-#' @param fit.null An alternative linear model fit to use as a null model for RRPP, if the null model
-#' of the fit is not desired.  Note, if RRPP = FALSE (FRPP rather than RRPP), then the null model has only an intercept.
-#' If the null model is uncertain, using \code{\link{reveal.model.designs}} will help elucidate the inherent null model used.
+#' @param fit.null An alternative linear model fit to use as a null model for 
+#' RRPP, if the null model
+#' of the fit is not desired.  Note, if RRPP = FALSE (FRPP rather than RRPP), 
+#' then the null model has only an intercept.
+#' If the null model is uncertain, using \code{\link{reveal.model.designs}} 
+#' will help elucidate the inherent null model used.
 #' @param groups A factor or vector coercible to factor that defines trajectories.
-#' @param traj.pts Either a single value or a vector coercible to factor to define trajectory points.  If only a single value, 
+#' @param traj.pts Either a single value or a vector coercible to factor to 
+#' define trajectory points.  If only a single value, 
 #' it is assumed that the data are already in the form, 
-#' y1p1, y2p1, y3p1, ...., y2p2, y2p2, y3p2, ..., yjp1, yjp2, yjp3, ..., yjpk, for j variables comprising k trajectory points;
-#' i.e., traj.pts = k.  If a factor, then a group * traj.pt factorial model is assumed, where traj.pts defines the levels for points within groups.
-#' @param pca A logical value to optionally project group:point means onto principal components (perform PCA on a covariance matrix of the means)
+#' y1p1, y2p1, y3p1, ...., y2p2, y2p2, y3p2, ..., yjp1, yjp2, yjp3, ..., yjpk, 
+#' for j variables comprising k trajectory points;
+#' i.e., traj.pts = k.  If a factor, then a group * traj.pt factorial model 
+#' is assumed, where traj.pts defines the levels for points within groups.
+#' @param pca A logical value to optionally project group:point means onto 
+#' principal components (perform PCA on a covariance matrix of the means)
 #' This option only applies to factorial designs (traj.pts is a factor).
-#' @param print.progress A logical value to indicate whether a progress bar should be printed to the screen.  
+#' @param print.progress A logical value to indicate whether a progress bar 
+#' should be printed to the screen.  
 #' This is helpful for long-running analyses.
 
 #' @export
 #' @keywords analysis
 #' @author Dean Adams and Michael Collyer
-#' @return An object of class "trajectory.analysis" returns a list of the following:
+#' @return An object of class "trajectory.analysis" returns a list of the 
+#' following:
 #'   \item{LS.means}{LS.means from pairwise function.}
 #'   \item{trajectories}{Trajectories from every permutation.}
 #'   \item{PD}{Path distances of trajectories from every permutation.}
 #'   \item{MD}{Magnitude differences between trajectories from every permutation.}
 #'   \item{TC}{Trajectory correlations from every permutation.}
 #'   \item{SD}{Trajectory shape differences from every permutation.}
-#' @references Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical motion using Procrustes 
+#' @references Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical 
+#' motion using Procrustes 
 #'   motion analysis. J. Biomech. 40:437-444.
-#' @references Adams, D. C., and M. L. Collyer. 2007. The analysis of character divergence along environmental 
+#' @references Adams, D. C., and M. L. Collyer. 2007. The analysis of 
+#' character divergence along environmental 
 #'   gradients and other covariates. Evolution 61:510-515.
-#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for the analysis of phenotypic 
+#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework 
+#' for the analysis of phenotypic 
 #'   trajectories in evolutionary studies. Evolution 63:1143-1154.
-#' @references Collyer, M. L., and D. C. Adams. 2007. Analysis of two-state multivariate phenotypic change 
+#' @references Collyer, M. L., and D. C. Adams. 2007. Analysis of two-state 
+#' multivariate phenotypic change 
 #'   in ecological studies. Ecology 88:683-692.
-#' @references Collyer, M. L., and D. C. Adams. 2013. Phenotypic trajectory analysis: comparison of shape change patterns 
+#' @references Collyer, M. L., and D. C. Adams. 2013. Phenotypic trajectory 
+#' analysis: comparison of shape change patterns 
 #' in evolution and ecology. Hystrix 24: 75-83.
-#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for analysis of phenotypic change for phenotypes described 
+#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for 
+#' analysis of phenotypic change for phenotypes described 
 #' by high-dimensional data. Heredity. 115:357-365.
 #' 
 #' @examples 
@@ -71,9 +107,15 @@
 #' reveal.model.designs(fit)
 #' TA <- trajectory.analysis(fit, groups = Pupfish$Pop, 
 #' traj.pts = Pupfish$Sex, print.progress = FALSE)
-#' summary(TA, attribute = "MD") # Magnitude difference (absolute difference between path distances)
-#' summary(TA, attribute = "TC", angle.type = "deg") # Correlations (angles) between trajectories
-#' summary(TA, attribute = "SD") # No shape differences between vectors
+#' 
+#' # Magnitude difference (absolute difference between path distances)
+#' summary(TA, attribute = "MD") 
+#' 
+#' # Correlations (angles) between trajectories
+#' summary(TA, attribute = "TC", angle.type = "deg") 
+#' 
+#' # No shape differences between vectors
+#' summary(TA, attribute = "SD") 
 #' 
 #' # Retain results
 #' TA.summary <- summary(TA, attribute = "MD")
@@ -91,9 +133,15 @@
 #' data(motionpaths)
 #' fit <- lm.rrpp(trajectories ~ groups, data = motionpaths, iter = 199)
 #' TA <- trajectory.analysis(fit, groups = motionpaths$groups, traj.pts = 5)
-#' summary(TA, attribute = "MD") # Magnitude difference (absolute difference between path distances)
-#' summary(TA, attribute = "TC", angle.type = "deg") # Correlations (angles) between trajectories
-#' summary(TA, attribute = "SD") # Shape differences between trajectories 
+#' 
+#' # Magnitude difference (absolute difference between path distances)
+#' summary(TA, attribute = "MD") 
+#' 
+#' # Correlations (angles) between trajectories
+#' summary(TA, attribute = "TC", angle.type = "deg") 
+#' 
+#' # Shape differences between trajectories 
+#' summary(TA, attribute = "SD") 
 #' 
 #' TP <- plot(TA, pch = 21, bg = as.numeric(motionpaths$groups),
 #' cex = 0.7, col = "gray")
@@ -122,22 +170,28 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   }
   g1 <- as.factor(groups)
   
-  if(!is.null(g2) && NCOL(g2) > 1) stop("traj.pts can be either a single value or a factor, not a matrix.\n",
+  if(!is.null(g2) && NCOL(g2) > 1) 
+    stop("traj.pts can be either a single value or a factor, not a matrix.\n",
                                         call. = FALSE)
   if(NCOL(g1) > 1) stop("Groups must be a single factor.\n",
                         call. = FALSE)
-  if(length(g1) != n)stop("The number of observations does not match group length.\n",
+  if(length(g1) != n)
+    stop("The number of observations does not match group length.\n",
                           call. = FALSE)
   
-  if(is.null(tp)) groups <- interaction(g1, g2, lex.order = TRUE) else groups <- g1
+  if(is.null(tp)) groups <- interaction(g1, g2, lex.order = TRUE) else 
+    groups <- g1
   groups <- factor(groups)
   gp.rep <- by(groups, groups, length)
-  if(!all(gp.rep > 1)) stop("Not every trajectory point has replication (more than one observation).\n",
+  if(!all(gp.rep > 1)) 
+    stop("Not every trajectory point has replication (more than one observation).\n",
                             call. = FALSE)
   
   if(is.null(fit.null)) 
-    PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = FALSE) else 
-      PW <- pairwise(fit, fit.null, groups, covariate = NULL, print.progress = print.progress)
+    PW <- pairwise(fit, fit.null, groups, 
+                   covariate = NULL, print.progress = FALSE) else 
+      PW <- pairwise(fit, fit.null, groups, covariate = NULL, 
+                     print.progress = print.progress)
   
   means <- PW$LS.means
   if(is.null(tp) && pca) {
@@ -151,7 +205,8 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   
   if(!is.null(tp)){
     p <- ncol(means[[1]])/tp
-    if(p != floor(p)) stop("The number of variables divided by the number of trajectory points is not an integer")
+    if(p != floor(p)) 
+      stop("The number of variables divided by the number of trajectory points is not an integer")
     gl <- levels(g1)
     
     trajectories <- lapply(1:perms, function(j){
