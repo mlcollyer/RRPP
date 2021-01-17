@@ -10,10 +10,13 @@ reveal.model.designs(fit)
 \item{fit}{A linear model fit from \code{\link{lm.rrpp}}.}
 }
 \description{
-Function returns every full and reduced model for model terms used in lm.rrpp fits.  This function is useful for revealing 
-the null and full model that would be used in the pairwise function, if a specific null model is not declared as an argument
+Function returns every full and reduced model for model terms used in 
+lm.rrpp fits.  This function is useful for revealing 
+the null and full model that would be used in the pairwise function, 
+if a specific null model is not declared as an argument
 (fit.null in the \code{\link{pairwise}} function).
-It also helps to demonstrate how sums of squares and cross-products (SSCP) are calculated in lm.rrpp permutations (iterations),
+It also helps to demonstrate how sums of squares and cross-products 
+(SSCP) are calculated in lm.rrpp permutations (iterations),
 from the difference between fitted values for null and full designs.
 }
 \examples{

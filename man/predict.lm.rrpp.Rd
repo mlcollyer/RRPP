@@ -9,28 +9,41 @@
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}.}
 
-\item{newdata}{Data frame of either class \code{\link{data.frame}} or \code{\link{rrpp.data.frame}}.  If null,
-the data frame from the lm.rrpp fit will be used, effectively calculating all fitted values and
-their confidence intervals.  If a numeric variable is missing from newdata, an attempt to average the values
-will be made in prediction; i.e., least squares means for factor levels can be found.  All factors used in the
-\code{\link{lm.rrpp}} fit should be represented in the newdata data frame, with appropriate factor levels.}
+\item{newdata}{Data frame of either class \code{\link{data.frame}} 
+or \code{\link{rrpp.data.frame}}.  If null,
+the data frame from the lm.rrpp fit will be used, effectively calculating 
+all fitted values and
+their confidence intervals.  If a numeric variable is missing from newdata, 
+an attempt to average the values
+will be made in prediction; i.e., least squares means for factor levels 
+can be found.  All factors used in the
+\code{\link{lm.rrpp}} fit should be represented in the newdata data frame, 
+with appropriate factor levels.}
 
 \item{confidence}{The desired confidence interval level for prediction.}
 
 \item{...}{Other arguments (currently none)}
 }
 \description{
-Computes predicted values from an \code{\link{lm.rrpp}} model fit, using bootstrapped residuals
-to generate confidence intervals.  (Residuals are the residuals of the lm.rppp fit, not its null model.  The bootstrap
+Computes predicted values from an \code{\link{lm.rrpp}} 
+model fit, using bootstrapped residuals
+to generate confidence intervals.  (Residuals are the residuals of 
+the lm.rppp fit, not its null model.  The bootstrap
 procedure resamples residual vectors with replacement.)
-The bootstrap permutations use the same number of iterations and seed as used
-in the \code{\link{lm.rrpp}} model fit. A \code{\link{predict.lm.rrpp}} object can be plotted using various options.
+The bootstrap permutations use the same number of iterations and 
+seed as used
+in the \code{\link{lm.rrpp}} model fit. A \code{\link{predict.lm.rrpp}} 
+object can be plotted using various options.
 See \code{\link{plot.predict.lm.rrpp}}.
 
-Note that if data offsets are used (if the offset argument is used when fitting a \code{\link{lm.rrpp}} model),
-they are ignored for estimating coefficients over iterations.  Offsets are subtracted from data in \code{\link[stats]{lm}} and 
-added to predicted values in \code{\link[stats]{predict.lm}}, effectively adjusted the intercept and then un-adjusting
-it for predictions.  This causes problems if the newdata have a different number of observations than the original
+Note that if data offsets are used (if the offset argument is used 
+when fitting a \code{\link{lm.rrpp}} model),
+they are ignored for estimating coefficients over iterations.  
+Offsets are subtracted from data in \code{\link[stats]{lm}} and 
+added to predicted values in \code{\link[stats]{predict.lm}}, 
+effectively adjusted the intercept and then un-adjusting
+it for predictions.  This causes problems if the newdata have a 
+different number of observations than the original
 model fit.
 }
 \examples{

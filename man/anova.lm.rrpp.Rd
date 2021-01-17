@@ -17,24 +17,29 @@
 
 \item{...}{Additional lm.rrpp model fits or other arguments passed to anova.}
 
-\item{effect.type}{One of "F", "cohenf", "SS", "MS", "Rsq" to choose from which distribution
-of statistics to calculate effect sizes (Z).  See \code{\link{lm.rrpp}}.}
+\item{effect.type}{One of "F", "cohenf", "SS", "MS", "Rsq" to choose from 
+which distribution of statistics to calculate effect sizes (Z).  
+See \code{\link{lm.rrpp}}.}
 
-\item{error}{An optional character string to define MS error term for calculation of F values.
-See \code{\link{lm.rrpp}} for examples.}
+\item{error}{An optional character string to define MS error term for 
+calculation of F values. See \code{\link{lm.rrpp}} for examples.}
 
-\item{print.progress}{A logical argument if multiple models are used and one wishes to view progress
-for sums of squares (SS) calculations.}
+\item{print.progress}{A logical argument if multiple models are used and 
+one wishes to view progress for sums of squares (SS) calculations.}
 }
 \description{
-Computes an analysis of variance (ANOVA) table using distributions of random
-statistics from \code{\link{lm.rrpp}}.  ANOVA can be performed on one model or multiple models.  
-If the latter, the first model is considered a null model for comparison to other models.  The ANOVA is 
-functionally similar to a non-parametric likelihood ratio test for all null-full model comparisons
-Residuals from the null model will be used to generate random pseudovalues via RRPP for evaluation of subsequent models.
-The permutation schedule from the null model will be used for random permutations.
-This function does not correct for improper null models.  One must assure that the null model is nested
-within the other models.  Illogical results can be generated if this is not the case.
+Computes an analysis of variance (ANOVA) table using 
+distributions of random statistics from \code{\link{lm.rrpp}}.  
+ANOVA can be performed on one model or multiple models.  
+If the latter, the first model is considered a null model for 
+comparison to other models.  The ANOVA is functionally similar to a 
+non-parametric likelihood ratio test for all null-full model comparisons
+Residuals from the null model will be used to generate random pseudo-values 
+via RRPP for evaluation of subsequent models. The permutation schedule from 
+the null model will be used for random permutations.
+This function does not correct for improper null models.  One must assure 
+that the null model is nested within the other models.  Illogical results 
+can be generated if this is not the case.
 }
 \examples{
 # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
@@ -46,8 +51,8 @@ Pupfish$logSize <- log(Pupfish$CS) # better to not have functions in formulas
 
 # Single-Model ANOVA
 
-# Note: one should increase RRPP iterations but a smaller number is used here for demonstration 
-# efficiency.  Generally, iter = 999 will take less
+# Note: one should increase RRPP iterations but a smaller number is used 
+# here for demonstration efficiency.  Generally, iter = 999 will take less
 # than 1s for this example with a modern computer.
 
 fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", 

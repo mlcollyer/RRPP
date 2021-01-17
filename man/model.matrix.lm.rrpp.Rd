@@ -12,7 +12,8 @@
 \item{...}{further arguments passed to or from other methods}
 }
 \description{
-\code{model.matrix.lm.rrpp} returns the design matrix constructed for an \code{lm.rrpp} object.
+\code{model.matrix.lm.rrpp} returns the design matrix constructed for 
+an \code{lm.rrpp} object.
 }
 \author{
 Michael Collyer

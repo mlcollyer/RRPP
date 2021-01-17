@@ -9,13 +9,18 @@
 \arguments{
 \item{x}{An object of class \code{\link{ordinate}}}
 
-\item{axis1}{A value indicating which component should be displayed as the X-axis (default = C1)}
+\item{axis1}{A value indicating which component should be 
+displayed as the X-axis (default = C1)}
 
-\item{axis2}{A value indicating which component should be displayed as the Y-axis (default = C2)}
+\item{axis2}{A value indicating which component should be 
+displayed as the Y-axis (default = C2)}
 
-\item{flip}{An argument that if not NULL can be used to flip components in the plot.
-The values need to match axis1 or axis2.  For example, if axis1 = 3 and axis2 = 4, flip = 1 will not
-change either axis; flip = 3 will flip only the horizontal axis; flip = c(3, 4) will flip both axes.}
+\item{flip}{An argument that if not NULL can be used to flip 
+components in the plot.  
+The values need to match axis1 or axis2.  For example, if axis1 = 3 
+and axis2 = 4, flip = 1 will not
+change either axis; flip = 3 will flip only the horizontal axis; 
+flip = c(3, 4) will flip both axes.}
 
 \item{...}{other arguments passed to plot (helpful to employ
 different colors or symbols for different groups).  See}

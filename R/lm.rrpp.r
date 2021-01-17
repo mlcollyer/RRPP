@@ -573,8 +573,8 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   
   if(gls) {
     names(LM)[[2]] <- "gls.coefficients"
-    LM$gls.fitted <- fit$fitted.values
-    LM$gls.residuals <- fit$residuals
+    LM$gls.fitted <- LM$X %*% LM$gls.coefficients
+    LM$gls.residuals <- LM$Y - LM$gls.fitted
     LM$gls.mean <- if(NCOL(LM$gls.fitted) > 1) colMeans(LM$gls.fitted) else
       mean(LM$gls.fitted)
   } else {
