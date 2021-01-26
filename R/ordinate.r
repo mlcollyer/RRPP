@@ -264,7 +264,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   if(!is.null(Cov)) Pcov <- Cov.proj(Cov, rownames(Y))
   cen <- if(is.null(Cov)) colMeans(Y) else 
     lm.fit(Pcov %*% X, Pcov %*% Y)$coefficients
-  Z <- scale(Y, center = cen, scale = scale.)
+  Z <- as.matrix(scale(Y, center = cen, scale = scale.))
   cen <- attr(Z, "scaled:center")
   sc <- attr(Z, "scaled:scale")
   if (any(sc == 0)) 
@@ -290,7 +290,6 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   
   j <- seq_len(k)
   s$v <- s$v[,j]
-  x <- Z %*% s$v
   
   sy <- if(tf || is.null(Cov)) sum(svd(Z)$d^2) else 
     sum(svd(Pcov %*% Z)$d^2)
@@ -304,9 +303,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
       s$v <- s$v[, j, drop = FALSE]
       s$d <- s$d[j]
       s$sdev <- s$sdev[j]
-      x <- x[j]
     }
   }
+  
   s$v <- as.matrix(s$v)
   dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
   
@@ -317,10 +316,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
             GLS = if(is.null(Cov)) FALSE else TRUE,
             transform = tf,
             alignment = alignment,
-            x = as.matrix(x),
             RV = RV)
-
-  colnames(r$x) <- colnames(s$v)
+  
+  r$x <- as.matrix(Z %*% s$v)
 
   if(!is.null(newdata)){
     if(tf) 
