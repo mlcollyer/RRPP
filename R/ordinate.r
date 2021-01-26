@@ -317,9 +317,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
             GLS = if(is.null(Cov)) FALSE else TRUE,
             transform = tf,
             alignment = alignment,
-            x = x,
+            x = as.matrix(x),
             RV = RV)
-  
+
   colnames(r$x) <- colnames(s$v)
 
   if(!is.null(newdata)){
