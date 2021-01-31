@@ -29,6 +29,8 @@
 #' covariance matrices.  Mixed linear
 #' effects can also be evaluated.
 #' 
+#' @useDynLib RRPP, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 #' @import parallel
 #' @import stats
 #' @import graphics
@@ -52,7 +54,7 @@
 #' @export print.trajectory.analysis
 #' @export summary.trajectory.analysis
 #' @export print.summary.trajectory.analysis
-#' 
+NULL
 #' @section RRPP TOC:
 #' RRPP-package
 NULL
@@ -1023,6 +1025,12 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 # workhorse for lm.rrpp
 # used in lm.rrpp
 
+nvals <- function(n){
+  k <- n %% 4
+  c(n - k, k)
+}
+
+
 SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   reduced <- exchange$reduced
   full <- exchange$full
@@ -1034,7 +1042,7 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   n <- dims[1]
   p <- dims[2]
   w <- if(!is.null(exchange$weights)) exchange$weights else NULL
-  
+  nvs <- nvals(n)
   perms <- length(ind)
   
   if(k > 0) {
@@ -1092,9 +1100,22 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   rrpp <- function(FR, ind.i) {
     lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
+
+  kf.list <- sapply(Uf, NCOL)
+  kr.list <- sapply(Ur, NCOL)
+  kF <- NCOL(Ufull)
   
-  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
-                              sum(y^2) - sum(crossprod(Ufull, y)^2))
+  if(max(kf.list) > p) getSS <- function(X, Y, n1, n2, k, p) sscXYopt(X, Y, n1, n2, p, k) else
+    getSS <- function(X, Y, n1, n2, k, p) sscXYopt(Y, X, n1, n2, k, p) 
+  
+  ss <- function(ur, kr, uf, kf, uF, kF, y, p, nvs){
+    n1 <- nvs[1]
+    n2 <- nvs[2]
+    ssr <- getSS(ur, y, n1, n2, kr, p)
+    ssf <- getSS(uf, y, n1, n2, kf, p)
+    sse <- sum(y^2) - getSS(uF, y, n1, n2, kF, p)
+    c(ssr, ssf, sse)
+  }
   
   result <- lapply(1:perms, function(j){
     step <- j
@@ -1107,18 +1128,19 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     
     if(k > 0) {
       res <- vapply(1:k, function(j){
-        ss(Ur[[j]], Uf[[j]], Yi[[j]])
+        ss(Ur[[j]], kf.list[j], Uf[[j]], kf.list[j], 
+           Ufull, kF, Yi[[j]], p, nvs)
       }, numeric(3))
       
       SSr <- res[1, ]
       SSf <- res[2, ]
       RSS <- res[3, ]
       
-      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- yy - getSS(Unull, y, nvs[1], nvs[2], 1, p) 
       TSS <- rep(TSS, k)
       SS = SSf - SSr
     } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-    RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+    RSS.model <- yy - getSS(Ufull, y, nvs[1], nvs[2], kF, p)  
     if(k == 0) TSS <- RSS.model
     list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   })
@@ -1219,8 +1241,21 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
   
-  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
-                              sum(y^2) - sum(crossprod(Ufull, y)^2))
+  kf.list <- sapply(Uf, NCOL)
+  kr.list <- sapply(Ur, NCOL)
+  kF <- NCOL(Ufull)
+  
+  if(max(kf.list) > p) getSS <- function(X, Y, n1, n2, k, p) sscXYopt(X, Y, n1, n2, p, k) else
+    getSS <- function(X, Y, n1, n2, k, p) sscXYopt(Y, X, n1, n2, k, p) 
+  
+  ss <- function(ur, kr, uf, kf, uF, kF, y, p, nvs){
+    n1 <- nvs[1]
+    n2 <- nvs[2]
+    ssr <- getSS(ur, y, n1, n2, kr, p)
+    ssf <- getSS(uf, y, n1, n2, kf, p)
+    sse <- sum(y^2) - getSS(uF, y, n1, n2, kF, p)
+    c(ssr, ssf, sse)
+  }
   
   result <- mclapply(1:perms, mc.cores = cl, function(j){
     x <-ind[[j]]
@@ -1230,18 +1265,19 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     yy <- sum(y^2)
     if(k > 0) {
       res <- vapply(1:k, function(j){
-        ss(Ur[[j]], Uf[[j]], Yi[[j]])
+        ss(Ur[[j]], kf.list[j], Uf[[j]], kf.list[j], 
+           Ufull, kF, Yi[[j]], p, nvs)
       }, numeric(3))
       
       SSr <- res[1, ]
       SSf <- res[2, ]
       RSS <- res[3, ]
       
-      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- yy - getSS(Unull, y, nvs[1], nvs[2], 1, p) 
       TSS <- rep(TSS, k)
       SS = SSf - SSr
     } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-    RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+    RSS.model <- yy - getSS(Ufull, y, nvs[1], nvs[2], kF, p)
     if(k == 0) TSS <- RSS.model
     list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   })

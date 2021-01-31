@@ -3,7 +3,7 @@
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-30714736752e86fa07d065b1e9e18698 *DESCRIPTION
+8603e9e25b11f85558373b46c867d2b0 *DESCRIPTION
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -80,5 +80,14 @@ a76146c3dff858e08d767748129ddb6a *R/RRPP.utils.r
 e1a821fd993647f39471a850f90e3907 *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
+943fa748ffc2c2e2379de71eb15c4276 *src/init.c
+4b3fe60246e15ac58389b0e9f2942b40 *src/init.o
+61059660eb073d93e00e8ee054237071 *src/Makevars
+61059660eb073d93e00e8ee054237071 *src/Makevars.win
+8f10b51367b2bf0c7e9e81caf33f3d97 *src/RcppExports.cpp
+d83362fac9a1f1239301f4cc3813547c *src/RcppExports.o
+e3e8e050a87b2b3306c8817924d4cb95 *src/RRPP.cpp
+42f6ec17900ee2234efbcfb5a9754071 *src/RRPP.o
+6f4cb522f55752562b4df3aaa34e354a *src/RRPP.so
 eb473a6d066dda15f7d3bb2d9a6789a8 *vignettes/ANOVA.vs.MANOVA.Rmd
 6b6cb384c7c0985b0097368070ac4f6e *vignettes/Using.RRPP.Rmd

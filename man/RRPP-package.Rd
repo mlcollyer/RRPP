@@ -33,11 +33,6 @@ least squares estimation (OLS or GLS, respectively), using theoretic
 covariance matrices.  Mixed linear
 effects can also be evaluated.
 }
-\section{RRPP TOC}{
-
-RRPP-package
-}
-
 \author{
 Michael Collyer and Dean Adams
 }
