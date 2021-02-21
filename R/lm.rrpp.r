@@ -160,12 +160,10 @@
 #' should be used.  If TRUE, this argument
 #' invokes forking of processor cores, using the \code{parallel} library.  
 #' This option is only available to unix systems
-#' and should only be used for rather long analyses (that would normally 
-#' take over 10 seconds on a single core).  Currently,
-#' parallel processing is performed on all but one core with no option 
-#' to change the number of cores.  Systems with Windows
-#' platforms will automatically default to a single-core application of 
-#' this function.
+#' and should only be used for analyses with many terms in the formula 
+#' (e.g., ~ x1 + x2 + x3 +...) as the number of cores used   
+#' attempts to match the number of terms.  (Parallelization is not based
+#' on the number of random permutations.)
 #' @param ... Arguments typically used in \code{\link{lm}}, such as 
 #' weights or offset, passed on to
 #' \code{rrpp.fit} for estimation of coefficients.  If both weights and 
