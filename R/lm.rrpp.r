@@ -129,6 +129,10 @@
 #' be a linear model fit
 #' from \code{\link{lm}}.
 #' @param iter Number of iterations for significance testing
+#' @param turbo A logical value that if TRUE, suppresses coefficient estimation 
+#' in every random permutation.  This will affect subsequent analyses that 
+#' require random coefficients (see \code{\link{coef.lm.rrpp}})
+#' but might be useful for large data sets for which only ANOVA is needed.
 #' @param seed An optional argument for setting the seed for random 
 #' permutations of the resampling procedure.
 #' If left NULL (the default), the exact same P-values will be found 
@@ -395,7 +399,7 @@
 #' plot(predict(fitOLSm, sizeDF), abscissa = sizeDF) # Correlated error
 #' plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
 
-lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
+lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALSE,
                         RRPP = TRUE, SS.type = c("I", "II", "III"),
                         data = NULL, Cov = NULL,
                         print.progress = TRUE, Parallel = FALSE, ...) {
@@ -533,10 +537,17 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
   if(weighted && offst) 
     beta.args$exchange$offset <- o * sqrt(w)
   
-  if(Parallel) {
-    if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, beta.args)
-    else betas <- do.call(beta.iterPP, beta.args)
-  } else betas <- do.call(beta.iter, beta.args)
+  if(!turbo) {
+    if(Parallel) {
+      if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, beta.args)
+      else betas <- do.call(beta.iterPP, beta.args)
+    } else betas <- do.call(beta.iter, beta.args)
+  } else {
+    random.coef = vector("list", max(1, k))
+    random.coef.distances = vector("list", max(1, k))
+    names(random.coef.distances) <- names(random.coef) <- trms
+    betas <- list(random.coef = random.coef, random.coef.distances = random.coef.distances)
+  }
   
   if(Parallel) {
     if(.Platform$OS.type == "windows") SS <- do.call(SS.iter, SS.args)
@@ -592,7 +603,7 @@ lm.rrpp <- function(f1, iter = 999, seed = NULL, int.first = FALSE,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
                    perm.schedule = ind, perm.seed = seed)
   out <- list(call = match.call(), 
-              LM = LM, ANOVA = ANOVA, PermInfo = PermInfo)
+              LM = LM, ANOVA = ANOVA, PermInfo = PermInfo, turbo = turbo)
   
   
   if(k == 0 && print.progress)

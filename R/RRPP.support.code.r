@@ -1025,11 +1025,6 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 # workhorse for lm.rrpp
 # used in lm.rrpp
 
-nvals <- function(n){
-  k <- n %% 4
-  c(n - k, k)
-}
-
 
 SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   reduced <- exchange$reduced
@@ -1042,7 +1037,6 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   n <- dims[1]
   p <- dims[2]
   w <- if(!is.null(exchange$weights)) exchange$weights else NULL
-  nvs <- nvals(n)
   perms <- length(ind)
   
   if(k > 0) {
@@ -1088,68 +1082,19 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
   
-  if(print.progress){
-    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-  }
-  
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
-                                             residuals = res[[j]]))
-  rrpp.args <- list(FR = FR, ind.i = NULL)
-  
-  rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
-  }
+  if(print.progress)
+    cat("\nProgress bar not available for sums of squares calculations...\n")
 
-  kf.list <- sapply(Uf, NCOL)
-  kr.list <- sapply(Ur, NCOL)
-  kF <- NCOL(Ufull)
-  
-  if(max(kf.list) > p) getSS <- function(X, Y, n1, n2, k, p) sscXYopt(X, Y, n1, n2, p, k) else
-    getSS <- function(X, Y, n1, n2, k, p) sscXYopt(Y, X, n1, n2, k, p) 
-  
-  ss <- function(ur, kr, uf, kf, uF, kF, y, p, nvs){
-    n1 <- nvs[1]
-    n2 <- nvs[2]
-    ssr <- getSS(ur, y, n1, n2, kr, p)
-    ssf <- getSS(uf, y, n1, n2, kf, p)
-    sse <- sum(y^2) - getSS(uF, y, n1, n2, kF, p)
-    c(ssr, ssf, sse)
-  }
-  
-  result <- lapply(1:perms, function(j){
-    step <- j
-    if(print.progress) setTxtProgressBar(pb,step)
-    x <-ind[[j]]
-    rrpp.args$ind.i <- x
-    Yi <- do.call(rrpp, rrpp.args)
-    y <- yh0 + r0[x,]
-    yy <- sum(y^2)
-    
-    if(k > 0) {
-      res <- vapply(1:k, function(j){
-        ss(Ur[[j]], kf.list[j], Uf[[j]], kf.list[j], 
-           Ufull, kF, Yi[[j]], p, nvs)
-      }, numeric(3))
-      
-      SSr <- res[1, ]
-      SSf <- res[2, ]
-      RSS <- res[3, ]
-      
-      TSS <- yy - getSS(Unull, y, nvs[1], nvs[2], 1, p) 
-      TSS <- rep(TSS, k)
-      SS = SSf - SSr
-    } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-    RSS.model <- yy - getSS(Ufull, y, nvs[1], nvs[2], kF, p)  
-    if(k == 0) TSS <- RSS.model
-    list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-  })
-  
-  SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms)
-  RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms)
-  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
-  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
-  
+  result <- iterSS(ind = ind, Ur = Ur, Uf = Uf, Ufull = Ufull, Unull = Unull, 
+                 Fitted = fitted, Residuals = res, Yh0 = yh0, R0 = r0, k = k)
+
+  kk <- max(1, k)
+  result2 <- vapply(result, unlist, numeric(3 * kk + 2))
+  SS <- matrix(result2[(kk + 1):(2 * kk), ] - result2[1:kk, ], kk, perms)
+  RSS <- matrix(result2[(2 * kk + 1):(3 * kk), ], kk, perms)
+  TSS <- matrix(result2[3 * kk + 1, ], kk, perms, byrow = TRUE)
+  RSS.model <- matrix(result2[3*kk + 2, ], kk, perms, byrow = TRUE)
+
   res.names <- list(if(k > 0) trms else "Intercept", 
                     c("obs", paste("iter", 1:(perms-1), sep=".")))
   dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- 
@@ -1157,11 +1102,6 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   
   if(all(is.na(SS))) RSS <- SS <- NULL
   
-  step <- perms + 1
-  if(print.progress) {
-    setTxtProgressBar(pb,step)
-    close(pb)
-  }
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   
 }
@@ -1171,7 +1111,6 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
 # used in lm.rrpp
 
 SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
-  cl <- detectCores() - 1
   reduced <- exchange$reduced
   full <- exchange$full
   Terms <- exchange$Terms
@@ -1182,7 +1121,6 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   n <- dims[1]
   p <- dims[2]
   w <- if(!is.null(exchange$weights)) exchange$weights else NULL
-  
   perms <- length(ind)
   
   if(k > 0) {
@@ -1228,76 +1166,60 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
   
-  if(print.progress){
-    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+  if(print.progress)
+    cat("\nProgress bar not available for sums of squares calculations...\n")
+  
+  
+  kk <- max(1, k)
+  cores <- min(kk, detectCores() - 1)
+  result <- mclapply(1:kk, function(j) {
+    Urr <- list(Ur[[j]])
+    Ufr <- list(Uf[[j]])
+    fitr <- list(fitted[[j]])
+    resr <- list(res[[j]])
+    iterSS(ind = ind, Ur = Urr, Uf = Ufr, Ufull = Ufull, Unull = Unull, 
+           Fitted = fitr, Residuals = resr, Yh0 = yh0, R0 = r0, k = 1)
+  }, mc.cores = cores)
+  
+  SS <- t(sapply(1:kk, function(j) {
+    res <- result[[j]]
+    vapply(res, function(x) x$full[[1]] - x$red[[1]], numeric(1))
+  }))
+  
+  RSS <- t(sapply(1:kk, function(j) {
+    res <- result[[j]]
+    vapply(res, function(x) x$rss[[1]], numeric(1))
+  }))
+  
+  TSS <- t(sapply(1:kk, function(j) {
+    res <- result[[j]]
+    vapply(res, function(x) x$tss, numeric(1))
+  }))
+  
+  RSS.model <- t(sapply(1:kk, function(j) {
+    res <- result[[j]]
+    vapply(res, function(x) x$rssM, numeric(1))
+  }))
+  
+  if(kk == 1) {
+    SS <- matrix(SS, 1, perms)
+    RSS <- matrix(RSS, 1, perms)
+    TSS <- matrix(TSS, 1, perms)
+    RSS.model <- matrix(RSS.model, 1, perms)
   }
-  
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
-                                             residuals = res[[j]]))
-  rrpp.args <- list(FR = FR, ind.i = NULL)
-  
-  rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
-  }
-  
-  kf.list <- sapply(Uf, NCOL)
-  kr.list <- sapply(Ur, NCOL)
-  kF <- NCOL(Ufull)
-  
-  if(max(kf.list) > p) getSS <- function(X, Y, n1, n2, k, p) sscXYopt(X, Y, n1, n2, p, k) else
-    getSS <- function(X, Y, n1, n2, k, p) sscXYopt(Y, X, n1, n2, k, p) 
-  
-  ss <- function(ur, kr, uf, kf, uF, kF, y, p, nvs){
-    n1 <- nvs[1]
-    n2 <- nvs[2]
-    ssr <- getSS(ur, y, n1, n2, kr, p)
-    ssf <- getSS(uf, y, n1, n2, kf, p)
-    sse <- sum(y^2) - getSS(uF, y, n1, n2, kF, p)
-    c(ssr, ssf, sse)
-  }
-  
-  result <- mclapply(1:perms, mc.cores = cl, function(j){
-    x <-ind[[j]]
-    rrpp.args$ind.i <- x
-    Yi <- do.call(rrpp, rrpp.args)
-    y <- yh0 + r0[x,]
-    yy <- sum(y^2)
-    if(k > 0) {
-      res <- vapply(1:k, function(j){
-        ss(Ur[[j]], kf.list[j], Uf[[j]], kf.list[j], 
-           Ufull, kF, Yi[[j]], p, nvs)
-      }, numeric(3))
-      
-      SSr <- res[1, ]
-      SSf <- res[2, ]
-      RSS <- res[3, ]
-      
-      TSS <- yy - getSS(Unull, y, nvs[1], nvs[2], 1, p) 
-      TSS <- rep(TSS, k)
-      SS = SSf - SSr
-    } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-    RSS.model <- yy - getSS(Ufull, y, nvs[1], nvs[2], kF, p)
-    if(k == 0) TSS <- RSS.model
-    list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-  })
-  
-  SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms, byrow = TRUE)
-  RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms, byrow = TRUE)
-  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms, byrow = TRUE)
-  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), 
-                      perms, byrow = TRUE)
+    
   
   res.names <- list(if(k > 0) trms else "Intercept", 
                     c("obs", paste("iter", 1:(perms-1), sep=".")))
-  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- 
-    res.names
+  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- 
+    dimnames(RSS.model) <- res.names
   
   if(all(is.na(SS))) RSS <- SS <- NULL
   
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   
 }
+
 
 # anova.parts
 # construct an ANOVA tablefrom random SS output

@@ -52,7 +52,7 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   k <- length(x$LM$term.labels)
   rc <- x$LM$random.coef
   rd <- x$LM$random.coef.distances
-  coef.obs <- if(k > 0) rc[[k]][[1]] else  rc[[1]]
+  coef.obs <- x$LM$coefficients
   n <- x$LM$n; p <- x$LM$p; p.prime = x$LM$p.prime
   model.terms <- x$LM$Terms
   
@@ -60,6 +60,13 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   SS.type <- x$ANOVA$SS.type
   RRPP <- x$PermInfo$perm.method
   gls <- x$LM$gls
+  
+  if(test && x$turbo) {
+    cat("\nCoefficients test not available because you turbo-charged your model fit.\n")
+    cat("Go back to lm.rrpp and choose turbo = FALSE ")
+    cat("if you wish to also test coefficients.\n\n")
+    test = FALSE
+  }
   if(test){
     if(confidence < 0) stop("Confidence level should be between 0 and 1")
     if(confidence > 1) stop("Confidence level should be between 0 and 1")

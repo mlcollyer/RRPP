@@ -7,6 +7,7 @@
 lm.rrpp(
   f1,
   iter = 999,
+  turbo = FALSE,
   seed = NULL,
   int.first = FALSE,
   RRPP = TRUE,
@@ -24,6 +25,11 @@ be a linear model fit
 from \code{\link{lm}}.}
 
 \item{iter}{Number of iterations for significance testing}
+
+\item{turbo}{A logical value that if TRUE, suppresses coefficient estimation 
+in every random permutation.  This will affect subsequent analyses that 
+require random coefficients (see \code{\link{coef.lm.rrpp}})
+but might be useful for large data sets for which only ANOVA is needed.}
 
 \item{seed}{An optional argument for setting the seed for random 
 permutations of the resampling procedure.

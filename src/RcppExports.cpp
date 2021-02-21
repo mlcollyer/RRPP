@@ -6,18 +6,33 @@
 
 using namespace Rcpp;
 
-// sscXYopt
-double sscXYopt(NumericMatrix X, NumericMatrix Y, int n1, int n2, int py, int px);
-RcppExport SEXP _RRPP_sscXYopt(SEXP XSEXP, SEXP YSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP pySEXP, SEXP pxSEXP) {
+// iterSS
+Rcpp::List iterSS(Rcpp::List ind, Rcpp::List Ur, Rcpp::List Uf, arma::mat Ufull, arma::mat Unull, Rcpp::List Fitted, Rcpp::List Residuals, arma::mat Yh0, arma::mat R0, int k);
+RcppExport SEXP _RRPP_iterSS(SEXP indSEXP, SEXP UrSEXP, SEXP UfSEXP, SEXP UfullSEXP, SEXP UnullSEXP, SEXP FittedSEXP, SEXP ResidualsSEXP, SEXP Yh0SEXP, SEXP R0SEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< int >::type n1(n1SEXP);
-    Rcpp::traits::input_parameter< int >::type n2(n2SEXP);
-    Rcpp::traits::input_parameter< int >::type py(pySEXP);
-    Rcpp::traits::input_parameter< int >::type px(pxSEXP);
-    rcpp_result_gen = Rcpp::wrap(sscXYopt(X, Y, n1, n2, py, px));
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type ind(indSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type Ur(UrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type Uf(UfSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Ufull(UfullSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Unull(UnullSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type Fitted(FittedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type Residuals(ResidualsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Yh0(Yh0SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type R0(R0SEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(iterSS(ind, Ur, Uf, Ufull, Unull, Fitted, Residuals, Yh0, R0, k));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_RRPP_iterSS", (DL_FUNC) &_RRPP_iterSS, 10},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_RRPP(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }
