@@ -1,4 +1,10 @@
-# CHANGES IN RRPP 0.6.2
+# CHANGES IN RRPP 1.0.0 (Major Release)
+
+### NEW FEATURES
+* Computation of sums of squares in `lm.rrpp` using `C++`.  This speeds up computation time and requires far less memory allocation.
+* The `lm.rrpp` function now has a an argument, `turbo`, which can suppress calculating coefficients in random permutations, if unneeded, which can speed up analysis of large data sets.
+
+# CHANGES IN RRPP 0.6.2 (Patch Release)
 
 ### NEW FEATURES
 * Added option to add abscissa to `plot.predict.lm.rrpp`.
