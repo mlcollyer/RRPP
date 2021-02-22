@@ -1086,7 +1086,7 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     cat("\nProgress bar not available for sums of squares calculations...\n")
 
   result <- iterSS(ind = ind, Ur = Ur, Uf = Uf, Ufull = Ufull, Unull = Unull, 
-                 Fitted = fitted, Residuals = res, Yh0 = yh0, R0 = r0, k = k)
+                 Fitted = fitted, Residuals = res, Yh0 = yh0, R0 = r0, k = max(1, k))
 
   kk <- max(1, k)
   result2 <- vapply(result, unlist, numeric(3 * kk + 2))
@@ -1168,7 +1168,6 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   
   if(print.progress)
     cat("\nProgress bar not available for sums of squares calculations...\n")
-  
   
   kk <- max(1, k)
   cores <- min(kk, detectCores() - 1)
@@ -1532,8 +1531,7 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   }
   
   if(print.progress){
-    cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+    cat("\nProgress bar not available for coefficients estimation...\n")
   }
   
   Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)

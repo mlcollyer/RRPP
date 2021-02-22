@@ -66,7 +66,7 @@ c68b9babc3ea6e000eb187dbd290811e *NEWS.md
 c067d5eab8c0174dd995f61d492ac78e *R/anova.lm.rrpp.r
 f22147b85aa8eba3b6231f0ad16db9e2 *R/coef.lm.rrpp.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-e3ca1a6bbfeb6ea6d1269899e53c7dc6 *R/lm.rrpp.r
+8771c2df9d95c1aebfa1c484d68f0308 *R/lm.rrpp.r
 03bef75cc954f704fb47d205e96fddde *R/manova.update.r
 9398ce29d5275f8254ea23b272d8d276 *R/model.comparison.r
 5d08caeb7aa774afb765417de5bb7440 *R/ordinate.r
@@ -75,7 +75,7 @@ e3ca1a6bbfeb6ea6d1269899e53c7dc6 *R/lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 2b903d9a3ce58e1ec37836f6df868e25 *R/RcppExports.R
 b22d16f04ed8861ecf31a8d637e492be *R/reveal.model.designs.r
-0b15907a9ace270bcdbb1e0e4c752e1f *R/RRPP.support.code.r
+17f0c9f3b09d9fe6d5edbb43a60f8796 *R/RRPP.support.code.r
 a76146c3dff858e08d767748129ddb6a *R/RRPP.utils.r
 59a261e81070db7a334008b61063207c *R/shared.support.code.r
 e1a821fd993647f39471a850f90e3907 *R/trajectory.analysis.r

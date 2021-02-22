@@ -426,7 +426,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   Terms <- D <- NULL
   
-  if(print.progress) cat("\nPreliminary Model Fit...\n\n")
+  if(print.progress) cat("\nPreliminary Model Fit...\n")
   
   if(!is.null(Cov)) {
     Cov.name <- deparse(substitute(Cov))
@@ -605,7 +605,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   
   if(k == 0 && print.progress)
-    cat("\n No terms for ANOVA; only RSS calculated in each permutation\n")
+    cat("\nNo terms for ANOVA; only RSS calculated in each permutation\n")
   
   if(!is.null(D)) {
     qrf <- LM$QR
