@@ -66,7 +66,7 @@ double vsum(arma::vec v){
 
 
 // Sum of squared cross-products, same as sum(crossprod(U, Y)^2)
-
+// [[Rcpp::export]]
 double sscpUY(arma::mat U, arma::mat Y){
   int i, ii;
   double sum = 0;
@@ -106,7 +106,8 @@ double sscpUY(arma::mat U, arma::mat Y){
 
 // sum(crossprod(U, Y)^2) applied to lists
 
-Rcpp::List listSScpUY(Rcpp::List U, Rcpp::List Y, int k){
+Rcpp::List listSScpUY(Rcpp::List U, Rcpp::List Y, 
+                      int k){
   int i;
   Rcpp::List out(k);
   for(i = 0; i < k; i++) {
@@ -149,7 +150,7 @@ Rcpp::List getStats(Rcpp::List Ur, Rcpp::List Uf,
   Rcpp::List out(k + 2);
   Rcpp::List Ylist = rrpp(Fitted, Residuals, s, k);
   Rcpp::List red = listSScpUY(Ur, Ylist, k);
-  Rcpp::List full = listSScpUY(Uf, Ylist,  k);
+  Rcpp::List full = listSScpUY(Uf, Ylist, k);
   Rcpp::List rss = listRSS(Ufull, Ylist, k);
   double yy = ssY(Y0);
   double tss = yy - sscpUY(Unull, Y0);
@@ -178,7 +179,9 @@ Rcpp::List iterSS(Rcpp::List ind, Rcpp::List Ur, Rcpp::List Uf,
   for(i = 0; i < perms; i++){
     arma::uvec s = ind[i];
     Y0 = Yh0 + shuffle(R0, s);
-    out[i] = getStats(Ur, Uf, Ufull, Unull, Fitted, Residuals, s, Y0, k);
+    out[i] = getStats(Ur, Uf, Ufull, Unull, 
+                      Fitted, Residuals, s, Y0, k);
   }
   return(out); 
 }
+

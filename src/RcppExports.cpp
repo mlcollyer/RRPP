@@ -6,6 +6,18 @@
 
 using namespace Rcpp;
 
+// sscpUY
+double sscpUY(arma::mat U, arma::mat Y);
+RcppExport SEXP _RRPP_sscpUY(SEXP USEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type U(USEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(sscpUY(U, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // iterSS
 Rcpp::List iterSS(Rcpp::List ind, Rcpp::List Ur, Rcpp::List Uf, arma::mat Ufull, arma::mat Unull, Rcpp::List Fitted, Rcpp::List Residuals, arma::mat Yh0, arma::mat R0, int k);
 RcppExport SEXP _RRPP_iterSS(SEXP indSEXP, SEXP UrSEXP, SEXP UfSEXP, SEXP UfullSEXP, SEXP UnullSEXP, SEXP FittedSEXP, SEXP ResidualsSEXP, SEXP Yh0SEXP, SEXP R0SEXP, SEXP kSEXP) {
@@ -28,6 +40,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_RRPP_sscpUY", (DL_FUNC) &_RRPP_sscpUY, 2},
     {"_RRPP_iterSS", (DL_FUNC) &_RRPP_iterSS, 10},
     {NULL, NULL, 0}
 };

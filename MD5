@@ -73,9 +73,9 @@ f22147b85aa8eba3b6231f0ad16db9e2 *R/coef.lm.rrpp.r
 80c47680017b09e19961c1c48d87d539 *R/pairwise.r
 2c4c300d8abfb4b696ca76baba4c502c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
-2b903d9a3ce58e1ec37836f6df868e25 *R/RcppExports.R
+5b6d00ba735d24e2bdc359d6dae773e4 *R/RcppExports.R
 b22d16f04ed8861ecf31a8d637e492be *R/reveal.model.designs.r
-17f0c9f3b09d9fe6d5edbb43a60f8796 *R/RRPP.support.code.r
+43108c638783da85e1a46a814d4cdddb *R/RRPP.support.code.r
 a76146c3dff858e08d767748129ddb6a *R/RRPP.utils.r
 59a261e81070db7a334008b61063207c *R/shared.support.code.r
 e1a821fd993647f39471a850f90e3907 *R/trajectory.analysis.r
@@ -83,10 +83,10 @@ e1a821fd993647f39471a850f90e3907 *R/trajectory.analysis.r
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 f4afbc1673fc8c2aa3c28652606f7abc *src/Makevars
 fc3414d488ae3c3bfd9fdf30ad310935 *src/Makevars.win
-5908d0264a729e53d96daec1b1cc0cdb *src/RcppExports.cpp
-7a2c11667d46a39f5514b43116c2fb7b *src/RcppExports.o
-5f53521e5a055f45a7fa0c6a737de1ba *src/RRPP.cpp
-382af965a33d469b598ff991c385bd6e *src/RRPP.o
-d73c06c6f48da6d1ee9705d4cdfdf82d *src/RRPP.so
+55787c2b971cc4fab98e95df4a231f94 *src/RcppExports.cpp
+f7fca28e4906e02359ffe8d4c237638a *src/RcppExports.o
+b0e1fa37282608412861f6e0929d234b *src/RRPP.cpp
+43d80fba321969907abc4066d7932d88 *src/RRPP.o
+272c314734020d0c5344078bf297ddb5 *src/RRPP.so
 eb473a6d066dda15f7d3bb2d9a6789a8 *vignettes/ANOVA.vs.MANOVA.Rmd
 6b6cb384c7c0985b0097368070ac4f6e *vignettes/Using.RRPP.Rmd
