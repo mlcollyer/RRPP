@@ -3,6 +3,7 @@
 ### NEW FEATURES
 * Computation of sums of squares in `lm.rrpp` using `C++`.  This speeds up computation time and requires far less memory allocation.
 * The `lm.rrpp` function now has a an argument, `turbo`, which can suppress calculating coefficients in random permutations, if unneeded, which can speed up analysis of large data sets.
+* More options for parallel processing.
 
 # CHANGES IN RRPP 0.6.2 (Patch Release)
 
