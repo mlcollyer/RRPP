@@ -1082,19 +1082,69 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
 
-  
-  if(print.progress)
-    cat("\nProgress bar not available for sums of squares calculations...\n")
-
-  result <- iterSS(ind = ind, Ur = Ur, Uf = Uf, Ufull = Ufull, Unull = Unull, 
-                 Fitted = fitted, Residuals = res, Yh0 = yh0, R0 = r0, k = max(1, k))
-
-  kk <- max(1, k)
-  result2 <- vapply(result, unlist, numeric(3 * kk + 2))
-  SS <- matrix(result2[(kk + 1):(2 * kk), ] - result2[1:kk, ], kk, perms)
-  RSS <- matrix(result2[(2 * kk + 1):(3 * kk), ], kk, perms)
-  TSS <- matrix(result2[3 * kk + 1, ], kk, perms, byrow = TRUE)
-  RSS.model <- matrix(result2[3*kk + 2, ], kk, perms, byrow = TRUE)
+  if(print.progress) {
+    
+    FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
+                                               residuals = res[[j]]))
+    rrpp.args <- list(FR = FR, ind.i = NULL)
+    
+    rrpp <- function(FR, ind.i) {
+      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+    }
+    
+    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
+    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+    
+    ss <- function(ur, uf, y) c(sscpUY(ur, y), sscpUY(uf, y), 
+                                sum(y^2) - sscpUY(Ufull, y))
+    
+    result <- lapply(1:perms, function(j){
+      step <- j
+      setTxtProgressBar(pb,step)
+      x <-ind[[j]]
+      rrpp.args$ind.i <- x
+      Yi <- do.call(rrpp, rrpp.args)
+      y <- yh0 + r0[x,]
+      yy <- sum(y^2)
+      
+      if(k > 0) {
+        res <- vapply(1:k, function(j){
+          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+        }, numeric(3))
+        
+        SSr <- res[1, ]
+        SSf <- res[2, ]
+        RSS <- res[3, ]
+        
+        TSS <- yy - sscpUY(Unull, y)
+        TSS <- rep(TSS, k)
+        SS = SSf - SSr
+      } else SSr <- SSf <- SS <- RSS <- TSS <- NA
+      RSS.model <- yy - sscpUY(Ufull, y)
+      if(k == 0) TSS <- RSS.model
+      list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
+    })
+    
+    SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms)
+    RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms)
+    TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
+    RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
+    
+    close(pb)
+    
+  } else {
+    
+    result <- iterSS(ind = ind, Ur = Ur, Uf = Uf, Ufull = Ufull, Unull = Unull, 
+                     Fitted = fitted, Residuals = res, Yh0 = yh0, R0 = r0, k = max(1, k))
+    
+    kk <- max(1, k)
+    result2 <- vapply(result, unlist, numeric(3 * kk + 2))
+    SS <- matrix(result2[(kk + 1):(2 * kk), ] - result2[1:kk, ], kk, perms)
+    RSS <- matrix(result2[(2 * kk + 1):(3 * kk), ], kk, perms)
+    TSS <- matrix(result2[3 * kk + 1, ], kk, perms, byrow = TRUE)
+    RSS.model <- matrix(result2[3*kk + 2, ], kk, perms, byrow = TRUE)
+    
+  }
 
   res.names <- list(if(k > 0) trms else "Intercept", 
                     c("obs", paste("iter", 1:(perms-1), sep=".")))
@@ -1115,8 +1165,12 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
 # used in lm.rrpp
 
 
-SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
-  no_cores <- detectCores() - 1
+SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE, 
+                      ParCores = TRUE) {
+  
+  if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
+    no_cores <- min(detectCores() - 1, ParCores)
+  
   Unix <- .Platform$OS.type == "unix"
   reduced <- exchange$reduced
   full <- exchange$full
@@ -1215,6 +1269,8 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     
   } else {
     cl <- makeCluster(no_cores)
+    clusterExport(cl, "rrpp.args")
+    
     result <- parSapply(cl, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
@@ -1528,8 +1584,12 @@ out
 }
 
 
-beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
-  no_cores <- detectCores() - 1
+beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE, 
+                        ParCores =  TRUE) {
+  
+  if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
+    no_cores <- min(detectCores() - 1, ParCores)
+  
   Unix <- .Platform$OS.type == "unix"
   reduced <- exchange$reduced
   full <- exchange$full
@@ -1592,6 +1652,8 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   } else {
     
     cl <- makeCluster(no_cores)
+    clusterExport(cl, "rrpp.args")
+    
     betas <- parLapply(cl, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x

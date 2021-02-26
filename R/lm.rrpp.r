@@ -156,9 +156,12 @@
 #' @param print.progress A logical value to indicate whether a progress 
 #' bar should be printed to the screen.
 #' This is helpful for long-running analyses.
-#' @param Parallel A logical value to indicate whether parallel processing 
-#' should be used.  If TRUE, this argument
-#' invokes forking of processor cores, using the \code{parallel} library.  
+#' @param Parallel Either a logical value to indicate whether parallel processing 
+#' should be used or a numeric value to indicate the number of cores to use in 
+#' parallel processing via the \code{parallel} library. 
+#' If TRUE, this argument invokes forking of all processor cores, except one.  If
+#' FALSE, only one core is used. A numeric value directs the number of cores to use,
+#' but one core will always be spared.
 #' @param ... Arguments typically used in \code{\link{lm}}, such as 
 #' weights or offset, passed on to
 #' \code{rrpp.fit} for estimation of coefficients.  If both weights and 
@@ -395,7 +398,14 @@
 lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALSE,
                         RRPP = TRUE, SS.type = c("I", "II", "III"),
                         data = NULL, Cov = NULL,
-                        print.progress = TRUE, Parallel = FALSE, ...) {
+                        print.progress = TRUE, Parallel = TRUE, ...) {
+  ParCores <- NULL
+  if(is.numeric(Parallel)) {
+    ParCores <- Parallel
+    Parallel <- TRUE
+  }
+  if(Parallel && is.null(ParCores)) ParCores <- detectCores() - 1
+  if(ParCores > detectCores() - 1) ParCores <- detectCores() - 1
   
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
@@ -421,7 +431,10 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   Terms <- D <- NULL
   
-  if(print.progress) cat("\nPreliminary Model Fit...\n")
+  if(print.progress) {
+    cat("\nPlease be aware that printing progress slows down the analysis (perhaps slightly).\n")
+    cat("\nPreliminary Model Fit...\n")
+  } 
   
   if(!is.null(Cov)) {
     Cov.name <- deparse(substitute(Cov))
@@ -525,16 +538,16 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   SS.args <- beta.args <- list(exchange = exchange, ind = ind, 
                                RRPP = RRPP, print.progress = print.progress)
+  if(Parallel) SS.args$ParCores <- beta.args$ParCores <- ParCores
   
   beta.args$exchange <- exchange.o
   if(weighted && offst) 
     beta.args$exchange$offset <- o * sqrt(w)
   
   if(!turbo) {
-    if(Parallel) {
-      if(.Platform$OS.type == "windows") betas <- do.call(beta.iter, beta.args)
-      else betas <- do.call(beta.iterPP, beta.args)
-    } else betas <- do.call(beta.iter, beta.args)
+    
+    betas <- if(Parallel)  do.call(beta.iterPP, beta.args) else 
+      do.call(beta.iter, beta.args)
   } else {
     random.coef = vector("list", max(1, k))
     random.coef.distances = vector("list", max(1, k))
@@ -542,10 +555,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     betas <- list(random.coef = random.coef, random.coef.distances = random.coef.distances)
   }
   
-  if(Parallel) {
-    if(.Platform$OS.type == "windows") SS <- do.call(SS.iter, SS.args)
-    else SS <- do.call(SS.iterPP, SS.args)
-  } else SS <- do.call(SS.iter, SS.args)
+  SS <- if(Parallel) do.call(SS.iterPP, SS.args) else do.call(SS.iter, SS.args)
   
   ANOVA <- anova.parts(exchange, SS)
   fit <- if(k > 0) fits$full[[k]] else fits$full
@@ -611,5 +621,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   out$Models <- fits[c("reduced", "full")]
   
   class(out) = "lm.rrpp"
+
   out
 }
