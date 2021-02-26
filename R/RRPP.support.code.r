@@ -1174,10 +1174,8 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
   
-  if(print.progress){
-    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-  }
+  if(print.progress)
+    cat("\nProgress bar not available for sums of squares calculations...\n")
   
   FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
                                              residuals = res[[j]]))

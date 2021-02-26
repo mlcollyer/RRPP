@@ -63,12 +63,7 @@ This is helpful for long-running analyses.}
 
 \item{Parallel}{A logical value to indicate whether parallel processing 
 should be used.  If TRUE, this argument
-invokes forking of processor cores, using the \code{parallel} library.  
-This option is only available to unix systems
-and should only be used for analyses with many terms in the formula 
-(e.g., ~ x1 + x2 + x3 +...) as the number of cores used   
-attempts to match the number of terms.  (Parallelization is not based
-on the number of random permutations.)}
+invokes forking of processor cores, using the \code{parallel} library.}
 
 \item{...}{Arguments typically used in \code{\link{lm}}, such as 
 weights or offset, passed on to
