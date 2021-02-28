@@ -35,6 +35,7 @@
 #' @import stats
 #' @import graphics
 #' @import utils
+#' @import ggplot2 
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @export print.lm.rrpp

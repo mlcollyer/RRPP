@@ -14,8 +14,8 @@ lm.rrpp(
   SS.type = c("I", "II", "III"),
   data = NULL,
   Cov = NULL,
-  print.progress = TRUE,
-  Parallel = TRUE,
+  print.progress = FALSE,
+  Parallel = FALSE,
   ...
 )
 }

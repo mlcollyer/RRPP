@@ -908,6 +908,8 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       do.call(arrows, arrow.args)
       
       do.call(points, plot.args)
+      
+      arrow.args$y1 <- mr[la, 2] # return to original
     }
     
     
