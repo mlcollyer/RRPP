@@ -28,14 +28,13 @@ Rcpp::List rrpp(Rcpp::List Fitted, Rcpp::List Residuals, arma::uvec s, int k){
 
 double vsum(arma::vec v){
   int n = v.n_elem;
-  int n2 = n % 10;
+  int n2 = n % 5;
   int n1 = n - n2;
   double sum = 0;
   int i;
   
-  for(i=0; i < n1; i+=10){
-    sum += (v[i] + v[i+1] + v[i+2] + v[i+3] + v[i+4] +
-      v[i+5] + v[i+6] + v[i+7] + v[i+8] + v[i+9]);
+  for(i=0; i < n1; i+=5){
+    sum += (v[i] + v[i+1] + v[i+2] + v[i+3] + v[i+4]);
   }
   
   if(n2 == 1) {
@@ -46,20 +45,7 @@ double vsum(arma::vec v){
     sum += (v[n1] + v[n1+1] + v[n1+2]);
   } else if(n2 == 4){
     sum += (v[n1] + v[n1+1] + v[n1+2] + v[n1+3]);
-  } else if(n2 == 5){
-    sum += (v[n1] + v[n1+1] + v[n1+2] + v[n1+3] + v[n1+4]);
-  } else if(n2 == 6){
-    sum += (v[n1] + v[n1+1] + v[n1+2] + v[n1+3] + v[n1+4] + v[n1+5]);
-  } else if(n2 == 7){
-    sum += (v[n1] + v[n1+1] + v[n1+2] + v[n1+3] + v[n1+4] + v[n1+5] + 
-      v[n1+6]);
-  } else if(n2 == 8){
-    sum += (v[n1] + v[n1+1] + v[n1+2] + v[n1+3] + v[n1+4] + v[n1+5] + 
-      v[n1+6] + v[n1+7]);
-  } else if(n2 == 9){
-    sum += (v[n1] + v[n1+1] + v[n1+2] + v[n1+3] + v[n1+4] + v[n1+5] + 
-      v[n1+6] + v[n1+7] + v[n1+8]);
-  }
+  } 
   
   return(sum);
 }
@@ -103,6 +89,7 @@ double sscpUY(arma::mat U, arma::mat Y){
     }
   return(sum);
 }
+
 
 // sum(crossprod(U, Y)^2) applied to lists
 

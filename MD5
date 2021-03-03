@@ -86,9 +86,9 @@ e1a821fd993647f39471a850f90e3907 *R/trajectory.analysis.r
 f4afbc1673fc8c2aa3c28652606f7abc *src/Makevars
 fc3414d488ae3c3bfd9fdf30ad310935 *src/Makevars.win
 b7ed7ff5e9eead05475d5c73aee0b080 *src/RcppExports.cpp
-a79285264e203fec2d7fab1b873adf8b *src/RcppExports.o
-b0e1fa37282608412861f6e0929d234b *src/RRPP.cpp
-ba8cfbdde1cc10c7aeadd517e99abc81 *src/RRPP.o
-9fad4028ab329f2ff133cdfc42e50544 *src/RRPP.so
+8218563cd63e2443539fd021356b7f3f *src/RcppExports.o
+69679637215e85ae81d0d949956af42c *src/RRPP.cpp
+b4620aa7c70a509dcfb10a126c079cce *src/RRPP.o
+0ca336675741968ca64f7b1007ed41fb *src/RRPP.so
 eb473a6d066dda15f7d3bb2d9a6789a8 *vignettes/ANOVA.vs.MANOVA.Rmd
 6b6cb384c7c0985b0097368070ac4f6e *vignettes/Using.RRPP.Rmd
