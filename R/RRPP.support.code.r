@@ -1165,7 +1165,6 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
 # workhorse for lm.rrpp, same as SS.iter, but with parallel processing
 # used in lm.rrpp
 
-
 SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE, 
                       ParCores = TRUE) {
   
@@ -1269,10 +1268,12 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
     })
     
   } else {
-    cl <- makeCluster(no_cores)
-    clusterExport(cl, "rrpp.args")
     
-    result <- parSapply(cl, 1:perms, function(j){
+    cl <- makeCluster(no_cores)
+    clusterExport(cl, "ind",
+                  envir=environment())
+    
+    result <- parLapply(cl, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
@@ -1281,7 +1282,7 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
       if(k > 0) {
         res <- vapply(1:k, function(j){
           ss(Ur[[j]], Uf[[j]], Yi[[j]])
-        })
+        }, numeric(3))
         
         SSr <- res[1, ]
         SSf <- res[2, ]
@@ -1315,8 +1316,6 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
   
 }
-
-
 
 
 # anova.parts

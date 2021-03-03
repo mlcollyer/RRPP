@@ -77,7 +77,7 @@ b15e8d6223aa44226c5635d6332bd96c *R/convert2ggplot.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 5b6d00ba735d24e2bdc359d6dae773e4 *R/RcppExports.R
 b22d16f04ed8861ecf31a8d637e492be *R/reveal.model.designs.r
-fbee203bbbaa5b1a68df3256453a431a *R/RRPP.support.code.r
+bb0b2230fcbfae8ba497b8e3505c09b3 *R/RRPP.support.code.r
 61cccce3d71adc780e7d9378f2af35e6 *R/RRPP.utils.r
 59a261e81070db7a334008b61063207c *R/shared.support.code.r
 e1a821fd993647f39471a850f90e3907 *R/trajectory.analysis.r
