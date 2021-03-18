@@ -4,6 +4,7 @@
 #'
 #' @param x print/summary object (from \code{\link{lm.rrpp}})
 #' @param ... other arguments passed to print/summary
+#' @method print lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -33,6 +34,7 @@ print.lm.rrpp <- function(x, ...){
 #' @param object print/summary object (from \code{\link{lm.rrpp}})
 #' @param formula Logical argument for whether to include formula in summary table
 #' @param ... other arguments passed to print/summary
+#' @method summary lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -228,6 +230,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
 #'
 #' @param x print/summary object (from \code{\link{summary.lm.rrpp}})
 #' @param ... other arguments passed to print/summary
+#' @method print summary.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -312,6 +315,7 @@ model.matrix.lm.rrpp <- function(object, ...) return(object$LM$X)
 #'
 #' @param x Object from \code{\link{coef.lm.rrpp}}
 #' @param ... Other arguments passed onto coef.lm.rrpp
+#' @method print coef.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -349,6 +353,7 @@ print.coef.lm.rrpp <- function(x, ...){
 #'
 #' @param object Object from \code{\link{coef.lm.rrpp}}
 #' @param ... Other arguments passed onto coef.lm.rrpp
+#' @method summary coef.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -364,6 +369,7 @@ summary.coef.lm.rrpp <- function(object, ...){
 #' @param PC Logical argument for whether to use predicted values 
 #' rotated to their PCs
 #' @param ... Other arguments passed onto predict.lm.rrpp
+#' @method print predict.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -388,6 +394,7 @@ print.predict.lm.rrpp <- function(x, PC = FALSE, ...){
 #'
 #' @param object Object from \code{\link{predict.lm.rrpp}}
 #' @param ... Other arguments passed onto predict.lm.rrpp
+#' @method summary predict.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -401,6 +408,7 @@ summary.predict.lm.rrpp <- function(object, ...){
 #'
 #' @param x print/summary object (from \code{\link{lm.rrpp}})
 #' @param ... other arguments passed to print/summary
+#' @method print anova.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -448,6 +456,7 @@ print.anova.lm.rrpp <- function(x, ...) {
 #'
 #' @param object Object from \code{\link{predict.lm.rrpp}}
 #' @param ... Other arguments passed onto predict.lm.rrpp
+#' @method summary anova.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -479,6 +488,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See
 #' \code{\link{plot.default}} and \code{\link{par}}
+#' @method plot lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -670,6 +680,7 @@ plot.QQ <- function(r){
 #' different colors or symbols for different groups).  See
 #' \code{\link{plot.default}},  \code{\link{arrows}}, \code{\link{points}},
 #' \code{\link{par}}, and \code{\link{text}}
+#' @method plot predict.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -983,6 +994,7 @@ fitted.lm.rrpp <- function(object,  ...) {
 #'
 #' @param x Object from \code{\link{pairwise}}
 #' @param ... Other arguments passed onto pairwise
+#' @method print pairwise
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1082,6 +1094,7 @@ print.pairwise <- function(x, ...){
 #' @param show.vectors Logical value to indicate whether vectors 
 #' should be printed.
 #' @param ... Other arguments passed onto pairwise
+#' @method summary pairwise
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1185,6 +1198,7 @@ summary.pairwise <- function(object, stat.table = TRUE,
 #'
 #' @param x Object from \code{\link{summary.pairwise}}
 #' @param ... Other arguments passed onto summary.pairwise
+#' @method print summary.pairwise
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1355,48 +1369,9 @@ print.summary.pairwise <- function(x, ...) {
 
 #' Print/Summary Function for RRPP
 #'
-#' @param x Object from \code{\link{classify}}
-#' @param ... Other arguments passed onto classify
-#' @export
-#' @author Michael Collyer
-#' @keywords utilities
-print.classify <- function(x ,...){
-  cat("\nGroups and group sizes\n")
-  print(x$group.n)
-  cat("\nPC means\n")
-  print(x$means)
-  cat("\nClassification for", length(x$class), "observations\n")
-  cat("\nUse summary() to produce a table of posterior 
-      classification probabilities\n")
-}
-
-#' Print/Summary Function for RRPP
-#'
-#' @param object Object from \code{\link{classify}}
-#' @param ... Other arguments passed onto classify
-#' @export
-#' @author Michael Collyer
-#' @keywords utilities
-summary.classify <- function(object ,...){
-  x <- object
-  cat("\nGroups and group sizes\n")
-  print(x$group.n)
-  cat("\nPC means\n")
-  print(x$means)
-  cat("\nClassification for", length(x$class), "observations\n")
-  cat("\nGeneralized (Mahalanobis) squared distances\n")
-  print(x$Mah.dist.sq)
-  cat("\nPrior probabilities\n")
-  print(x$prior)
-  cat("\nPosterior proabilities\n")
-  print(x$posterior)
-  cat("\n")
-}
-
-#' Print/Summary Function for RRPP
-#'
 #' @param x Object from \code{\link{model.comparison}}
 #' @param ... Other arguments passed onto model.comparison
+#' @method print model.comparison
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1408,6 +1383,7 @@ print.model.comparison <- function(x ,...){
 #'
 #' @param object Object from \code{\link{model.comparison}}
 #' @param ... Other arguments passed onto model.comparison
+#' @method summary model.comparison
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1430,6 +1406,7 @@ summary.model.comparison <- function(object ,...){
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See
 #' \code{\link{plot.default}} and \code{\link{par}}
+#' @method plot model.comparison
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1465,6 +1442,7 @@ plot.model.comparison <- function(x, ...){
 #' \code{\link{manova.update}}
 #' @param test Type of multivariate test statistic to use.
 #' @param ... Other arguments passed onto manova.lm.rrpp
+#' @method summary manova.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1573,6 +1551,7 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
 #'
 #' @param x Object from \code{\link{summary.manova.lm.rrpp}}
 #' @param ... Other arguments passed onto summary.manova.lm.rrpp
+#' @method print summary.manova.lm.rrpp
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1609,6 +1588,7 @@ print.summary.manova.lm.rrpp <- function(x, ...){
 #'
 #' @param x Object from \code{\link{trajectory.analysis}}
 #' @param ... Other arguments passed onto 
+#' @method print trajectory.analysis
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1641,6 +1621,7 @@ print.trajectory.analysis<- function(x, ...){
 #' @param show.trajectories Logical value to indicate whether trajectories 
 #' should be printed.
 #' @param ... Other arguments passed onto trajectory.analysis
+#' @method summary trajectory.analysis
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1714,6 +1695,7 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
 #'
 #' @param x Object from \code{\link{summary.trajectory.analysis}}
 #' @param ... Other arguments passed onto summary.trajectory.analysis
+#' @method print summary.trajectory.analysis
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -1843,6 +1825,7 @@ print.summary.trajectory.analysis <- function(x, ...) {
 #'  
 #' @seealso 
 #' \code{\link{plot.default}} and \code{\link{par}}
+#' @method plot trajectory.analysis
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -2092,6 +2075,7 @@ add.trajectories <- function(TP,
 #'
 #' @param x Object from \code{\link{ordinate}}
 #' @param ... Other arguments passed onto print.ordinate
+#' @method print ordinate
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -2128,6 +2112,7 @@ print.ordinate <- function(x, ...){
 #'
 #' @param object Object from \code{\link{ordinate}}
 #' @param ... Other arguments passed onto print.ordinate
+#' @method summary ordinate
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -2163,6 +2148,7 @@ summary.ordinate <- function(object, ...){
 #'
 #' @param x Object from \code{\link{summary.ordinate}}
 #' @param ... Other arguments passed onto print.ordinate
+#' @method print summary.ordinate
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -2190,6 +2176,7 @@ print.summary.ordinate <- function(x, ...){
 #' @return An object of class "plot.ordinate" is a list with components
 #'  that can be used in other plot functions, such as the type of plot, points, 
 #'  a group factor, and other information depending on the plot parameters used.
+#' @method plot ordinate
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities

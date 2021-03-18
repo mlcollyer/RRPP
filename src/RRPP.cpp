@@ -171,4 +171,3 @@ Rcpp::List iterSS(Rcpp::List ind, Rcpp::List Ur, Rcpp::List Uf,
   }
   return(out); 
 }
-

@@ -400,14 +400,17 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
                         data = NULL, Cov = NULL,
                         print.progress = FALSE, Parallel = FALSE, ...) {
   ParCores <- NULL
-  if(is.numeric(Parallel)) {
+  if (is.numeric(Parallel)) {
     ParCores <- Parallel
     Parallel <- TRUE
   }
-  if(Parallel && is.null(ParCores)) {
+  if (Parallel && is.null(ParCores)) {
     ParCores <- detectCores() - 1
-    if(ParCores > detectCores() - 1) ParCores <- detectCores() - 1
   }
+  
+  if (is.numeric(ParCores)) {
+    if(ParCores > detectCores() - 1) ParCores <- detectCores() - 1
+  } 
   
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
