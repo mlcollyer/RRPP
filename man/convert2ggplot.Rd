@@ -9,7 +9,7 @@ convert2ggplot(object)
 \arguments{
 \item{object}{A plot object produced from \code{\link{plot.lm.rrpp}} and type 
 equals either "PC" or "regression, \code{\link{plot.predict.lm.rrpp}}, or 
-\code{\link{plot.ordinate}}.  Essentially, and RRPP plot except a series of diagnostic
+\code{\link{plot.ordinate}}.  Essentially, any RRPP plot except a series of diagnostic
 plots should work.}
 }
 \description{
