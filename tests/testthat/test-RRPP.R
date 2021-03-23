@@ -74,6 +74,14 @@ test_that("fit11.works", {
                   print.progress = FALSE, iter = 3))
 })
 
+test_that("fit12.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, iter = 3))
+})
+
+
 # needed: Cov application
 
 ### coef.lm.rrpp ----------------------------------------------------------
@@ -143,6 +151,13 @@ test_that("coef.fit11.works", {
                   print.progress = FALSE, iter = 3)))
 })
 
+
+test_that("coef.fit12.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, iter = 3)))
+})
 
 test_that("coef.t.fit01.works", {
   library(RRPP)
@@ -217,6 +232,14 @@ test_that("coef.t.fit11.works", {
                        int.first = TRUE,
                        print.progress = FALSE, iter = 3),
           test = TRUE))
+})
+
+test_that("coef.t.fit12.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, iter = 3),
+               test = TRUE))
 })
 
 # needed: Cov application
@@ -325,12 +348,144 @@ test_that("anova.fit11.e.works", {
                 error = c("Pop:Sex", "Pop:Sex", "Residuals")))
 })
 
-# needed: Cov application
+
+test_that("anova.fit12.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(anova(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, iter = 3)))
+})
+
 
 ### predict.lm.rrpp -------------------------------------------------------
+
+
+test_that("predict1.works", {
+  library(RRPP)
+  data("PupfishHeads")
+  fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
+                 data = PupfishHeads, print.progress = FALSE, iter = 3)
+  succeed(predict(fit))
+})
+
+
 ### manova.update ---------------------------------------------------------
+
+test_that("manova1.works", {
+  library(RRPP)
+  data("Pupfish")
+  fit <- lm.rrpp(coords ~ CS + Sex, SS.type = "I", 
+          data = Pupfish, print.progress = FALSE, iter = 3)
+  succeed(manova.update(fit, print.progress = FALSE))
+})
+
 ### pairwise --------------------------------------------------------------
+
+test_that("pairwise1.works", {
+  library(RRPP)
+  data("Pupfish")
+  fit <- lm.rrpp(coords ~ CS + Sex, SS.type = "I", 
+          data = Pupfish, print.progress = FALSE, iter = 3)
+  succeed(pairwise(fit, groups = Pupfish$Sex, print.progress = FALSE))
+})
+
+
 ### trajectory.analysis ---------------------------------------------------
+
+test_that("trajectory.analysis1.works", {
+  library(RRPP)
+  data("Pupfish")
+  fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, print.progress = FALSE,
+                 iter = 3)
+  succeed(trajectory.analysis(fit, groups = Pupfish$Pop, 
+                              traj.pts = Pupfish$Sex, print.progress = FALSE))
+})
+
+test_that("trajectory.analysis2.works", {
+  library(RRPP)
+  data("motionpaths")
+  fit <- lm.rrpp(trajectories ~ groups, data = motionpaths, iter = 3)
+  succeed(trajectory.analysis(fit, groups = motionpaths$groups, traj.pts = 5))
+})
+
 ### ordinate --------------------------------------------------------------
-### plot functions --------------------------------------------------------
-### -----------------------------------------------------------------------
+
+
+test_that("ordinate1.works", {
+  library(RRPP)
+  data("PlethMorph")
+  Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+                                  "Snout.eye", "BodyWidth", 
+                                  "Forelimb", "Hindlimb")])
+  PlethMorph$Y <- as.matrix(Y)
+  R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+               iter = 0, print.progress = FALSE)$LM$residuals
+  succeed(ordinate(R, scale. = FALSE))
+})
+
+test_that("ordinate2.works", {
+  library(RRPP)
+  data("PlethMorph")
+  Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+                                  "Snout.eye", "BodyWidth", 
+                                  "Forelimb", "Hindlimb")])
+  PlethMorph$Y <- as.matrix(Y)
+  R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+               iter = 0, print.progress = FALSE)$LM$residuals
+  succeed(ordinate(R, scale. = TRUE))
+})
+
+test_that("ordinate3.works", {
+  library(RRPP)
+  data("PlethMorph")
+  Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+                                  "Snout.eye", "BodyWidth", 
+                                  "Forelimb", "Hindlimb")])
+  PlethMorph$Y <- as.matrix(Y)
+  R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+               iter = 0, print.progress = FALSE)$LM$residuals
+  succeed(ordinate(R, scale. = TRUE, 
+                   transform. = FALSE, 
+                   Cov = PlethMorph$PhyCov))
+})
+
+test_that("ordinate4.works", {
+  library(RRPP)
+  data("PlethMorph")
+  Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+                                  "Snout.eye", "BodyWidth", 
+                                  "Forelimb", "Hindlimb")])
+  PlethMorph$Y <- as.matrix(Y)
+  R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+               iter = 0, print.progress = FALSE)$LM$residuals
+  succeed(ordinate(R, scale. = TRUE, 
+                   transform. = TRUE, 
+                   Cov = PlethMorph$PhyCov))
+})
+
+test_that("ordinate5.works", {
+  library(RRPP)
+  data("PlethMorph")
+  Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+                                  "Snout.eye", "BodyWidth", 
+                                  "Forelimb", "Hindlimb")])
+  PlethMorph$Y<- as.matrix(Y)
+  R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+               iter = 0, print.progress = FALSE)$LM$residuals
+  succeed(ordinate(R, A = PlethMorph$PhyCov, scale. = TRUE))
+})
+
+test_that("ordinate6.works", {
+  library(RRPP)
+  data("PlethMorph")
+  Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength", 
+                                  "Snout.eye", "BodyWidth", 
+                                  "Forelimb", "Hindlimb")])
+  PlethMorph$Y <- as.matrix(Y)
+  R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+               iter = 0, print.progress = FALSE)$LM$residuals
+  succeed(ordinate(R, A = PlethMorph$PhyCov, 
+                   scale. = TRUE,
+                   transform. = FALSE, 
+                   Cov = PlethMorph$PhyCov))
+})
