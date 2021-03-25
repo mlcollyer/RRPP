@@ -1,16 +1,16 @@
-#include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
+#include <Rcpp.h>
 
 using namespace Rcpp;
 
-// same as Y[s,]
+
 
 arma::mat shuffle(arma::mat Y, arma::uvec s){
   s = s - 1;
   return Y.rows(s);
 }
 
-// Perform RRPP for a list of fitted values and residuals
 
 Rcpp::List rrpp(Rcpp::List Fitted, Rcpp::List Residuals, arma::uvec s, int k){
   Rcpp::List out(k);
@@ -24,7 +24,6 @@ Rcpp::List rrpp(Rcpp::List Fitted, Rcpp::List Residuals, arma::uvec s, int k){
   return(out);
 }
 
-// Vector sum (faster than arma::accu because of unwinding)
 
 double vsum(arma::vec v){
   int n = v.n_elem;
@@ -51,7 +50,6 @@ double vsum(arma::vec v){
 }
 
 
-// Sum of squared cross-products, same as sum(crossprod(U, Y)^2)
 // [[Rcpp::export]]
 double sscpUY(arma::mat U, arma::mat Y){
   int i, ii;
@@ -91,7 +89,6 @@ double sscpUY(arma::mat U, arma::mat Y){
 }
 
 
-// sum(crossprod(U, Y)^2) applied to lists
 
 Rcpp::List listSScpUY(Rcpp::List U, Rcpp::List Y, 
                       int k){
@@ -111,7 +108,6 @@ double ssY(arma::mat Y){
   return(arma::accu(Y % Y));
 }
 
-// RSS for a list of Y
 
 Rcpp::List listRSS(arma::mat Uf, 
                    Rcpp::List Y,
@@ -126,7 +122,6 @@ Rcpp::List listRSS(arma::mat Uf,
   return(out);
 }
 
-// All stats needed for ANOVA table
 
 Rcpp::List getStats(Rcpp::List Ur, Rcpp::List Uf, 
                     arma::mat Ufull, arma::mat Unull,
@@ -150,7 +145,6 @@ Rcpp::List getStats(Rcpp::List Ur, Rcpp::List Uf,
                             Rcpp::Named("rssM") = rssM);
 }
 
-// getStats applied to random permutations
 
 // [[Rcpp::export]]
 Rcpp::List iterSS(Rcpp::List ind, Rcpp::List Ur, Rcpp::List Uf, 
