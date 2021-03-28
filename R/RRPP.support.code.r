@@ -29,13 +29,12 @@
 #' covariance matrices.  Mixed linear
 #' effects can also be evaluated.
 #' 
-#' @useDynLib RRPP, .registration = TRUE
-#' @importFrom Rcpp sourceCpp
 #' @import parallel
 #' @import stats
 #' @import graphics
 #' @import utils
 #' @import ggplot2 
+#' @import Matrix
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @export print.lm.rrpp
@@ -1060,6 +1059,7 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   
   Pcov <- exchange$Pcov
   
+  
   if(k > 0) {
     Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
     Qf <- lapply(full, function(x) x$qr)
@@ -1068,9 +1068,25 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     Qf <- list(Qf = full$qr)
   }
   
-    Ur <- lapply(Qr, function(x) qr.Q(x))
-    Uf <- lapply(Qf, function(x) qr.Q(x))
-    Ufull <- Uf[[max(1, k)]]
+  Ur <- lapply(Qr, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
+  Uf <- lapply(Qf, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
+  Hr <- lapply(Qr, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
+  Hf <- lapply(Qf, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
+  
+  
+  # Linear model checkers
+  for(i in 1:max(1, k)) {
+    h <- Hr[[i]]
+    sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
+    if(sparse < 0.2) Ur[[i]] <- Hr[[i]]
+    h <- Hf[[i]]
+    sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
+    if(sparse < 0.2) Uf[[i]] <- Hf[[i]]
+  }
+  
+  Ufull <-Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
   Unull <- if(!is.null(Pcov)) 
@@ -1082,71 +1098,56 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   
   yh0 <- fastFit(Unull, Y, n, p)
   r0 <- Y - yh0
-
+  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
+                                             residuals = res[[j]]))
+  rrpp.args <- list(FR = FR, ind.i = NULL)
+  
+  rrpp <- function(FR, ind.i) {
+    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+  }
+  
   if(print.progress) {
-    
-    FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
-                                               residuals = res[[j]]))
-    rrpp.args <- list(FR = FR, ind.i = NULL)
-    
-    rrpp <- function(FR, ind.i) {
-      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
-    }
-    
     cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-    
-    ss <- function(ur, uf, y) c(sscpUY(ur, y), sscpUY(uf, y), 
-                                sum(y^2) - sscpUY(Ufull, y))
-    
-    result <- lapply(1:perms, function(j){
-      step <- j
-      setTxtProgressBar(pb,step)
-      x <-ind[[j]]
-      rrpp.args$ind.i <- x
-      Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
-      yy <- sum(y^2)
-      
-      if(k > 0) {
-        res <- vapply(1:k, function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
-        }, numeric(3))
-        
-        SSr <- res[1, ]
-        SSf <- res[2, ]
-        RSS <- res[3, ]
-        
-        TSS <- yy - sscpUY(Unull, y)
-        TSS <- rep(TSS, k)
-        SS = SSf - SSr
-      } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-      RSS.model <- yy - sscpUY(Ufull, y)
-      if(k == 0) TSS <- RSS.model
-      list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-    })
-    
-    SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms)
-    RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms)
-    TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
-    RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
-    
-    close(pb)
-    
-  } else {
-    
-    result <- iterSS(ind = ind, Ur = Ur, Uf = Uf, Ufull = Ufull, Unull = Unull, 
-                     Fitted = fitted, Residuals = res, Yh0 = yh0, R0 = r0, k = max(1, k))
-    
-    kk <- max(1, k)
-    result2 <- vapply(result, unlist, numeric(3 * kk + 2))
-    SS <- matrix(result2[(kk + 1):(2 * kk), ] - result2[1:kk, ], kk, perms)
-    RSS <- matrix(result2[(2 * kk + 1):(3 * kk), ], kk, perms)
-    TSS <- matrix(result2[3 * kk + 1, ], kk, perms, byrow = TRUE)
-    RSS.model <- matrix(result2[3*kk + 2, ], kk, perms, byrow = TRUE)
-    
   }
-
+  
+  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
+                              sum(y^2) - sum(crossprod(Ufull, y)^2))
+  
+  result <- lapply(1:perms, function(j){
+    step <- j
+    if(print.progress) setTxtProgressBar(pb,step)
+    x <-ind[[j]]
+    rrpp.args$ind.i <- x
+    Yi <- do.call(rrpp, rrpp.args)
+    y <- yh0 + r0[x,]
+    yy <- sum(y^2)
+    
+    if(k > 0) {
+      res <- vapply(1:k, function(j){
+        ss(Ur[[j]], Uf[[j]], Yi[[j]])
+      }, numeric(3))
+      
+      SSr <- res[1, ]
+      SSf <- res[2, ]
+      RSS <- res[3, ]
+      
+      TSS <- yy - sum(crossprod(Unull, y)^2)
+      TSS <- rep(TSS, k)
+      SS = SSf - SSr
+    } else SSr <- SSf <- SS <- RSS <- TSS <- NA
+    RSS.model <- yy - sum(crossprod(Ufull, y)^2)
+    if(k == 0) TSS <- RSS.model
+    list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
+  })
+  
+  SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms)
+  RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms)
+  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
+  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
+  
+  if(print.progress)  close(pb)
+    
   res.names <- list(if(k > 0) trms else "Intercept", 
                     c("obs", paste("iter", 1:(perms-1), sep=".")))
   dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- 
@@ -1213,9 +1214,24 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
     Qf <- list(Qf = full$qr)
   }
   
-  Ur <- lapply(Qr, function(x) qr.Q(x))
-  Uf <- lapply(Qf, function(x) qr.Q(x))
-  Ufull <- Uf[[max(1, k)]]
+  Ur <- lapply(Qr, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
+  Uf <- lapply(Qf, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
+  Hr <- lapply(Qr, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
+  Hf <- lapply(Qf, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
+  
+  # Linear model checkers
+  for(i in 1:max(1, k)) {
+    h <- Hr[[i]]
+    sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
+    if(sparse < 0.2) Ur[[i]] <- Hr[[i]]
+    h <- Hf[[i]]
+    sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
+    if(sparse < 0.2) Uf[[i]] <- Hf[[i]]
+  }
+  
+  Ufull <-Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
   Unull <- if(!is.null(Pcov)) 
@@ -1239,8 +1255,8 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
     lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
   
-  ss <- function(ur, uf, y) c(sscpUY(ur, y), sscpUY(uf, y), 
-                              sum(y^2) - sscpUY(Ufull, y))
+  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
+                              sum(y^2) - sum(crossprod(Ufull, y)^2))
   
   if(Unix) {
     result <- mclapply(1:perms, mc.cores = no_cores, function(j){
@@ -1262,7 +1278,7 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
         TSS <- rep(TSS, k)
         SS = SSf - SSr
       } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-      RSS.model <- yy - sscpUY(Ufull, y)
+      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
       if(k == 0) TSS <- RSS.model
       list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
     })
@@ -1292,7 +1308,7 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
         TSS <- rep(TSS, k)
         SS = SSf - SSr
       } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-      RSS.model <- yy - sscpUY(Ufull, y)
+      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
       if(k == 0) TSS <- RSS.model
       list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
     })
@@ -1448,7 +1464,7 @@ beta.boot.iter <- function(fit, ind) {
   rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
   
   Qf <- fit$LM$QR
-  Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+  Hf <- Matrix(round(tcrossprod(solve(qr.R(Qf)), qr.Q(Qf)), 15), sparse = TRUE)
   
   betas <- lapply(1:perms, function(j){
     x <-ind[[j]]
@@ -1515,7 +1531,8 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   }
   
   Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)
-  Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+  Hf <- lapply(Qf, function(x) 
+    Matrix(round(tcrossprod(solve(qr.R(x)), qr.Q(x)), 15)))
 
   betas <- lapply(1:perms, function(j){
     step <- j
@@ -1523,7 +1540,7 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     x <-ind[[j]]
     rrpp.args$ind.i <- x
     Yi <- do.call(rrpp, rrpp.args)
-    Map(function(h, y)  h %*% y, Hf, Yi) 
+    Map(function(h, y)  as.matrix(h %*% y), Hf, Yi) 
   
   })
 
@@ -1638,14 +1655,15 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
   }
   
   Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)
-  Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+  Hf <- lapply(Qf, function(x) 
+    Matrix(round(tcrossprod(solve(qr.R(x)), qr.Q(x)), 15)))
   
   if(Unix) {
     betas <- mclapply(1:perms, mc.cores = no_cores, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      Map(function(h, y)  h %*% y, Hf, Yi) 
+      Map(function(h, y)  as.matrix(h %*% y), Hf, Yi) 
       
     })
     

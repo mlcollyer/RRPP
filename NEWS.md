@@ -1,7 +1,7 @@
 # CHANGES IN RRPP 1.0.0 (Major Release)
 
 ### NEW FEATURES
-* Computation of sums of squares in `lm.rrpp` using `C++` algorithms (rather than matrix calculations).  This speeds up computation time and requires far less memory allocation.
+* Computation of sums of squares in `lm.rrpp` using `Matrix` package and sparse matrix calculations.  This speeds up computation time and requires far less memory allocation.
 * The `lm.rrpp` function now has a an argument, `turbo`, which can suppress calculating coefficients in random permutations, if unneeded, which can speed up analysis of large data sets.
 * More options for parallel processing.
 * New function, `convert2ggplot`, for coercing `RRPP` plots into ggplot objects.

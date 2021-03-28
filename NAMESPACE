@@ -66,15 +66,11 @@ export(summary.predict.lm.rrpp)
 export(summary.trajectory.analysis)
 export(trajectory.analysis)
 export(vec.cor.matrix)
+import(utils)
 import(ggplot2)
 import(graphics)
 import(parallel)
 import(stats)
-import(utils)
-importFrom(Rcpp,sourceCpp)
+import(Matrix)
 importFrom(ape,multi2di.phylo)
 importFrom(ape,root.phylo)
-useDynLib(RRPP,
-.registration
-=
-TRUE)
