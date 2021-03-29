@@ -1068,15 +1068,26 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
     Qf <- list(Qf = full$qr)
   }
   
-  Ur <- lapply(Qr, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
-  Uf <- lapply(Qf, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
-  Hr <- lapply(Qr, function(x) 
-    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
-  Hf <- lapply(Qf, function(x) 
-    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
   
+  Ur <- lapply(Qr, function(x) qr.Q(x))
+  Uf <- lapply(Qf, function(x) qr.Q(x))
+  Urs <- lapply(Ur, function(x) Matrix(round(x, 15), sparse = TRUE))
+  Ufs <- lapply(Uf, function(x) Matrix(round(x, 15), sparse = TRUE))
+  Hr <- lapply(Ur, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(x), 15), sparse = TRUE)))
+  Hf <- lapply(Uf, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(x), 15), sparse = TRUE)))
   
   # Linear model checkers
+  for(i in 1:max(1, k)) {
+    o.ur <- object.size(Ur[[i]])
+    o.urs <- object.size(Urs[[i]])
+    if(o.urs < o.ur) Ur[[i]] <- Urs[[i]]
+    o.uf <- object.size(Uf[[i]])
+    o.ufs <- object.size(Ufs[[i]])
+    if(o.ufs < o.uf) Uf[[i]] <- Ufs[[i]]
+  }
+  
   for(i in 1:max(1, k)) {
     h <- Hr[[i]]
     sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
@@ -1160,8 +1171,6 @@ SS.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
 }
 
 
-
-
 # SS.iterPP
 # workhorse for lm.rrpp, same as SS.iter, but with parallel processing
 # used in lm.rrpp
@@ -1214,14 +1223,25 @@ SS.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
     Qf <- list(Qf = full$qr)
   }
   
-  Ur <- lapply(Qr, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
-  Uf <- lapply(Qf, function(x) Matrix(round(qr.Q(x), 15), sparse = TRUE))
-  Hr <- lapply(Qr, function(x) 
-    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
-  Hf <- lapply(Qf, function(x) 
-    forceSymmetric(Matrix(round(tcrossprod(qr.Q(x)), 15), sparse = TRUE)))
+  Ur <- lapply(Qr, function(x) qr.Q(x))
+  Uf <- lapply(Qf, function(x) qr.Q(x))
+  Urs <- lapply(Ur, function(x) Matrix(round(x, 15), sparse = TRUE))
+  Ufs <- lapply(Uf, function(x) Matrix(round(x, 15), sparse = TRUE))
+  Hr <- lapply(Ur, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(x), 15), sparse = TRUE)))
+  Hf <- lapply(Uf, function(x) 
+    forceSymmetric(Matrix(round(tcrossprod(x), 15), sparse = TRUE)))
   
   # Linear model checkers
+  for(i in 1:max(1, k)) {
+    o.ur <- object.size(Ur[[i]])
+    o.urs <- object.size(Urs[[i]])
+    if(o.urs < o.ur) Ur[[i]] <- Urs[[i]]
+    o.uf <- object.size(Uf[[i]])
+    o.ufs <- object.size(Ufs[[i]])
+    if(o.ufs < o.uf) Uf[[i]] <- Ufs[[i]]
+  }
+  
   for(i in 1:max(1, k)) {
     h <- Hr[[i]]
     sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
@@ -1464,7 +1484,9 @@ beta.boot.iter <- function(fit, ind) {
   rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
   
   Qf <- fit$LM$QR
-  Hf <- Matrix(round(tcrossprod(solve(qr.R(Qf)), qr.Q(Qf)), 15), sparse = TRUE)
+  Hf <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+  Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
+  if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
   
   betas <- lapply(1:perms, function(j){
     x <-ind[[j]]
@@ -1531,8 +1553,13 @@ beta.iter <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE) {
   }
   
   Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)
-  Hf <- lapply(Qf, function(x) 
-    Matrix(round(tcrossprod(solve(qr.R(x)), qr.Q(x)), 15)))
+  Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+  Hfs <- lapply(Hf, function(x) Matrix(round(x, 15), sparse = TRUE))
+  for(i in 1:max(1,k)) {
+    if(object.size(Hfs[[i]]) < object.size(Hf[[i]]))
+      Hf[[i]] <- Hfs[[i]]
+  }
+  
 
   betas <- lapply(1:perms, function(j){
     step <- j
@@ -1655,8 +1682,12 @@ beta.iterPP <- function(exchange, ind, RRPP = TRUE, print.progress = TRUE,
   }
   
   Qf <- if(k > 0) lapply(full, function(x) x$qr) else list(Qf = full$qr)
-  Hf <- lapply(Qf, function(x) 
-    Matrix(round(tcrossprod(solve(qr.R(x)), qr.Q(x)), 15)))
+  Hf <- lapply(Qf, function(x) tcrossprod(solve(qr.R(x)), qr.Q(x)))
+  Hfs <- lapply(Hf, function(x) Matrix(round(x, 15), sparse = TRUE))
+  for(i in 1:max(1,k)) {
+    if(object.size(Hfs[[i]]) < object.size(Hf[[i]]))
+      Hf[[i]] <- Hfs[[i]]
+  }
   
   if(Unix) {
     betas <- mclapply(1:perms, mc.cores = no_cores, function(j){
