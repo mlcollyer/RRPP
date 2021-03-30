@@ -1,12 +1,21 @@
 Package: RRPP
 Title: Linear Model Evaluation with Randomized Residuals in a
         Permutation Procedure
+<<<<<<< HEAD
 Version: 0.6.2
 Authors@R: c(
     person("Michael", "Collyer", , "mlcollyer@gmail.com", c("aut", "cre"), 
     comment = c(ORCID = "https://orcid.org/0000-0003-0238-2201")),
     person("Dean", "Adams", , role = "aut", 
     comment = c("https://orcid.org/0000-0003-0238-2201"))
+=======
+Version: 1.0.0
+Authors@R: c(
+    person("Michael", "Collyer", , "mlcollyer@gmail.com", c("aut", "cre"), 
+    comment = c(ORCID = "0000-0003-0238-2201")),
+    person("Dean", "Adams", , role = "aut", 
+    comment = c(ORCID = "0000-0001-9172-7894"))
+>>>>>>> develop
     )
 Description: Linear model calculations are made for many random versions of data.  
     Using residual randomization in a permutation procedure, sums of squares are 
@@ -22,6 +31,7 @@ URL: https://github.com/mlcollyer/RRPP
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
+<<<<<<< HEAD
 Imports: parallel, ape
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
@@ -32,3 +42,21 @@ Author: Michael Collyer [aut, cre],
 Maintainer: Michael Collyer <mlcollyer@gmail.com>
 Repository: CRAN
 Date/Publication: 2021-01-11
+=======
+Imports: Rcpp (>= 1.0.6), parallel, ape, ggplot2, Matrix
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    dplyr,
+    tibble
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2021-03-28; m.collyer
+Author: Michael Collyer [aut, cre] (<https://orcid.org/0000-0003-0238-2201>),
+  Dean Adams [aut] (<https://orcid.org/0000-0001-9172-7894>)
+Maintainer: Michael Collyer <mlcollyer@gmail.com>
+Repository: CRAN
+Date/Publication: 2021-03-28
+Config/testthat/edition: 3
+>>>>>>> develop
