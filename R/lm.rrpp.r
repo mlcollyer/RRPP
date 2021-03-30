@@ -1,374 +1,374 @@
 #' Linear Model Evaluation with a Randomized Residual Permutation Procedure
 #'
-#' Function performs a linear model fit over many random permutations of
+#' Function performs a linear model fit over many random permutations of 
 #' data, using a randomized residual permutation procedure.
 #'
-#' The function fits a linear model using ordinary least squares (OLS) or
-#' generalized least squares (GLS) estimation of coefficients over any
-#' number of random permutations of the data.  A permutation procedure that
+#' The function fits a linear model using ordinary least squares (OLS) or 
+#' generalized least squares (GLS) estimation of coefficients over any 
+#' number of random permutations of the data.  A permutation procedure that 
 #' randomizes vectors of residuals is employed.  This
-#' procedure can randomize two types of residuals: residuals from null
+#' procedure can randomize two types of residuals: residuals from null 
 #' models or residuals from
-#' an intercept model.  The latter is the same as randomizing full values,
+#' an intercept model.  The latter is the same as randomizing full values, 
 #' and is referred to as
-#' as a full randomization permutation procedure (FRPP); the former uses
+#' as a full randomization permutation procedure (FRPP); the former uses 
 #' the residuals from null
-#' models, which are defined by the type of sums of squares and cross-products
+#' models, which are defined by the type of sums of squares and cross-products 
 #' (SSCP) sought in an
-#' analysis of variance (ANOVA), and is referred to as a randomized residual
+#' analysis of variance (ANOVA), and is referred to as a randomized residual 
 #' permutation procedure (RRPP).
 #' Types I, II, and III SSCPs are supported.
 #'
-#' Users define the SSCP type, the permutation procedure type, whether a
+#' Users define the SSCP type, the permutation procedure type, whether a 
 #' covariance matrix is included
-#' (GLS estimation), and a few arguments related to computations.
+#' (GLS estimation), and a few arguments related to computations.   
 #' Results comprise observed linear model
-#' results (coefficients, fitted values, residuals, etc.), random sums of
+#' results (coefficients, fitted values, residuals, etc.), random sums of 
 #' squares (SS) across permutation iterations,
-#' and other parameters for performing ANOVA and other hypothesis tests,
+#' and other parameters for performing ANOVA and other hypothesis tests, 
 #' using empirically-derived probability distributions.
 #'
-#' \code{lm.rrpp} emphasizes estimation of standard deviates of observed
+#' \code{lm.rrpp} emphasizes estimation of standard deviates of observed 
 #' statistics as effect sizes
-#' from distributions of random outcomes.  When performing ANOVA, using
+#' from distributions of random outcomes.  When performing ANOVA, using 
 #' the \code{\link{anova}} function,
-#' the effect type (statistic choice) can be varied.  See
+#' the effect type (statistic choice) can be varied.  See 
 #' \code{\link{anova.lm.rrpp}} for more details.  Please
-#' recognize that the type of SS must be chosen prior to running
+#' recognize that the type of SS must be chosen prior to running 
 #' \code{lm.rrpp} and not when applying \code{\link{anova}}
-#' to the \code{lm.rrpp} fit, as design matrices for the linear model
+#' to the \code{lm.rrpp} fit, as design matrices for the linear model 
 #' must be created first.  Therefore, SS.type
-#' is an argument for \code{lm.rrpp} and effect.type is an argument for
+#' is an argument for \code{lm.rrpp} and effect.type is an argument for 
 #' \code{\link{anova.lm.rrpp}}.  If MANOVA
-#' statistics are preferred, eigenvalues can be added with
+#' statistics are preferred, eigenvalues can be added with 
 #' \code{\link{manova.update}} and statistics summarized with
-#' \code{\link{summary.manova.lm.rrpp}}.  See \code{\link{manova.update}}
+#' \code{\link{summary.manova.lm.rrpp}}.  See \code{\link{manova.update}} 
 #' for examples.
-#'
-#' The \code{\link{coef.lm.rrpp}} function can be used to test the specific
+#' 
+#' The \code{\link{coef.lm.rrpp}} function can be used to test the specific 
 #' coefficients of an lm.rrpp fit.  The test
-#' statistics are the distances (d), which are also standardized (Z-scores).
+#' statistics are the distances (d), which are also standardized (Z-scores).  
 #' The Z-scores might be easier to compare,
-#' as the expected values for random distances can vary among coefficient
+#' as the expected values for random distances can vary among coefficient 
 #' vectors (Adams and Collyer 2016).
-#'
-#'  \subsection{ANOVA vs. MANOVA}{
-#'  Two SSCP matrices are calculated for each linear model effect, for
+#' 
+#'  \subsection{ANOVA vs. MANOVA}{ 
+#'  Two SSCP matrices are calculated for each linear model effect, for 
 #'  every random permutation: R (Residuals or Random effects) and
-#'  H, the difference between SSCPs for "full" and "reduced" models.
+#'  H, the difference between SSCPs for "full" and "reduced" models. 
 #'  (Full models contain and reduced models lack
-#'  the effect tested; SSCPs are hypothesized to be the same under a
-#'  null hypothesis, if there is no effect.  The
-#'  difference, H, would have a trace of 0 if the null hypothesis were
+#'  the effect tested; SSCPs are hypothesized to be the same under a 
+#'  null hypothesis, if there is no effect.  The 
+#'  difference, H, would have a trace of 0 if the null hypothesis were 
 #'  true.)  In RRPP, ANOVA and MANOVA correspond to
 #'  two different ways to calculate statistics from R and H matrices.
-#'
-#'  ANOVA statistics are those that find the trace of R and H SSCP
+#'  
+#'  ANOVA statistics are those that find the trace of R and H SSCP 
 #'  matrices before calculating subsequent statistics,
-#'  including sums of squares (SS), mean squares (MS), and F-values.
+#'  including sums of squares (SS), mean squares (MS), and F-values.  
 #'  These statistics can be calculated with univariate data
-#'  and provide univariate-like statistics for multivariate data.
+#'  and provide univariate-like statistics for multivariate data.  
 #'  These statistics are dispersion measures only (covariances
-#'  among variables do not contribute) and are the same as "distance-based"
+#'  among variables do not contribute) and are the same as "distance-based" 
 #'  stats proposed by Goodall (1991) and Anderson (2001).
-#'  MANOVA stats require multivariate data and are implicitly affected
+#'  MANOVA stats require multivariate data and are implicitly affected 
 #'  by variable covariances.  For MANOVA, the inverse of R times
-#'  H (invR.H) is first calculated for each effect, then eigenanalysis
+#'  H (invR.H) is first calculated for each effect, then eigenanalysis 
 #'  is performed on these matrix products.  Multivariate
-#'  statistics are calculated from the positive, real eigenvalues.  In
+#'  statistics are calculated from the positive, real eigenvalues.  In 
 #'  general, inferential
-#'  conclusions will be similar with either approach, but effect sizes
+#'  conclusions will be similar with either approach, but effect sizes 
 #'  might differ.
-#'
-#'  ANOVA tables are generated by \code{\link{anova.lm.rrpp}} on lm.rrpp
+#'  
+#'  ANOVA tables are generated by \code{\link{anova.lm.rrpp}} on lm.rrpp 
 #'  fits and MANOVA tables are generated
-#'  by \code{\link{summary.manova.lm.rrpp}}, after running manova.update
+#'  by \code{\link{summary.manova.lm.rrpp}}, after running manova.update 
 #'  on lm.rrpp fits.
-#'
-#'  Currently, mixed model effects are only possible with $ANOVA statistics,
+#'  
+#'  Currently, mixed model effects are only possible with $ANOVA statistics, 
 #'  not $MANOVA.
-#'
+#'  
 #'  More detail is found in the vignette, ANOVA versus MANOVA.
 #' }
 #'
-#'  \subsection{Notes for RRPP 0.5.0 and subsequent versions}{
-#'  The output from lm.rrpp has changed, compared to previous versions.
+#'  \subsection{Notes for RRPP 0.5.0 and subsequent versions}{ 
+#'  The output from lm.rrpp has changed, compared to previous versions.  
 #'  First, the $LM
-#'  component of output no longer includes both OLS and GLS statistics,
-#'  when GLS fits are
-#'  performed.  Only GLS statistics (coefficients, residuals, fitted values)
-#'  are provided
+#'  component of output no longer includes both OLS and GLS statistics, 
+#'  when GLS fits are 
+#'  performed.  Only GLS statistics (coefficients, residuals, fitted values) 
+#'  are provided 
 #'  and noted with a "gls." tag.  GLS statistics can include those calculated
-#'  when weights are input (similar to the \code{\link[stats]{lm}} argument).
-#'  Unlike previous
-#'  versions, GLS and weighted LS statistics are not labeled differently,
+#'  when weights are input (similar to the \code{\link[stats]{lm}} argument).  
+#'  Unlike previous 
+#'  versions, GLS and weighted LS statistics are not labeled differently, 
 #'  as weighted
-#'  LS is one form of generalized LS estimation.  Second, a new object,
+#'  LS is one form of generalized LS estimation.  Second, a new object, 
 #'  $Models, is included
-#'  in output, which contains the linear model fits (\code{\link[stats]{lm}}
+#'  in output, which contains the linear model fits (\code{\link[stats]{lm}} 
 #'  attributes ) for
 #'  all reduced and full models that are possible to estimate fits.
-#'
+#'  
 #' }
-#'
-#'  \subsection{Notes for RRPP 0.3.1 and subsequent versions}{
-#'  F-values via RRPP are calculated with residual SS (RSS) found uniquely
+#' 
+#'  \subsection{Notes for RRPP 0.3.1 and subsequent versions}{ 
+#'  F-values via RRPP are calculated with residual SS (RSS) found uniquely 
 #'  for any model terms, as per
-#'  Anderson and ter Braak (2003).  This method uses the random pseudo-data
+#'  Anderson and ter Braak (2003).  This method uses the random pseudo-data 
 #'  generated by each term's
-#'  null (reduced) model, meaning RSS can vary across terms.  Previous
-#'  versions used an intercept-only
-#'  model for generating random pseudo-data.  This generally has appropriate
+#'  null (reduced) model, meaning RSS can vary across terms.  Previous 
+#'  versions used an intercept-only 
+#'  model for generating random pseudo-data.  This generally has appropriate 
 #'  type I error rates but can have
-#'  elevated type I error rates if the observed RSS is small relative
+#'  elevated type I error rates if the observed RSS is small relative 
 #'  to total SS.  Allowing term by term
 #'  unique RSS alleviates this concern.
 #' }
 #'
-#' @param f1 A formula for the linear model (e.g., y~x1+x2).  Can also
+#' @param f1 A formula for the linear model (e.g., y~x1+x2).  Can also 
 #' be a linear model fit
 #' from \code{\link{lm}}.
 #' @param iter Number of iterations for significance testing
-#' @param turbo A logical value that if TRUE, suppresses coefficient estimation
-#' in every random permutation.  This will affect subsequent analyses that
+#' @param turbo A logical value that if TRUE, suppresses coefficient estimation 
+#' in every random permutation.  This will affect subsequent analyses that 
 #' require random coefficients (see \code{\link{coef.lm.rrpp}})
 #' but might be useful for large data sets for which only ANOVA is needed.
-#' @param seed An optional argument for setting the seed for random
+#' @param seed An optional argument for setting the seed for random 
 #' permutations of the resampling procedure.
-#' If left NULL (the default), the exact same P-values will be found
+#' If left NULL (the default), the exact same P-values will be found 
 #' for repeated runs of the analysis (with the same number of iterations).
-#' If seed = "random", a random seed will be used, and P-values will vary.
+#' If seed = "random", a random seed will be used, and P-values will vary.  
 #' One can also specify an integer for specific seed values,
 #' which might be of interest for advanced users.
-#' @param int.first A logical value to indicate if interactions of first
+#' @param int.first A logical value to indicate if interactions of first 
 #' main effects should precede subsequent main effects
-#' @param RRPP A logical value indicating whether residual randomization
+#' @param RRPP A logical value indicating whether residual randomization 
 #' should be used for significance testing
-#' @param SS.type A choice between type I (sequential), type II
+#' @param SS.type A choice between type I (sequential), type II 
 #' (hierarchical), or type III (marginal)
 #' sums of squares and cross-products computations.
-#' @param Cov An optional argument for including a covariance matrix
+#' @param Cov An optional argument for including a covariance matrix 
 #' to address the non-independence
-#' of error in the estimation of coefficients (via GLS).  If included,
+#' of error in the estimation of coefficients (via GLS).  If included, 
 #' any weights are ignored.
-#' @param data A data frame for the function environment, see
+#' @param data A data frame for the function environment, see 
 #' \code{\link{rrpp.data.frame}}
-#' @param print.progress A logical value to indicate whether a progress
+#' @param print.progress A logical value to indicate whether a progress 
 #' bar should be printed to the screen.
 #' This is helpful for long-running analyses.
-#' @param Parallel Either a logical value to indicate whether parallel processing
-#' should be used or a numeric value to indicate the number of cores to use in
-#' parallel processing via the \code{parallel} library.
+#' @param Parallel Either a logical value to indicate whether parallel processing 
+#' should be used or a numeric value to indicate the number of cores to use in 
+#' parallel processing via the \code{parallel} library. 
 #' If TRUE, this argument invokes forking of all processor cores, except one.  If
 #' FALSE, only one core is used. A numeric value directs the number of cores to use,
 #' but one core will always be spared.
-#' @param ... Arguments typically used in \code{\link{lm}}, such as
+#' @param ... Arguments typically used in \code{\link{lm}}, such as 
 #' weights or offset, passed on to
-#' \code{rrpp.fit} for estimation of coefficients.  If both weights and
+#' \code{rrpp.fit} for estimation of coefficients.  If both weights and 
 #' a covariance matrix are included,
-#' weights are ignored (since inverses of weights are the diagonal elements
+#' weights are ignored (since inverses of weights are the diagonal elements 
 #' of weight matrix, used in lieu
 #' of a covariance matrix.)
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
-#' @return An object of class \code{lm.rrpp} is a list containing the
+#' @return An object of class \code{lm.rrpp} is a list containing the 
 #' following
 #' \item{call}{The matched call.}
-#' \item{LM}{Linear Model objects, including data (Y), coefficients,
+#' \item{LM}{Linear Model objects, including data (Y), coefficients, 
 #' design matrix (X), sample size
 #' (n), number of dependent variables (p), dimension of data space (p.prime),
 #' QR decomposition of the design matrix, fitted values, residuals,
-#' weights, offset, model terms, data (model) frame, random coefficients
+#' weights, offset, model terms, data (model) frame, random coefficients 
 #' (through permutations),
-#' random vector distances for coefficients (through permutations),
-#' whether OLS or GLS was performed,
-#' and the mean for OLS and/or GLS methods. Note that the data returned
-#' resemble a model frame rather than
-#' a data frame; i.e., it contains the values used in analysis, which
-#' might have been transformed according to
-#' the formula.  The response variables are always labeled Y.1, Y.2, ...,
+#' random vector distances for coefficients (through permutations), 
+#' whether OLS or GLS was performed, 
+#' and the mean for OLS and/or GLS methods. Note that the data returned 
+#' resemble a model frame rather than 
+#' a data frame; i.e., it contains the values used in analysis, which 
+#' might have been transformed according to 
+#' the formula.  The response variables are always labeled Y.1, Y.2, ..., 
 #' in this frame.}
-#' \item{ANOVA}{Analysis of variance objects, including the SS type,
+#' \item{ANOVA}{Analysis of variance objects, including the SS type, 
 #' random SS outcomes, random MS outcomes,
-#' random R-squared outcomes, random F outcomes, random Cohen's f-squared
+#' random R-squared outcomes, random F outcomes, random Cohen's f-squared 
 #' outcomes, P-values based on random F
-#' outcomes, effect sizes for random outcomes, sample size (n), number of
+#' outcomes, effect sizes for random outcomes, sample size (n), number of 
 #' variables (p), and degrees of freedom for
 #' model terms (df).  These objects are used to construct ANOVA tables.}
-#' \item{PermInfo}{Permutation procedure information, including the number
+#' \item{PermInfo}{Permutation procedure information, including the number 
 #' of permutations (perms), The method
-#' of residual randomization (perm.method), and each permutation's sampling
+#' of residual randomization (perm.method), and each permutation's sampling 
 #' frame (perm.schedule), which
-#' is a list of reordered sequences of 1:n, for how residuals were
+#' is a list of reordered sequences of 1:n, for how residuals were 
 #' randomized.}
-#' \item{Models}{Reduced and full model fits for every possible model
+#' \item{Models}{Reduced and full model fits for every possible model 
 #' combination, based on terms
 #' of the entire model, plus the method of SS estimation.}
-#' @references Anderson MJ. 2001. A new method for non-parametric
+#' @references Anderson MJ. 2001. A new method for non-parametric 
 #' multivariate analysis of variance.
 #'    Austral Ecology 26: 32-46.
-#' @references Anderson MJ. and C.J.F. ter Braak. 2003. Permutation
-#' tests for multi-factorial analysis of variance. Journal of Statistical
+#' @references Anderson MJ. and C.J.F. ter Braak. 2003. Permutation 
+#' tests for multi-factorial analysis of variance. Journal of Statistical 
 #' Computation and Simulation 73: 85-113.
-#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method
+#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method 
 #' for analysis of phenotypic change for phenotypes described
 #' by high-dimensional data. Heredity. 115:357-365.
-#' @references Adams, D.C. and M.L. Collyer. 2016.  On the comparison of
+#' @references Adams, D.C. and M.L. Collyer. 2016.  On the comparison of 
 #' the strength of morphological integration across morphometric
 #' datasets. Evolution. 70:2623-2631.
-#' @references Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic
-#' anova: group-clade aggregation, biological
+#' @references Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic 
+#' anova: group-clade aggregation, biological 
 #' challenges, and a refined permutation procedure. Evolution. 72:1204-1215.
-#' @seealso \code{procD.lm} and \code{procD.pgls} within \code{geomorph};
+#' @seealso \code{procD.lm} and \code{procD.pgls} within \code{geomorph}; 
 #' \code{\link[stats]{lm}} for more on linear model fits.
 #' @examples
-#'
+#' 
 #' # Examples use geometric morphometric data
 #' # See the package, geomorph, for details about obtaining such data
 #'
 #' data("PupfishHeads")
 #' names(PupfishHeads)
-#'
+#' 
 #' # Head Size Analysis (Univariate)-------------------------------------------------------
-#'
-#' # Note: one should increase RRPP iterations but a smaller number is
-#' # used here for demonstration
+#' 
+#' # Note: one should increase RRPP iterations but a smaller number is 
+#' # used here for demonstration 
 #' # efficiency.  Generally, iter = 999 will take less
 #' # than 1s for this example with a modern computer.
 #'
-#' fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "I",
+#' fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "I", 
 #' data = PupfishHeads, print.progress = FALSE, iter = 199)
 #' summary(fit)
 #' anova(fit, effect.type = "F") # Maybe not most appropriate
-#' anova(fit, effect.type = "Rsq") # Change effect type, but still not
+#' anova(fit, effect.type = "Rsq") # Change effect type, but still not 
 #' # most appropriate
 #'
-#' # Mixed-model approach (most appropriate, as year sampled is a random
+#' # Mixed-model approach (most appropriate, as year sampled is a random 
 #' # effect:
-#'
-#' anova(fit, effect.type = "F", error = c("Residuals", "locality:year",
+#' 
+#' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", 
 #' "Residuals"))
 #'
 #' # Change to Type III SS
-#'
-#' fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III",
+#' 
+#' fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
 #' data = PupfishHeads, print.progress = FALSE, iter = 199)
 #' summary(fit)
-#' anova(fit, effect.type = "F", error = c("Residuals", "locality:year",
+#' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", 
 #' "Residuals"))
 #'
 #' # Coefficients Test
-#'
+#' 
 #' coef(fit, test = TRUE)
 #'
 #' # Predictions (holding alternative effects constant)
-#'
+#' 
 #' sizeDF <- data.frame(sex = c("Female", "Male"))
 #' rownames(sizeDF) <- c("Female", "Male")
 #' sizePreds <- predict(fit, sizeDF)
 #' summary(sizePreds)
 #' plot(sizePreds)
-#'
+#' 
 #' # Diagnostics plots of residuals
-#'
+#' 
 #' plot(fit)
-#'
+#' 
 #' # Body Shape Analysis (Multivariate) -----------
-#'
+#' 
 #' data(Pupfish)
 #' names(Pupfish)
-#'
+#' 
 #' # Note:
-#'
+#' 
 #' dim(Pupfish$coords) # highly multivariate!
 #'
-#' # Note: one should increase RRPP iterations but they are
-#' # not used at all here for a fast example.
+#' # Note: one should increase RRPP iterations but they are 
+#' # not used at all here for a fast example.  
 #' # Generally, iter = 999 will take less
 #' # than 1 second for this example with a modern computer.
-#'
-#' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I",
-#' data = Pupfish, print.progress = FALSE, iter = 0)
+#' 
+#' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
+#' data = Pupfish, print.progress = FALSE, iter = 0) 
 #' summary(fit, formula = FALSE)
-#' anova(fit)
+#' anova(fit) 
 #' coef(fit, test = TRUE)
 #'
 #' # Predictions (holding alternative effects constant)
-#'
-#' shapeDF <- expand.grid(Sex = levels(Pupfish$Sex),
+#' 
+#' shapeDF <- expand.grid(Sex = levels(Pupfish$Sex), 
 #' Pop = levels(Pupfish$Pop))
 #' rownames(shapeDF) <- paste(shapeDF$Sex, shapeDF$Pop, sep = ".")
 #' shapeDF
-#'
+#' 
 #' shapePreds <- predict(fit, shapeDF)
 #' summary(shapePreds)
 #' summary(shapePreds, PC = TRUE)
-#'
+#' 
 #' # Plot prediction
-#'
+#' 
 #' plot(shapePreds, PC = TRUE)
 #' plot(shapePreds, PC = TRUE, ellipse = TRUE)
-#'
+#' 
 #' # Diagnostics plots of residuals
-#'
+#' 
 #' plot(fit)
-#'
+#' 
 #' # PC-plot of fitted values
-#'
+#' 
 #' groups <- interaction(Pupfish$Sex, Pupfish$Pop)
 #' plot(fit, type = "PC", pch = 19, col = as.numeric(groups))
-#'
+#' 
 #' # Regression-like plot
-#'
-#' plot(fit, type = "regression", reg.type = "PredLine",
+#' 
+#' plot(fit, type = "regression", reg.type = "PredLine", 
 #'     predictor = log(Pupfish$CS), pch=19,
 #'     col = as.numeric(groups))
 #'
 #' # Body Shape Analysis (Distances) ----------
-#'
+#' 
 #' D <- dist(Pupfish$coords) # inter-observation distances
 #' length(D)
 #' Pupfish$D <- D
-#'
-#' # Note: one should increase RRPP iterations but they are
-#' # not used at all here for a fast example.  Generally,
-#' # iter = 999 will take less than 1 second
+#' 
+#' # Note: one should increase RRPP iterations but they are 
+#' # not used at all here for a fast example.  Generally, 
+#' # iter = 999 will take less than 1 second 
 #' # for this example with a modern computer.
-#'
-#' fitD <- lm.rrpp(D ~ log(CS) + Sex*Pop, SS.type = "I",
-#' data = Pupfish, print.progress = FALSE, iter = 0)
-#'
+#' 
+#' fitD <- lm.rrpp(D ~ log(CS) + Sex*Pop, SS.type = "I", 
+#' data = Pupfish, print.progress = FALSE, iter = 0) 
+#' 
 #' # These should be the same:
 #' summary(fitD, formula = FALSE)
-#' summary(fit, formula = FALSE)
+#' summary(fit, formula = FALSE) 
 #'
 #' # GLS Example (Univariate) -----------
-#'
+#' 
 #' data(PlethMorph)
-#' fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph,
+#' fitOLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
 #' print.progress = FALSE, iter = 999)
-#' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov,
+#' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
 #' print.progress = FALSE, iter = 999)
-#'
+#' 
 #' anova(fitOLS)
 #' anova(fitGLS)
-#'
+#' 
 #' sizeDF <- data.frame(SVL = sort(PlethMorph$SVL))
-#'
+#' 
 #' # Prediction plots
-#'
+#' 
 #' # By specimen
 #' plot(predict(fitOLS, sizeDF)) # Correlated error
 #' plot(predict(fitGLS, sizeDF)) # Independent error
-#'
+#' 
 #' # With respect to independent variable (using abscissa)
 #' plot(predict(fitOLS, sizeDF), abscissa = sizeDF) # Correlated error
 #' plot(predict(fitGLS, sizeDF), abscissa = sizeDF) # Independent error
-#'
-#'
+#' 
+#' 
 #' # GLS Example (Multivariate) -----------
-#'
+#' 
 #' Y <- as.matrix(cbind(PlethMorph$TailLength,
 #' PlethMorph$HeadLength,
 #' PlethMorph$Snout.eye,
@@ -376,21 +376,21 @@
 #' PlethMorph$Forelimb,
 #' PlethMorph$Hindlimb))
 #' PlethMorph$Y <- Y
-#' fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph,
+#' fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' print.progress = FALSE, iter = 199)
-#' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph,
+#' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' Cov = PlethMorph$PhyCov,
 #' print.progress = FALSE, iter = 199)
-#'
+#' 
 #' anova(fitOLSm)
 #' anova(fitGLSm)
-#'
+#' 
 #' # Prediction plots
-#'
+#' 
 #' # By specimen
 #' plot(predict(fitOLSm, sizeDF)) # Correlated error
 #' plot(predict(fitGLSm, sizeDF)) # Independent error
-#'
+#' 
 #' # With respect to independent variable (using abscissa)
 #' plot(predict(fitOLSm, sizeDF), abscissa = sizeDF) # Correlated error
 #' plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
@@ -407,23 +407,23 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if (Parallel && is.null(ParCores)) {
     ParCores <- detectCores() - 1
   }
-
+  
   if (is.numeric(ParCores)) {
     if(ParCores > detectCores() - 1) ParCores <- detectCores() - 1
-  }
-
+  } 
+  
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
-
+  
   if(int.first) ko = TRUE else ko = FALSE
   SS.type <- match.arg(SS.type)
-
+  
   dots <- list(...)
   if(length(dots) > 0) {
     w <- dots$weights
     o <- dots$offset
   } else w <- o <- NULL
-
+  
   if(!is.null(w) && !is.null(Cov)) {
     w <- NULL
     cat("\nWarning: It is not possible to use both a Cov matrix and weights.")
@@ -433,28 +433,28 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     cat("\nYou could consider adjusting your Cov matrix; e.g., Cov <- Cov * 1/weights,")
     cat("\nmaking sure the Cov matrix and weights are ordered consistently.\n\n")
   }
-
+  
   Terms <- D <- NULL
-
+  
   if(print.progress) {
     cat("\nPlease be aware that printing progress slows down the analysis (perhaps slightly).\n")
     cat("\nPreliminary Model Fit...\n")
-  }
-
+  } 
+  
   if(!is.null(Cov)) {
     Cov.name <- deparse(substitute(Cov))
     Cov.match <- match(Cov.name, names(data))
-    if(length(Cov.match) > 1)
+    if(length(Cov.match) > 1) 
       stop("More than one object matches covariance matrix name")
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
     if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
     ev <- zapsmall(eigen(Cov, only.values = TRUE)$values)
-    if(any(ev == 0))
+    if(any(ev == 0)) 
       cat("\nWarning: singular covariance matrix. Proceed with caution\n")
   }
-
+  
   if(inherits(f1, "lm")) {
-    exchange.args <- f1[attributes(f1)$names %in%
+    exchange.args <- f1[attributes(f1)$names %in% 
                           c("terms", "offset", "weights")]
     exchange.args$model <- f1$model
     exchange.args$Y <- Y <- as.matrix(f1$model[[1]])
@@ -465,7 +465,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
       names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
     Terms <- f1$terms
   }
-
+  
   if(inherits(f1, "formula")) {
     exchange.args <- lm.args.from.formula(L)
     if(!is.null(exchange.args$D)) D <- exchange.args$D
@@ -483,34 +483,34 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     Terms <- exchange.args$Terms
     exchange.args$Y <- Y <- as.matrix(exchange.args$Y)
   }
-
+  
   if(!inherits(f1, c("lm", "formula")))
     stop("\nf1 must be either a formula or class lm objects.\n",
          call. = FALSE)
-
+  
   if(!is.null(o)) exchange.args$offset <- o
   if(!is.null(w)) exchange.args$w <- w
-
+  
   offst <- if(!is.null(exchange.args$offset)) TRUE else FALSE
   weighted <- if(!is.null(exchange.args$w)) TRUE else FALSE
-
+  
   exchange.args.o <- fit.args <- exchange.args
   o <- exchange.args$offset
   w <- exchange.args$w
-
+  
   X <- model.matrix(delete.response(Terms), data = exchange.args$model)
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
   if(p > (n - 1)) {
-    exchange.args$Y <- prcomp(exchange.args$Y,
-                              tol = sqrt(.Machine$double.eps))$x
+    exchange.args$Y <- prcomp(exchange.args$Y, 
+                              tol = sqrt(.Machine$double.eps))$x 
     exchange.args$model$Y <- exchange.args$Y
-    if(offst)
+    if(offst) 
       exchange.args$offset <- exchange.args$offset[,1:NCOL(exchange.args$Y)]
     PCA <- TRUE
   } else PCA <- FALSE
-
+  
   if(!is.null(Cov)) {
     if(!is.null(rownames(Y)) && !is.null(rownames(Cov)))
       Cov <- Cov[rownames(Y), rownames(Y)]
@@ -533,25 +533,25 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
       fits <- do.call(lm.fits, fit.args)
     }
   }
-
+  
   trms <- attr(Terms, "term.labels")
   k <- 0
   if(length(trms) > 0) k <- length(fits$full)
   id <- rownames(Y)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
-
-  SS.args <- beta.args <- list(exchange = exchange, ind = ind,
+  
+  SS.args <- beta.args <- list(exchange = exchange, ind = ind, 
                                RRPP = RRPP, print.progress = print.progress)
   if(Parallel) SS.args$ParCores <- beta.args$ParCores <- ParCores
-
+  
   beta.args$exchange <- exchange.o
-  if(weighted && offst)
+  if(weighted && offst) 
     beta.args$exchange$offset <- o * sqrt(w)
-
+  
   if(!turbo) {
-
-    betas <- if(Parallel)  do.call(beta.iterPP, beta.args) else
+    
+    betas <- if(Parallel)  do.call(beta.iterPP, beta.args) else 
       do.call(beta.iter, beta.args)
   } else {
     random.coef = vector("list", max(1, k))
@@ -559,12 +559,12 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     names(random.coef.distances) <- names(random.coef) <- trms
     betas <- list(random.coef = random.coef, random.coef.distances = random.coef.distances)
   }
-
+  
   SS <- if(Parallel) do.call(SS.iterPP, SS.args) else do.call(SS.iter, SS.args)
-
+  
   ANOVA <- anova.parts(exchange, SS)
   fit <- if(k > 0) fits$full[[k]] else fits$full
-
+  
   if(!is.null(w) || !is.null(Cov)) {
     gls <- TRUE
     ols <- FALSE
@@ -572,12 +572,12 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     gls <- FALSE
     ols <- TRUE
   }
-
+  
   LM <- list(form = formula(Terms), coefficients = fit$coefficients,
              ols = ols,
              gls = gls,
-             Y = Y,
-             X = X,
+             Y = Y,  
+             X = X, 
              n = n, p = p, p.prime = NCOL(exchange.args$Y),
              QR = fit$qr,
              Terms = Terms, term.labels = trms,
@@ -586,10 +586,10 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              random.coef = betas$random.coef,
              random.coef.distances = betas$random.coef.distances
   )
-
+  
   LM$weights <- w
   LM$offset <- o
-
+  
   if(gls) {
     names(LM)[[2]] <- "gls.coefficients"
     LM$gls.fitted <- LM$X %*% LM$gls.coefficients
@@ -602,31 +602,29 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     LM$mean <- if(NCOL(LM$fitted) > 1) colMeans(LM$fitted) else
       mean(LM$fitted)
   }
-
+  
   if(!is.null(Cov)) {
     LM$Cov <- Cov
     LM$Pcov <- Cov.proj(Cov, rownames(Y))
   }
   PermInfo <- list(perms = perms,
-                   perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"),
+                   perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
                    perm.schedule = ind, perm.seed = seed)
-  out <- list(call = match.call(),
+  out <- list(call = match.call(), 
               LM = LM, ANOVA = ANOVA, PermInfo = PermInfo, turbo = turbo)
-
-
+  
+  
   if(k == 0 && print.progress)
     cat("\nNo terms for ANOVA; only RSS calculated in each permutation\n")
-
+  
   if(!is.null(D)) {
     qrf <- LM$QR
     D.coef <- qr.coef(qrf, D)
     out$LM$dist.coefficients <- D.coef
   }
-
+  
   out$Models <- fits[c("reduced", "full")]
-
-  out$Models <- fits[c("reduced", "full")]
-
+  
   class(out) = "lm.rrpp"
 
   out
