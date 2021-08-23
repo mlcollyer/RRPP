@@ -1,3 +1,13 @@
+
+# CHANGES IN RRPP 1.0.0.9000
+
+### NEW FEATURES
+
+### OTHER CHANGES
+
+### BUG FIXES
+* Fixed missing coefficients for GLS estimation in `coef.lm.rrpp`
+
 # CHANGES IN RRPP 1.0.0 (Major Release)
 
 ### NEW FEATURES
