@@ -52,7 +52,7 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   k <- length(x$LM$term.labels)
   rc <- x$LM$random.coef
   rd <- x$LM$random.coef.distances
-  coef.obs <- x$LM$coefficients
+  coef.obs <- if(x$LM$gls) x$LM$gls.coefficients else x$LM$coefficients
   n <- x$LM$n; p <- x$LM$p; p.prime = x$LM$p.prime
   model.terms <- x$LM$Terms
   
