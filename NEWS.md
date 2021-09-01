@@ -7,6 +7,7 @@
 
 ### BUG FIXES
 * Fixed missing coefficients for GLS estimation in `coef.lm.rrpp`
+* Fixed missing data issue in `lm.rrpp` (passed onto `lm`).
 
 # CHANGES IN RRPP 1.0.0 (Major Release)
 
