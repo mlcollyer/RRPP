@@ -1,3 +1,79 @@
+## rrpp.data.frame
+
+#' Handle missing values in rrpp.data.frame objects
+#'
+#' @param object object (from \code{\link{rrpp.data.frame}})
+#' @param ... further arguments (currently not used)
+#' @method na.omit rrpp.data.frame
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples
+#' y <- matrix(rnorm(15), 5, 3)
+#' x <- rnorm(5)
+#' rdf <- rrpp.data.frame(x = x, y = y, d = dist(y))
+#' rdf$x[1] <- NA # create missing data
+#' rdf
+#' 
+#' ndf <- na.omit(rdf)
+#' ndf
+
+na.omit.rrpp.data.frame <- function(object, ...) {
+  nms <- names(object)
+  classes <- unlist(lapply(object, function(x) class(x)[1]))
+  subDF <- object[!is.na(match(classes, c("numeric", "factor", "integer", 
+                                          "character", "matrix", "logical")))]
+  sub.classes <- classes[!is.na(match(classes, c("numeric", "factor", "integer", 
+                                                 "character", "matrix", "logical")))]
+  oDF <- object[is.na(match(classes, c("numeric", "factor", "integer", 
+                                       "character", "matrix", "logical")))]
+  o.classes <- classes[is.na(match(classes, c("numeric", "factor", "integer", 
+                                              "character", "matrix", "logical")))]
+  subDF <- as.data.frame(subDF)
+  newDF <- na.omit(subDF)
+  omits <- attr(newDF, "na.action")
+  
+  for(i in 1:length(o.classes)){
+    
+    if(o.classes[[i]] == "array") {
+      dims <- dim(oDF[[i]])
+      if(length(dims) != 3)
+        stop("Data are neither a vector, matrix, nor appopriate array.\n",
+             call. = FALSE)
+      oDF[[i]] <- oDF[[i]][,,-omits]
+    }
+    
+    if(o.classes[[i]] == "phylo") {
+      
+      cat("Part of this data frame is a class phylo object\n")
+      cat("It is currently not possible to prune the tree according to missing data\n")
+      cat("The following actions are recommended:\n")
+      cat("1. Make a data frame with all objects or variables except the phylo object\n")
+      cat("2. Omit missing data to create a new data frame\n")
+      cat("3. Add a pruned tree to the new data frame; e.g., newDF$tree <- myPrunedTree\n")
+      stop("na.omit terminated", call. = FALSE)
+
+        stop("Data are netieher a vector, matrix, nor appopriate array.\n",
+             call. = FALSE)
+      oDF[[i]] <- oDF[[i]][,,-omits]
+    }
+    
+    if(o.classes[[i]] == "dist") {
+      
+      d <- as.matrix(oDF[[i]])
+      d <- d[-omits, -omits]
+      oDF[[i]] <- as.dist(d)
+    }
+    
+  }
+  
+  outDF <- c(as.list(newDF), oDF)
+  class(outDF) <- "rrpp.data.frame"
+  attr(outDF, "na.action") <- omits
+  outDF
+  
+}
+
 ## lm.rrpp
 
 #' Print/Summary Function for RRPP

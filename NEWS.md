@@ -2,6 +2,7 @@
 # CHANGES IN RRPP 1.0.0.9000
 
 ### NEW FEATURES
+* `na.omit.rrpp.data.frame` added for handling missing data.
 
 ### OTHER CHANGES
 
