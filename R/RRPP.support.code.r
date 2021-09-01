@@ -368,9 +368,13 @@ lm.args.from.formula <- function(cl){
            call. = FALSE)
 
   out <- list(Terms = f$terms, model = f$model, 
-       Y = as.matrix(f$y), X = f$x, D = Dy)
-  if(!is.null(out$D) && nrow(out$D) != nrow(out$Y)) 
-    out$D <- out$D[rownames(out$Y), rownames(out$Y)]
+       Y = as.matrix(f$y))
+  if(!is.null(Dy)) {
+    d <- as.matrix(Dy)
+    if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
+    out$D <- as.dist(d)
+  }
+
   out
 }
 
