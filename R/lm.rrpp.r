@@ -464,7 +464,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     if("weights" %in% names(exchange.args))
       names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
     Terms <- f1$terms
-    X <- model.matrix(f1)
   }
   
   if(inherits(f1, "formula")) {
@@ -483,7 +482,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     } else weighted <- FALSE
     Terms <- exchange.args$Terms
     Y <- as.matrix(exchange.args$Y)
-    X <- exchange.args$X
   }
   
   if(!inherits(f1, c("lm", "formula")))
@@ -587,7 +585,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              ols = ols,
              gls = gls,
              Y = Y,  
-             X = X, 
+             X = qr.X(fit$qr), 
              n = n, p = p, p.prime = NCOL(exchange.args$Y),
              QR = fit$qr,
              Terms = Terms, term.labels = trms,

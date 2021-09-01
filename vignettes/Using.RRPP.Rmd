@@ -27,8 +27,6 @@ Three data sets are provided in `RRPP` (with examples also in help pages), and a
     
 The first two datasets contain landmark-based geometric morphometric data collected from museum samples of Pecos pupfish (_Cyprinodon pecosensis_), representing body shape and cranial morphology, respectively.  Within both data sets, the `$coords`  objects are matrices of Procrustes residuals obtained from generalized Procrustes analysis (GPA) of configurations of anatomical landmarks. For the purposes of this example, it is sufficient to recognize that Procrustes residuals embody a highly multivariate dataset representing shape (see the R package, geomorph).  The third data set contains averaged linear measurements of 37 species of Plethodontid salamanders, plus a covariance matrix based on a Brownian model of evolution, given the phylogenetic relationship among the species (Adams & Collyer, 2018, for details).
 
-******
-
 ***Example: Pupfish Cranial Morphology and Mixed-Model ANOVA***
 
 In the first example we use a univariate dependent variable (head size, measured as the centroid size of the cranial landmark configuration; Bookstein, 1991) with a mixed-model design.  The following code highlights the analytical steps, with results categorized in Fig. 1:
@@ -103,7 +101,7 @@ anova(fit2)
 anova(fit3)
 
 ```
-******
+
 ***Example: Pupfish Body Shape and High-Dimensional Data***
 
 In the second example, we highlight the `RRPP` ability to efficiently handle large data computations.  For this demonstration, a 54(_n_) × 112 (_p_) matrix of Procrustes residuals are the data.  In every one of the 1,000 random permutations, RRPP shuffles residual vectors the same way for four different null models, estimates coefficients for four different full models, estimates the _SS_ as the difference between residual _SS_ (_RSS_) for four null-full model comparisons, and calculates the total _SS_, before calculating _MS_, _R_^2^, _F_, Cohen's _f_^2^, and Euclidean distances of coefficient vectors across all 1,000 permutations.  This process, plus packaging of results, took approximately 0.5 seconds on a notebook computer, without any parallel processing.
