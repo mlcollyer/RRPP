@@ -289,8 +289,8 @@ makeDF <- function(form, data, n) {
 lm.args.from.formula <- function(cl){
   
   lm.args <- list(formula = NULL, data = NULL, subset = NULL, weights = NULL,
-                  na.action = NULL, method = "qr", model = TRUE, 
-                  x = FALSE, y = FALSE, qr = TRUE,
+                  na.action = na.omit, method = "qr", model = TRUE, 
+                  qr = TRUE,
                   singular.ok = TRUE, contrasts = NULL, offset = NULL, tol = 1e-7)
   
   lm.nms <- names(lm.args)
@@ -298,6 +298,7 @@ lm.args.from.formula <- function(cl){
   m1 <- match(names(cl), lm.nms)
   m2 <- match(lm.nms, names(cl))
   lm.args[na.omit(m1)] <- cl[na.omit(m2)]
+  lm.args$x <- lm.args$y <- TRUE
   
   form <- lm.args$formula
   if(is.null(form))
@@ -366,8 +367,11 @@ lm.args.from.formula <- function(cl){
            global environment,\n", 
            call. = FALSE)
 
-  list(Terms = f$terms, model = f$model, 
-       Y = Y, D = Dy)
+  out <- list(Terms = f$terms, model = f$model, 
+       Y = as.matrix(f$y), X = f$x, D = Dy)
+  if(!is.null(out$D) && nrow(out$D) != nrow(out$Y)) 
+    out$D <- out$D[rownames(out$Y), rownames(out$Y)]
+  out
 }
 
 lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {

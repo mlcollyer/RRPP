@@ -464,6 +464,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     if("weights" %in% names(exchange.args))
       names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
     Terms <- f1$terms
+    X <- model.matrix(f1)
   }
   
   if(inherits(f1, "formula")) {
@@ -481,15 +482,28 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
       weighted <- TRUE
     } else weighted <- FALSE
     Terms <- exchange.args$Terms
-    exchange.args$Y <- Y <- as.matrix(exchange.args$Y)
+    Y <- as.matrix(exchange.args$Y)
+    X <- exchange.args$X
   }
   
   if(!inherits(f1, c("lm", "formula")))
     stop("\nf1 must be either a formula or class lm objects.\n",
          call. = FALSE)
   
-  if(!is.null(o)) exchange.args$offset <- o
-  if(!is.null(w)) exchange.args$w <- w
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  
+  if(!is.null(o)) {
+    exchange.args$offset <- o
+    }
+  
+  if(!is.null(w)) {
+    if(NROW(w) != n)
+      stop("The number of weights does not match the number of observations.  This could be because of missing data.\n",
+           call. = FALSE)
+    exchange.args$w <- w
+  }
   
   offst <- if(!is.null(exchange.args$offset)) TRUE else FALSE
   weighted <- if(!is.null(exchange.args$w)) TRUE else FALSE
@@ -498,10 +512,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   o <- exchange.args$offset
   w <- exchange.args$w
   
-  X <- model.matrix(delete.response(Terms), data = exchange.args$model)
-  dims <- dim(Y)
-  n <- dims[1]
-  p <- dims[2]
   if(p > (n - 1)) {
     exchange.args$Y <- prcomp(exchange.args$Y, 
                               tol = sqrt(.Machine$double.eps))$x 
