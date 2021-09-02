@@ -70,7 +70,7 @@ na.omit.rrpp.data.frame <- function(object, ...) {
   outDF <- c(as.list(newDF), oDF)
   class(outDF) <- "rrpp.data.frame"
   attr(outDF, "na.action") <- omits
-  outDF
+  outDF[nms]
   
 }
 
