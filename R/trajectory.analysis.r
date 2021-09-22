@@ -303,7 +303,8 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   } else SD <- NULL
   
   
-  names(MD) <- names(PD) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
+  names(trajectories) <- names(MD) <- 
+    names(PD) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
   if(!is.null(Tcor)) names(Tcor) <- names(PD)
   if(!is.null(SD)) names(SD) <- names(PD)
   
