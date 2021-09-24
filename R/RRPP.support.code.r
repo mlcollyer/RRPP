@@ -290,8 +290,8 @@ makeDF <- function(form, data, n) {
 lm.args.from.formula <- function(cl){
   
   lm.args <- list(formula = NULL, data = NULL, subset = NULL, weights = NULL,
-                  na.action = NULL, method = "qr", model = TRUE, 
-                  x = FALSE, y = FALSE, qr = TRUE,
+                  na.action = na.omit, method = "qr", model = TRUE, 
+                  qr = TRUE,
                   singular.ok = TRUE, contrasts = NULL, offset = NULL, tol = 1e-7)
   
   lm.nms <- names(lm.args)
@@ -299,6 +299,7 @@ lm.args.from.formula <- function(cl){
   m1 <- match(names(cl), lm.nms)
   m2 <- match(lm.nms, names(cl))
   lm.args[na.omit(m1)] <- cl[na.omit(m2)]
+  lm.args$x <- lm.args$y <- TRUE
   
   form <- lm.args$formula
   if(is.null(form))
@@ -308,12 +309,17 @@ lm.args.from.formula <- function(cl){
   Dy <- NULL
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
            silent = TRUE)
+  nms <- rownames(lm.args$data)
   
   if(inherits(Y, "try-error"))
     stop("Data are missing from either the data frame or global environment.\n", 
          call. = FALSE)
   
-  if(is.vector(Y)) Y <- as.matrix(Y)
+  if(is.vector(Y)) {
+    Y <- as.matrix(Y)
+    if(!is.null(nms)) rownames(Y) <- nms
+    Dy <- NULL
+  }
   
   if(is.matrix(Y) || is.data.frame(Y)) {
     if(isSymmetric(Y)) {
@@ -321,18 +327,13 @@ lm.args.from.formula <- function(cl){
       if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
                            call. = FALSE)
       lm.args$formula <- update(lm.args$formula, Y ~ .)
-    }
+    } else Dy <- NULL
   }
   
   if(inherits(Y, "dist")) {
     if(any(Y < 0)) stop("Distances in distance matrix cannot be less than 0")
     Dy <- Y
     Y <- pcoa(Y)
-  }
-  
-  if(is.vector(Y)) {
-    Y <- as.matrix(Y)
-    Dy <- NULL
   }
   
   if(is.array(Y) && length(dim(Y)) > 2) 
@@ -349,26 +350,41 @@ lm.args.from.formula <- function(cl){
   
   n <- NROW(Y)
   
-  if(!is.null(lm.args$data)) lm.args$data <- makeDF(form, lm.args$data, n)
+  if(!is.null(lm.args$data)) {
+    lm.args$data <- makeDF(form, lm.args$data, n)
+    rownames(lm.args$data) <- nms
+  }
+  
+  
   if(is.null(lm.args$data)) {
     lm.args$data <- list()
     lm.args$data$Y <- as.matrix(Y)
+    rownames(lm.args$data$Y) <- nms
   }
   
   f <- try(do.call(lm, lm.args), silent = TRUE)
   
   if(inherits(f, "try-error")) {
+    nms <- rownames(Y)
     lm.args$data$Y <- as.matrix(Y)
+    rownames(lm.args$data$Y) <- nms
     f <- try(do.call(lm, lm.args), silent = TRUE)
   }
   
   if(inherits(f, "try-error")) 
-      stop("Independent variables are missing from either the data frame or 
+    stop("Independent variables are missing from either the data frame or 
            global environment,\n", 
-           call. = FALSE)
-
-  list(Terms = f$terms, model = f$model, 
-       Y = Y, D = Dy)
+         call. = FALSE)
+  
+  out <- list(Terms = f$terms, model = f$model, 
+              Y = as.matrix(f$y))
+  if(!is.null(Dy)) {
+    d <- as.matrix(Dy)
+    if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
+    out$D <- as.dist(d)
+  }
+  
+  out
 }
 
 lm.fits <- function(Terms, Y, offset = NULL, tol = 1e-7, SS.type = "I", model) {
