@@ -308,7 +308,10 @@ lm.args.from.formula <- function(cl){
   Dy <- NULL
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
            silent = TRUE)
-  nms <- rownames(lm.args$data)
+  
+  nms <- if(!is.null(lm.args$data)) rownames(lm.args$data) else
+    if(is.vector(Y)) names(Y) else if(is.dist(Y)) attr(Y, "Labels") else
+      if(is.matrix(Y)) rownames(Y) else dimnames(Y)[[3]]
   
   if(inherits(Y, "try-error"))
     stop("Data are missing from either the data frame or global environment.\n", 
@@ -351,15 +354,14 @@ lm.args.from.formula <- function(cl){
   
   if(!is.null(lm.args$data)) {
     lm.args$data <- makeDF(form, lm.args$data, n)
-    rownames(lm.args$data) <- nms
   }
-  
     
   if(is.null(lm.args$data)) {
     lm.args$data <- list()
     lm.args$data$Y <- as.matrix(Y)
-    rownames(lm.args$data$Y) <- nms
   }
+  
+  rownames(lm.args$data) <- nms
   
   f <- try(do.call(lm, lm.args), silent = TRUE)
   
@@ -375,8 +377,9 @@ lm.args.from.formula <- function(cl){
            global environment,\n", 
            call. = FALSE)
 
-  out <- list(Terms = f$terms, model = f$model, 
-       Y = as.matrix(f$y))
+  Y = as.matrix(f$y)
+  rownames(Y) <- nms
+  out <- list(Terms = f$terms, model = f$model, Y = Y)
   if(!is.null(Dy)) {
     d <- as.matrix(Dy)
     if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
