@@ -488,6 +488,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     stop("\nf1 must be either a formula or class lm objects.\n",
          call. = FALSE)
   
+  id <- rownames(Y)
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
@@ -594,26 +595,29 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              random.coef = betas$random.coef,
              random.coef.distances = betas$random.coef.distances
   )
+  rownames(LM$X) <- id
   
   LM$weights <- w
   LM$offset <- o
   
   if(gls) {
     names(LM)[[2]] <- "gls.coefficients"
-    LM$gls.fitted <- LM$X %*% LM$gls.coefficients
-    LM$gls.residuals <- LM$Y - LM$gls.fitted
+    LM$gls.fitted <- as.matrix(LM$X %*% LM$gls.coefficients)
+    LM$gls.residuals <- as.matrix(LM$Y - LM$gls.fitted)
+    rownames(LM$gls.fitted) <- rownames(LM$gls.residuals) <- id
     LM$gls.mean <- if(NCOL(LM$gls.fitted) > 1) colMeans(LM$gls.fitted) else
       mean(LM$gls.fitted)
   } else {
-    LM$fitted <- fit$fitted.values
-    LM$residuals <- fit$residuals
+    LM$fitted <- as.matrix(fit$fitted.values)
+    LM$residuals <- as.matrix(fit$residuals)
+    rownames(LM$fitted) <- rownames(LM$residuals) <- id
     LM$mean <- if(NCOL(LM$fitted) > 1) colMeans(LM$fitted) else
       mean(LM$fitted)
   }
   
   if(!is.null(Cov)) {
     LM$Cov <- Cov
-    LM$Pcov <- Cov.proj(Cov, rownames(Y))
+    LM$Pcov <- Cov.proj(Cov, id)
   }
   PermInfo <- list(perms = perms,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 

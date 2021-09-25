@@ -212,7 +212,7 @@ rrpp.data.frame<- function(...){
         if(length(dim(dots[[i]])) == 2) dots.ns[i] <- dim(dots[[i]])[[2]]
         if(length(dim(dots[[i]])) == 1) dots.ns[i] <- dim(dots[[i]])[[1]]
       }
-      if(is.matrix(dots[[i]])) {
+      if(inherits(dots[[i]], "matrix")) {
         dots.ns[i] <- dim(dots[[i]])[[1]]
         dt.nms <- rownames(dots[[i]])
         if(dots.ns[i] == length(dots[[i]])) {
@@ -309,9 +309,8 @@ lm.args.from.formula <- function(cl){
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
            silent = TRUE)
   
-  nms <- if(!is.null(lm.args$data)) rownames(lm.args$data) else
-    if(is.vector(Y)) names(Y) else if(is.dist(Y)) attr(Y, "Labels") else
-      if(is.matrix(Y)) rownames(Y) else dimnames(Y)[[3]]
+  nms <- if(is.vector(Y)) names(Y) else if(inherits(Y, "dist")) attr(Y, "Labels") else
+      if(inherits(Y, "matrix")) rownames(Y) else dimnames(Y)[[3]]
   
   if(inherits(Y, "try-error"))
     stop("Data are missing from either the data frame or global environment.\n", 
@@ -323,7 +322,7 @@ lm.args.from.formula <- function(cl){
     Dy <- NULL
   }
   
-  if(is.matrix(Y) || is.data.frame(Y)) {
+  if(inherits(Y, "matrix") || is.data.frame(Y)) {
     if(isSymmetric(Y)) {
       Dy <- Y <- as.dist(Y)
       if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
@@ -1889,7 +1888,7 @@ aov.single.model <- function(object, ...,
     Rsq <- x$Rsq[,1]
     cohenf <- x$cohenf[,1]
     if(!is.null(Z)) {
-      if(!is.matrix(Z)) Z <- matrix(Z, 1, length(Z))
+      if(!inherits(Z, "matrix")) Z <- matrix(Z, 1, length(Z))
       P.val <- apply(Z, 1, pval) 
       Z <- apply(Z, 1, effect.size)
       } else P.val <- NULL
