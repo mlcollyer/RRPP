@@ -309,9 +309,8 @@ lm.args.from.formula <- function(cl){
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
            silent = TRUE)
   
-  nms <- if(!is.null(lm.args$data)) rownames(lm.args$data) else
-    if(is.vector(Y)) names(Y) else if(is.dist(Y)) attr(Y, "Labels") else
-      if(is.matrix(Y)) rownames(Y) else dimnames(Y)[[3]]
+  nms <- if(is.vector(Y)) names(Y) else if(inherits(Y, "dist")) attr(Y, "Labels") else
+    if(inherits(Y, "matrix")) rownames(Y) else dimnames(Y)[[3]]
   
   if(inherits(Y, "try-error"))
     stop("Data are missing from either the data frame or global environment.\n", 
@@ -323,7 +322,7 @@ lm.args.from.formula <- function(cl){
     Dy <- NULL
   }
   
-  if(is.matrix(Y) || is.data.frame(Y)) {
+  if(inherits(Y, "matrix") || is.data.frame(Y)) {
     if(isSymmetric(Y)) {
       Dy <- Y <- as.dist(Y)
       if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
@@ -355,7 +354,7 @@ lm.args.from.formula <- function(cl){
   if(!is.null(lm.args$data)) {
     lm.args$data <- makeDF(form, lm.args$data, n)
   }
-    
+  
   if(is.null(lm.args$data)) {
     lm.args$data <- list()
     lm.args$data$Y <- as.matrix(Y)
@@ -373,10 +372,10 @@ lm.args.from.formula <- function(cl){
   }
   
   if(inherits(f, "try-error")) 
-      stop("Independent variables are missing from either the data frame or 
+    stop("Independent variables are missing from either the data frame or 
            global environment,\n", 
-           call. = FALSE)
-
+         call. = FALSE)
+  
   Y = as.matrix(f$y)
   rownames(Y) <- nms
   out <- list(Terms = f$terms, model = f$model, Y = Y)
@@ -385,7 +384,7 @@ lm.args.from.formula <- function(cl){
     if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
     out$D <- as.dist(d)
   }
-
+  
   out
 }
 
