@@ -481,15 +481,28 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
       weighted <- TRUE
     } else weighted <- FALSE
     Terms <- exchange.args$Terms
-    exchange.args$Y <- Y <- as.matrix(exchange.args$Y)
+    Y <- as.matrix(exchange.args$Y)
   }
   
   if(!inherits(f1, c("lm", "formula")))
     stop("\nf1 must be either a formula or class lm objects.\n",
          call. = FALSE)
   
-  if(!is.null(o)) exchange.args$offset <- o
-  if(!is.null(w)) exchange.args$w <- w
+  id <- rownames(Y)
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  
+  if(!is.null(o)) {
+    exchange.args$offset <- o
+    }
+  
+  if(!is.null(w)) {
+    if(NROW(w) != n)
+      stop("The number of weights does not match the number of observations.  This could be because of missing data.\n",
+           call. = FALSE)
+    exchange.args$w <- w
+  }
   
   offst <- if(!is.null(exchange.args$offset)) TRUE else FALSE
   weighted <- if(!is.null(exchange.args$w)) TRUE else FALSE
@@ -498,10 +511,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   o <- exchange.args$offset
   w <- exchange.args$w
   
-  X <- model.matrix(delete.response(Terms), data = exchange.args$model)
-  dims <- dim(Y)
-  n <- dims[1]
-  p <- dims[2]
   if(p > (n - 1)) {
     exchange.args$Y <- prcomp(exchange.args$Y, 
                               tol = sqrt(.Machine$double.eps))$x 
@@ -577,7 +586,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              ols = ols,
              gls = gls,
              Y = Y,  
-             X = X, 
+             X = qr.X(fit$qr), 
              n = n, p = p, p.prime = NCOL(exchange.args$Y),
              QR = fit$qr,
              Terms = Terms, term.labels = trms,
@@ -586,26 +595,29 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              random.coef = betas$random.coef,
              random.coef.distances = betas$random.coef.distances
   )
+  rownames(LM$X) <- id
   
   LM$weights <- w
   LM$offset <- o
   
   if(gls) {
     names(LM)[[2]] <- "gls.coefficients"
-    LM$gls.fitted <- LM$X %*% LM$gls.coefficients
-    LM$gls.residuals <- LM$Y - LM$gls.fitted
+    LM$gls.fitted <- as.matrix(LM$X %*% LM$gls.coefficients)
+    LM$gls.residuals <- as.matrix(LM$Y - LM$gls.fitted)
+    rownames(LM$gls.fitted) <- rownames(LM$gls.residuals) <- id
     LM$gls.mean <- if(NCOL(LM$gls.fitted) > 1) colMeans(LM$gls.fitted) else
       mean(LM$gls.fitted)
   } else {
-    LM$fitted <- fit$fitted.values
-    LM$residuals <- fit$residuals
+    LM$fitted <- as.matrix(fit$fitted.values)
+    LM$residuals <- as.matrix(fit$residuals)
+    rownames(LM$fitted) <- rownames(LM$residuals) <- id
     LM$mean <- if(NCOL(LM$fitted) > 1) colMeans(LM$fitted) else
       mean(LM$fitted)
   }
   
   if(!is.null(Cov)) {
     LM$Cov <- Cov
-    LM$Pcov <- Cov.proj(Cov, rownames(Y))
+    LM$Pcov <- Cov.proj(Cov, id)
   }
   PermInfo <- list(perms = perms,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 

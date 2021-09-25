@@ -227,21 +227,27 @@
 ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE, 
                      scale. = FALSE, 
                      tol = NULL, rank. = NULL, newdata = NULL) {
-  Y <- try(as.matrix(Y), silent = TRUE)
-  if(inherits(Y, "try-error"))
+  
+  Ycheck <- try(as.matrix(Y), silent = TRUE)
+  if(inherits(Ycheck, "try-error"))
     stop("Y must be a matrix or data frame.\n", call. = FALSE)
+  
+  id <- if(is.vector(Y)) names(Y) else rownames(Y)
+  Y <- as.matrix(Y)
+  
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  
+  if(is.null(id)) id <- 1:n
+  rownames(Y) <- id
   
   alignment <- if(!is.null(A)) 
     try(deparse(substitute(A)), silent = TRUE) else 
       "principal"
   if(length(alignment) != 1) alignment <- "A"
-  
-  dims <- dim(Y)
-  n <- dims[1]
-  p <- dims[2]
+
   I <- diag(n)
-  
-  id <- if(!is.null(rownames(Y))) rownames(Y) else 1:n
   
   if(is.null(A)) A <- I
   if(!is.matrix(A))
@@ -260,7 +266,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   }
   
   X <- matrix(1, n)
-  rownames(X) <- rownames(Y)
+  rownames(X) <- id
   if(!is.null(Cov)) Pcov <- Cov.proj(Cov, rownames(Y))
   cen <- if(is.null(Cov)) colMeans(Y) else 
     lm.fit(Pcov %*% X, Pcov %*% Y)$coefficients
@@ -277,9 +283,15 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   } else min(n, p)
   
   tf <- if(!is.null(Cov) && transform.) TRUE else FALSE
-  if(tf) Z <- Pcov %*% Z
+  if(tf) Z <- as.matrix(Pcov %*% Z)
+
+  rownames(Z) <- id
+  
   Saz <-  if(tf || is.null(Cov)) crossprod(A, Z) else crossprod(A, 
                                                         Pcov %*% Z)
+  Saz <- as.matrix(Saz)
+  rownames(Saz) <- id
+  
   s <- svd(Saz, nu = 0, nv = k)
   
   if(alignment != "principal") {
@@ -319,6 +331,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
             RV = RV)
   
   r$x <- as.matrix(Z %*% s$v)
+  rownames(r$x) <- id
+  names(r$d) <- names(r$sdev) <- colnames(r$rot)
+  if(!is.null(r$RV)) names(r$RV) <- colnames(r$rot)
 
   if(!is.null(newdata)){
     if(tf) 
@@ -330,6 +345,8 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
     if(NCOL(Z) != NCOL(xn)) 
       stop("Different number of variables in newdata\n", call. = FALSE) 
     r$xn <- xn %*% s$v
+    if(!is.null(rownames(newdata)))
+      rownames(r$xn) <- rownames(newdata)
   }
 
   class(r) <- "ordinate"
