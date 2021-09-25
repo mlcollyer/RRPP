@@ -356,20 +356,14 @@ lm.args.from.formula <- function(cl){
   }
   
   if(is.null(lm.args$data)) {
-    lm.args$data <- list()
+    lm.args$data <- data.frame(Int = rep(1, n))
     lm.args$data$Y <- as.matrix(Y)
+    lm.args$data <- lm.args$data[-1]
   }
   
   rownames(lm.args$data) <- nms
   
   f <- try(do.call(lm, lm.args), silent = TRUE)
-  
-  if(inherits(f, "try-error")) {
-    nms <- rownames(Y)
-    lm.args$data$Y <- as.matrix(Y)
-    rownames(lm.args$data$Y) <- nms
-    f <- try(do.call(lm, lm.args), silent = TRUE)
-  }
   
   if(inherits(f, "try-error")) 
     stop("Independent variables are missing from either the data frame or 
