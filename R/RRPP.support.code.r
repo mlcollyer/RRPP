@@ -285,7 +285,6 @@ makeDF <- function(form, data, n) {
   
   dat
 }
-  
 
 lm.args.from.formula <- function(cl){
   
@@ -354,6 +353,7 @@ lm.args.from.formula <- function(cl){
   
   if(!is.null(lm.args$data)) {
     lm.args$data <- makeDF(form, lm.args$data, n)
+    lm.args$data$Y <- as.matrix(Y)
   }
   
   if(is.null(lm.args$data)) {
@@ -367,8 +367,8 @@ lm.args.from.formula <- function(cl){
   f <- try(do.call(lm, lm.args), silent = TRUE)
   
   if(inherits(f, "try-error")) 
-    stop("Independent variables are missing from either the data frame or 
-           global environment,\n", 
+    stop("Variables or data are missing from either the data frame or 
+           global environment\n", 
          call. = FALSE)
   
   Y = as.matrix(f$y)
