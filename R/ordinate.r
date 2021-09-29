@@ -290,7 +290,6 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   Saz <-  if(tf || is.null(Cov)) crossprod(A, Z) else crossprod(A, 
                                                         Pcov %*% Z)
   Saz <- as.matrix(Saz)
-  rownames(Saz) <- id
   
   s <- svd(Saz, nu = 0, nv = k)
   
