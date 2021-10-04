@@ -2626,3 +2626,50 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
   
 }
 
+# looPCOne
+# finds one PC vector via cross-validation
+# used in looCV
+
+looPCOne <-function(fit, n.ind) {
+  X <- fit$LM$X
+  Y <- fit$LM$Y
+  x <- X[n.ind,]
+  y <- Y[n.ind,]
+  X <- X[-n.ind,]
+  Y <- Y[-n.ind,]
+  gls <- fit$LM$gls
+  Pcov <- if(gls) fit$LM$Pcov[-n.ind, -n.ind] else NULL
+  QR <- if(gls) qr(crossprod(Pcov, X)) else qr(X)
+  Q <- qr.Q(QR)
+  R <- qr.R(QR)
+  H <- tcrossprod(solve(R), Q)
+  B <- if(gls)  H %*% crossprod(Pcov, Y) else
+    H %*% Y
+  S <- svd(X %*% B)
+  y %*% S$v
+}
+
+# looPCOne
+# finds each PC vector via cross-validation for a model fit
+# used in looCV
+looPCAll<-function(fit, ...) {
+  n <- fit$LM$n
+  gls <- fit$LM$gls
+  
+  ord.args <- list(...)
+  ord.args$Y <- fit$LM$Y
+  ord.args$A <- tcrossprod(qr.Q(fit$LM$QR))
+  if(is.null(ord.args$tol)) ord.args$tol <- 1e-6
+  
+  ord <- do.call(ordinate, ord.args)
+  k <- 1:length(ord$d)
+  
+  res <- t(sapply(1:n, function(j) looPCOne(fit, j)))
+  dimnames(res) <- if(gls) dimnames(fit$LM$gls.fitted) else
+    dimnames(fit$LM$fitted)
+  d <- svd(fit$LM$fitted)$d
+  res <- res[,k]
+  
+  res <- ordinate(res, ord$x, rank. = max(k))
+  list(raw = ord, cv = res)
+}
