@@ -3,6 +3,7 @@
 
 ### NEW FEATURES
 * `na.omit.rrpp.data.frame` added for handling missing data.
+* `looCV` function added as diagnostic tool.
 
 ### OTHER CHANGES
 
