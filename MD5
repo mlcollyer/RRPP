@@ -13,7 +13,7 @@ c71f87b2d3c44abe9b15104d62e82873 *man/coef.lm.rrpp.Rd
 bdd5b8886e2de73ec61122394dc9ef16 *man/convert2ggplot.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 072b442482437ebe3e0a761b3c26feeb *man/lm.rrpp.Rd
-4c57198c9b1b4bf344c6e43e486be940 *man/looCV.Rd
+9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 9ccd6f86b81f5b77785def01ca99a1a1 *man/manova.update.Rd
 e8b89a5346e67e7f8ca498aa683980fe *man/model.comparison.Rd
 05471ca269ac60530b233dce90a0f3f5 *man/model.frame.lm.rrpp.Rd
@@ -72,7 +72,7 @@ c067d5eab8c0174dd995f61d492ac78e *R/anova.lm.rrpp.r
 da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 ef8de16628fe1f1ca3d975322e247a4b *R/lm.rrpp.r
-1f08955ba14bcae46823e947cd737a20 *R/looCV.r
+11e059c8656b9d08df3506113278674b *R/looCV.r
 03bef75cc954f704fb47d205e96fddde *R/manova.update.r
 9398ce29d5275f8254ea23b272d8d276 *R/model.comparison.r
 442aa763236a98f4f1d35d3843f0ef23 *R/ordinate.r

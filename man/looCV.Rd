@@ -14,7 +14,9 @@ looCV(fit, ...)
 \value{
 An object of class \code{looCV} is a list containing 
 the following
-\item{x}{Aligned component scores for all observations}
+\item{d}{List of eigenvalues, for observed and cross-validated cases.}
+\item{scores}{List of principal component scores, 
+for observed and cross-validated cases.}
 }
 \description{
 Function performs a leave-one-out cross-validation estimate of ordination
