@@ -50,8 +50,9 @@
 #' @author Michael Collyer
 #' @return An object of class \code{looCV} is a list containing 
 #' the following
-#' \item{x}{Aligned component scores for all observations}
-
+#' \item{d}{List of eigenvalues, for observed and cross-validated cases.}
+#' \item{scores}{List of principal component scores, 
+#' for observed and cross-validated cases.}
 #' @references Thioulouse, J., Renaud, S., Dufour, A. B., & Dray, S. (2021). 
 #' Overcoming the Spurious Groups Problem in Between-Group PCA. 
 #' Evolutionary Biology, In press.
