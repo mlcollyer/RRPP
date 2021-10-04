@@ -60,6 +60,11 @@ add.tree <- function(OP, tree,
 
   pts <- as.matrix(OP$points)
   ancs <- anc.BM(tree, pts)
+  
+  if(is.null(rownames(pts)))
+    stop("Plot points do not have associated taxa names.\n", 
+         call. = FALSE)
+  
   ind <- match(tree$tip.label, rownames(pts))
   
   if(any(is.na(ind)))

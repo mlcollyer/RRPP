@@ -301,6 +301,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   
   j <- seq_len(k)
   s$v <- s$v[,j]
+  s$d <- s$d[j]
   
   sy <- if(tf || is.null(Cov)) sum(svd(Z)$d^2) else 
     sum(svd(Pcov %*% Z)$d^2)
