@@ -18,7 +18,7 @@
 #' statistics are the distances (d), which are also standardized (Z-scores).  
 #' The Z-scores might be easier to compare,
 #' as the expected values for random distances can vary among coefficient 
-#' vectors (Adams and Collyer 2016).
+#' vectors.
 #' 
 #' If RRPP is used, all distributions of coefficient vector distances are 
 #' based on appropriate null models, as defined by SS type.  Please be aware that this 

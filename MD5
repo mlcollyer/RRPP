@@ -9,7 +9,7 @@ b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
 f116620cabddf5e09ea327d314b8f56d *man/anova.lm.rrpp.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
-fde72e58008328f69fdc3f5bedb9b9f6 *man/coef.lm.rrpp.Rd
+969243a0a9e512eb12d2355f219c29ab *man/coef.lm.rrpp.Rd
 bdd5b8886e2de73ec61122394dc9ef16 *man/convert2ggplot.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 072b442482437ebe3e0a761b3c26feeb *man/lm.rrpp.Rd
@@ -68,7 +68,7 @@ e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 62077d22a49a68df553ff8ca1fa7c6ae *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 10048c1ad554721bb868dade05b626e0 *R/anova.lm.rrpp.r
-b809edb341133b371778649defafab6c *R/coef.lm.rrpp.r
+12a242809b917dc77a5462854f008574 *R/coef.lm.rrpp.r
 da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 7e00e48a94dbff43da44b7d1e4fd9e6c *R/lm.rrpp.r
@@ -81,7 +81,7 @@ c5b3c55cdaf9e5c50e741bbb367527cb *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 fe437bcacde14042b3a8f764254d7680 *R/RcppExports.R
 b22d16f04ed8861ecf31a8d637e492be *R/reveal.model.designs.r
-f6803dcb110b45048d9fb5461cf8207e *R/RRPP.support.code.r
+eac1a578b6d67996b2b895d45d354ee5 *R/RRPP.support.code.r
 47d942cc496e7beea63647e26a8b2cff *R/RRPP.utils.r
 e48904181f297c96e03addf040955322 *R/shared.support.code.r
 2adaacf7f3f4f11c001cb2449b93958e *R/trajectory.analysis.r

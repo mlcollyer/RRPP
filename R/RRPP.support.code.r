@@ -1123,6 +1123,10 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
     
     beta.dist <- getBetaDist(betas) 
     
+    # output sorts by terms, then iterations, although
+    # betas are computed by iterations, each term embedded
+    # the reason is for parallel processing, to divide
+    # jobs over many iterations rather than few terms
     betas.out <- lapply(1:k, function(j){
       res <- lapply(1:perms, function(jj){
         y <- betas[[jj]][[j]]
