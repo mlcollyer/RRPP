@@ -135,8 +135,6 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
   perms <- length(PI)
   indb <- boot.index(length(PI[[1]]), perms -1, seed)
   k <- length(object$Models$full)
-  
-  #### Need to fix betas to be same rank as nX
   betas <- beta.boot.iter(object, indb)
   
   predM <- function(b) as.matrix(nX[, rownames(b)] %*% b)

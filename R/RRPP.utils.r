@@ -2434,7 +2434,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
   do.call(plot, plot.args)
   abline(h = 0, lty = 3)
   abline(v = 0, lty = 3)
-  title("Cross-validates PC values")
+  title("Cross-validated PC values")
   
   k <- seq(1, min(c(length(x$d$obs), length(x$d$cv))))
   plot.args$x <-  x$d$obs[k]

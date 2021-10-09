@@ -303,6 +303,10 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   })
   
   kf <- length(fitf$LM$term.labels)
+  if(is.null(fitf$LM$random.coef)) {
+    fitf$LM$random.coef <- vector("list", length = kf)
+    names(fitf$LM$random.coef) <- fit$LM$term.labels
+  }
   fitf$LM$random.coef[[kf]] <- coef.n
   step <- perms + 1
   if(print.progress) {

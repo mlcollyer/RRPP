@@ -69,7 +69,8 @@ fit.sex <- lm.rrpp(coords ~ logSize + Sex, SS.type = "I", data = Pupfish,
 print.progress = FALSE, iter = 499) 
 fit.pop <- lm.rrpp(coords ~ logSize + Pop, SS.type = "I", data = Pupfish, 
 print.progress = FALSE, iter = 499) 
-anova(fit.size, fit.sex, fit.pop) # compares two models to the first
+anova(fit.size, fit.sex, fit.pop, 
+print.progress = FALSE) # compares two models to the first
 
 # see lm.rrpp examples for mixed model ANOVA example and how to vary SS type
 
