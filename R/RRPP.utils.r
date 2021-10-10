@@ -22,13 +22,13 @@ na.omit.rrpp.data.frame <- function(object, ...) {
   nms <- names(object)
   classes <- unlist(lapply(object, function(x) class(x)[1]))
   subDF <- object[!is.na(match(classes, c("numeric", "factor", "integer", 
-                                          "character", "logical")))]
+                                          "character", "matrix", "logical")))]
   sub.classes <- classes[!is.na(match(classes, c("numeric", "factor", "integer", 
-                                                 "character", "logical")))]
+                                                 "character", "matrix", "logical")))]
   oDF <- object[is.na(match(classes, c("numeric", "factor", "integer", 
-                                       "character", "logical")))]
+                                       "character", "matrix", "logical")))]
   o.classes <- classes[is.na(match(classes, c("numeric", "factor", "integer", 
-                                              "character", "logical")))]
+                                              "character", "matrix", "logical")))]
   subDF <- as.data.frame(subDF)
   newDF <- na.omit(subDF)
   omits <- attr(newDF, "na.action")
@@ -63,11 +63,6 @@ na.omit.rrpp.data.frame <- function(object, ...) {
       d <- as.matrix(oDF[[i]])
       d <- d[-omits, -omits]
       oDF[[i]] <- as.dist(d)
-    }
-    
-    if(o.classes[[i]] == "matrix") {
-      
-      oDF[[i]] <- as.matrix(oDF[[i]][-omits, ])
     }
     
   }
@@ -2152,6 +2147,8 @@ add.trajectories <- function(TP,
   
 }
 
+# ordinate
+
 #' Print/Summary Function for RRPP
 #'
 #' @param x Object from \code{\link{ordinate}}
@@ -2225,6 +2222,7 @@ summary.ordinate <- function(object, ...){
   invisible(out)
 }
 
+
 #' Print/Summary Function for RRPP
 #'
 #' @param x Object from \code{\link{summary.ordinate}}
@@ -2265,12 +2263,12 @@ print.summary.ordinate <- function(x, ...){
 plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
   options(warn = -1)
   if(NCOL(x$x) == 1) 
-    stop("Only one component  No plotting capability with this function.\n", 
+    stop("Only one component.  No plotting capability with this function.\n", 
                           call. = FALSE)
   v <- x$d/sum(x$d)
   if(!is.null(x$RV)) rv <- x$RV
   
-  pcdata <- as.matrix(x$x[, c(axis1, axis2)])
+  pcdata <- x$x[, c(axis1, axis2)]
   if(!is.null(flip)) {
     if(length(flip) > 2) flip <- flip[1:2]
     flip <- flip[(flip %in% 1:ncol(pcdata))]
@@ -2311,7 +2309,6 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
   invisible(out)
   
 }
-
 
 
 # looCV
@@ -2358,7 +2355,7 @@ summary.looCV <- function(object, ...){
   
   colnames(robs) <- colnames(rcv) <- colnames(x$x)[1:NCOL(robs)]
   rownames(robs) <- rownames(rcv) <- c("Eigenvalue", 
-                                       "Proportion of Variance", "Cumulative Proportion")
+                   "Proportion of Variance", "Cumulative Proportion")
   
   cat("\nObserved eigenvalues")
   print(robs)
@@ -2437,7 +2434,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
   do.call(plot, plot.args)
   abline(h = 0, lty = 3)
   abline(v = 0, lty = 3)
-  title("Cross-validates PC values")
+  title("Cross-validated PC values")
   
   k <- seq(1, min(c(length(x$d$obs), length(x$d$cv))))
   plot.args$x <-  x$d$obs[k]
@@ -2455,6 +2452,6 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
   title("Values close to 1:1 imply robust observed scores", 
         cex.main = 0.6)
   abline(0, 1, lty = 3)
-  
+ 
   par(opars)
 }

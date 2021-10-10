@@ -470,46 +470,50 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     exchange.args <- lm.args.from.formula(L)
     if(!is.null(exchange.args$D)) D <- exchange.args$D
     exchange.args <- exchange.args[c("Terms", "Y", "model")]
-    if(!is.null(o)) {
-      exchange.args$offset <- o
-      offst <- TRUE
-    } else offst <- FALSE
     exchange.args$tol <- 1e-7
     exchange.args$SS.type <- SS.type
-    if(!is.null(w)) {
-      exchange.args$w <- w
-      weighted <- TRUE
-    } else weighted <- FALSE
     Terms <- exchange.args$Terms
     Y <- as.matrix(exchange.args$Y)
   }
+  
+  offst <- (!is.null(o)) 
+  weighted <- (!is.null(w))
+  exchange.args <- c(exchange.args, list(w = w, offset = o))
   
   if(!inherits(f1, c("lm", "formula")))
     stop("\nf1 must be either a formula or class lm objects.\n",
          call. = FALSE)
   
+  X.args <- exchange.args[c("Terms", "Y", "SS.type", "tol", "model")]
+  Xs <- do.call(getXs, X.args)
+  exchange.args$Xs <- Xs
+  mods <- getTerms(Terms, SS.type)
+  exchange.args$mods <- mods
+  
   id <- rownames(Y)
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
-  
-  if(!is.null(o)) {
-    exchange.args$offset <- o
-    }
+  if(is.null(id)) {
+    id <- 1:n
+    rownames(Y) <- id
+  }
   
   if(!is.null(w)) {
     if(NROW(w) != n)
       stop("The number of weights does not match the number of observations.  This could be because of missing data.\n",
            call. = FALSE)
-    exchange.args$w <- w
   }
   
-  offst <- if(!is.null(exchange.args$offset)) TRUE else FALSE
-  weighted <- if(!is.null(exchange.args$w)) TRUE else FALSE
+  if(!is.null(Cov)) {
+    if(!is.null(rownames(Y)) && !is.null(rownames(Cov)))
+      Cov <- Cov[rownames(Y), rownames(Y)]
+    Pcov <- Cov.proj(Cov)
+  } else Pcov <- NULL
+  
+  exchange.args <- c(exchange.args, list(Pcov = Pcov))
   
   exchange.args.o <- fit.args <- exchange.args
-  o <- exchange.args$offset
-  w <- exchange.args$w
   
   if(p > (n - 1)) {
     exchange.args$Y <- prcomp(exchange.args$Y, 
@@ -520,41 +524,24 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     PCA <- TRUE
   } else PCA <- FALSE
   
-  if(!is.null(Cov)) {
-    if(!is.null(rownames(Y)) && !is.null(rownames(Cov)))
-      Cov <- Cov[rownames(Y), rownames(Y)]
-    exchange.args$Cov <- Cov
-    exchange.args.o$Cov <- Cov
-    fit.args$Cov <- Cov
-    exchange <- exchange.o <- do.call(lm.glsfits.exchange, exchange.args)
-    if(PCA) exchange.o <- do.call(lm.glsfits.exchange, exchange.args.o)
-    fits <- do.call(lm.glsfits, fit.args)
-  } else {
-    if(weighted) {
-      exchange.o <- do.call(lm.wfits.exchange, exchange.args.o)
-      exchange <- exchange.o
-      if(PCA) exchange <- do.call(lm.wfits.exchange, exchange.args)
-      fits <- do.call(lm.wfits, fit.args)
-    } else {
-      exchange.o <- do.call(lm.fits.exchange, exchange.args.o)
-      exchange <- exchange.o
-      if(PCA) exchange <- do.call(lm.fits.exchange, exchange.args)
-      fits <- do.call(lm.fits, fit.args)
-    }
-  }
+  exchange <- exchange.o <- do.call(package.exchanges, exchange.args)
+  if(PCA) exchange.o <- do.call(package.exchanges, exchange.args.o)
+  fits <- do.call(package.fits, fit.args)
   
   trms <- attr(Terms, "term.labels")
   k <- 0
   if(length(trms) > 0) k <- length(fits$full)
-  id <- rownames(Y)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
   
-  SS.args <- beta.args <- list(exchange = exchange, ind = ind, 
-                               RRPP = RRPP, print.progress = print.progress)
+  cks <- checkers(Terms, exchange, RRPP)
+  cks.o <- checkers(Terms, exchange.o, RRPP)
+  
+  SS.args <- beta.args <- list(checkrs = cks, ind = ind, 
+                               print.progress = print.progress)
   if(Parallel) SS.args$ParCores <- beta.args$ParCores <- ParCores
   
-  beta.args$exchange <- exchange.o
+  beta.args$checkrs <- cks.o
   if(weighted && offst) 
     beta.args$exchange$offset <- o * sqrt(w)
   
@@ -572,7 +559,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   SS <- if(Parallel) do.call(SS.iterPP, SS.args) else do.call(SS.iter, SS.args)
   
   ANOVA <- anova.parts(exchange, SS)
-  fit <- if(k > 0) fits$full[[k]] else fits$full
+  fit <- if(k > 0) fits$full[[k]] else fits$full[[1]]
   
   if(!is.null(w) || !is.null(Cov)) {
     gls <- TRUE
@@ -596,14 +583,15 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              random.coef.distances = betas$random.coef.distances
   )
   rownames(LM$X) <- id
-  
+
   LM$weights <- w
   LM$offset <- o
+
   
   if(gls) {
     names(LM)[[2]] <- "gls.coefficients"
-    LM$gls.fitted <- as.matrix(LM$X %*% LM$gls.coefficients)
-    LM$gls.residuals <- as.matrix(LM$Y - LM$gls.fitted)
+    LM$gls.fitted <- as.matrix(fit$fitted.values)
+    LM$gls.residuals <- as.matrix(fit$residuals)
     rownames(LM$gls.fitted) <- rownames(LM$gls.residuals) <- id
     LM$gls.mean <- if(NCOL(LM$gls.fitted) > 1) colMeans(LM$gls.fitted) else
       mean(LM$gls.fitted)
@@ -629,7 +617,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if(k == 0 && print.progress)
     cat("\nNo terms for ANOVA; only RSS calculated in each permutation\n")
   
-  if(!is.null(D)) {
+  if(!is.null(exchange.args$D)) {
     qrf <- LM$QR
     D.coef <- qr.coef(qrf, D)
     out$LM$dist.coefficients <- D.coef
@@ -638,6 +626,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   out$Models <- fits[c("reduced", "full")]
   
   class(out) = "lm.rrpp"
-
+  
   out
+  
 }

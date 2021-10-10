@@ -6,6 +6,9 @@
 * `looCV` function added as diagnostic tool.
 
 ### OTHER CHANGES
+* `coef.lm.rrpp` updated to provide results based on `SS.type`, rather than
+type III SS, only.
+* Complete scanning and updating of code to identify and fix names lost due to matrix calculations or vector/matrix conversions in `R`.
 
 ### BUG FIXES
 * Fixed missing coefficients for GLS estimation in `coef.lm.rrpp`

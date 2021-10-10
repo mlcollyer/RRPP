@@ -11,16 +11,30 @@
 #' design, for the parameter
 #' described.  Random coefficients are based on either RRPP or FRPP, as defined 
 #' by the 
-#' \code{\link{lm.rrpp}} model fit.  If RRPP is used, all distributions of 
-#' coefficient vector distances are 
-#' based on appropriate null models as defined by SS type.
+#' \code{\link{lm.rrpp}} model fit.  
 #' 
 #' This function can be used to test the specific coefficients of an 
 #' lm.rrpp fit.  The test
 #' statistics are the distances (d), which are also standardized (Z-scores).  
 #' The Z-scores might be easier to compare,
 #' as the expected values for random distances can vary among coefficient 
-#' vectors (Adams and Collyer 2016).
+#' vectors.
+#' 
+#' If RRPP is used, all distributions of coefficient vector distances are 
+#' based on appropriate null models, as defined by SS type.  Please be aware that this 
+#' can result in two seemingly strange but reasonable phenomena.  First, if type II or
+#' type III SS is used, the intercept will not appear in test results (because the function
+#' seeks model parameter differences to know for which coefficients to calculate Euclidean 
+#' distances).  Even if it appears for type I SS, this is merely an artifact of sequential
+#' model building and there really is no meaningful test of intercept = 0.  Second, 
+#' Euclidean distances might not always be logical, especially when viewing univariate
+#' coefficients, in which case the expected d is |b|.  Coefficients without a test are
+#' based on the full model; tests are based on the estimates of coefficients (b), 
+#' given a null model.  For example, for a model, y ~ b1 + b2 + b3, with type I SS,
+#' b2 will be estimated and tested, using a null model, y ~ b1 and a full model, 
+#' y ~ b1 + b2.  The estimate for b2 might not be the same in the test as when estimated 
+#' from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect what one
+#' would expect from the full model (like when using type III SS).  
 #'
 #' @param object Object from \code{\link{lm.rrpp}}
 #' @param test Logical argument that if TRUE, performs hypothesis tests 
