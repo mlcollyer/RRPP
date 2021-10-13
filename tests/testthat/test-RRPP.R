@@ -82,7 +82,32 @@ test_that("fit12.works", {
 })
 
 
-# needed: Cov application
+test_that("fit13.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(TailLength ~ 1, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3))
+})
+
+test_that("fit14.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3))
+})
+
+test_that("fit15.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3))
+})
 
 ### coef.lm.rrpp ----------------------------------------------------------
 
@@ -157,6 +182,34 @@ test_that("coef.fit12.works", {
   data("PlethMorph")
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
                   print.progress = FALSE, iter = 3)))
+})
+
+
+test_that("coef.fit13.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(TailLength ~ 1, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3)))
+})
+
+test_that("coef.fit14.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3)))
+})
+
+test_that("coef.fit15.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3)))
 })
 
 test_that("coef.t.fit01.works", {
@@ -239,6 +292,37 @@ test_that("coef.t.fit12.works", {
   data("PlethMorph")
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
                   print.progress = FALSE, iter = 3),
+               test = TRUE))
+})
+
+
+test_that("coef.t.fit13.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(TailLength ~ 1, data = PlethMorph, 
+                       print.progress = FALSE, 
+                       Cov = PlethMorph$PhyCov,
+                       iter = 3),
+               test = TRUE))
+})
+
+test_that("coef.t.fit14.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                       print.progress = FALSE, 
+                       Cov = PlethMorph$PhyCov,
+                       iter = 3),
+               test = TRUE))
+})
+
+test_that("coef.t.fit15.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(coef(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
+                       print.progress = FALSE, 
+                       Cov = PlethMorph$PhyCov,
+                       iter = 3),
                test = TRUE))
 })
 
