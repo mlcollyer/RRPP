@@ -352,13 +352,14 @@ lm.args.from.formula <- function(cl){
   
   if(!is.null(lm.args$data)) {
     lm.args$data <- makeDF(form, lm.args$data, n)
-    lm.args$data$Y <- as.matrix(Y)
   }
   
   if(is.null(lm.args$data)) {
     lm.args$data <- data.frame(Int = rep(1, n))
+  }
+  
+  if(!is.null(lm.args$data) && is.null(lm.args$data$Y)) {
     lm.args$data$Y <- as.matrix(Y)
-    lm.args$data <- lm.args$data[-1]
   }
   
   rownames(lm.args$data) <- nms

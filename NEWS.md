@@ -1,5 +1,9 @@
+# CHANGES IN RRPP 1.1.1
 
-# CHANGES IN RRPP 1.0.0.9000
+### BUG FIXES
+* Fixed issue in `lm.args.from.formula` for intercept only models with covariance matrices.
+
+# CHANGES IN RRPP 1.1.0
 
 ### NEW FEATURES
 * `na.omit.rrpp.data.frame` added for handling missing data.
