@@ -444,8 +444,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if(!is.null(Cov)) {
     Cov.name <- deparse(substitute(Cov))
     Cov.match <- match(Cov.name, names(data))
-    if(length(Cov.match) > 1) 
-      stop("More than one object matches covariance matrix name")
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
     if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
     ev <- zapsmall(eigen(Cov, only.values = TRUE)$values)
