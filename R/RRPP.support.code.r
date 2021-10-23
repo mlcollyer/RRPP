@@ -352,7 +352,6 @@ lm.args.from.formula <- function(cl){
   
   if(!is.null(lm.args$data)) {
     lm.args$data <- makeDF(form, lm.args$data, n)
-    lm.args$data$Y <- as.matrix(Y)
   }
   
   if(is.null(lm.args$data)) {
@@ -361,7 +360,11 @@ lm.args.from.formula <- function(cl){
     lm.args$data <- lm.args$data[-1]
   }
   
-  rownames(lm.args$data) <- nms
+  lm.args$data$Y <- Y
+  
+  dfmat <- try(as.matrix(lm.args$data), silent = TRUE)
+  if(!inherits(dfmat, "try-error"))
+    rownames(lm.args$data) <- nms
   
   f <- try(do.call(lm, lm.args), silent = TRUE)
 
