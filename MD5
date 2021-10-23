@@ -1,4 +1,4 @@
-e8ce7029b3e0e482e4c8e8a04bd6c2a6 *cran-comments.md
+bf441141be46c73231c5d5072e5dffa3 *cran-comments.md
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
@@ -80,7 +80,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 c5b3c55cdaf9e5c50e741bbb367527cb *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b22d16f04ed8861ecf31a8d637e492be *R/reveal.model.designs.r
-cd349be5c6cc8f59c25e75bc0aad7c7e *R/RRPP.support.code.r
+2a9b99e0239c94e610fe8e92769ecfad *R/RRPP.support.code.r
 47d942cc496e7beea63647e26a8b2cff *R/RRPP.utils.r
 e48904181f297c96e03addf040955322 *R/shared.support.code.r
 2adaacf7f3f4f11c001cb2449b93958e *R/trajectory.analysis.r
