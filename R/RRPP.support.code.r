@@ -352,14 +352,13 @@ lm.args.from.formula <- function(cl){
   
   if(!is.null(lm.args$data)) {
     lm.args$data <- makeDF(form, lm.args$data, n)
+    lm.args$data$Y <- as.matrix(Y)
   }
   
   if(is.null(lm.args$data)) {
     lm.args$data <- data.frame(Int = rep(1, n))
-  }
-  
-  if(!is.null(lm.args$data) && is.null(lm.args$data$Y)) {
     lm.args$data$Y <- as.matrix(Y)
+    lm.args$data <- lm.args$data[-1]
   }
   
   rownames(lm.args$data) <- nms
@@ -602,8 +601,8 @@ checkers <- function(Terms, exchange, RRPP = TRUE){
   reduced <- exchange$reduced
   full <- exchange$full
   Terms <- exchange$Terms
-  trms <- attr(Terms, "term.labels")
-  k <- length(trms)
+  trms <- names(full)
+  k <- length(full)
   Y <- as.matrix(exchange$model[[1]])
   dims <- dim(Y)
   n <- dims[1]
@@ -866,7 +865,7 @@ anova.parts <- function(exchange, SS){
   full <- exchange$full
   Terms <- exchange$Terms
   trms <- attr(Terms, "term.labels")
-  k <- length(trms)
+  k <- length(full)
   n <- NROW(exchange$model)
   if(k > 0) {
     QRr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
@@ -1493,7 +1492,7 @@ out
 # gets the slopes for groups from a lm.rrpp fit
 # used in pairwise
 getSlopes <- function(fit, x, g){
-  k <- length(fit$LM$term.labels)
+  k <- length(fit$Models$full)
   p <- fit$LM$p
   beta <- fit$LM$random.coef[[k]]
   X <- fit$LM$X
@@ -1527,7 +1526,7 @@ getSlopes <- function(fit, x, g){
 # after constaining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
-  k <- length(fit$LM$term.labels)
+  k <- length(fit$Models$full)
   n <- fit$LM$n
   beta <- fit$LM$random.coef[[k]]
   dat <- fit$LM$data
@@ -1749,14 +1748,15 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   gls <- fit$LM$gls
   w <- fit$LM$weights
   Pcov <- fit$LM$Pcov
+  Res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
   
   if(gls){
-    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% fit$LM$gls.residuals)/n else
-      Sig <- crossprod(fit$LM$gls.residuals * sqrt(w))/n
+    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% Res)/n else
+      Sig <- crossprod(Res * sqrt(w))/n
     
   }  else {
     
-    Sig <- crossprod(fit$LM$residuals) /n
+    Sig <- crossprod(Res) /n
     
   }
   
@@ -1768,34 +1768,17 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
     s$v <- s$v[, pr, drop = FALSE]
   }
   
-  Yc <- if(fit$LM$gls) scale(Y, scale = F, center = fit$LM$gls.mean) else
-    center(Y)
-  
-  if(p > 1) P <- as.matrix(Yc %*% s$v) else P <- Yc
-  
-  fit$LM$data$Y <- P
-  form <- formula(fit$LM$Terms)
-  form <- update(form, Y ~ .)
-  
-  if(!is.null(w)) {
-    pfit <- lm.rrpp(form, print.progress = FALSE, 
-                    Cov = fit$LM$Cov, data = fit$LM$data, 
-                    iter = 0, weights = w )
-  } else {
-    pfit <- lm.rrpp(form, print.progress = FALSE, 
-                    Cov = fit$LM$Cov, data = fit$LM$data, 
-                    iter = 0)
-  }
-  
+  P <- Res %*% s$v
+
   if(gls){
-    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% pfit$LM$gls.residuals)/n else
-      Sig <- crossprod(pfit$LM$gls.residuals * sqrt(w))/n
-    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$gls.residuals)
+    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% P)/n else
+      Sig <- crossprod(P * sqrt(w))/n
+    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, P)
     
   }  else {
     
-    Sig <- crossprod(pfit$LM$residuals) /n
-    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, pfit$LM$residuals)
+    Sig <- crossprod(P) /n
+    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, P)
     
   }
   

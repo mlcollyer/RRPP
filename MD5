@@ -65,13 +65,13 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 e2f11f0585d5822886ccd3c86d1c21e4 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 7775f8d88fc4d13226e08dac717796d5 *NAMESPACE
-6a7e563da891d311128ca4322f4c403e *NEWS.md
+67cbf66d430f7b07a181e18485208bc4 *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 10048c1ad554721bb868dade05b626e0 *R/anova.lm.rrpp.r
 12a242809b917dc77a5462854f008574 *R/coef.lm.rrpp.r
 da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-7e00e48a94dbff43da44b7d1e4fd9e6c *R/lm.rrpp.r
+4a20fd48c3671ac196f9c26044ed373f *R/lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 03bef75cc954f704fb47d205e96fddde *R/manova.update.r
 9398ce29d5275f8254ea23b272d8d276 *R/model.comparison.r
@@ -80,7 +80,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 c5b3c55cdaf9e5c50e741bbb367527cb *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b22d16f04ed8861ecf31a8d637e492be *R/reveal.model.designs.r
-35f2e8a213cb3382b8e2970d85e913cb *R/RRPP.support.code.r
+8209bad7bad5a597efb25b7eda2143e6 *R/RRPP.support.code.r
 47d942cc496e7beea63647e26a8b2cff *R/RRPP.utils.r
 e48904181f297c96e03addf040955322 *R/shared.support.code.r
 2adaacf7f3f4f11c001cb2449b93958e *R/trajectory.analysis.r
