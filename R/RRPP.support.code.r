@@ -1785,7 +1785,7 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   if(gls) {
     if(!is.null(Pcov)) {
       ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
-                    rank * determinant(pfit$LM$Cov, logarithm = TRUE)$modulus[1] + 
+                    rank * determinant(fit$LM$Cov, logarithm = TRUE)$modulus[1] + 
                     n * rank * log(2*pi))
     } else {
       ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] - 
