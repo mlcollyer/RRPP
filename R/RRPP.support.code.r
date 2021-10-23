@@ -1763,11 +1763,9 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   s <- svd(Sig, nu = 0, nv = k)
   sdev <- s$d/sqrt(max(1, n - 1))
   rank <- min(sum(sdev > (sdev[1L] * tol)), k)
-  if(rank < k){
-    pr <- seq_len(rank)
-    s$v <- s$v[, pr, drop = FALSE]
-  }
-  
+  pr <- pr <- seq_len(rank)
+  s$v <- s$v[, pr, drop = FALSE]
+
   P <- Res %*% s$v
 
   if(gls){
