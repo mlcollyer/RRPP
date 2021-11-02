@@ -1,8 +1,5 @@
 # CHANGES IN RRPP 1.1.2
 
-### NEW FEATURES
-* Added argument to `rrpp.data.frame` for addition of observation names, to guarantee functionality in other functions.
-
 ### BUG FIXES
 * Fixed a few issues with dropped names when working with `data.frame` objects.
 

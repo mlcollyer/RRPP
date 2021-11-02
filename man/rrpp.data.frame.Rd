@@ -4,16 +4,10 @@
 \alias{rrpp.data.frame}
 \title{Create a data frame for lm.rrpp analysis}
 \usage{
-rrpp.data.frame(..., obs.names = NULL)
+rrpp.data.frame(...)
 }
 \arguments{
 \item{...}{Components (objects) to combine in the data frame.}
-
-\item{obs.names}{An optional character vector of observation names, in case a covariance matrix 
-is used in \code{\link{lm.rrpp}}, and has names to match.  If NULL, no attempt to sort a 
-covariance matrix in \code{\link{lm.rrpp}} will be made.  If not NULL, consistency in the order 
-of data and covariances can be assured.  This could simply be the names or rownames of data used
-in the rrpp.data.frame object; e.g., obs.names = rownames(Y).}
 }
 \description{
 Create a data frame for lm.rrpp analysis, when covariance or distance 
@@ -61,4 +55,3 @@ summary(fit)
 \author{
 Michael Collyer
 }
-\keyword{utilities}
