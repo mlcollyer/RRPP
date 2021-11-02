@@ -55,4 +55,3 @@ summary(fit)
 \author{
 Michael Collyer
 }
-\keyword{utilities}

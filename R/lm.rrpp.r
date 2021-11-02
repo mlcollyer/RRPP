@@ -488,13 +488,13 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   mods <- getTerms(Terms, SS.type)
   exchange.args$mods <- mods
   
-  id <- rownames(Y)
+  id <- get.names(Y)
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
   if(is.null(id)) {
     id <- 1:n
-    rownames(Y) <- id
+    Y <- add.names(Y, id)
   }
   
   if(!is.null(w)) {
@@ -504,10 +504,10 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   }
   
   if(!is.null(Cov)) {
-    if(!is.null(rownames(Y)) && !is.null(rownames(Cov)))
-      if(length(setdiff(rownames(Y), rownames(Cov))) > 0)
+    if(!is.null(id) && !is.null(rownames(Cov)))
+      if(length(setdiff(id, rownames(Cov))) > 0)
         stop("Data names and coavriance matrix names do not match.\n", call. = FALSE)
-      Cov <- Cov[rownames(Y), rownames(Y)]
+      Cov <- Cov[id, id]
     Pcov <- Cov.proj(Cov)
   } else Pcov <- NULL
   

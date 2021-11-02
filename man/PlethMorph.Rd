@@ -10,7 +10,8 @@ Variables include snout to vent length
 (SVL) as species size, tail length, head length, snout to eye length, 
 body width, forelimb length,
 and hind limb length, all measured in mm.  A grouping variable is also 
-included for functional guild size.  
+included for functional guild size.  A variable for species names is also 
+included.
 The data set also includes a phylogenetic covariance matrix based on a 
 Brownian model of evolution, to assist in 
 generalized least squares (GLS) estimation.
