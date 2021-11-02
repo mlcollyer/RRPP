@@ -505,6 +505,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   if(!is.null(Cov)) {
     if(!is.null(rownames(Y)) && !is.null(rownames(Cov)))
+      if(length(setdiff(rownames(Y), rownames(Cov))) > 0)
+        stop("Data names and coavriance matrix names do not match.\n", call. = FALSE)
       Cov <- Cov[rownames(Y), rownames(Y)]
     Pcov <- Cov.proj(Cov)
   } else Pcov <- NULL

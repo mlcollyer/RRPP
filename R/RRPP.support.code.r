@@ -109,7 +109,8 @@ NULL
 #' (SVL) as species size, tail length, head length, snout to eye length, 
 #' body width, forelimb length,
 #' and hind limb length, all measured in mm.  A grouping variable is also 
-#' included for functional guild size.  
+#' included for functional guild size.  A variable for species names is also 
+#' included.
 #' The data set also includes a phylogenetic covariance matrix based on a 
 #' Brownian model of evolution, to assist in 
 #' generalized least squares (GLS) estimation.
@@ -159,6 +160,11 @@ NULL
 #' See \code{\link{lm.rrpp}} for examples.
 #'
 #' @param ... Components (objects) to combine in the data frame.
+#' @param obs.names An optional character vector of observation names, in case a covariance matrix 
+#' is used in \code{\link{lm.rrpp}}, and has names to match.  If NULL, no attempt to sort a 
+#' covariance matrix in \code{\link{lm.rrpp}} will be made.  If not NULL, consistency in the order 
+#' of data and covariances can be assured.  This could simply be the names or rownames of data used
+#' in the rrpp.data.frame object; e.g., obs.names = rownames(Y).
 #' @keywords utilities
 #' @export
 #' @author Michael Collyer
@@ -183,7 +189,7 @@ NULL
 #' fit <- lm.rrpp(d ~ x, data = rdf)
 #' summary(fit)
 
-rrpp.data.frame<- function(...){
+rrpp.data.frame<- function(..., obs.names = NULL){
   dots <- list(...)
   if(length(dots) == 1 && is.data.frame(dots[[1]])) {
     dots <- dots[[1]]
@@ -233,6 +239,7 @@ rrpp.data.frame<- function(...){
       stop("Inputs have different numbers of observations")
     class(dots) <- c("rrpp.data.frame")
   }
+  if(!is.null(obs.names)) dots$names <- obs.names
   dots
 }
 
@@ -254,6 +261,10 @@ makeDF <- function(form, data, n) {
   
   dat <- data
   class(dat) <- "list"
+  
+  nms <- attr(dat, "row.names")
+  
+  if(is.null(nms)) nms  <- dat$names
   
   form <- try(as.formula(form), silent = TRUE)
   if(inherits(form, "try-error"))
@@ -281,6 +292,8 @@ makeDF <- function(form, data, n) {
   }
    
   dat <- if(length(dat) == 0)  NULL else as.data.frame(dat)
+  
+  if(!is.null(nms)) rownames(dat) <- nms
   
   dat
 }
@@ -348,6 +361,8 @@ lm.args.from.formula <- function(cl){
   form <- update(form, Y ~.,)
   lm.args$formula <- form
   
+  Y <- as.matrix(Y)
+  rownames(Y) <- nms
   n <- NROW(Y)
   
   if(!is.null(lm.args$data)) {
@@ -358,13 +373,13 @@ lm.args.from.formula <- function(cl){
     lm.args$data <- data.frame(Int = rep(1, n))
     lm.args$data$Y <- as.matrix(Y)
     lm.args$data <- lm.args$data[-1]
+    rownames(lm.args$data) <-nms
   }
   
   lm.args$data$Y <- Y
   
   dfmat <- try(as.matrix(lm.args$data), silent = TRUE)
   if(!inherits(dfmat, "try-error"))
-    rownames(lm.args$data) <- nms
   
   f <- try(do.call(lm, lm.args), silent = TRUE)
 
@@ -374,7 +389,7 @@ lm.args.from.formula <- function(cl){
          call. = FALSE)
   
   Y = as.matrix(f$y)
-  rownames(Y) <- nms
+  rownames(Y) <- rownames(f$model)
   out <- list(Terms = f$terms, model = f$model, Y = Y)
   if(!is.null(Dy)) {
     d <- as.matrix(Dy)
