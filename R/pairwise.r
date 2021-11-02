@@ -249,6 +249,11 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   n <- fitf$LM$n
   p <- fitf$LM$p
   k <- length(fitf$LM$term.labels)
+  kk <- length(fitf$Models$full)
+  if(k != kk) {
+    cat("Because the linear model design matrix is not full rank, there might be an issue.\n")
+    cat("If there is a subsequent error, this is probably why.\n\n")
+  }
   
   Y <- fitf$LM$Y
   if(gls) {
