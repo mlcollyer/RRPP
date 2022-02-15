@@ -441,16 +441,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     cat("\nPreliminary Model Fit...\n")
   } 
   
-  if(!is.null(Cov)) {
-    Cov.name <- deparse(substitute(Cov))
-    Cov.match <- match(Cov.name, names(data))
-    if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
-    if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
-    ev <- zapsmall(eigen(Cov, only.values = TRUE)$values)
-    if(any(ev == 0)) 
-      cat("\nWarning: singular covariance matrix. Proceed with caution\n")
-  }
-  
   if(inherits(f1, "lm")) {
     exchange.args <- f1[attributes(f1)$names %in% 
                           c("terms", "offset", "weights")]
@@ -504,12 +494,25 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   }
   
   if(!is.null(Cov)) {
-    if(!is.null(id) && !is.null(rownames(Cov)))
+    Cov.name <- deparse(substitute(Cov))
+    Cov.match <- match(Cov.name, names(data))
+    if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
+    if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
+    if(!is.null(id) && !is.null(rownames(Cov))) {
       if(length(setdiff(id, rownames(Cov))) > 0)
         stop("Data names and coavriance matrix names do not match.\n", call. = FALSE)
       Cov <- Cov[id, id]
-    Pcov <- Cov.proj(Cov)
+    }
+    sym <- isSymmetric(Cov)
+    eigC <- eigen(Cov, symmetric = sym)
+    eigC.vect = t(eigC$vectors)
+    ev <- abs(eigC$values)
+    if(any(ev == 0)) 
+      cat("\nWarning: singular covariance matrix. Proceed with caution\n")
+    L <- eigC.vect *sqrt(ev)
+    Pcov <- fast.solve(crossprod(L, eigC.vect))
   } else Pcov <- NULL
+  
   
   exchange.args <- c(exchange.args, list(Pcov = Pcov))
   
@@ -534,8 +537,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
   
-  cks <- checkers(Terms, exchange, RRPP)
-  cks.o <- checkers(Terms, exchange.o, RRPP)
+  cks <- cks.o <- checkers(Terms, exchange, RRPP, turbo)
+  if(PCA) cks.o <- checkers(Terms, exchange.o, RRPP, turbo)
   
   SS.args <- beta.args <- list(checkrs = cks, ind = ind, 
                                print.progress = print.progress)
@@ -546,10 +549,15 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     beta.args$exchange$offset <- o * sqrt(w)
   
   if(!turbo) {
-    
     betas <- if(Parallel)  do.call(beta.iterPP, beta.args) else 
       do.call(beta.iter, beta.args)
+    SS.args$Xs <- Xs
+    SS.args$betas <- betas
+    SS.args$turbo <- FALSE
+
   } else {
+    SS.args$Xs <- SS.args$betas <- NULL
+    SS.args$turbo <- TRUE
     random.coef = vector("list", max(1, k))
     random.coef.distances = vector("list", max(1, k))
     names(random.coef.distances) <- names(random.coef) <- trms
@@ -557,6 +565,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   }
   
   SS <- if(Parallel) do.call(SS.iterPP, SS.args) else do.call(SS.iter, SS.args)
+    
   
   ANOVA <- anova.parts(exchange, SS)
   fit <- if(k > 0) fits$full[[k]] else fits$full[[1]]
@@ -573,7 +582,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              ols = ols,
              gls = gls,
              Y = Y,  
-             X = qr.X(fit$qr), 
+             X = Xs$Xfs[[k]], 
              n = n, p = p, p.prime = NCOL(exchange.args$Y),
              QR = fit$qr,
              Terms = Terms, term.labels = trms,
