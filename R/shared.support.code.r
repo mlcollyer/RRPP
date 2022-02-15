@@ -70,36 +70,30 @@ apply.pPsup<-function(M, Ya) {	# M = mean (reference); Ya all Y targets
 # used in any function requiring a generalized inverse
 fast.ginv <- function(X, tol = sqrt(.Machine$double.eps)){
   k <- ncol(X)
-  Xsvd <- La.svd(X, k, k)
-  Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
-  rtu <-((1/Xsvd$d[Positive]) * t(Xsvd$u[, Positive, drop = FALSE]))
-  v <-t(Xsvd$vt)[, Positive, drop = FALSE]
-  v%*%rtu
+  if(inherits(X, "matrix")) {
+    Xsvd <- La.svd(X, k, k)
+    Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
+    rtu <-((1/Xsvd$d[Positive]) * t(Xsvd$u[, Positive, drop = FALSE]))
+    v <-t(Xsvd$vt)[, Positive, drop = FALSE]
+  } else {
+    Xsvd <- svd(X, k, k)
+    Positive <- Xsvd$d > max(tol * Xsvd$d[1L], 0)
+    rtu <-((1/Xsvd$d[Positive]) * t(Xsvd$u[, Positive, drop = FALSE]))
+    v <-Xsvd$v[, Positive, drop = FALSE]
+  }
+  
+  v %*% rtu
 }
 
 # fast.solve
 # same as solve, but without traps (faster)
 # used in any function requiring a generalized inverse
 fast.solve <- function(x) { 
-  if(det(x) > 1e-8) {
-    res <- try(chol2inv(chol(x)), silent = TRUE)
-    if(inherits(res, "try-error")) res <- fast.ginv(x)
-  } else  res <- fast.ginv(x)
+  res <- try(solve(x), silent = TRUE)
+  if(inherits(res, "try-error")) res <- fast.ginv(x)
   return(res)
 }
 
-# sparse.solve
-# same as fast.solve, but specifically for sparse symmetric matrices
-# used in any function requiring a generalized inverse of a known
-# sparse symmetric matrix
-sparse.solve <- function(X){
-  keep <- which(round(X, 12) != 0)
-  m <- sqrt(length(keep))
-  Y <- matrix(X[keep], m, m)
-  Xn <- array(0, dim(X))
-  Xn[keep] <- fast.solve(Y)
-  Xn
-}
 
 # pcoa
 # acquires principal coordinates from distance matrices
@@ -349,12 +343,23 @@ Effect.size.matrix <- function(M, center=TRUE){
 
 Cov.proj <- function(Cov, id = NULL){
   Cov <- if(is.null(id)) Cov else Cov[id, id]
-  sym <- isSymmetric(Cov)
-  eigC <- eigen(Cov, symmetric = sym)
-  eigC.vect = t(eigC$vectors)
-  L <- eigC.vect *sqrt(abs(eigC$values))
-  P <- fast.solve(crossprod(L, eigC.vect))
-  dimnames(P) <- dimnames(Cov)
+  if(inherits(Cov, "matrix")) {
+    Cov.s <- Matrix(Cov, sparse = TRUE)
+    if(object.size(Cov.s) < object.size(Cov)) Cov <- Cov.s
+    Cov.s <- NULL
+  }
+  ow <- options()$warn
+  options(warn = -1)
+  Chol <- try(chol(Cov), silent = TRUE)
+  if(inherits(Chol, "try-error")) {
+    sym <- isSymmetric(Cov)
+    eigC <- eigen(Cov, symmetric = sym)
+    eigC.vect = t(eigC$vectors)
+    L <- eigC.vect *sqrt(abs(eigC$values))
+    P <- fast.solve(crossprod(L, eigC.vect))
+    dimnames(P) <- dimnames(Cov)
+  } else P <- solve(Chol)
+  options(warn = ow)
   P
 }
 
@@ -474,6 +479,7 @@ anc.BM <- function(phy, Y){
   n <- length(phy$tip.label)
   out <- t(sapply(1:phy$Nnode, function(j){
     phy.j <- multi2di.phylo(root.phylo(phy, node = j + n))
+    phy.j <- collapse.singles(phy.j)
     preps <- pic.prep(phy.j, NROW(Y), NCOL(Y))
     preps$x <- Y
     preps$tip.label <- phy$tip.label
@@ -481,7 +487,7 @@ anc.BM <- function(phy, Y){
     out[n + 1,]
   }))
   
-  if(length(out) == (n-1)) out <- t(out)
+  if(NROW(out) == 1) out <- t(out)
   dimnames(out) <- list(1:phy$Nnode + length(phy$tip.label), colnames(Y))
   out
 }
