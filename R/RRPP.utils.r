@@ -133,8 +133,13 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     if(is.null(RSS)) RSS <- RSS.model
     if(is.null(RSS)) TSS <- RSS.model
     SS.type <- AN$SS.type
-    k <- length(LM$term.labels)
-    
+    trms <- LM$term.labels
+    k <- length(trms)
+    kk <- length(object$Models$full)
+    if(k > kk){
+      k <- kk
+      trms <- names(object$Models$full)
+    }
     
     if(k > 0) {
       df <- AN$df
@@ -189,9 +194,9 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       }
       if(!is.null(LM$Pcov)) {
         Pcov <- LM$Pcov
-        PY <- crossprod(Pcov, LM$Y)
-        PX <- as.matrix(crossprod(Pcov, LM$X))
-        Pint <- as.matrix(crossprod(Pcov, rep(int, n)))
+        PY <- Pcov %*% LM$Y
+        PX <- as.matrix(Pcov %*% LM$X)
+        Pint <- as.matrix(Pcov %*% rep(int, n))
         RM <- lm.fit(PX, PY)$residuals
         Sr <- crossprod(RM)
       }
@@ -272,7 +277,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       }
       
       SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
-      names(SSCP) <- LM$term.labels
+      names(SSCP) <- trms
       SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[k]]))))
       
     } else {
@@ -591,17 +596,24 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
   if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
     type <- "diagnostics"
   PL <- Reg.proj <- PC.points <- NULL
+  
   if(type == "diagnostics") {
     
     if(x$LM$p == 1) {
       plot.args <- NULL
-      xx <- x$Models$full[[length(x$LM$term.labels)]]
-      xx$terms <- x$LM$Terms
-      xx$model <- x$LM$data
-      xx$call <- x$call
-      class(xx) <- "lm"
-      plot(xx, ...)
+      
+      y <- x$LM$Y
+      if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% y
+      if(!is.null(x$LM$weights)) rr <- y * sqrt(x$LM$weights)
+      X <- fit$LM$X
+      if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% X
+      if(!is.null(x$LM$weights)) rr <- X * sqrt(x$LM$weights)
+      lm.new <- lm(y ~ X + 0)
+      lm.new$call <- x$call
+      plot(lm.new, ...)
+      
     } else {
+      
       plot.args <- NULL
       pca.r <- prcomp(r)
       var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
@@ -778,9 +790,14 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
   plot.args <- dots <- list(...)
   arrow.args <- text.args <- eP <- NULL
   
-  dots.match <- intersect(c("angle", "length", "adj", 
-                  "offset", "pos", "vfont", "labels"), names(plot.args))
-  plot.args <- plot.args[names(plot.args) != dots.match]
+  plot.names <- names(plot.args)
+  arrows.names <- c("angle", "length", "code", "col",
+                    "lty", "lwd")
+  text.names <- c("adj","offset", "pos", "vfont", "labels", "cex")
+  
+  plot.args <- plot.args[!(plot.names %in% arrows.names)]
+  arrow.args <- dots[names(dots) %in% arrows.names]
+  arrow.args <- dots[names(dots) %in% text.names]
   
   absx <- FALSE
   
@@ -801,7 +818,7 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
   response.type <- if(NCOL(mpc) == 1) "uni" else "multi"
   
   if(plot.type == "uni") {
-    
+
     if(response.type == "uni") {
       
       xx <- seq(1:k)
@@ -834,13 +851,12 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       if(absx && is.numeric(abscissa)) axis(1, xx) else
         axis(1, at = xx, labels = as.character(xf)) 
       
-      arrow.args <- list(x0 = xx, y0 = resp, x1 = xx, y1 = lcl,
-                         angle = 90, length = 0.10, col = 1, lty = 1,
-                         lwd = 1)
-      dot.match <- intersect(c("angle", "length", "col", "lty", "lwd"), 
-                                 names(dots))
-      if(length(dot.match) > 0)
-        arrow.args[dot.match] <- dots[dot.match]
+      arrow.args$x0 <- xx
+      arrow.args$y0 <- resp
+      arrow.args$x1 <- xx
+      arrow.args$y1 <- lcl
+      if(is.null(arrow.args$angle)) arrow.args$angle <- 90
+      if(is.null(arrow.args$lemgth)) arrow.args$length <- 0.1
    
       do.call(arrows, arrow.args)
       arrow.args$y1 <- ucl
@@ -897,14 +913,12 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       la <- (k + 1):(2 * k)
       ua <- (2 * k +1):(3 * k)
       
-      arrow.args <- list(x0 = xx, y0 = mr[1:k], x1 = xx, y1 = mr[la],
-                         angle = 90, length = 0.10, col = 1, lty = 1,
-                         lwd = 1)
-      
-      dot.match <- intersect(c("angle", "length", "col", "lty", "lwd"), 
-                             names(dots))
-      if(length(dot.match) > 0)
-        arrow.args[dot.match] <- dots[dot.match]
+      arrow.args$x0 <- xx
+      arrow.args$y0 <- mr[1:k]
+      arrow.args$x1 <- xx
+      arrow.args$y1 <- mr[la]
+      if(is.null(arrow.args$angle)) arrow.args$angle <- 90
+      if(is.null(arrow.args$lemgth)) arrow.args$length <- 0.1
       
       do.call(arrows, arrow.args)
       arrow.args$y1 <- mr[ua]
@@ -973,15 +987,14 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       la <- (k + 1):(2 * k)
       ua <- (2 * k +1):(3 * k)
       
-      arrow.args <- list(x0 = mr[1:k,1], y0 = mr[1:k,2], 
-                         x1 = mr[1:k,1], y1 = mr[la, 2],
-                         angle = 90, length = 0.10, col = 1, lty = 1,
-                         lwd = 1)
+      if(is.null(arrow.args$angle)) arrow.args$angle <- 90
+      if(is.null(arrow.args$lemgth)) arrow.args$length <- 0.05
+
+      arrow.args$x0 <- mr[1:k,1]
+      arrow.args$y0 <- mr[1:k,2]
+      arrow.args$x1 <- mr[1:k,1]
+      arrow.args$y1 <- mr[la, 2]
       
-      dot.match <- intersect(c("angle", "length", "col", "lty", "lwd"), 
-                             names(dots))
-      if(length(dot.match) > 0)
-        arrow.args[dot.match] <- dots[dot.match]
       do.call(arrows, arrow.args)
       
       arrow.args$y1 <- mr[ua, 2]
@@ -1001,6 +1014,7 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
     
     
     if(label) {
+      
       text.args <- list(x = NULL, y = NULL, cex = 1, col = 1,
                         adj = NULL, offset = 0.5, pos = 1, vfont = NULL,
                         labels = rownames(x$mean))
@@ -1536,6 +1550,11 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   perms <- length(ind)
   trms <- object$LM$term.labels
   k <- length(trms)
+  kk <- length(object$Models$full)
+  if(k > kk){
+    k <- kk
+    trms <- names(object$Models$full)
+  }
   df <- object$ANOVA$df
   df.model <- sum(df[1:k])
   df <- c(df[1:k], df.model, df[k+1])

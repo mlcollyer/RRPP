@@ -1,3 +1,15 @@
+# CHANGES IN RRPP 1.2.1
+
+### NEW FEATURES
+* Updated many functions to be able to use `Matrix` class matrices for more efficient computation, when needed.
+* Updated `checkers` function to use better algorithms to switch among different class matrices, to better save memory and increase computation time efficiency.
+
+### BUG FIXES
+*  Added catch to `anc.BM` for singleton nodes.
+
+### OTHER CHANGES
+* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated supprot functions to work wth updates.
+
 # CHANGES IN RRPP 1.1.2
 
 ### BUG FIXES

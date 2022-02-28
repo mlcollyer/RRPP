@@ -219,6 +219,12 @@ manova.update <- function(fit, error = NULL,
   Terms <- fit$LM$Terms
   trms <- fit$LM$term.labels
   k <- length(trms)
+  
+  if(k > length(fit$Models$full)) {
+    k <- length(fit$Models$full)
+    trms <- names(fit$Models$full)
+  }
+  
   if(k == 0) stop("\nNo model terms from which to calculate SSCPs.\n",
                   call. = FALSE)
   int <- attr(Terms, "intercept")
@@ -284,7 +290,7 @@ manova.update <- function(fit, error = NULL,
   
   int <- attr(Terms, "intercept")
   Unull <- if(!is.null(Pcov)) 
-    qr.Q(qr(crossprod(Pcov, rep(int, n)))) else if(!is.null(w)) 
+    qr.Q(qr(Pcov %*% rep(int, n))) else if(!is.null(w)) 
       qr.Q(qr(rep(int, n) * sqrt(w))) else
         qr.Q(qr(rep(int, n)))
   

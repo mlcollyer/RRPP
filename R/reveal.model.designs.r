@@ -28,9 +28,9 @@
 #'reveal.model.designs(fit3)
 #' 
 reveal.model.designs <- function(fit) {
-  model.sets <- fit$LM$model.sets
-  terms.f <- model.sets$terms.f
-  terms.r <- model.sets$terms.r
+  model.sets <- fit$Models
+  terms.f <- lapply(model.sets$full, function(x) x$terms)
+  terms.r <- lapply(model.sets$reduced, function(x) x$terms)
   forms.r <- lapply(terms.r, function(x) formula(x)[[3]])
   forms.f <- lapply(terms.f, function(x) formula(x)[[3]])
   reduced <- lapply(forms.r, function(x) Reduce(paste, deparse(x)))
