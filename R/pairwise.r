@@ -164,7 +164,7 @@
 #' # example, there are many.  Thus, only three principal components 
 #' # will be used for demonstration purposes.
 #' 
-#' Pupfish$Y <- prcomp(Pupfish$coords)$x[, 1:3]
+#' Pupfish$Y <- ordinate(Pupfish$coords)$x[, 1:3]
 #' 
 #' ## Pairwise comparisons of LS means
 #' 
@@ -226,7 +226,7 @@
 #' summary(PW2, confidence = 0.95, test.type = "var")
 #' 
 pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL, 
-                         print.progress = FALSE) {
+                     print.progress = FALSE) {
   fitf <- fit
   ind <- fitf$PermInfo$perm.schedule
   perms <- length(ind)
@@ -261,7 +261,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       Y %*% sqrt(fitf$LM$weights)
   }
   
-  X <- qr.X(fitf$Models$reduced[[k]]$qr) 
+  X <- fitf$Models$reduced[[max(1, kk)]]$X
   if(!is.null(fit.null)) {
     X <- fit.null$LM$X
     if(fit.null$LM$gls) {
@@ -294,8 +294,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   rrpp.args$o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
   rrpp.args$offset <- if(!is.null(o)) TRUE else FALSE
   
-  Qf <- fit$Models$full[[k]]$qr
-  
+  Qf <- qr(fitf$LM$X)
   H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
   getCoef <- function(y) H %*% y
   
@@ -307,12 +306,11 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     getCoef(y)
   })
   
-  kf <- length(fitf$LM$term.labels)
   if(is.null(fitf$LM$random.coef)) {
-    fitf$LM$random.coef <- vector("list", length = kf)
+    fitf$LM$random.coef <- vector("list", length = kk)
     names(fitf$LM$random.coef) <- fit$LM$term.labels
   }
-  fitf$LM$random.coef[[kf]] <- coef.n
+  fitf$LM$random.coef[[max(1, kk)]] <- coef.n
   step <- perms + 1
   if(print.progress) {
     setTxtProgressBar(pb,step)
@@ -322,7 +320,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   groups <- factor(groups)
   gp.rep <- by(groups, groups, length)
   
-
+  
   if(length(groups) != fitf$LM$n) 
     stop("The length of the groups factor does not match the number of observations 
          in the lm.rrpp fit")

@@ -187,10 +187,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
     stop("Not every trajectory point has replication (more than one observation).\n",
                             call. = FALSE)
   
-  if(is.null(fit.null)) 
-    PW <- pairwise(fit, fit.null, groups, 
-                   covariate = NULL, print.progress = FALSE) else 
-      PW <- pairwise(fit, fit.null, groups, covariate = NULL, 
+  PW <- pairwise(fit, fit.null, groups, covariate = NULL, 
                      print.progress = print.progress)
   
   means <- PW$LS.means

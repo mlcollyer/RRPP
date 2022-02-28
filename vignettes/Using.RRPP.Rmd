@@ -193,7 +193,7 @@ anova(fit)
 ```
 The ANOVA results with either method are exactly the same.
 
-******
+
 ***Example: Plethodontid Morphology, Phylogenetics, and GLS Estimation***
 
 In the third example, we highlight GLS estimation.  The following code creates two `lm.rrpp` fits using OLS and GLS, respectively, and evaluates them as in previous examples:
@@ -243,7 +243,7 @@ plot(predict(fitOLSm, sizeDF), PC= TRUE) # Correlated error
 plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
 
 ```
-******
+
 
 ***Analytical Summary***
 
@@ -256,7 +256,7 @@ attributes(fit)
 
 Within the `$LM` partition, all attributes of the lm function are found, in addition to coefficients for every random permutation.  Within the `$ANOVA` partition, the SS type, plus `SS`, `MS`, `R`^2^, `F`, and Cohen's `f`^2^ for all permutations, as well as effect sizes estimated for each of these are provided.  Within the `$PermInfo` partition, the number of permutations, type (RRPP or randomization of "full" data values, FRPP), and sampling frame in every permutation (schedule) are provided.  Thus, lm.rrpp is the workhorse that makes all downstream analysis efficient.
 
-*******
+*
 
 ***References***
 

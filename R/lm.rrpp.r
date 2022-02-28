@@ -396,9 +396,10 @@
 #' plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
 
 lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALSE,
-                        RRPP = TRUE, SS.type = c("I", "II", "III"),
-                        data = NULL, Cov = NULL,
-                        print.progress = FALSE, Parallel = FALSE, ...) {
+                     RRPP = TRUE, SS.type = c("I", "II", "III"),
+                     data = NULL, Cov = NULL,
+                     print.progress = FALSE, Parallel = FALSE, ...) {
+  
   ParCores <- NULL
   if (is.numeric(Parallel)) {
     ParCores <- Parallel
@@ -464,20 +465,6 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     Y <- as.matrix(exchange.args$Y)
   }
   
-  offst <- (!is.null(o)) 
-  weighted <- (!is.null(w))
-  exchange.args <- c(exchange.args, list(w = w, offset = o))
-  
-  if(!inherits(f1, c("lm", "formula")))
-    stop("\nf1 must be either a formula or class lm objects.\n",
-         call. = FALSE)
-  
-  X.args <- exchange.args[c("Terms", "Y", "SS.type", "tol", "model")]
-  Xs <- do.call(getXs, X.args)
-  exchange.args$Xs <- Xs
-  mods <- getTerms(Terms, SS.type)
-  exchange.args$mods <- mods
-  
   id <- get.names(Y)
   dims <- dim(Y)
   n <- dims[1]
@@ -487,10 +474,26 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     Y <- add.names(Y, id)
   }
   
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  
+  offst <- (!is.null(o)) 
+  weighted <- (!is.null(w))
+  exchange.args <- c(exchange.args, list(w = w, offset = o))
+  
+  if(!inherits(f1, c("lm", "formula")))
+    stop("\nf1 must be either a formula or class lm objects.\n",
+         call. = FALSE)
+  
+  gls <- FALSE
+  ols <- TRUE
+  
   if(!is.null(w)) {
     if(NROW(w) != n)
       stop("The number of weights does not match the number of observations.  This could be because of missing data.\n",
            call. = FALSE)
+    gls <- TRUE
+    ols <- FALSE
   }
   
   if(!is.null(Cov)) {
@@ -503,110 +506,167 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
         stop("Data names and coavriance matrix names do not match.\n", call. = FALSE)
       Cov <- Cov[id, id]
     }
-    sym <- isSymmetric(Cov)
-    eigC <- eigen(Cov, symmetric = sym)
-    eigC.vect = t(eigC$vectors)
-    ev <- abs(eigC$values)
-    if(any(ev == 0)) 
-      cat("\nWarning: singular covariance matrix. Proceed with caution\n")
-    L <- eigC.vect *sqrt(ev)
-    Pcov <- fast.solve(crossprod(L, eigC.vect))
+    
+    Pcov <- Cov.proj(Cov, id = id)
+    gls <- TRUE
+    ols <- FALSE
   } else Pcov <- NULL
   
+  X.args <- exchange.args[c("Terms", "Y", "SS.type", "tol", "model")]
+  Xs <- do.call(getXs, X.args)
+  X <- Xs$Xfs[[length(Xs$Xfs)]]
   
-  exchange.args <- c(exchange.args, list(Pcov = Pcov))
+  Qs <- lapply(1:2, function(j){
+    X.j <- Xs[[j]]
+    kk <- length(X.j)
+    res <- lapply(1:kk, function(jj){
+      x <- X.j[[jj]]
+      if(!is.null(Pcov)) x <- Pcov %*% x
+      if(!is.null(w)) x <- x * sqrt(w)
+      qr(x)
+    })
+    res
+  })
   
-  exchange.args.o <- fit.args <- exchange.args
+  Qs.sparse <- lapply(1:2, function(j){
+    X.j <- Xs[[j]]
+    kk <- length(X.j)
+    res <- lapply(1:kk, function(jj){
+      x <- X.j[[jj]]
+      if(!is.null(Pcov)) x <- Pcov %*% x
+      if(!is.null(w)) x <- x * sqrt(w)
+      x.sparse <- Matrix(round(as.matrix(x), 15), sparse = TRUE)
+      qr(x.sparse)
+    })
+    res
+  })
   
-  if(p > (n - 1)) {
-    exchange.args$Y <- prcomp(exchange.args$Y, 
-                              tol = sqrt(.Machine$double.eps))$x 
-    exchange.args$model$Y <- exchange.args$Y
-    if(offst) 
-      exchange.args$offset <- exchange.args$offset[,1:NCOL(exchange.args$Y)]
-    PCA <- TRUE
-  } else PCA <- FALSE
+  names(Qs) <- names(Qs.sparse) <- c("reduced", "full")
   
-  exchange <- exchange.o <- do.call(package.exchanges, exchange.args)
-  if(PCA) exchange.o <- do.call(package.exchanges, exchange.args.o)
-  fits <- do.call(package.fits, fit.args)
-  
-  trms <- attr(Terms, "term.labels")
-  k <- 0
-  if(length(trms) > 0) k <- length(fits$full)
   ind <- perm.index(n, iter = iter, seed = seed)
   perms <- iter + 1
   
-  cks <- cks.o <- checkers(Terms, exchange, RRPP, turbo)
-  if(PCA) cks.o <- checkers(Terms, exchange.o, RRPP, turbo)
+  checkers.args <- list(Y = Y, Qs = Qs, Qs.sparse = Qs.sparse, Xs = Xs,
+                        turbo = turbo, Terms = Terms, Pcov = Pcov, w = w)
+  cks <- do.call(checkers, checkers.args)
+
+  Qs <- Qs.sparse <- checkers.args <- NULL
   
-  SS.args <- beta.args <- list(checkrs = cks, ind = ind, 
-                               print.progress = print.progress)
-  if(Parallel) SS.args$ParCores <- beta.args$ParCores <- ParCores
+  TY <- if(!is.null(Pcov)) Pcov %*% Y else if(!is.null(w)) Y * sqrt(w) else Y
   
-  beta.args$checkrs <- cks.o
-  if(weighted && offst) 
-    beta.args$exchange$offset <- o * sqrt(w)
+  PCA <- p > (n - 1) 
+  
+  if(PCA) {
+    TYp <- ordinate(TY, tol = 1e-10)$x
+    p.prime <- ncol(TYp)
+  } else {
+    TYp <- TY
+    p.prime <- p
+  }
+  
+  Ur <- cks$Ur
+  kk <- length(Ur)
+  
+  if(RRPP) {
+    FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+      fitted <- as.matrix(fastFit(Ur[[j]], TY, n , p))
+      residuals <- as.matrix(TY - fitted)
+      out <- list(fitted = fitted, residuals = residuals)
+    })
+  } else {
+    FR <- obs.FR <- lapply(1:max(1, kk), function(j){
+      fitted <-  matrix(0, n, p)
+      residuals <- as.matrix(TY)
+      list(fitted = fitted, residuals = residuals)
+    })
+  }
+  
+  cks$FR <- FR
   
   if(!turbo) {
-    betas <- if(Parallel)  do.call(beta.iterPP, beta.args) else 
-      do.call(beta.iter, beta.args)
-    SS.args$Xs <- Xs
-    SS.args$betas <- betas
-    SS.args$turbo <- FALSE
-
-  } else {
-    SS.args$Xs <- SS.args$betas <- NULL
-    SS.args$turbo <- TRUE
-    random.coef = vector("list", max(1, k))
-    random.coef.distances = vector("list", max(1, k))
-    names(random.coef.distances) <- names(random.coef) <- trms
-    betas <- list(random.coef = random.coef, random.coef.distances = random.coef.distances)
-  }
-  
-  SS <- if(Parallel) do.call(SS.iterPP, SS.args) else do.call(SS.iter, SS.args)
+    cks$offset <- o
+    cks$Y <- TY
+    cks$trms <- term.labels
     
+    beta.args <- list(checkrs = cks, ind = ind,
+                      ParCores= ParCores, 
+                      print.progress = print.progress)
+    
+    betas <- do.call(beta.iter, beta.args)
+    random.coef <- betas$random.coef
+    random.coef.distances <- betas$random.coef.distances
+    betas <- beta.args <- NULL
+  } else random.coef <- random.coef.distances <- NULL
   
-  ANOVA <- anova.parts(exchange, SS)
-  fit <- if(k > 0) fits$full[[k]] else fits$full[[1]]
+  cks$Y <- TYp
   
-  if(!is.null(w) || !is.null(Cov)) {
-    gls <- TRUE
-    ols <- FALSE
-  } else {
-    gls <- FALSE
-    ols <- TRUE
+  if(PCA){
+    if(RRPP) {
+      FR <- lapply(1:max(1, k), function(j){
+        fitted <- as.matrix(fastFit(Ur[[j]], TYp, n , p.prime))
+        residuals <- as.matrix(TYp - fitted)
+        list(fitted = fitted, residuals = residuals)
+      })
+    } else {
+      FR <- lapply(1:max(1, k), function(j){
+        fitted <- matrix(0, n, p.prime)
+        residuals <- as.matrix(TYp)
+        list(fitted = fitted, residuals = residuals)
+      })
+    }
+    cks$FR <- FR
   }
+  SS.args <- list(checkrs = cks, ind = ind, 
+                  print.progress = print.progress,
+                  ParCores = ParCores)
+  FR <- NULL
+  SS <- do.call(SS.iter, SS.args)
+  cks$SS.type <- SS.type
+  ANOVA <- anova.parts(cks, SS)
+  SS.args <- NULL
   
-  LM <- list(form = formula(Terms), coefficients = fit$coefficients,
+  obs.fit <- lm.rrpp.fit(X, Y, Pcov = Pcov, w = w, offset = o, 
+                         tol = exchange.args$tol)
+  
+  QR <- obs.fit$qr
+  U <- qr.Q(QR)
+  R <- if(inherits(QR, "qr")) qr.R(QR) else qrR(QR)
+  Hb <- as.matrix(tcrossprod(fast.solve(R), U))
+  if(is.null(rownames(Hb))) rownames(Hb) <- colnames(X)
+  coefficients <- as.matrix(Hb %*% TY)
+  if(is.null(rownames(coefficients)))  
+    rownames(coefficients) <- rownames(Hb)
+  R <- U <- QR <- NULL
+  QR <- if(gls && !is.null(Pcov)) qr(Pcov %*% X) else
+    if(gls && !is.null(w)) qr(X * sqrt(w)) else qr(X)
+  
+  LM <- list(form = formula(Terms), 
+             coefficients = coefficients,
              ols = ols,
              gls = gls,
              Y = Y,  
-             X = Xs$Xfs[[k]], 
-             n = n, p = p, p.prime = NCOL(exchange.args$Y),
-             QR = fit$qr,
-             Terms = Terms, term.labels = trms,
-             data = exchange.args.o$model,
-             model.sets = fits$model.sets,
-             random.coef = betas$random.coef,
-             random.coef.distances = betas$random.coef.distances
+             X = X, 
+             n = n, p = p, p.prime = p.prime,
+             QR = QR,
+             Terms = Terms, term.labels = term.labels,
+             data = exchange.args$model,
+             random.coef = random.coef,
+             random.coef.distances = random.coef.distances 
   )
-  rownames(LM$X) <- id
-
+  
   LM$weights <- w
   LM$offset <- o
-
   
   if(gls) {
     names(LM)[[2]] <- "gls.coefficients"
-    LM$gls.fitted <- as.matrix(fit$fitted.values)
-    LM$gls.residuals <- as.matrix(fit$residuals)
+    LM$gls.fitted <- as.matrix(obs.fit$fitted.values)
+    LM$gls.residuals <- as.matrix(obs.fit$residuals)
     rownames(LM$gls.fitted) <- rownames(LM$gls.residuals) <- id
     LM$gls.mean <- if(NCOL(LM$gls.fitted) > 1) colMeans(LM$gls.fitted) else
       mean(LM$gls.fitted)
   } else {
-    LM$fitted <- as.matrix(fit$fitted.values)
-    LM$residuals <- as.matrix(fit$residuals)
+    LM$fitted <- as.matrix(obs.fit$fitted.values)
+    LM$residuals <- as.matrix(obs.fit$residuals)
     rownames(LM$fitted) <- rownames(LM$residuals) <- id
     LM$mean <- if(NCOL(LM$fitted) > 1) colMeans(LM$fitted) else
       mean(LM$fitted)
@@ -614,8 +674,9 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   if(!is.null(Cov)) {
     LM$Cov <- Cov
-    LM$Pcov <- Cov.proj(Cov, id)
+    LM$Pcov <- Pcov
   }
+  
   PermInfo <- list(perms = perms,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
                    perm.schedule = ind, perm.seed = seed)
@@ -632,7 +693,30 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     out$LM$dist.coefficients <- D.coef
   }
   
-  out$Models <- fits[c("reduced", "full")]
+  
+  Models <-lapply(1:2, function(j){
+    res <- lapply(1:max(1, kk), function(jj){
+      X <- Xs[[j]][[jj]]
+      qr <- cks$QR[[j]][[jj]]
+      fitted <- obs.FR[[max(1, jj)]]$fitted
+      residuals <- obs.FR[[max(1, jj)]]$residuals
+      list(X = X, qr = qr, fitted.values = fitted, 
+           residuals = residuals)
+    })
+    names(res) <- cks$realized.trms
+    res
+  })
+  names(Models) <- c("reduced", "full")
+  
+  Model.Terms <- getTerms(Terms, SS.type)
+  
+  for(i in 1:2){
+    for(j in 1:max(1, kk)){
+      Models[[i]][[j]]$terms <- Model.Terms[[i]][[j]]
+    }
+  }
+  
+  out$Models <- Models
   
   class(out) = "lm.rrpp"
   

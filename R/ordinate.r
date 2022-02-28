@@ -269,7 +269,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   rownames(X) <- id
   if(!is.null(Cov)) Pcov <- Cov.proj(Cov, rownames(Y))
   cen <- if(is.null(Cov)) colMeans(Y) else 
-    lm.fit(Pcov %*% X, Pcov %*% Y)$coefficients
+    lm.fit(as.matrix(Pcov %*% X), as.matrix(Pcov %*% Y))$coefficients
   Z <- as.matrix(scale(Y, center = cen, scale = scale.))
   cen <- attr(Z, "scaled:center")
   sc <- attr(Z, "scaled:scale")

@@ -37,6 +37,7 @@
 #' @import Matrix
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
+#' @importFrom ape collapse.singles
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp
@@ -469,6 +470,43 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
        residuals = as.matrix(residuals))
 }
 
+getTerms <- function(Terms, SS.type = "I") {
+  trms <- attr(Terms, "term.labels")
+  k <- length(trms)
+  mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
+  
+  if(k > 0) {
+    if(SS.type == "III"){
+      k3 <- mod.k[-1]
+      modf <- lapply(as.list(k3), function(.) Terms)
+      modr <- lapply(as.list(k3), function(j) Terms[-j])
+    } else if(SS.type == "II"){
+      k2 <- mod.k[-1]
+      fac <- crossprod(attr(Terms, "factor"))
+      modr <- lapply(as.list(k2), function(j){
+        ind <- as.logical(ifelse(fac[j,] < fac[j,j], 1, 0))
+        Terms[ind]
+      })
+      modf <- lapply(as.list(k2), function(j){
+        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind[j] <- 1
+        ind <- as.logical(ind)
+        Terms[ind]
+      })
+    } else {
+      kf <- mod.k[-1]
+      kr <- mod.k[-(max(mod.k) + 1)]
+      modf <- lapply(as.list(kf), function(j) Terms[1:j])
+      modr <- lapply(as.list(kr), function(j) Terms[0:j])
+    }
+    
+    names(modf) <- names(modr) <- trms
+  } else {
+    modr <- modf <- list("Intercept" = Terms)
+  }
+  list(terms.r = modr, terms.f = modf)
+}
+
 getXs <- function(Terms, Y, SS.type, tol = 1e-7,
                   model) {
   X <- model.matrix(Terms, data = model)
@@ -500,12 +538,27 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
   
   term.labels <- attr(Terms, "term.labels")
   k <- length(term.labels)
+  
+  shrinkX <- function(X, cols) {
+    X <- as.data.frame(X)
+    vars <- colnames(X)[cols]
+    X <- X[vars]
+    as.matrix(X)
+  }
+  
+  
   if(k > 0){
     if(SS.type == "III"){
       uk0 <- uk[-1]
       xk0 <- unique(X.k[-1])
-      Xrs <- lapply(2:length(uk), function(j)  X[, X.k %in% uk[-j]])
+      
+      Xrs <- lapply(2:length(uk), function(j){
+        vars <- X.k %in% uk[-j]
+        shrinkX(X, vars)
+      })
+      
       Xfs <- lapply(2:length(uk), function(j)  X)
+      
     } else if(SS.type == "II"){
       uk0 <- uk[-1]
       xk0 <- unique(X.k[-1])
@@ -513,16 +566,24 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
       Xrs <- lapply(1:NROW(fac), function(j){
         ind <- ifelse(fac[j,] < fac[j, j], 1, 0)
         ind <- as.logical(c(1, ind))
-        X[, X.k %in% uk[ind]]
+        vars <-  X.k %in% uk[ind]
+        shrinkX(X, vars)
       })
+      
       Xfs <- lapply(1:NROW(fac), function(j){
         ind <- ifelse(fac[j,] < fac[j, j], 1, 0)
         ind[j] <- 1
         ind <- as.logical(c(1, ind))
-        X[, X.k %in% uk[ind]]
+        vars <-  X.k %in% uk[ind]
+        shrinkX(X, vars)
       })
+      
     } else {
-      Xs <- lapply(1:length(uk), function(j)  X[, X.k %in% uk[1:j]])
+      Xs <- lapply(1:length(uk), function(j) {
+        vars <-  X.k %in% uk[1:j]
+        shrinkX(X, vars)
+      })
+      
       Xrs <- Xs[1:k]
       Xfs <- Xs[2:(k+1)]
     }
@@ -530,7 +591,7 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
   } else {
     Xrs <- Xfs <- list(Intercept = X)
   }
-
+  
   list(Xrs = Xrs, Xfs = Xfs)
 }
 
@@ -554,6 +615,7 @@ lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07)
   z
 }
 
+# NO LONGER USED but retained for potential future use
 lm.rrpp.exchange <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07){
   
   getGLSlm<- function(x, y, Pcov, offset = offset, method = "qr", tol = tol){
@@ -565,7 +627,8 @@ lm.rrpp.exchange <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1
   
   getWlm<- function(x, y, w, offset = offset, method = "qr", tol = tol){
     wts <- sqrt(w)
-    fit <- lm.fit(x = x * wts, y = y * wts, offset = offset, tol = tol)
+    fit <- lm.fit(x = as.matrix(x * wts), 
+                  y = as.matrix(y * wts), offset = offset, tol = tol)
     fit
   }
   
@@ -575,6 +638,7 @@ lm.rrpp.exchange <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1
   z
 }
 
+# NO LONGER USED but retained for potential future use
 package.exchanges <- function(Y, mods, Xs, Terms, model, 
                              offset = NULL, w = NULL,
                              Pcov = NULL, tol = 1e-7, SS.type) {
@@ -601,6 +665,7 @@ package.exchanges <- function(Y, mods, Xs, Terms, model,
   
 }
 
+# NO LONGER USED but retained for potential future use
 package.fits <- function(Y, mods, Xs, Terms, model, 
                          offset = NULL, w = NULL,
                          Pcov = NULL, tol = 1e-7, SS.type) {
@@ -639,51 +704,69 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
   x
 }
 
+# getHb
+# function to find "hat" matrix for coefficients
+# used in lm.rrpp/SS.iter/beta.iter
+getHb <- function(Q) {
+  S4 <- !(inherits(Q, "qr"))
+  k <- getRank(Q)
+  R <- if(S4) qrR(Q) else qr.R(Q)
+  U <- qr.Q(Q)
+  Rs <- try(fast.solve(R), silent = TRUE)
+  if(inherits(Rs, "try-error")){
+    Rs <- 1
+  } 
+  
+  res <- as.matrix(tcrossprod(Rs, U))
+  if(is.null(rownames(res))){
+    rownames(res) <- if(S4) Q@R@Dimnames[[2]] else
+      colnames(Q$qr)
+  }
+  
+  res
+  
+}
+
+
 # checkers
 # algorithms to facilitate RRPP iteration stats calculations
 # used in lm.rrpp/SS.iter/beta.iter
-checkers <- function(Terms, exchange, RRPP = TRUE, turbo = FALSE){
+checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE, 
+                     Terms, Pcov = NULL, w = NULL) {
+  k <- length(attr(Terms, "term.labels"))
+  Qr <- Qs$reduced
+  Qf <- Qs$full
+  n <- NROW(Y)
+  Qrs <- Qs.sparse$reduced
+  Qfs <- Qs.sparse$full
+  Ur <- lapply(Qr, qr.Q)
+  Uf <- lapply(Qf, qr.Q)
+  kk <- length(Uf)
   
-  reduced <- exchange$reduced
-  full <- exchange$full
-  Terms <- exchange$Terms
-  trms <- names(full)
-  k <- length(full)
-  Y <- as.matrix(exchange$model[[1]])
-  dims <- dim(Y)
-  n <- dims[1]
-  p <- dims[2]
-  w <- if(!is.null(exchange$weights)) exchange$weights else NULL
+  if(k > 0 && k != kk) k <- kk
   
-  fitted <- lapply(reduced, function(x) as.matrix(x$fitted.values))
-  res <- lapply(reduced, function(x) as.matrix(x$residuals))
+  getU <- function(Q, Qs) {
+    U <- try(qr.Q(Qs), silent = TRUE)
+    if(inherits(U, "try-error"))
+      U <- qr.Q(Q)
+    U
+  }
+  Urs <- Map(function(q, qs) getU(q, qs), Qr, Qrs)
+  Ufs <- Map(function(q, qs) getU(q, qs), Qf, Qfs)
+  Urs <- lapply(Urs, function(x) 
+    Matrix(round(x, 12), sparse = TRUE))
+  Ufs <- lapply(Ufs, function(x) 
+    Matrix(round(x, 12), sparse = TRUE))
   
-  if(!RRPP) {
-    fitted <- lapply(fitted, function(.) matrix(0, n, p))
-    res <- lapply(res, function(.) as.matrix(Y))
-  } 
-  
-  Pcov <- exchange$Pcov
-  
-  Qr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
-  Qf <- lapply(full, function(x) x$qr)
-  
-  Ur <- lapply(Qr, function(x) qr.Q(x))
-  Uf <- lapply(Qf, function(x) qr.Q(x))
-  Rr <- lapply(Qr, function(x) qrR(x))
-  Rf <- lapply(Qf, function(x) qrR(x))
-  Urs <- lapply(Ur, function(x) as(round(as.matrix(x), 15), "dgCMatrix"))
-  Ufs <- lapply(Uf, function(x) as(round(as.matrix(x), 15), "dgCMatrix"))
-  Hr <- lapply(Ur, function(x) 
-    forceSymmetric(Matrix(round(tcrossprod(x), 15), sparse = TRUE)))
-  Hf <- lapply(Uf, function(x) 
-    forceSymmetric(Matrix(round(tcrossprod(x), 15), sparse = TRUE)))
-  
+  getR <- function(Q) {
+    R <- if(inherits(Q, "sparseQR")) qrR(Q) else qr.R(Q)
+  }
+
   if(!turbo) {
-    Hbf <- Map(function(u, r) tcrossprod(solve(r, sparse = TRUE), u), Ufs, Rf)
-    Hbfs <- lapply(Hbf, function(x) Matrix(round(x, 15), sparse = TRUE))
-    Hbr <- Map(function(u, r) tcrossprod(solve(r, sparse = TRUE), u), Urs, Rr)
-    Hbrs <- lapply(Hbr, function(x) Matrix(round(x, 15), sparse = TRUE))  
+    Hbf <- lapply(Qf, getHb)
+    Hbfs <- lapply(Hbf, function(x) Matrix(round(x, 12), sparse = TRUE))
+    Hbr <- lapply(Qr, getHb)
+    Hbrs <- lapply(Hbr, function(x) Matrix(round(x, 12), sparse = TRUE))  
     
     for(i in 1:max(1,k)) {
       if(object.size(Hbfs[[i]]) < object.size(Hbf[[i]]))
@@ -694,23 +777,18 @@ checkers <- function(Terms, exchange, RRPP = TRUE, turbo = FALSE){
     
   } else Hbr <- Hbf <- NULL
   
-  
   # Linear model checkers
   for(i in 1:max(1, k)) {
     o.ur <- object.size(Ur[[i]])
     o.urs <- object.size(Urs[[i]])
     if(o.urs < o.ur) {
-      h <- Hr[[i]]
-      sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
-      Ur[[i]] <- if(sparse < 0.2) h else Urs[[i]]
+      Ur[[i]] <- Urs[[i]]
     }
     
     o.uf <- object.size(Uf[[i]])
     o.ufs <- object.size(Ufs[[i]])
     if(o.ufs < o.uf) {
-      h <- Hf[[i]]
-      sparse <- length(h@x)/h@Dim[1]/h@Dim[2]
-      Uf[[i]] <- if(sparse < 0.2) h else Ufs[[i]]
+      Uf[[i]] <-  Ufs[[i]]
     }
   }
   
@@ -719,23 +797,27 @@ checkers <- function(Terms, exchange, RRPP = TRUE, turbo = FALSE){
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
   Qint <- if(!is.null(Pcov))
-    qr(crossprod(Pcov, intercept)) else if(!is.null(w))
+    qr(Pcov %*% intercept) else if(!is.null(w))
       qr(intercept * sqrt(w)) else
         qr(intercept)
   
   Unull <- qr.Q(Qint)
-  Hbnull <- tcrossprod(fast.solve(qr.R(Qint)), Unull)
+  S4 <- !inherits(Qint, "qr")
+  Hbnull <- if(S4) tcrossprod(fast.solve(qrR(Qint)), Unull) else
+    tcrossprod(fast.solve(qr.R(Qint)), Unull)
   
-  yh0 <- fastFit(Unull, Y, n, p)
-  r0 <- Y - yh0
-  FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
-                                             residuals = res[[j]]))
-  out <- list(Ur = Ur, Uf = Uf, Unull = Unull, Ufull = Ufull,
-              Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull,
-              Y = Y, yh0 = yh0, r0 = r0, FR = FR,
-              k = k, n = n, offset = exchange$offset,
-              reduced = reduced, full = full,
-              Terms = Terms, trms = trms)
+  Qout <- Qs
+  for(i in 1:2){
+    for(j in 1:max(1, k)){
+      oq <- object.size(Qs[[i]][[max(1, j)]])
+      oqs <- object.size(Qs.sparse[[i]][[max(1, j)]])
+      if(oqs < oq) Qout[[i]][[j]] <- Qs.sparse[[i]][[j]]
+    }
+  }
+  
+  out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Unull, Ufull = Ufull,
+              Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qout, k = k,
+              realized.trms = names(Xs$Xfs))
   
   out
   
@@ -746,25 +828,44 @@ checkers <- function(Terms, exchange, RRPP = TRUE, turbo = FALSE){
 # gets appropriate SS vectors for random permutations in lm.rrpp
 # generates ANOVA stats
 
+SS.iter <- function(checkrs, ind,  print.progress = TRUE, 
+                    ParCores =  TRUE) {
+  if(is.null(ParCores)) {
+    SS.iter.main(checkrs = checkrs, ind = ind, 
+                 print.progress = print.progress,
+                 no_cores = 1, Unix = FALSE)
+  } else {
+    Unix <- .Platform$OS.type == "unix"
+    if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
+      no_cores <- min(detectCores() - 1, ParCores)
+    
+    SS.iter.main(checkrs = checkrs, ind = ind, 
+                 print.progress = print.progress,
+                 no_cores = no_cores, Unix = Unix)
+    
+  }
+  
+}
+
 SS.iter.main <- function(checkrs, ind, print.progress = TRUE, 
                          no_cores, Unix = TRUE) {
   
-  reduced <- checkrs$reduced
-  full <- checkrs$full
   Ur <- checkrs$Ur
   Uf <- checkrs$Uf
   Unull <- checkrs$Unull
   Ufull <- checkrs$Ufull
   FR <- checkrs$FR
   Y <- checkrs$Y
-  yh0 <- checkrs$yh0
-  r0 <- checkrs$r0
-  k <- checkrs$k
-  trms <- checkrs$trms
-  perms <- length(ind)
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
+  yh0 <- as.matrix(fastFit(Unull, Y, n, p))
+  r0 <- as.matrix(Y - yh0)
+  
+  k <- checkrs$k
+  trms <- checkrs$realized.trms
+  
+  perms <- length(ind)
   
   rrpp.args <- list(FR = FR, ind.i = NULL)
   
@@ -775,11 +876,13 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
   ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
                               sum(y^2) - sum(crossprod(Ufull, y)^2))
   
+  pbbar <- FALSE
   if(print.progress && no_cores > 1){
     cat("\nProgress bar not available for Sums of Squares calculations...\n")
   } else   if(print.progress && no_cores == 1){
     cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
+    pb <- txtProgressBar(min = 0, max = perms, initial = 0, style=3)
+    pbbar <- TRUE
   }
   
   if(Unix) {
@@ -787,10 +890,10 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
+      y <- as.matrix(yh0 + r0[x,])
       yy <- sum(y^2)
       if(k > 0) {
-        res <- vapply(1:k, function(j){
+        res <- vapply(1:max(1, k), function(j){
           ss(Ur[[j]], Uf[[j]], Yi[[j]])
         }, numeric(3))
         
@@ -817,10 +920,10 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
+      y <- as.matrix(yh0 + r0[x,])
       yy <- sum(y^2)
       if(k > 0) {
-        res <- vapply(1:k, function(j){
+        res <- vapply(1:max(1, k), function(j){
           ss(Ur[[j]], Uf[[j]], Yi[[j]])
         }, numeric(3))
         
@@ -845,11 +948,11 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
-      y <- yh0 + r0[x,]
+      y <- as.matrix(yh0 + r0[x,])
       yy <- sum(y^2)
       
       if(k > 0) {
-        res <- vapply(1:k, function(j){
+        res <- vapply(1:max(1, k), function(j){
           ss(Ur[[j]], Uf[[j]], Yi[[j]])
         }, numeric(3))
         
@@ -879,170 +982,11 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
   
   if(all(is.na(SS))) RSS <- SS <- NULL
   
-  list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-}
-
-SS.iter.w.betas <- function(betas, Xs, ind, print.progress = FALSE, 
-                            no_cores, Unix = TRUE) {
-  perms <- length(betas$betas)
-  Unull <- betas$Unull
-  n <- betas$n
-  
-  if(print.progress && no_cores > 1){
-    cat("\nProgress bar not available for Sums of Squares calculations...\n")
-  } else   if(print.progress && no_cores == 1){
-    cat(paste("\nSums of Squares calculations:", perms, "permutations.\n"))
-    pb <- txtProgressBar(min = 0, max = perms+1, initial = 0, style=3)
-  }
-  
-  ## Consider below a way to pass on transformed Xs for better memoization
-  Xrs <- Xs$Xrs
-  Xfs <- Xs$Xfs
-  Xrs.s <- lapply(Xrs, function(x) Matrix(round(x, 15), sparse = TRUE))
-  Xfs.s <- lapply(Xfs, function(x) Matrix(round(x, 15), sparse = TRUE))
-  k <- length(Xfs)
-  for(i in 1:k){
-    if(object.size(Xrs.s[[i]]) < object.size(Xrs[[i]])) Xrs[[i]] <- Xrs.s[[i]]
-    if(object.size(Xfs.s[[i]]) < object.size(Xfs[[i]])) Xfs[[i]] <- Xfs.s[[i]]
-  }
-  Xnull <- matrix(Unull^2 * n)
-  
-  Pcov <- betas$Pcov
-  w <- betas$w
-  
-  if(!is.null(Pcov)) {
-    Xnull <- Pcov %*% Xnull
-    Xrs <- lapply(Xrs, function(x) Pcov %*% x)
-    Xfs <- lapply(Xfs, function(x) Pcov %*% x)
-    
-  } else if(!is.null(w)) {
-    Xnull <- Xnull * w
-    Xrs <- lapply(Xrs, function(x) x * w)
-    Xfs <- lapply(Xfs, function(x) x * w)
-  }
-  
-  Xfull <- Xfs[[k]]
-  
-  if(Unix) {
-    result <- mclapply(1:perms, mc.cores = no_cores, function(j){
-      Bs <- betas$betas[[j]]
-      Brs <- Bs$Br
-      Bfs <- Bs$Bf
-      Bff <- Bfs[[k]]
-      Bms <- Bs$Bmodel
-      Bnull <- Bs$Bnull
-      Bfull <- Bs$Bfull
-      Yi <- Bs$Yi
-      y <- Bs$y
-      SS <- unlist(Map(function(xr, xf, br, bf){
-        sum((xf %*% bf - xr %*% br)^2)
-      }, Xrs, Xfs, Brs, Bfs))
-      RSS <- unlist(Map(function(y, bm){
-        sum((y - Xfull %*% bm)^2)
-      }, Yi, Bms))
-      TSS <- unlist(Map(function(bn){
-        sum((y - Xnull %*% bn)^2)
-      }, Bnull))
-      RSS.model <- sum((y - Xfull %*% Bfull)^2)
-      list(SS= SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-    })
-  } else if(no_cores > 1) {
-    cl <- makeCluster(no_cores)
-    clusterExport(cl, "ind",
-                  envir=environment())
-    
-    result <- parLapply(cl, 1:perms, function(j){
-      Bs <- betas$betas[[j]]
-      Brs <- Bs$Br
-      Bfs <- Bs$Bf
-      Bff <- Bfs[[k]]
-      Bms <- Bs$Bmodel
-      Bnull <- Bs$Bnull
-      Bfull <- Bs$Bfull
-      Yi <- Bs$Yi
-      y <- Bs$y
-      SS <- unlist(Map(function(xr, xf, br, bf){
-        sum((xf %*% bf - xr %*% br)^2)
-      }, Xrs, Xfs, Brs, Bfs))
-      RSS <- unlist(Map(function(y, bm){
-        sum((y - Xfull %*% bm)^2)
-      }, Yi, Bms))
-      TSS <- unlist(Map(function(bn){
-        sum((y - Xnull %*% bn)^2)
-      }, Bnull))
-      RSS.model <- sum((y - Xfull %*% Bfull)^2)
-      list(SS= SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-    })
-    
-    stopCluster(cl)
-    
-  } else {
-    result <- lapply(1:perms, function(j){
-      step <- j
-      if(print.progress) setTxtProgressBar(pb,step)
-      Bs <- betas$betas[[j]]
-      Brs <- Bs$Br
-      Bfs <- Bs$Bf
-      Bff <- Bfs[[k]]
-      Bms <- Bs$Bmodel
-      Bnull <- Bs$Bnull
-      Bfull <- Bs$Bfull
-      Yi <- Bs$Yi
-      y <- Bs$y
-      SS <- unlist(Map(function(xr, xf, br, bf){
-        sum((xf %*% bf - xr %*% br)^2)
-      }, Xrs, Xfs, Brs, Bfs))
-      RSS <- unlist(Map(function(y, bm){
-        sum((y - Xfull %*% bm)^2)
-      }, Yi, Bms))
-      TSS <- unlist(Map(function(bn){
-        sum((y - Xnull %*% bn)^2)
-      }, Bnull))
-      RSS.model <- sum((y - Xfull %*% Bfull)^2)
-      list(SS= SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
-    })
-    if(print.progress) close(pb)
-  }
-  
-  SS <- sapply(result, "[[", "SS")
-  RSS <- sapply(result, "[[", "RSS")
-  TSS <- sapply(result, "[[", "TSS")
-  RSS.model <- sapply(result, "[[", "RSS.model")
+  if(pbbar) close(pb)
   
   list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
 }
 
-SS.iter <- function(checkrs, betas = NULL, Xs = NULL, 
-                    ind, turbo = FALSE, print.progress = TRUE, 
-                    ParCores =  TRUE) {
-  
-  if(!turbo) SS.iter.w.betas(betas = betas, Xs = Xs, ind = ind,
-                             print.progress = print.progress,
-                             no_cores = 1, Unix = FALSE) else
-                               
-                               SS.iter.main(checkrs = checkrs, ind = ind, 
-                                            print.progress = print.progress,
-                                            no_cores = 1, Unix = FALSE)
-}
-
-SS.iterPP <- function(checkrs, betas = NULL, Xs = NULL,
-                      ind, turbo = FALSE, print.progress = TRUE, 
-                      ParCores =  TRUE) {
-  
-  if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
-    no_cores <- min(detectCores() - 1, ParCores)
-  
-  Unix <- .Platform$OS.type == "unix"
-  
-  if(!turbo) SS.iter.w.betas(betas = betas, Xs = Xs, ind = ind,
-                             print.progress = print.progress,
-                             no_cores = no_cores, Unix = Unix) else
-                               
-                               SS.iter.main(checkrs = checkrs, ind = ind, 
-                                            print.progress = print.progress,
-                                            no_cores = no_cores, Unix = Unix)
-
-}
 
 # anova.parts
 # construct an ANOVA tablefrom random SS output
@@ -1055,34 +999,25 @@ getRank <- function(Q) {
   } else if(inherits(Q, "qr")) {
     r <- Q$rank
   } else r <- rankMatrix(Q)[1]
-    
+  
   return(r)
 }
 
-anova.parts <- function(exchange, SS){
-  SS.type <- exchange$SS.type
+anova.parts <- function(checkrs, SS){
+  SS.type <- checkrs$SS.type
   perms <- NCOL(SS)
-  reduced <- exchange$reduced
-  full <- exchange$full
-  Terms <- exchange$Terms
-  trms <- attr(Terms, "term.labels")
-  k <- length(full)
-  n <- NROW(exchange$model)
-  if(k > 0) {
-    QRr <- lapply(reduced, function(x) if(!is.null(x$qr)) x$qr else qr(rep(0, n)))
-    QRf <- lapply(full, function(x) x$qr)
-  } else {
-    QRr <- if(!is.null(reduced$qr)) reduced$qr else qr(rep(0, n))
-    QRf <- full$qr
-  }
-  
-  dims <- dim(as.matrix(exchange$model[[1]]))
-  n <- dims[1]; p <- dims[2]
+  trms <- checkrs$terms
+  k <- checkrs$k
+  dims <- dim(checkrs$Y)
+  n <- dims[1]
+  p <- dims[2]
+  QRf <- checkrs$QR$full
+  QRr <- checkrs$QR$reduced
   
   if(k > 0) {
     df <- unlist(Map(function(qf, qr) 
       getRank(qf) - getRank(qr), 
-                     QRf, QRr))
+      QRf, QRr))
     dfe <- n - getRank(QRf[[k]])
     RSS <- SS$RSS
     TSS <- SS$TSS
@@ -1130,39 +1065,22 @@ anova.parts <- function(exchange, SS){
 # SS.mean
 # support function for calculating SS quickly in SS.iter
 # used in lm.rrpp
+# NO LONGER USED but retained for potential future use
 
 SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
-# generate U matrices
-# makes a U matrix based on model design
-# not used but was used in compare.models, during development.  Retained
-# in case it is useful down the road.
-
-cm.U <- function(x){
-  X <- x$LM$X
-  w <- sqrt(x$LM$weights)
-  if(x$LM$ols) out <- qr.Q(qr(X*w))
-  if(x$LM$gls){
-    P <- x$LM$Pcov
-    out <- crossprod(P, qr.Q(qr(crossprod(P,X*w))))
-  }
-  out
-}
 
 # beta.boot.iter
 # gets appropriate beta vectors for coefficients via bootstrap
 # used in predict.lm.rrpp
 
 beta.boot.iter <- function(fit, ind) {
-  Terms <- fit$LM$Terms
-  trms <- fit$LM$term.labels
-  k <- length(trms)
+
   gls <- fit$LM$gls
   id <- colnames(fit$LM$QR$qr)
   
   fitted <- if(gls) fit$LM$gls.fitted else fit$LM$fitted
   res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
-  
   
   w <- fit$LM$weights
   if(!is.null(w)) weighted = TRUE else weighted = FALSE
@@ -1187,7 +1105,7 @@ beta.boot.iter <- function(fit, ind) {
   rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
   
   Qf <- fit$LM$QR
-  Hf <- tcrossprod(fast.solve(qrR(Qf)), qr.Q(Qf))
+  Hf <- tcrossprod(fast.solve(qr.R(Qf)), qr.Q(Qf))
   Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
   if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
   
@@ -1208,19 +1126,54 @@ beta.boot.iter <- function(fit, ind) {
 # three functions: main, and two for whether PP is used
 # gets appropriate beta vectors for random permutations in lm.rrpp
 # generates distances as statistics for summary
+beta.iter <- function(checkrs, ind, print.progress = TRUE, 
+                      ParCores =  NULL) {
+  if(is.null(ParCores)) {
+    beta.iter.main(checkrs = checkrs, ind = ind, 
+                   print.progress = print.progress,
+                   no_cores = 1, Unix = FALSE)
+  } else {
+    Unix <- .Platform$OS.type == "unix"
+    if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
+      no_cores <- min(detectCores() - 1, ParCores)
+    
+    beta.iter.main(checkrs = checkrs, ind = ind, 
+                   print.progress = print.progress,
+                   no_cores = no_cores, Unix = Unix)
+  }
+}
+
+
 beta.iter.main <- function(checkrs, ind, print.progress = TRUE, 
                            no_cores, Unix = TRUE) {
   
   k <- checkrs$k
-  Terms <- checkrs$Terms
-  trms <- checkrs$trms
-  Cr <- checkrs$cks.r
-  Cf <- checkrs$cks.f
-  Hr <- lapply(Cr, function(x) x$Hb)
-  Hf <- lapply(Cf, function(x) x$Hb)
-  names(Hr) <- names(Hf) <- trms
-  Hfull <- checkrs$cks.full$Hb
-  Hnull <- checkrs$cks.null$Hb
+  trms <- checkrs$realized.trms
+    
+  Hr <- checkrs$Hbr 
+  Hf <- checkrs$Hbf
+  pert.rows <- lapply(1:max(1, k), function(j){
+    br.nms <- try(rownames(Hr[[j]]), silent = TRUE)
+    if(inherits(br.nms, "try-error"))
+      br.nms <- "(Intercept)"
+    bf.nms <- try(rownames(Hf[[j]]), silent = TRUE)
+    if(inherits(bf.nms, "try-error"))
+      bf.nms <- "(Intercept)"
+    if(length(bf.nms) > length(br.nms)) {
+      b <- bf.nms
+      a <- br.nms
+    } else {
+      a <- bf.nms
+      b <- br.nms
+    }
+    b.keep <- setdiff(bf.nms, br.nms)
+    res <- which(b %in% b.keep)
+    list(res = res, b.keep = b.keep)
+  })
+  
+  b.names <- lapply(pert.rows, function(x) x$b.keep)
+  pert.rows <- lapply(pert.rows, function(x) x$res)
+  names(b.names) <- names(pert.rows) <- trms
   
   FR <- checkrs$FR
   o <- checkrs$offset
@@ -1230,8 +1183,6 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
-  yh0 <- checkrs$yh0
-  r0 <- checkrs$r0
   
   rrpp.args <- list(FR = FR, ind.i = NULL, offst = offst, o = o)
   
@@ -1240,30 +1191,31 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
       lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
   }
   
+  pbbar <- FALSE
   if(print.progress && no_cores > 1){
     cat("\nProgress bar not available for coefficients estimation...\n")
   } else   if(print.progress && no_cores == 1){
     cat(paste("\nCoefficients estimation:", perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms, initial = 0, style=3)
+    pbbar <- TRUE
   }
   
-  getBetas <- function(Hr, Hf, Hnull, Hfull, Yi, y){
-    Br <- Map(function(h, y)  h %*% y, Hr, Yi) 
-    Bf <- Map(function(h, y)  h %*% y, Hf, Yi) 
-    Bmodel <- Map(function(y) Hfull %*% y, Yi) 
-    Bnull <- Map(function(y) Hnull %*% y, Yi) 
-    Bfull <- Hfull %*% y
-    list(Br = Br, Bf = Bf, Bmodel = Bmodel, 
-         Bnull = Bnull, Bfull = Bfull)
-  }
+  getBetas <- function(Hf, Yi, pert.rows){
+    Bf <- Map(function(hf, y, p) {
+      B <- as.matrix(hf %*% y)
+      d <- tcrossprod(B)[p, p]
+      if(length(p) > 1) d <- diag(d)
+      res = list(B = B, d = sqrt(d))
+      res
+    }, Hf, Yi, pert.rows) 
+  } 
   
   if(Unix) {
     betas <- mclapply(1:perms, mc.cores = no_cores, function(j){
+      x <-ind[[j]]
       rrpp.args$ind.i <- x
-      y <- yh0 + r0[x,]
       Yi <- do.call(rrpp, rrpp.args)
-      c(getBetas(Hr, Hf, Hnull, Hfull, Yi, y), 
-        list(y = y, Yi = Yi))
+      getBetas(Hf, Yi = Yi, pert.rows)
       
     })
     
@@ -1273,11 +1225,10 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
     clusterExport(cl, "rrpp.args")
     
     betas <- parLapply(cl, 1:perms, function(j){
+      x <-ind[[j]]
       rrpp.args$ind.i <- x
-      y <- yh0 + r0[x,]
       Yi <- do.call(rrpp, rrpp.args)
-      c(getBetas(Hr, Hf, Hnull, Hfull, Yi, y), 
-        list(y = y, Yi = Yi))
+      getBetas(Hf, Yi = Yi, pert.rows)
       
     })
     stopCluster(cl)
@@ -1287,141 +1238,43 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
       if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
       rrpp.args$ind.i <- x
-      y <- yh0 + r0[x,]
       Yi <- do.call(rrpp, rrpp.args)
-      c(getBetas(Hr, Hf, Hnull, Hfull, Yi, y), 
-        list(y = y, Yi = Yi))
+      getBetas(Hf, Yi = Yi, pert.rows)
       
     })
   }
   
-  if(print.progress)  close(pb)
-  
-  iternms <- c("obs", paste("iter", seq(1,(perms-1),1), sep = "."))
+  if(pbbar)  close(pb)
+
   cnms <- colnames(Y)
   
-  names(betas) <- iternms
+  betas.out <- lapply(1:max(1, k), function(j){
+    res <- lapply(1:perms, function(jj){
+      y <- betas[[jj]][[j]]$B
+      colnames(y) <- cnms
+      y
+    })
+    names(res) <- names(ind)
+    res
+  })
   
-  list(betas = betas, 
-       iternms = iternms, cnms = cnms)
-}
-
-beta.iter <- function(checkrs, ind, print.progress = TRUE, 
-                      ParCores =  TRUE) {
+  names(betas.out) <-trms
   
-  beta.iter.main(checkrs = checkrs, ind = ind, 
-                 print.progress = print.progress,
-                 no_cores = 1, Unix = FALSE)
-}
-
-beta.iterPP <- function(checkrs, ind, print.progress = TRUE, 
-                        ParCores =  TRUE) {
-  
-  if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
-    no_cores <- min(detectCores() - 1, ParCores)
-  
-  Unix <- .Platform$OS.type == "unix"
-  
-  beta.iter.main(checkrs = checkrs, ind = ind, 
-                 print.progress = print.progress,
-                 no_cores = no_cores, Unix = Unix)
-}
-
-# beta.convert
-# helper function to convert betas for use in
-# downstream (from lm.rrpp) functions
-beta.convert <- function(betas){
-  reduced <- betas$reduced
-  full <- betas$full
-  betas <- betas$betas
-  betas <- lapply(betas, function(x) x$Bf)
-  perms <- length(betas)
-  iternms <- betas$iternms
-  cnms <-  betas$cnms
-  
-  getk <- function(Q){
-    k <- if(inherits(Q, "qr")) NCOL(Q$qr) else
-      if(inherits(Q, "sparseQR")) Q@Dim[2] else 0
-    k
-  }
-  
-  if(k > 0) {
-    
-    b.grab <- lapply(1:k, function(j){
-      br.nms <- getk(reduced[[j]]$qr)
-      bf.nms <- getk(full[[j]]$qr)
-      if(length(bf.nms) > length(br.nms)) {
-        b <- bf.nms
-        a <- br.nms
-      } else {
-        a <- bf.nms
-        b <- br.nms
-      }
-      b.keep <- setdiff(bf.nms, br.nms)
-      res <- which(b %in% b.keep)
-      names(res) <- b.keep
-      res
+  d.out <- lapply(1:max(1, k), function(j){
+    res <- sapply(1:perms, function(jj){
+      y <- betas[[jj]][[j]]$d
+      y
     })
     
-    id <- names(unlist(b.grab))
-    
-    getBetaDist <- function(betas) {
-      result <- sapply(1:perms, function(j){
-        y <- betas[[j]]
-        Res <- lapply(1:k, function(jj){
-          yy <- y[[jj]]
-          if(is.vector(yy)) yy <- matrix(yy, 1, length(yy))
-          grab <- unlist(b.grab[[jj]])
-          x <- yy[grab,]
-          if(is.vector(x) && length(x) == p) x <- matrix(x, 1, p) else
-            if(is.vector(x) && length(x) == length(grab)) x <- as.matrix(x)
-          sqrt(rowSums(x^2)) 
-        })
-        unlist(Res)
-      })
-      
-      if(is.vector(result)) result <- matrix(result, 1, length(result))
-      
-      iternms <- c("obs", paste("iter", 
-                                seq(1,(perms-1), 1), 
-                                sep = "."))
-      colnames(result) <- iternms
-      rownames(result) <- id[1:NROW(result)]
-      
-      result
-    }
-    
-    beta.dist <- getBetaDist(betas) 
-    
-    # output sorts by terms, then iterations, although
-    # betas are computed by iterations, each term embedded
-    # the reason is for parallel processing, to divide
-    # jobs over many iterations rather than few terms
-    betas.out <- lapply(1:k, function(j){
-      res <- lapply(1:perms, function(jj){
-        y <- betas[[jj]][[j]]
-        rownames(y) <- id[1:nrow(y)]
-        colnames(y) <- cnms
-        y
-      })
-      
-      names(res) <- iternms
-      res
-    })
-    
-    names(betas.out) <- trms
-    
-  } else {
-    betas.out <- betas
-    betas.out <- list(Intercept = simplify2array(betas.out))
-    names(betas.out[[1]]) <- iternms
-    beta.dist <- sapply(betas.out[[1]], function(x) sqrt(sum(x^2)))
-  }
+    res
+  })
   
-  out <- list(random.coef = betas.out,
-              random.coef.distances = beta.dist)
+  if(is.list(d.out)) d.out <- do.call(rbind, d.out)
   
-  out
+  dimnames(d.out) <- list(unlist(b.names), names(ind))
+
+  list(random.coef = betas.out, 
+       random.coef.distances = d.out)
 }
 
 # ellipse.points
@@ -1465,6 +1318,13 @@ aov.single.model <- function(object, ...,
   x <- object$ANOVA
   df <- x$df
   k <- length(df)-2
+  kk <- length(object$LM$term.labels)
+  if(k > 0 && k != kk) {
+    cat("Warning ANOVA is missing some terms, likely because\n") 
+    cat("some independent variables were redundant.\n")
+    cat("If the residual SS is 0, results should not be trusted\n")
+  }
+    
   SS <- x$SS
   MS <- x$MS 
   RSS <-x$RSS
@@ -1515,6 +1375,9 @@ aov.single.model <- function(object, ...,
       }
     } else est <- "OLS"
     
+    ow <- options()$warn
+    options(warn = -1)
+    
     if(effect.type == "F") Z <- Fs
     if(effect.type == "SS") Z <- x$SS
     if(effect.type == "MS") Z <- x$MS
@@ -1542,6 +1405,8 @@ aov.single.model <- function(object, ...,
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
     SS.type <- x$SS.type
+    
+    options(warn = ow)
     
     out <- list(table = tab, perm.method = pm, perm.number = perms,
                 est.method = est, SS.type = SS.type, effect.type = effect.type,
@@ -1784,7 +1649,10 @@ getLSmeans <- function(fit, g){
     dat[[i]] <- mean(dat[[i]])
   L <- model.matrix(fit$LM$Terms, data = dat)
   L <- L[, colnames(L)  %in% rownames(beta[[1]])]
-  getFitted <- function(b) L %*% b
+  getFitted <- function(b) {
+    b <- b[rownames(b) %in% colnames(L),]
+    L %*% b
+  } 
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g + 0)
   Q <- qr(Xn)
@@ -1799,7 +1667,6 @@ getLSmeans <- function(fit, g){
   names(means) <- c("obs", paste("iter", 1:(length(means) - 1), sep = "."))
   means
 }
-
 
 #' Support function for RRPP
 #'
@@ -1950,8 +1817,9 @@ makePWCorTable <- function(L){
 leaveOneOut <- function(X, Y, n.ind) {
   x <- X[-n.ind,]
   QR <- qr(x)
+  S4 <- !inherits(QR, "qr")
   Q <- qr.Q(QR)
-  R <- qr.R(QR)
+  R <- if(S4) qrR(QR) else qr.R(QR)
   H <- tcrossprod(fast.solve(R), Q)
   y <- Y[-n.ind,]
   H %*% y
@@ -2187,16 +2055,16 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
     res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
     
     if(!is.null(w)) {
-      nfit <- lm.fit(Xg * sqrt(w), Yg * sqrt(w))
+      nfit <- lm.fit(as.matrix(Xg * sqrt(w)), as.matrix(Yg * sqrt(w)))
       fitted <- Yg * sqrt(w) - res * sqrt(w)
       nY <- (fitted + nfit$residuals)/sqrt(w)
     } else if(!is.null(Pcov)) {
       PY <- crossprod(Pcov, Yg)
-      nfit <- lm.fit(crossprod(Pcov, Xg), PY)
+      nfit <- lm.fit(as.matrix(crossprod(Pcov, Xg)), PY)
       fitted <- PY - crossprod(Pcov, res)
       nY <- crossprod(fast.solve(Pcov), fitted + nfit$residuals)
     } else {
-      nfit <- lm.fit(Xg, Yg)
+      nfit <- lm.fit(as.matrix(Xg), as.matrix(Yg))
       nY <- fit$LM$fitted + nfit$res
     }
     nY
@@ -2267,8 +2135,9 @@ looPCOne <-function(fit, n.ind) {
   gls <- fit$LM$gls
   Pcov <- if(gls) fit$LM$Pcov[-n.ind, -n.ind] else NULL
   QR <- if(gls) qr(crossprod(Pcov, X)) else qr(X)
+  S4 <- !inherits(QR, "qr")
   Q <- qr.Q(QR)
-  R <- qr.R(QR)
+  R <- if(S4) qrR(QR) else qr.R(QR)
   H <- tcrossprod(fast.solve(R), Q)
   B <- if(gls)  H %*% crossprod(Pcov, Y) else
     H %*% Y

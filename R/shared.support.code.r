@@ -128,6 +128,7 @@ perm.index <-function(n, iter, seed=NULL){
       ind <- c(list(1:n),(Map(function(x) sample.int(n,n), 1:iter)))
       rm(.Random.seed, envir=globalenv())
       attr(ind, "seed") <- seed
+      names(ind) <- c("obs", paste("iter", 1:(length(ind) - 1), sep = "."))
       ind
 }
 
@@ -341,7 +342,7 @@ Effect.size.matrix <- function(M, center=TRUE){
 # generates projection matrix from covariance matrix
 # used in lm.rrpp
 
-Cov.proj <- function(Cov, id = NULL){
+Cov.proj <- function(Cov, id = NULL, symmetric = FALSE){
   Cov <- if(is.null(id)) Cov else Cov[id, id]
   if(inherits(Cov, "matrix")) {
     Cov.s <- Matrix(Cov, sparse = TRUE)
@@ -350,18 +351,24 @@ Cov.proj <- function(Cov, id = NULL){
   }
   ow <- options()$warn
   options(warn = -1)
-  Chol <- try(chol(Cov), silent = TRUE)
-  if(inherits(Chol, "try-error")) {
-    sym <- isSymmetric(Cov)
-    eigC <- eigen(Cov, symmetric = sym)
-    eigC.vect = t(eigC$vectors)
-    L <- eigC.vect *sqrt(abs(eigC$values))
-    P <- fast.solve(crossprod(L, eigC.vect))
-    dimnames(P) <- dimnames(Cov)
-  } else P <- solve(Chol)
+  if(!symmetric) {
+    Chol <- try(chol(Cov), silent = TRUE)
+    if(inherits(Chol, "try-error")) 
+      symmetric <- TRUE
+  }
+  
+ if(symmetric) {
+   sym <- isSymmetric(Cov)
+   eigC <- eigen(Cov, symmetric = sym)
+   eigC.vect = t(eigC$vectors)
+   L <- eigC.vect * sqrt(abs(eigC$values))
+   P <- fast.solve(crossprod(L, eigC.vect))
+   dimnames(P) <- dimnames(Cov)
+ } else P <- solve(t(Chol))
   options(warn = ow)
   P
 }
+
 
 
 # ape replacement functions below --------------------------------------------

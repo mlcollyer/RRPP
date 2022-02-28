@@ -175,7 +175,7 @@ Pupfish$logSize <- log(Pupfish$CS)
 # example, there are many.  Thus, only three principal components 
 # will be used for demonstration purposes.
 
-Pupfish$Y <- prcomp(Pupfish$coords)$x[, 1:3]
+Pupfish$Y <- ordinate(Pupfish$coords)$x[, 1:3]
 
 ## Pairwise comparisons of LS means
 
