@@ -1,5 +1,8 @@
 # INCIPIENT CHANGES IN RRPP 1.2.1.999
 
+### BUG FIXES
+*  Fixed a typo in `plot.lm.rrpp` for diagnostic plots.
+
 # CHANGES IN RRPP 1.2.1
 
 ### NEW FEATURES
