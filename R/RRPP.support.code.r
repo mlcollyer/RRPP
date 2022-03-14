@@ -5,7 +5,6 @@
 #' @author Michael Collyer and Dean Adams
 #' @return Key functions for this package:
 #' \item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
-#' \item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, 
 #' plus model comparisons.}
 #' \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test 
 #' on coefficients, using RRPP.}
@@ -961,11 +960,14 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
         RSS <- res[3, ]
         
         TSS <- yy - sum(crossprod(Unull, y)^2)
+        RSS.model <- yy - sum(crossprod(Ufull, y)^2)
         TSS <- rep(TSS, k)
+        RSS.model <- rep(RSS.model, k)
         SS = SSf - SSr
-      } else SSr <- SSf <- SS <- RSS <- TSS <- NA
-      RSS.model <- yy - sum(crossprod(Ufull, y)^2)
-      if(k == 0) TSS <- RSS.model
+      } else {
+        SSr <- SSf <- SS <- RSS <- TSS <- NA
+        RSS.model <- TSS <- yy - sum(crossprod(Ufull, y)^2)
+      }
       list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
     })
   }

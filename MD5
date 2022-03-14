@@ -80,8 +80,8 @@ b0e5e2f0758f8c6ceb0c05c75f0ff9ce *R/ordinate.r
 c5b3c55cdaf9e5c50e741bbb367527cb *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
-4c5a86dee8726748a063a00cd63f303c *R/RRPP.support.code.r
-c801f830b61bc3f450963929cc86f0a0 *R/RRPP.utils.r
+b1028757ab528357658dd1df993d5714 *R/RRPP.support.code.r
+0911622ef3a0a247a341357b4705602f *R/RRPP.utils.r
 7e4808bceeec6a971521f3a90f2db9a6 *R/shared.support.code.r
 846b10b5a8bd58c47e72666815dd306c *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md

@@ -129,7 +129,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     SSM.obs <- SS[,1]
     RSS <- AN$RSS
     TSS <- AN$TSS
-    RSS.model <- AN$RSS.model
+    RSS.model <- AN$RSS.model[nrow(AN$RSS.model),]
     if(is.null(RSS)) RSS <- RSS.model
     if(is.null(RSS)) TSS <- RSS.model
     SS.type <- AN$SS.type
@@ -281,8 +281,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       SSCP <- c(SSCP, list(Residuals = as.matrix(crossprod(RF[[k]]))))
       
     } else {
-      RR <- reduced$residuals
-      RF <- full$residuals
+      RR <- reduced[[1]]$residuals
+      RF <- full[[1]]$residuals
       
       if(LM$gls) {
         if(!is.null(LM$Cov)) {
