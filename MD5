@@ -1,9 +1,9 @@
-4772acd5cf0ecd55cd074ff714327a3e *cran-comments.md
+820adea704945ff6f695d9e3afaf56a9 *cran-comments.md
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-3cc19286b390b5257da8c884266db51b *DESCRIPTION
+cb8dc661301ca7762a55610c9b22e543 *DESCRIPTION
 4b9ec9953a6af5354c47d2f9c8ff5922 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -65,7 +65,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 e2f11f0585d5822886ccd3c86d1c21e4 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 af12c8f8ca9fc63073480cdaba995a56 *NAMESPACE
-38751e28181782f1525a6ff2ee3eabc8 *NEWS.md
+a10252a11d783433d0b8eeea83cb5780 *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 f32134cc27403cea765bc84785d571a3 *R/anova.lm.rrpp.r
 12a242809b917dc77a5462854f008574 *R/coef.lm.rrpp.r
@@ -77,7 +77,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 9398ce29d5275f8254ea23b272d8d276 *R/model.comparison.r
 b0e5e2f0758f8c6ceb0c05c75f0ff9ce *R/ordinate.r
 3fd497d23c462d21f678cdf5601bad81 *R/pairwise.r
-c5b3c55cdaf9e5c50e741bbb367527cb *R/predict.lm.rrpp.r
+bea09786ece1ca8bb3f75bef5ca1ba39 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
 b1028757ab528357658dd1df993d5714 *R/RRPP.support.code.r
