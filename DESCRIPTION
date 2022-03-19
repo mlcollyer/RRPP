@@ -1,7 +1,7 @@
 Package: RRPP
 Title: Linear Model Evaluation with Randomized Residuals in a
         Permutation Procedure
-Version: 1.2.2
+Version: 1.2.3
 Authors@R: c(
     person("Michael", "Collyer", , "mlcollyer@gmail.com", c("aut", "cre"), 
     comment = c(ORCID = "0000-0003-0238-2201")),
@@ -31,10 +31,10 @@ Suggests:
     tibble
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2022-03-09; m.collyer
+Packaged: 2022-03-18; m.collyer
 Author: Michael Collyer [aut, cre] (<https://orcid.org/0000-0003-0238-2201>),
   Dean Adams [aut] (<https://orcid.org/0000-0001-9172-7894>)
 Maintainer: Michael Collyer <mlcollyer@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-03-09
+Date/Publication: 2022-03-18
 Config/testthat/edition: 3

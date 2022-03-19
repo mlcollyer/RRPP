@@ -144,9 +144,22 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
   lcl <- function(x) quantile(x, prob = alpha/2)
   ucl <- function(x) quantile(x, prob = 1 - alpha/2)
   meanV <- Reduce("+", preds)/length(preds)
-  preds.array <- simplify2array(preds)
-  LCL <- t(apply(preds.array, c(1,2), lcl))
-  UCL <- t(apply(preds.array, c(1,2), ucl))
+  
+  LCL <- sapply(1:length(meanV), function(j){
+    x <- sapply(1:perms, function(jj) preds[[jj]][j])
+    lcl(x)
+  })
+  
+  UCL <- sapply(1:length(meanV), function(j){
+    x <- sapply(1:perms, function(jj) preds[[jj]][j])
+    ucl(x)
+  })
+  
+  LCL <- matrix(LCL, NROW(meanV), NCOL(meanV))
+  UCL <- matrix(UCL, NROW(meanV), NCOL(meanV))
+  
+  dimnames(LCL) <- dimnames(UCL) <- dimnames(meanV)
+  
   if(!is.null(dim(LCL))) {
     if(dim(LCL)[2] == n) LCL <- t(LCL)
   }

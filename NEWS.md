@@ -1,4 +1,11 @@
-# INCIPIENT CHANGES IN RRPP 1.2.2
+# CHANGES IN RRPP 1.2.3
+
+### BUG FIXES
+* Fixed a bug in `predict.lm.rrpp` for new data frames with only one observation.
+* Fixed a bug in `SS.iter.main` that incidentally wrapped RSS.model by rows rather than columns.
+* Fixed a bug in `summary.lm.rrpp` that did not preperly index a matrix of `RSS.model`.
+
+# CHANGES IN RRPP 1.2.2
 
 ### BUG FIXES
 *  Fixed a typo in `plot.lm.rrpp` for diagnostic plots, which forced an error.
