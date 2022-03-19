@@ -78,7 +78,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 9398ce29d5275f8254ea23b272d8d276 *R/model.comparison.r
 b0e5e2f0758f8c6ceb0c05c75f0ff9ce *R/ordinate.r
 3fd497d23c462d21f678cdf5601bad81 *R/pairwise.r
-bea09786ece1ca8bb3f75bef5ca1ba39 *R/predict.lm.rrpp.r
+0e04399b62c429907f58643c82e26dc8 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
 b1028757ab528357658dd1df993d5714 *R/RRPP.support.code.r
