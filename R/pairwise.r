@@ -271,7 +271,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   }
   
   if(k > 0) {
-    lmf <- lm.fit(X, Y)
+    lmf <- LM.fit(X, Y)
     fitted <-lmf$fitted.values
     res <- lmf$residuals
   } else {
@@ -372,7 +372,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     r <- res[ind.i,]
     if(NCOL(r) > 1) d <- apply(r, 1, function(x) sum(x^2)) else
       d <- r^2
-    coef(lm.fit(x, d))
+    coef(lm.fit(as.matrix(x), d))
   }
   
   vars <- sapply(1:perms, function(j){
