@@ -597,8 +597,8 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
 lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07){
   
   getGLSlm<- function(x, y, Pcov, offset = offset, method = "qr", tol = tol){
-    PX <- crossprod(Pcov, x)
-    PY <- crossprod(Pcov, y)
+    PX <- as.matrix(Pcov %*% x)
+    PY <- as.matrix(Pcov %*% y)
     fit <- LM.fit(x = PX, y = PY, offset = offset, tol = tol)
     fit
   }
@@ -618,8 +618,8 @@ lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07)
 lm.rrpp.exchange <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07){
   
   getGLSlm<- function(x, y, Pcov, offset = offset, method = "qr", tol = tol){
-    PX <- crossprod(Pcov, x)
-    PY <- crossprod(Pcov, y)
+    PX <- Pcov %*% x
+    PY <- Pcov %*% y
     fit <- LM.fit(x = PX, y = PY, offset = offset, tol = tol)
     fit
   }
@@ -1115,7 +1115,7 @@ beta.boot.iter <- function(fit, ind) {
     x <-ind[[j]]
     rrpp.args$ind.i <- x
     Yi <- do.call(rrpp, rrpp.args)
-    if(!is.null(Pcov)) Yi <- crossprod(Pcov, Yi)
+    if(!is.null(Pcov)) Yi <- Pcov %*% Yi
     res <- as.matrix(Hf %*% Yi)
     rownames(res) <- id
     res
@@ -1444,14 +1444,12 @@ aov.multi.model <- function(object, lm.list,
   perms <- length(ind)
   
   if(refModel$LM$gls) {
-    X <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, 
-                                                  refModel$LM$X) else
+    X <- if(!is.null(refModel$LM$Pcov)) refModel$LM$Pcov %*% refModel$LM$X else
       refModel$LM$X * sqrt(refModel$LM$weights)
   } else X <- refModel$LM$X
   
   if(refModel$LM$gls) {
-    Y <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, 
-                                                  refModel$LM$Y) else
+    Y <- if(!is.null(refModel$LM$Pcov)) refModel$LM$Pcov %*% refModel$LM$Y else
       refModel$LM$Y * sqrt(refModel$LM$weights)
   } else Y <- refModel$LM$Y
   
@@ -1471,17 +1469,16 @@ aov.multi.model <- function(object, lm.list,
   
   if(print.progress){
     if(K > 1)
-    cat(paste("\nSums of Squares calculations for", K, "models:", 
-              perms, "permutations.\n")) else
-      cat(paste("\nSums of Squares calculations for", K, "model:", 
-                perms, "permutations.\n"))
+      cat(paste("\nSums of Squares calculations for", K, "models:", 
+                perms, "permutations.\n")) else
+                  cat(paste("\nSums of Squares calculations for", K, "model:", 
+                            perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
-
+  
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
-    int <- if(!is.null(refModel$LM$Pcov))  crossprod(refModel$LM$Pcov, 
-                                                     rep(int, n)) else
+    int <- if(!is.null(refModel$LM$Pcov))  refModel$LM$Pcov %*% rep(int, n) else
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
@@ -1532,7 +1529,7 @@ aov.multi.model <- function(object, lm.list,
   Rsq <-  SS / RSSy
   
   dfe <- n - c(getRank(object$LM$QR), unlist(lapply(1:K, 
-                     function(j) getRank(lm.list[[j]]$LM$QR))))
+                                                    function(j) getRank(lm.list[[j]]$LM$QR))))
   df <- dfe[1] - dfe
   df[1] <- 1
   
@@ -1599,9 +1596,9 @@ aov.multi.model <- function(object, lm.list,
               SS = SS[-1,], MS = MS[-1,], Rsq = Rsq[-1,], F = Fs[-1,],
               call = object$call)
   
-class(out) <- "anova.lm.rrpp"
-out
-
+  class(out) <- "anova.lm.rrpp"
+  out
+  
 }
 
 # getSlopes
@@ -2061,10 +2058,10 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
       fitted <- Yg * sqrt(w) - res * sqrt(w)
       nY <- (fitted + nfit$residuals)/sqrt(w)
     } else if(!is.null(Pcov)) {
-      PY <- crossprod(Pcov, Yg)
-      nfit <- lm.fit(as.matrix(crossprod(Pcov, Xg)), PY)
-      fitted <- PY - crossprod(Pcov, res)
-      nY <- crossprod(fast.solve(Pcov), fitted + nfit$residuals)
+      PY <- Pcov %*% Yg
+      nfit <- lm.fit(as.matrix(Pcov %*% Xg), PY)
+      fitted <- PY - as.matrix(Pcov %*% res)
+      nY <- fast.solve(Pcov) %*% (fitted + nfit$residuals)
     } else {
       nfit <- lm.fit(as.matrix(Xg), as.matrix(Yg))
       nY <- fit$LM$fitted + nfit$res
@@ -2081,7 +2078,7 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
     center(Yn)
   
   V <- crossprod(Yc)/n
-  if(!is.null(Pcov)) V <- crossprod(crossprod(Pcov, Yc))/n
+  if(!is.null(Pcov)) V <- crossprod(Pcov %*% Yc)/n
   if(!is.null(w)) V <-  crossprod(Yc * sqrt(w))/n
   
   if(gls) s <- svd(V)
@@ -2136,12 +2133,12 @@ looPCOne <-function(fit, n.ind) {
   Y <- Y[-n.ind,]
   gls <- fit$LM$gls
   Pcov <- if(gls) fit$LM$Pcov[-n.ind, -n.ind] else NULL
-  QR <- if(gls) qr(crossprod(Pcov, X)) else qr(X)
+  QR <- if(gls) qr(Pcov %*% X) else qr(X)
   S4 <- !inherits(QR, "qr")
   Q <- qr.Q(QR)
   R <- if(S4) qrR(QR) else qr.R(QR)
   H <- tcrossprod(fast.solve(R), Q)
-  B <- if(gls)  H %*% crossprod(Pcov, Y) else
+  B <- if(gls)  H %*% (Pcov %*% Y) else
     H %*% Y
   S <- svd(X %*% B)
   y %*% S$v
