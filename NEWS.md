@@ -1,4 +1,14 @@
-# CHANGES IN RRPP 1.2.3.999
+# CHANGES IN RRPP 1.3.0
+
+### NEW FEATURES
+* New S3 function, `logLik.lm.rrpp` to obtain log-likelihood from an `lm.rrpp` object.
+* New function, `scaleCov` to scale covariance matrices with linear or exponential scalars.
+
+### BUG FIXES
+*  Various lingering bugs from version 1.2 associated with sparse matrix calculation issues were removed.
+
+### OTHER CHANGES
+* Updated `model.comparison` to include Z scores calculated from log-likelihoods.
 
 # CHANGES IN RRPP 1.2.3
 

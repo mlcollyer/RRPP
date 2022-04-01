@@ -157,11 +157,12 @@
 #' bar should be printed to the screen.
 #' This is helpful for long-running analyses.
 #' @param Parallel Either a logical value to indicate whether parallel processing 
-#' should be used or a numeric value to indicate the number of cores to use in 
-#' parallel processing via the \code{parallel} library. 
-#' If TRUE, this argument invokes forking of all processor cores, except one.  If
-#' FALSE, only one core is used. A numeric value directs the number of cores to use,
-#' but one core will always be spared.
+#' should be used, a numeric value to indicate the number of cores to use, or a predefined
+#' socket cluster.  This argument defines parallel processing via the \code{parallel} library. 
+#' If TRUE, this argument invokes forking or socket cluster assignment of all processor cores, 
+#' except one.  If FALSE, only one core is used. A numeric value directs the number of cores to 
+#' use, but one core will always be spared.  If a predefined socket cluster (Windows) is provided,
+#' the cluster information will be passed to \code{parallel}.
 #' @param ... Arguments typically used in \code{\link{lm}}, such as 
 #' weights or offset, passed on to
 #' \code{rrpp.fit} for estimation of coefficients.  If both weights and 
@@ -400,18 +401,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
                      data = NULL, Cov = NULL,
                      print.progress = FALSE, Parallel = FALSE, ...) {
   
-  ParCores <- NULL
-  if (is.numeric(Parallel)) {
-    ParCores <- Parallel
-    Parallel <- TRUE
-  }
-  if (Parallel && is.null(ParCores)) {
-    ParCores <- detectCores() - 1
-  }
-  
-  if (is.numeric(ParCores)) {
-    if(ParCores > detectCores() - 1) ParCores <- detectCores() - 1
-  } 
+  Parallel.args <- Parallel.setup(Parallel)
   
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
@@ -589,7 +579,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     cks$trms <- term.labels
     
     beta.args <- list(checkrs = cks, ind = ind,
-                      ParCores= ParCores, 
+                      Parallel.args = Parallel.args, 
                       print.progress = print.progress)
     
     betas <- do.call(beta.iter, beta.args)
@@ -618,7 +608,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   }
   SS.args <- list(checkrs = cks, ind = ind, 
                   print.progress = print.progress,
-                  ParCores = ParCores)
+                  Parallel.args = Parallel.args)
   FR <- NULL
   SS <- do.call(SS.iter, SS.args)
   cks$SS.type <- SS.type

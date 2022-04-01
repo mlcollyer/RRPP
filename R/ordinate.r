@@ -310,7 +310,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
 
   if (!is.null(tol)) {
     rank <- sum(s$sdev > (s$sdev[1L] * tol))
-    if (rank < k) {
+    if (rank > 0 && k > 1 && rank < k) {
       j <- seq_len(k <- rank)
       s$v <- s$v[, j, drop = FALSE]
       s$d <- s$d[j]

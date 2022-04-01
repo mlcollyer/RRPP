@@ -194,7 +194,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       }
       if(!is.null(LM$Pcov)) {
         Pcov <- LM$Pcov
-        PY <- Pcov %*% LM$Y
+        PY <- as.matrix(Pcov %*% LM$Y)
         PX <- as.matrix(Pcov %*% LM$X)
         Pint <- as.matrix(Pcov %*% rep(int, n))
         RM <- lm.fit(PX, PY)$residuals
@@ -672,6 +672,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
         X <- cbind(xc, x$LM$Pcov %*% x$LM$X)
     } else X <- cbind(xc, x$LM$X)
     
+    X <- as.matrix(X)
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
     plot.args$y <- Reg.proj
@@ -1482,6 +1483,7 @@ summary.model.comparison <- function(object ,...){
   type <- colnames(x$table)[[1]]
   if(type == "cov.trace") type.name <- "traces of model covariance matrices"
   if(type == "logLik") type.name <- "model log-likelihoods"
+  if(type == "Z") type.name <- "model Z-scores"
   n <- NROW(x$table)
   cat("\n\n Summary statistics for", type.name, "\n\n")
   cat(n, "Models compared.\n\n")
@@ -1502,14 +1504,37 @@ summary.model.comparison <- function(object ,...){
 #' @keywords utilities
 #' @keywords visualization
 plot.model.comparison <- function(x, ...){
-  type <- colnames(x$table)[[1]]
+  object <- x
+  type <- names(object$table)[[1]]
+  tab <- object$table
+  nms <- object$names
+  spln <- if(type == "logLik") ncol(tab) == 5 else 
+    if(type == "cov.trace") ncol(tab) == 3 else ncol(tab) == 2
+  
   if(type == "cov.trace") type.name <- "Trace"
-  if(type == "logLik") type.name <- "-2 * log-likelihood"
-  tab <- x$table
-  nms <- x$names
-  x <- tab[,2]
+  if(type == "logLik") {
+    type.name <- if(spln) "log-likelihood" else "-2 * log-likelihood"
+  }
+  if(type == "Z") type.name <- "Z"
+  
+  if(type == "logLik") {
+    x <- if(spln) tab[,5] else tab[,3]
+    xLab <- if(spln) names(tab)[5] else names(tab)[3] 
+  } else if(type == "cov.trace"){
+    x <- if(spln) tab[,3] else tab[,2]
+    xLab <- if(spln) names(tab)[3] else names(tab)[2]
+  } else {
+    x <- if(spln) tab[,2] else NULL
+    xLab <- names(tab)[if(spln) 2 else NULL]
+  }
+    
+  if(type == "Z" && is.null(x)){
+    cat("No predictor.  Z-scores will be plotted in the order provided.\n")
+    x <- 1:nrow(tab)
+  }
   y <- tab[,1]
-  if(type == "logLik") y <- -2 * y
+  if(all(is.na(x))) x <- 1:length(y)
+  if(type == "logLik" && !spln) y <- -2 * y
   xrange <- range(x)
   dx <- xrange[2] - xrange[1]
   xlim <- xrange + c(-0.1*dx, 0.1*dx)
@@ -1517,13 +1542,37 @@ plot.model.comparison <- function(x, ...){
   yrange <- range(y)
   dy <- yrange[2] - yrange[1]
   ylim <- yrange + c(-0.1*dy, 0.1*dy)
+
   
-  plot(x, y, xlab = "Parameter penalty", 
+  if(var(x) == 0)
+    stop("There is no plot to make, as the parameter penalty is invariant.",
+         call. = FALSE) 
+  plot(x, y, xlab = xLab, 
        ylab = type.name, xlim = xlim, ylim = ylim, ...)
   
-  f <- lm(y ~ x)
-  abline(f, lty = 3, lwd = 0.8, col = "red")
-  text(x, y, nms, pos = 1, cex = 0.4)
+  if(spln){
+    
+    if(!any(is.na(x))) {
+      sp <- spline(x, y)
+      points(sp$x, sp$y, col = 2, type = "l")
+      xmax <- sp$x[which.max(sp$y)]
+      xmin <-sp$x[which.min(sp$y)]
+      text(x, y, nms, pos = 1, cex = 0.4)
+      cat("max", type, "found at", xLab, "=", round(xmax, 4))
+      cat("\nmin", type, "found at", xLab, "=", round(xmin, 4), "\n")
+    }
+      
+  } else {
+    if(is.null(xLab))
+      stop("There is no plot to make, as there is no predictor.",
+           call. = FALSE) 
+    f <- lm(y ~ x)
+    abline(f, lty = 3, lwd = 0.8, col = "red")
+    text(x, y, nms, pos = 1, cex = 0.4)
+               
+           
+  }
+
 }
 
 #' Print/Summary Function for RRPP
@@ -2474,3 +2523,4 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
  
   par(opars)
 }
+

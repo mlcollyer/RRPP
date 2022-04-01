@@ -271,7 +271,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   }
   
   if(k > 0) {
-    lmf <- lm.fit(X, Y)
+    lmf <- LM.fit(X, Y)
     fitted <-lmf$fitted.values
     res <- lmf$residuals
   } else {
@@ -367,12 +367,12 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   
   if(gls) res <- fitf$LM$gls.residuals else res <- fitf$LM$residuals
   disp.args <- list(res = as.matrix(res), ind.i = NULL, x = model.matrix(~groups + 0))
-  if(gls) disp.args$x <- crossprod(fitf$LM$Pcov, disp.args$x)
+  if(gls) disp.args$x <- fitf$LM$Pcov %*% disp.args$x
   g.disp <- function(res, ind.i, x) {
     r <- res[ind.i,]
     if(NCOL(r) > 1) d <- apply(r, 1, function(x) sum(x^2)) else
       d <- r^2
-    coef(lm.fit(x, d))
+    coef(lm.fit(as.matrix(x), d))
   }
   
   vars <- sapply(1:perms, function(j){

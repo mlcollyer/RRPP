@@ -4,7 +4,7 @@
 #' @title Linear Model Evaluation with Randomized Residual Permutation Procedures
 #' @author Michael Collyer and Dean Adams
 #' @return Key functions for this package:
-#' \item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
+#' \item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.
 #' plus model comparisons.}
 #' \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test 
 #' on coefficients, using RRPP.}
@@ -240,6 +240,64 @@ rrpp.data.frame<- function(...) {
 #####--------------------------------------------------------------\
 
 # SUPPORT FUNCTIONS
+
+# Parallel.setup
+# Function to help parallel library adjust to settings
+# for parallel processing
+
+Parallel.setup <- function(Parallel){
+  
+  ParLog <- is.logical(Parallel)
+  usecluster <- inherits(Parallel, "cluster")
+  if(usecluster){
+    cluster <- Parallel
+    ParLog <- Parallel <- TRUE
+  } else cluster <- FALSE
+  ParCores <- NULL
+  
+  if(is.numeric(Parallel)) {
+    ParCores <- Parallel
+    ParLog <- TRUE
+    Parallel <- TRUE
+  }
+  
+  if(ParLog && is.null(ParCores)) {
+    ParCores <- detectCores() - 1
+    if(usecluster) ParCores <- length(cluster)
+    if(!Parallel) ParCores <- 1
+  }
+  
+  if(is.numeric(ParCores)) {
+    if(ParCores > detectCores() - 1) ParCores <- detectCores() - 1
+  }
+  
+  Unix <- .Platform$OS.type == "unix"
+  forking <- Unix && !usecluster
+  
+  if(is.null(ParCores)) ParCores <- 1
+  
+  if(ParCores == 1) {
+    ParLog <- FALSE
+    forking <- FALSE
+    usecluster <- FALSE
+    cluster <- NULL
+  }
+    
+  if(ParCores > 1) {
+    if(!Unix && !usecluster)
+      cluster <- makeCluster(ParCores)
+    if(Unix && usecluster)
+      Unix <- FALSE
+  }
+  
+  list(Parallel = ParLog,
+       Unix = Unix, 
+       forking = forking, 
+       ParCores = ParCores, 
+       usecluster = usecluster,
+       cluster = cluster)
+  
+}
 
 # lm.rrpp subfunctions
 # lm-like fit modified for all submodels
@@ -597,8 +655,8 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
 lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07){
   
   getGLSlm<- function(x, y, Pcov, offset = offset, method = "qr", tol = tol){
-    PX <- crossprod(Pcov, x)
-    PY <- crossprod(Pcov, y)
+    PX <- as.matrix(Pcov %*% x)
+    PY <- as.matrix(Pcov %*% y)
     fit <- LM.fit(x = PX, y = PY, offset = offset, tol = tol)
     fit
   }
@@ -618,8 +676,8 @@ lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07)
 lm.rrpp.exchange <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07){
   
   getGLSlm<- function(x, y, Pcov, offset = offset, method = "qr", tol = tol){
-    PX <- crossprod(Pcov, x)
-    PY <- crossprod(Pcov, y)
+    PX <- Pcov %*% x
+    PY <- Pcov %*% y
     fit <- LM.fit(x = PX, y = PY, offset = offset, tol = tol)
     fit
   }
@@ -828,26 +886,24 @@ checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE,
 # generates ANOVA stats
 
 SS.iter <- function(checkrs, ind,  print.progress = TRUE, 
-                    ParCores =  TRUE) {
-  if(is.null(ParCores)) {
+                    Parallel.args) {
+  
+  forking <- Parallel.args$forking
+  usecluster <- Parallel.args$usecluster
+  cluster <- Parallel.args$cluster
+  no_cores <- Parallel.args$ParCores
+  
     SS.iter.main(checkrs = checkrs, ind = ind, 
                  print.progress = print.progress,
-                 no_cores = 1, Unix = FALSE)
-  } else {
-    Unix <- .Platform$OS.type == "unix"
-    if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
-      no_cores <- min(detectCores() - 1, ParCores)
+                 no_cores = no_cores, usecluster = usecluster,
+                 cluster = cluster, forking = forking)
     
-    SS.iter.main(checkrs = checkrs, ind = ind, 
-                 print.progress = print.progress,
-                 no_cores = no_cores, Unix = Unix)
-    
-  }
   
 }
 
 SS.iter.main <- function(checkrs, ind, print.progress = TRUE, 
-                         no_cores, Unix = TRUE) {
+                         no_cores, cluster = NULL, forking = FALSE,
+                         usecluster = FALSE) {
   
   Ur <- checkrs$Ur
   Uf <- checkrs$Uf
@@ -884,7 +940,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
     pbbar <- TRUE
   }
   
-  if(Unix) {
+  if(forking && no_cores > 1) {
     result <- mclapply(1:perms, mc.cores = no_cores, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
@@ -909,13 +965,9 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
       list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
     })
     
-  } else if(no_cores > 1) {
-    
-    cl <- makeCluster(no_cores)
-    clusterExport(cl, "ind",
-                  envir=environment())
-    
-    result <- parLapply(cl, 1:perms, function(j){
+  } else if(usecluster && no_cores > 1) {
+  
+    result <- parLapply(cluster, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
@@ -938,7 +990,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
       if(k == 0) TSS <- RSS.model
       list(SS = SS, RSS = RSS, TSS = TSS, RSS.model = RSS.model)
     })
-    stopCluster(cl)
+    stopCluster(cluster)
     
   } else {
     result <- lapply(1:perms, function(j){
@@ -961,8 +1013,6 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
         
         TSS <- yy - sum(crossprod(Unull, y)^2)
         RSS.model <- yy - sum(crossprod(Ufull, y)^2)
-        TSS <- rep(TSS, k)
-        RSS.model <- rep(RSS.model, k)
         SS = SSf - SSr
       } else {
         SSr <- SSf <- SS <- RSS <- TSS <- NA
@@ -974,12 +1024,14 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
   
   SS <- matrix(sapply(result, "[[", "SS"), max(1, k), perms)
   RSS <- matrix(sapply(result, "[[", "RSS"), max(1, k), perms)
-  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms)
-  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), max(1, k), perms)
+  TSS <- matrix(sapply(result, "[[", "TSS"), max(1, k), perms, 
+                byrow = TRUE)
+  RSS.model <- matrix(sapply(result, "[[", "RSS.model"), 
+                      max(1, k), perms, byrow = TRUE)
   
   res.names <- list(if(k > 0) trms else "Intercept", 
                     c("obs", paste("iter", 1:(perms-1), sep=".")))
-  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS) <- dimnames(RSS.model) <- 
+  dimnames(SS) <- dimnames(RSS) <- dimnames(TSS)  <- dimnames(RSS.model) <-
     res.names
   
   if(all(is.na(SS))) RSS <- SS <- NULL
@@ -1115,7 +1167,7 @@ beta.boot.iter <- function(fit, ind) {
     x <-ind[[j]]
     rrpp.args$ind.i <- x
     Yi <- do.call(rrpp, rrpp.args)
-    if(!is.null(Pcov)) Yi <- crossprod(Pcov, Yi)
+    if(!is.null(Pcov)) Yi <- Pcov %*% Yi
     res <- as.matrix(Hf %*% Yi)
     rownames(res) <- id
     res
@@ -1129,25 +1181,23 @@ beta.boot.iter <- function(fit, ind) {
 # gets appropriate beta vectors for random permutations in lm.rrpp
 # generates distances as statistics for summary
 beta.iter <- function(checkrs, ind, print.progress = TRUE, 
-                      ParCores =  NULL) {
-  if(is.null(ParCores)) {
-    beta.iter.main(checkrs = checkrs, ind = ind, 
-                   print.progress = print.progress,
-                   no_cores = 1, Unix = FALSE)
-  } else {
-    Unix <- .Platform$OS.type == "unix"
-    if(is.logical(ParCores)) no_cores <- detectCores() - 1 else
-      no_cores <- min(detectCores() - 1, ParCores)
+                      Parallel.args) {
+  
+  forking <- Parallel.args$forking
+  cluster <- Parallel.args$cluster
+  usecluster <- Parallel.args$usecluster
+  no_cores <- Parallel.args$ParCores
     
     beta.iter.main(checkrs = checkrs, ind = ind, 
                    print.progress = print.progress,
-                   no_cores = no_cores, Unix = Unix)
-  }
+                   no_cores = no_cores, usecluster = usecluster,
+                   cluster = cluster, forking = forking)
 }
 
 
 beta.iter.main <- function(checkrs, ind, print.progress = TRUE, 
-                           no_cores, Unix = TRUE) {
+                           no_cores, cluster = NULL, forking = FALSE,
+                           usecluster = FALSE) {
   
   k <- checkrs$k
   trms <- checkrs$realized.trms
@@ -1212,7 +1262,7 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
     }, Hf, Yi, pert.rows) 
   } 
   
-  if(Unix) {
+  if(forking && no_cores > 1) {
     betas <- mclapply(1:perms, mc.cores = no_cores, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
@@ -1221,19 +1271,16 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
       
     })
     
-  } else if(no_cores > 1) {
+  } else if(usecluster && no_cores > 1) {
     
-    cl <- makeCluster(no_cores)
-    clusterExport(cl, "rrpp.args")
-    
-    betas <- parLapply(cl, 1:perms, function(j){
+    betas <- parLapply(cluster, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
       Yi <- do.call(rrpp, rrpp.args)
       getBetas(Hf, Yi = Yi, pert.rows)
       
     })
-    stopCluster(cl)
+    
   } else {
     betas <- lapply(1:perms, function(j){
       step <- j
@@ -1280,7 +1327,7 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
 }
 
 # ellipse.points
-# A helper function for plotting elipses from non-parametric CI data
+# A helper function for plotting ellipses from non-parametric CI data
 # Used in predict.lm.rrpp
 
 ellipse.points <- function(m, pr, conf) {
@@ -1444,14 +1491,12 @@ aov.multi.model <- function(object, lm.list,
   perms <- length(ind)
   
   if(refModel$LM$gls) {
-    X <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, 
-                                                  refModel$LM$X) else
+    X <- if(!is.null(refModel$LM$Pcov)) refModel$LM$Pcov %*% refModel$LM$X else
       refModel$LM$X * sqrt(refModel$LM$weights)
   } else X <- refModel$LM$X
   
   if(refModel$LM$gls) {
-    Y <- if(!is.null(refModel$LM$Pcov)) crossprod(refModel$LM$Pcov, 
-                                                  refModel$LM$Y) else
+    Y <- if(!is.null(refModel$LM$Pcov)) refModel$LM$Pcov %*% refModel$LM$Y else
       refModel$LM$Y * sqrt(refModel$LM$weights)
   } else Y <- refModel$LM$Y
   
@@ -1480,8 +1525,7 @@ aov.multi.model <- function(object, lm.list,
 
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
-    int <- if(!is.null(refModel$LM$Pcov))  crossprod(refModel$LM$Pcov, 
-                                                     rep(int, n)) else
+    int <- if(!is.null(refModel$LM$Pcov))  refModel$LM$Pcov %*% rep(int, n) else
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
@@ -1855,65 +1899,37 @@ RiReg <- function(Cov, residuals){
 
 logL <- function(fit, tol = NULL, pc.no = NULL){
   if(is.null(tol)) tol = 0
+  gls <- fit$LM$gls
   n <- fit$LM$n
   p <- fit$LM$p.prime
-  k <- if (!is.null(pc.no)) {
-    stopifnot(length(pc.no) == 1, is.finite(pc.no), as.integer(pc.no) > 0)
-    min(as.integer(pc.no), n, p)
-  } else min(n, p)
   X <- as.matrix(fit$LM$X)
   Y <- as.matrix(fit$LM$Y)
-  rdf <- fit$LM$data
-  gls <- fit$LM$gls
+  R <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
+  PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
+  rnk <- length(PCA$d)
   w <- fit$LM$weights
   Pcov <- fit$LM$Pcov
-  Res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
+  Cov <- fit$LM$Cov  
+  R <- if(gls) {
+    if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
+  } else R
   
-  if(gls){
-    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% Res)/n else
-      Sig <- crossprod(Res * sqrt(w))/n
-    
-  }  else {
-    
-    Sig <- crossprod(Res) /n
-    
+  if(!is.null(w)) {
+    excl <- w <= 0
+    logdetC <- sum(log(w[!excl]))
+  } else {
+    logdetC <- if(gls) determinant(Cov, logarithm = TRUE)$modulus else 0
   }
   
-  s <- svd(Sig, nu = 0, nv = k)
-  sdev <- s$d/sqrt(max(1, n - 1))
-  rank <- min(sum(sdev > (sdev[1L] * tol)), k)
-  pr <- pr <- seq_len(rank)
-  s$v <- s$v[, pr, drop = FALSE]
-
-  P <- Res %*% s$v
-
-  if(gls){
-    if(!is.null(Pcov)) Sig <- crossprod(Pcov %*% P)/n else
-      Sig <- crossprod(P * sqrt(w))/n
-    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, P)
-    
-  }  else {
-    
-    Sig <- crossprod(P) /n
-    if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, P)
-    
-  }
+  if(NCOL(R) > rnk) R <- ordinate(R, rank. = rnk)$x
+  Sig <- as.matrix(crossprod(R) / n)
+  if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, R)
+  logdetSig <- determinant(Sig, logarithm = TRUE)$modulus
   
-  if(gls) {
-    if(!is.null(Pcov)) {
-      ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
-                    rank * determinant(fit$LM$Cov, logarithm = TRUE)$modulus[1] + 
-                    n * rank * log(2*pi))
-    } else {
-      ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] - 
-                    rank * sum(log(w)) + n * rank * log(2*pi))
-      
-    }
-  } else 
-    ll <- -0.5*(n * rank + n * determinant(Sig, logarithm = TRUE)$modulus[1] + 
-                  n * rank * log(2*pi))
+  ll <- -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
+                  n * logdetSig + n) 
   
-  list(logL = ll, rank = rank)
+  list(logL = ll, rank = rnk)
   
 }
 
@@ -2061,10 +2077,10 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
       fitted <- Yg * sqrt(w) - res * sqrt(w)
       nY <- (fitted + nfit$residuals)/sqrt(w)
     } else if(!is.null(Pcov)) {
-      PY <- crossprod(Pcov, Yg)
-      nfit <- lm.fit(as.matrix(crossprod(Pcov, Xg)), PY)
-      fitted <- PY - crossprod(Pcov, res)
-      nY <- crossprod(fast.solve(Pcov), fitted + nfit$residuals)
+      PY <- Pcov %*% Yg
+      nfit <- lm.fit(as.matrix(Pcov %*% Xg), PY)
+      fitted <- PY - as.matrix(Pcov %*% res)
+      nY <- fast.solve(Pcov) %*% (fitted + nfit$residuals)
     } else {
       nfit <- lm.fit(as.matrix(Xg), as.matrix(Yg))
       nY <- fit$LM$fitted + nfit$res
@@ -2081,7 +2097,7 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
     center(Yn)
   
   V <- crossprod(Yc)/n
-  if(!is.null(Pcov)) V <- crossprod(crossprod(Pcov, Yc))/n
+  if(!is.null(Pcov)) V <- crossprod(Pcov %*% Yc)/n
   if(!is.null(w)) V <-  crossprod(Yc * sqrt(w))/n
   
   if(gls) s <- svd(V)
@@ -2136,12 +2152,12 @@ looPCOne <-function(fit, n.ind) {
   Y <- Y[-n.ind,]
   gls <- fit$LM$gls
   Pcov <- if(gls) fit$LM$Pcov[-n.ind, -n.ind] else NULL
-  QR <- if(gls) qr(crossprod(Pcov, X)) else qr(X)
+  QR <- if(gls) qr(Pcov %*% X) else qr(X)
   S4 <- !inherits(QR, "qr")
   Q <- qr.Q(QR)
   R <- if(S4) qrR(QR) else qr.R(QR)
   H <- tcrossprod(fast.solve(R), Q)
-  B <- if(gls)  H %*% crossprod(Pcov, Y) else
+  B <- if(gls)  H %*% (Pcov %*% Y) else
     H %*% Y
   S <- svd(X %*% B)
   y %*% S$v
