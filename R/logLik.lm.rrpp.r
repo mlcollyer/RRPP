@@ -77,7 +77,7 @@ logLik.lm.rrpp <- function(object, tol = NULL,
       r <- as.matrix(r)
       if(NCOL(r) > rnk) r <- ordinate(r, rank. = rnk)$x
       Sig <- as.matrix(crossprod(r) / n)
-      if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, P)
+      if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, r)
       logdetSig <- determinant(Sig, logarithm = TRUE)$modulus
       -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
                 n * logdetSig + n) 

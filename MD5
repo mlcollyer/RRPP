@@ -74,7 +74,7 @@ f32134cc27403cea765bc84785d571a3 *R/anova.lm.rrpp.r
 da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 5ae2275461911e77f128c3eaef40a16e *R/lm.rrpp.r
-1127d2bf3656ecbf14933dbb6148f446 *R/logLik.lm.rrpp.r
+451b076ed1762bfe69e283c6ef6dfb4f *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 5c80a00dcd6e5109d4216b75d8a4a9da *R/manova.update.r
 df42526d90be468416dc556ecbef54f7 *R/model.comparison.r
