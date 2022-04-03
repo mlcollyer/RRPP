@@ -83,10 +83,10 @@ df42526d90be468416dc556ecbef54f7 *R/model.comparison.r
 0e04399b62c429907f58643c82e26dc8 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
-43cdb42b781c52613857a32201dc63cb *R/RRPP.support.code.r
+cf811313fb3d86f673fd3093523145fe *R/RRPP.support.code.r
 7f6f766fd71bf5eae05b71333a7e5cbe *R/RRPP.utils.r
 69bf8dfd288cce06b7c2076cac3dab8f *R/scaleCov.r
-7e4808bceeec6a971521f3a90f2db9a6 *R/shared.support.code.r
+69d12a23b58aefc41394ffe5cbe30830 *R/shared.support.code.r
 846b10b5a8bd58c47e72666815dd306c *R/trajectory.analysis.r
 987d403df491c09b6db91776c4443a53 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj

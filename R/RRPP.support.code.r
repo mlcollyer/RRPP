@@ -302,13 +302,6 @@ Parallel.setup <- function(Parallel){
 # lm.rrpp subfunctions
 # lm-like fit modified for all submodels
 # general workhorse for all 'lm.rrpp' functions
-# used in all 'lm.rrpp' functions
-
-get.names <- function(Y) {
-  nms <- if(is.vector(Y)) names(Y) else if(inherits(Y, "dist")) attr(Y, "Labels") else
-    if(inherits(Y, "matrix")) rownames(Y) else dimnames(Y)[[3]]
-  nms
-}
 
 get.names.from.list <- function(L) {
   temp <- lapply(L, get.names)
