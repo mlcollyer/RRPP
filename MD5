@@ -16,7 +16,7 @@ edd78797987966f67d689a7a02d7709c *man/lm.rrpp.Rd
 19a39a42115e81d1d1d7e5acb17a1a03 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 9ccd6f86b81f5b77785def01ca99a1a1 *man/manova.update.Rd
-2d96aa23bd740f747ac5355b20d8f870 *man/model.comparison.Rd
+135102a80437703fb2110a214f93df02 *man/model.comparison.Rd
 05471ca269ac60530b233dce90a0f3f5 *man/model.frame.lm.rrpp.Rd
 7e9ba29071c4cee40bdeb5bc861ffe51 *man/model.matrix.lm.rrpp.Rd
 0e726f552fbf03e943ad5cebcc3fc09d *man/motionpaths.Rd
@@ -73,11 +73,11 @@ f32134cc27403cea765bc84785d571a3 *R/anova.lm.rrpp.r
 12a242809b917dc77a5462854f008574 *R/coef.lm.rrpp.r
 da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-2c1a9d867a37a8d8f167b623ab6fc2f0 *R/lm.rrpp.r
+5ae2275461911e77f128c3eaef40a16e *R/lm.rrpp.r
 1127d2bf3656ecbf14933dbb6148f446 *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 5c80a00dcd6e5109d4216b75d8a4a9da *R/manova.update.r
-a171e68e735f16ca5ba9b6f5fc868394 *R/model.comparison.r
+df42526d90be468416dc556ecbef54f7 *R/model.comparison.r
 81df6d969413234ce941947cb7a5f013 *R/ordinate.r
 7aaf8fe0baf4cb933fa2013409872dcb *R/pairwise.r
 0e04399b62c429907f58643c82e26dc8 *R/predict.lm.rrpp.r

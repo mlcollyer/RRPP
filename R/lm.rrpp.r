@@ -493,7 +493,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
     if(!is.null(id) && !is.null(rownames(Cov))) {
       if(length(setdiff(id, rownames(Cov))) > 0)
-        stop("Data names and coavriance matrix names do not match.\n", call. = FALSE)
+        stop("Data names and covariance matrix names do not match.\n", call. = FALSE)
       Cov <- Cov[id, id]
     }
     

@@ -89,7 +89,7 @@
 #' @param pc.no If type = logLik or Z, an optional value to indicate the 
 #' number of principal components (maximum rank) to use 
 #' for calculating the log-likelihood.
-#' @param glsNULL A logical value indicating whether GLS estimation should be
+#' @param gls.null A logical value indicating whether GLS estimation should be
 #' used with the null (intercept) model, for calculating Z scores via RRPP of 
 #' log-likelihoods.  This should be FALSE if comparing different GLS estimations
 #' of covariance matrices.  It should be TRUE if comparing different model fits
@@ -197,15 +197,16 @@
 
 model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"), 
                             predictor = NULL, tol = NULL, pc.no = NULL,
-                            glsNULL = FALSE) {
+                            gls.null = FALSE) {
   
   dots <- list(...)
   check <- unlist(lapply(dots, inherits, "lm.rrpp"))
   if(any(!check)) stop("\nObjects must be lm.rrpp fits\n.")
   dot.names <- lapply(dots, function(x) x$LM$Terms[[3]])
   if(length(unique(dot.names)) < length(dot.names)) {
-    cat("Models do not have unique term combinations.  Names might match.\n")
-    dot.names <- lapply(dots, function(x) x$call[-c(1, 3)])
+    cat("Models do not have unique term combinations.\n")
+    cat("Labelling models based on order presented.\n")
+    dot.names <- paste("Mod", 1:length(dots), sep = ".")
   }
   type = match.arg(type)
   
@@ -232,10 +233,9 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
       }
     }
     
-    ll.args <- list(fit = dots[[1]], tol = tol, pc.no = pc.no[[1]])
+    ll.args <- list(fit = dots[[1]], tol = tol, pc.no = pc.no)
     temp <- sapply(1:length(dots), function(j){
       ll.args$fit <- dots[[j]]
-      ll.args$pc.no <- pc.no[[j]]
       do.call(logL, ll.args)
     }) 
     res <- unlist(temp[1,])
@@ -246,7 +246,7 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
     res <- sapply(1:length(dots), function(j){
       f <- dots[[j]]
       z <- logLik(f, Z = TRUE, tol = tol, 
-                  pc.no = pc.no, glsNULL = glsNULL)$Z
+                  pc.no = pc.no, gls.null = gls.null)$Z
       if(is.na(z)) z <- 0
       z      
     })

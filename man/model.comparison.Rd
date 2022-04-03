@@ -11,7 +11,7 @@ model.comparison(
   predictor = NULL,
   tol = NULL,
   pc.no = NULL,
-  glsNULL = FALSE
+  gls.null = FALSE
 )
 }
 \arguments{
@@ -38,7 +38,7 @@ component times the tolerance), for calculating the log-likelihood.}
 number of principal components (maximum rank) to use 
 for calculating the log-likelihood.}
 
-\item{glsNULL}{A logical value indicating whether GLS estimation should be
+\item{gls.null}{A logical value indicating whether GLS estimation should be
 used with the null (intercept) model, for calculating Z scores via RRPP of 
 log-likelihoods.  This should be FALSE if comparing different GLS estimations
 of covariance matrices.  It should be TRUE if comparing different model fits
