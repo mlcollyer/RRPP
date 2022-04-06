@@ -27,7 +27,7 @@ scaleCov(
 A square matrix.
 }
 \description{
-Function peforms linear and exponential scaling of a covariance, 
+Function performs linear and exponential scaling of a covariance, 
 either including or excluding diagonals or off-diagonal elements.
 }
 \details{

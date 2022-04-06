@@ -1,6 +1,6 @@
 #' Scaling of a Covariance Matrix
 #'
-#' Function peforms linear and exponential scaling of a covariance, 
+#' Function performs linear and exponential scaling of a covariance, 
 #' either including or excluding diagonals or off-diagonal elements.  
 #' 
 #' The function scales covariances as scale * cov ^exponent, where cov is any 

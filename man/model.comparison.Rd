@@ -54,7 +54,7 @@ might be include, if applicable
 Function calculates either log-likelihoods or traces of covariance 
 matrices for comparison with 
 respect to parameter penalties, or calculates Z-scores from RRPP, which
-can be profiled across a grtadient (predictor).
+can be profiled across a gradient (predictor).
 }
 \details{
 The function calculates either log-likelihoods or traces of (residual) 
