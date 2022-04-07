@@ -7,8 +7,7 @@
 \title{Linear Model Evaluation with Randomized Residual Permutation Procedures}
 \value{
 Key functions for this package:
-\item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.}
-\item{\code{\link{anova.lm.rrpp}}}{ANOVA on linear models, using RRPP, 
+\item{\code{\link{lm.rrpp}}}{Fits linear models, using RRPP.
 plus model comparisons.}
 \item{\code{\link{coef.lm.rrpp}}}{Extract coefficients or perform test 
 on coefficients, using RRPP.}

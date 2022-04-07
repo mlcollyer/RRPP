@@ -1,8 +1,10 @@
-#' Model Comparisons, in terms of the log-likelihood or covariance trace
+#' Model Comparisons, in terms of the log-likelihood, covariance trace,
+#' or Z-score.
 #'
 #' Function calculates either log-likelihoods or traces of covariance 
 #' matrices for comparison with 
-#' respect to parameter penalties.
+#' respect to parameter penalties, or calculates Z-scores from RRPP, which
+#' can be profiled across a gradient (predictor).
 #' 
 #'
 #' The function calculates either log-likelihoods or traces of (residual) 
@@ -45,6 +47,13 @@
 #' of a covariance matrix is not sensitive to matrix singularity, 
 #' no PC adjustment is used for the cov.trace argument.
 #' 
+#' This function can also calculate Z-scores from RRPP on model log-likelohoods, 
+#' which can be compared directly or profiled along a gradient (predictor).  
+#' This might be useful for for comparing generalized least-squares (GLS) models, 
+#' for example, along a gradient of a parameter used to scale the covariance 
+#' matrix for GLS estimation. See Collyer et al. 2022 for an example of using
+#' RRPP on log-likelihoods with different covariance matrices.
+#' 
 #' Users can construct their own tables 
 #' from the results but this function does not attempt to 
 #' summarize results, as interpreting results requires 
@@ -60,18 +69,31 @@
 #' is not taken into consideration.  A generalized information 
 #' criterion is currently in development.
 #' 
+#' 
+#' 
 #' @param ... Any number of lm.rrpp class objects for model fits 
 #' to be compared.
-#' @param type An argument to choose between log-likelihood or 
-#' covariance trace results
-#' @param tol If type = logLik, tol is a tolerance value between 0 and 1, 
+#' @param type An argument to choose between log-likelihood, 
+#' covariance trace, or Z results.  If Z is chosen, Z-scores are calculated, the same log-likelihoods
+#' are calculated as with the log-likelihood type, but also in every RRPP permutation,
+#' as describe for the initial mode fits, with choice of null model (below).
+#' @param predictor An optional vector that can be used to profile the results based on type
+#' across a range of numerical values described by the predictor.  A spline will also be fit, which
+#' will reveal estimated values of the predictor that yield maximum and minimum values of model
+#' comparison metric.
+#' @param tol If type = logLik or Z, tol is a tolerance value between 0 and 1, 
 #' indicating the magnitude below which 
 #' components should be omitted (if standard deviations of 
 #' components are less than the eigenvalue of the first 
 #' component times the tolerance), for calculating the log-likelihood.
-#' @param pc.no If type = logLik, an optional value to indicate the 
+#' @param pc.no If type = logLik or Z, an optional value to indicate the 
 #' number of principal components (maximum rank) to use 
 #' for calculating the log-likelihood.
+#' @param gls.null A logical value indicating whether GLS estimation should be
+#' used with the null (intercept) model, for calculating Z scores via RRPP of 
+#' log-likelihoods.  This should be FALSE if comparing different GLS estimations
+#' of covariance matrices.  It should be TRUE if comparing different model fits
+#' with the same GLS-estimated covariance matrix.
 #' 
 #' @keywords analysis
 #' @export
@@ -86,8 +108,11 @@
 #' @references Warton, D.I., 2008. Penalized normal likelihood and 
 #' ridge regularization of correlation and covariance matrices. 
 #' Journal of the American Statistical Association. 103: 340-349.
+#' @references Collyer,  M.L., E.K. Baken, & D.C. Adams.  A standardized 
+#' effect size for evaluating and comparing the strength of phylogenetic 
+#' signal. Methods in Ecology and Evolution. 13: 367–382.
 #' @examples 
-#' 
+#' \dontrun{
 #' data(Pupfish)
 #' Pupfish$logSize <- log(Pupfish$CS)
 #' fit1 <- lm.rrpp(coords ~ logSize, data = Pupfish, iter = 0, 
@@ -115,13 +140,74 @@
 #' plot(modComp1)
 #' plot(modComp2)
 #' 
-model.comparison<- function(..., type = c("cov.trace", "logLik"), 
-                            tol = NULL, pc.no = NULL) {
+#' # Comparing fits with covariance matrices
+#' # an example for scaling a phylogenetic covariance matrix with
+#' # the scaling parameter, lambda
+#' 
+#' data("PlethMorph")
+#' Cov <- PlethMorph$PhyCov
+#' lambda <- seq(0, 1, 0.1)
+#' 
+#' Cov1 <- scaleCov(Cov, scale. = lambda[1])
+#' Cov2 <- scaleCov(Cov, scale. = lambda[2])
+#' Cov3 <- scaleCov(Cov, scale. = lambda[3])
+#' Cov4 <- scaleCov(Cov, scale. = lambda[4])
+#' Cov5 <- scaleCov(Cov, scale. = lambda[5])
+#' Cov6 <- scaleCov(Cov, scale. = lambda[6])
+#' Cov7 <- scaleCov(Cov, scale. = lambda[7])
+#' Cov8 <- scaleCov(Cov, scale. = lambda[8])
+#' Cov9 <- scaleCov(Cov, scale. = lambda[9])
+#' Cov10 <- scaleCov(Cov, scale. = lambda[10])
+#' Cov11 <- scaleCov(Cov, scale. = lambda[11])
+#' 
+#' 
+#' fit1 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov1)
+#' fit2 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov2)
+#' fit3 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov3)
+#' fit4 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov4)
+#' fit5 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov5)
+#' fit6 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov6)
+#' fit7 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov7)
+#' fit8 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov8)
+#' fit9 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov9)
+#' fit10 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov10)
+#' fit11 <- lm.rrpp(SVL ~ 1, data = PlethMorph, Cov = Cov11)
+#' 
+#' par(mfrow = c(1,1))
+#' 
+#' MC1 <- model.comparison(fit1, fit2, fit3, fit4, fit5, fit6,
+#' fit7, fit8, fit9, fit10, fit11,
+#' type = "logLik")
+#' MC1
+#' plot(MC1)
+#' 
+#' MC2 <- model.comparison(fit1, fit2, fit3, fit4, fit5, fit6,
+#' fit7, fit8, fit9, fit10, fit11,
+#' type = "logLik", predictor = lambda)
+#' MC2
+#' plot(MC2)
+#' 
+#' 
+#' MC3 <- model.comparison(fit1, fit2, fit3, fit4, fit5, fit6,
+#' fit7, fit8, fit9, fit10, fit11,
+#' type = "Z", predictor = lambda)
+#' MC3
+#' plot(MC3)
+#' }
+
+model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"), 
+                            predictor = NULL, tol = NULL, pc.no = NULL,
+                            gls.null = FALSE) {
   
   dots <- list(...)
   check <- unlist(lapply(dots, inherits, "lm.rrpp"))
   if(any(!check)) stop("\nObjects must be lm.rrpp fits\n.")
   dot.names <- lapply(dots, function(x) x$LM$Terms[[3]])
+  if(length(unique(dot.names)) < length(dot.names)) {
+    cat("Models do not have unique term combinations.\n")
+    cat("Labelling models based on order presented.\n")
+    dot.names <- paste("Mod", 1:length(dots), sep = ".")
+  }
   type = match.arg(type)
   
   if(type == "logLik") {
@@ -147,15 +233,24 @@ model.comparison<- function(..., type = c("cov.trace", "logLik"),
       }
     }
     
-    ll.args <- list(fit = dots[[1]], tol = tol, pc.no = pc.no[[1]])
+    ll.args <- list(fit = dots[[1]], tol = tol, pc.no = pc.no)
     temp <- sapply(1:length(dots), function(j){
       ll.args$fit <- dots[[j]]
-      ll.args$pc.no <- pc.no[[j]]
       do.call(logL, ll.args)
     }) 
     res <- unlist(temp[1,])
     rank <- unlist(temp[2,])
   } else res <- sapply(dots, cov.trace) 
+  
+  if(type == "Z") {
+    res <- sapply(1:length(dots), function(j){
+      f <- dots[[j]]
+      z <- logLik(f, Z = TRUE, tol = tol, 
+                  pc.no = pc.no, gls.null = gls.null)$Z
+      if(is.na(z)) z <- 0
+      z      
+    })
+  }
   
   par.pen <- function(f){
     p <- f$LM$p.prime
@@ -165,13 +260,21 @@ model.comparison<- function(..., type = c("cov.trace", "logLik"),
   pp <- sapply(dots, par.pen)
   
   if(type == "logLik") {
-    out <- cbind(res, rank, pp, -2*res + pp)
-    colnames(out) <- c("logLik", "residual.pc.no", "penalty", "AIC")
+    out <- as.data.frame(cbind(res, rank, pp, -2*res + pp))
+    names(out) <- c("logLik", "residual.pc.no", "penalty", "AIC")
+  } else if(type == "cov.trace") {
+    out <- as.data.frame(cbind(res, pp))
+    names(out) <- c("cov.trace", "penalty")
   } else {
-    out <- cbind(res, pp)
-    colnames(out) <- c("cov.trace", "penalty")
+    out <- data.frame(Z = res)
   }
-  rownames(out) <- dot.names
+  
+  if(!is.null(predictor)) {
+    out$predictor <- predictor
+    names(out)[which(names(out) == "predictor")] <- deparse(substitute(predictor))
+  }
+   
+  rownames(out) <- unlist(dot.names)
   out <- list(table = out, names = dot.names)
   attr(out, "class") = "model.comparison"
   out

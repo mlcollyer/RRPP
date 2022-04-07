@@ -1,9 +1,21 @@
+# CHANGES IN RRPP 1.3.0
+
+### NEW FEATURES
+* New S3 function, `logLik.lm.rrpp` to obtain log-likelihood from an `lm.rrpp` object.
+* New function, `scaleCov` to scale covariance matrices with linear or exponential scalars.
+
+### BUG FIXES
+*  Various lingering bugs from version 1.2 associated with sparse matrix calculation issues were removed.
+
+### OTHER CHANGES
+* Updated `model.comparison` to include Z scores calculated from log-likelihoods.
+
 # CHANGES IN RRPP 1.2.3
 
 ### BUG FIXES
 * Fixed a bug in `predict.lm.rrpp` for new data frames with only one observation.
 * Fixed a bug in `SS.iter.main` that incidentally wrapped RSS.model by rows rather than columns.
-* Fixed a bug in `summary.lm.rrpp` that did not preperly index a matrix of `RSS.model`.
+* Fixed a bug in `summary.lm.rrpp` that did not properly index a matrix of `RSS.model`.
 
 # CHANGES IN RRPP 1.2.2
 
@@ -20,7 +32,7 @@
 *  Added catch to `anc.BM` for singleton nodes.
 
 ### OTHER CHANGES
-* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated supprot functions to work wth updates.
+* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated supprot functions to work with updates.
 
 # CHANGES IN RRPP 1.1.2
 
@@ -121,7 +133,7 @@ transformed residuals, by mistake).
 
 ### OTHER CHANGES
 * `classify` deprecated (in favor of `prep.lda`)
-* Changed the ouput structure for lm.rrpp objects.  Either OLS or GLS statistics are returned, not both.  There is no longer differentiation between GLS and weighted stats, as weighted stats are GLS estimated stats.  The difference is obvious with the inclusion of weights or Cov matrix.
+* Changed the output structure for lm.rrpp objects.  Either OLS or GLS statistics are returned, not both.  There is no longer differentiation between GLS and weighted stats, as weighted stats are GLS estimated stats.  The difference is obvious with the inclusion of weights or Cov matrix.
 * No longer a `verbose` option with `manova.update`.  The function was optimized to provide verbose output without having to slow down computation time.
 
 ### BUG FIXES 
