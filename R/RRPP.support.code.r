@@ -659,7 +659,7 @@ lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07)
       LM.fit(x = x, y = y, offset = offset, tol = tol)
   
   if(!is.null(Pcov)) {
-    z$residuals <- solve(Pcov) %*% z$residuals
+    z$residuals <- fast.solve(Pcov) %*% z$residuals
     z$fitted.values <- y - z$residuals
   }
   z
