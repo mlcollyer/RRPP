@@ -97,7 +97,7 @@ the fewest PCs produced by either argument.  Because the trace
 of a covariance matrix is not sensitive to matrix singularity, 
 no PC adjustment is used for the cov.trace argument.
 
-This function can also calculate Z-scores from RRPP on model log-likelohoods, 
+This function can also calculate Z-scores from RRPP on model log-likelihoods, 
 which can be compared directly or profiled along a gradient (predictor).  
 This might be useful for for comparing generalized least-squares (GLS) models, 
 for example, along a gradient of a parameter used to scale the covariance 
