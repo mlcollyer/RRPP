@@ -174,7 +174,7 @@
 #' # than 1s for these examples with a modern computer.
 #' 
 #' fit1 <- lm.rrpp(Y ~ logSize + Sex * Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 499) 
+#' data = Pupfish, print.progress = FALSE, iter = 199) 
 #' summary(fit1, formula = FALSE)
 #' anova(fit1) 
 #'
