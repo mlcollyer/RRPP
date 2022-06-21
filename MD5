@@ -1,9 +1,9 @@
-9617a4d2d127490e266329dba2abeb82 *cran-comments.md
+ea24193d9758815c4a180726d5645d4c *cran-comments.md
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-62fd2af2ff96c5273112e3af9d9ae060 *DESCRIPTION
+9fdcd89e471c11bafdc4f949bcd739c7 *DESCRIPTION
 6082623ccb3b560f21ddd7de2e9960ce *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -22,7 +22,7 @@ edd78797987966f67d689a7a02d7709c *man/lm.rrpp.Rd
 0e726f552fbf03e943ad5cebcc3fc09d *man/motionpaths.Rd
 2d4e482f72e3883ab05852e215e58acd *man/na.omit.rrpp.data.frame.Rd
 519cee3a198c5adc1ba8ad24511e1235 *man/ordinate.Rd
-c5f05ab01012cce415088c47df14e621 *man/pairwise.Rd
+cff2f0f14aff61f5e3237532f54b8b55 *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
 06bed2fd6a0565a41616bb737a3016c7 *man/plot.lm.rrpp.Rd
 33c3529beda41e33f92cb446d4567764 *man/plot.looCV.Rd
@@ -79,7 +79,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 5c80a00dcd6e5109d4216b75d8a4a9da *R/manova.update.r
 0d043215420f0df4878a51bd2be23be9 *R/model.comparison.r
 81df6d969413234ce941947cb7a5f013 *R/ordinate.r
-7aaf8fe0baf4cb933fa2013409872dcb *R/pairwise.r
+a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
 0e04399b62c429907f58643c82e26dc8 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
