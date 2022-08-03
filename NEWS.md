@@ -1,3 +1,12 @@
+# CHANGES IN RRPP 1.3.0.999
+
+### NEW FEATURES
+
+### BUG FIXES
+*  Fixed S4 issue with GLS for `plot.lm.rrpp` diagnostic plots.
+
+### OTHER CHANGES
+
 # CHANGES IN RRPP 1.3.0
 
 ### NEW FEATURES

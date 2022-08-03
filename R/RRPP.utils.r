@@ -604,10 +604,12 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       
       y <- x$LM$Y
       if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% y
-      if(!is.null(x$LM$weights)) rr <- y * sqrt(x$LM$weights)
+      if(!is.null(x$LM$weights)) Y <- y * sqrt(x$LM$weights)
       X <- x$LM$X
-      if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% X
-      if(!is.null(x$LM$weights)) rr <- X * sqrt(x$LM$weights)
+      if(!is.null(x$LM$Pcov)) X <- x$LM$Pcov %*% X
+      if(!is.null(x$LM$weights)) X <- X * sqrt(x$LM$weights)
+      X <- as.matrix(X)
+      y <- as.matrix(y)
       lm.new <- lm(y ~ X + 0)
       lm.new$call <- x$call
       plot(lm.new, ...)
