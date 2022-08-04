@@ -557,6 +557,12 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' \code{\link{lm}} diagnostic plots, but for multivariate data.  Regression plots
 #' plot multivariate dispersion in some fashion against predictor values. PC plots
 #' project data onto the eigenvectors of the covariance matrix for fitted values.
+#' @param resid.type If type = "diagnostics", an optional argument for whether Pearson ("p") or normalized ("n")
+#' residuals should be used.  These residuals are the same for ordinary least-squares (OLS) estimation
+#' but differ for generalized least-squares (GLS) estimation.  For the latter, normalizing residuals
+#' requires multiplying them by the transformation matrix obtained for GLS estimation.
+#' @param fitted.type As with resid.type, whether fitted values use observed ("o") or transformed ("t")
+#' values.  
 #' @param predictor An optional vector if "regression" plot type is chosen, 
 #' and is a variable likely used in \code{\link{lm.rrpp}}.
 #' This vector is a vector of covariate values equal to the number of observations.
@@ -580,19 +586,66 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' @references Adams, D. C., and A. Nistri. 2010. Ontogenetic convergence 
 #' and evolution of foot morphology 
 #' in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
+#' @examples 
+#' 
+#' # Univariate example
+#' data(PlethMorph)
+#' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
+#'  print.progress = FALSE, iter = 0)
+#'  
+#'  par(mfrow = c(2, 2))
+#'  plot(fitGLS)
+#'  plot(fitGLS, resid.type = "n") # use normalized (transformed) residuals
+#'  plot(fitGLS, resid.type = "n", fitted.type = "t") # use also transformed fitted values
+#'  
+#'  # Multivariate example
+#'  
+#' Y <- as.matrix(cbind(PlethMorph$TailLength,
+#' PlethMorph$HeadLength,
+#' PlethMorph$Snout.eye,
+#' PlethMorph$BodyWidth,
+#' PlethMorph$Forelimb,
+#' PlethMorph$Hindlimb))
+#' PlethMorph$Y <- Y
+#' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+#' Cov = PlethMorph$PhyCov,
+#' print.progress = FALSE, iter = 0)
+#' 
+#' par(mfrow = c(2, 2))
+#'  plot(fitGLSm)
+#'  plot(fitGLSm, resid.type = "n") # use normalized (transformed) residuals
+#'  plot(fitGLSm, resid.type = "n", fitted.type = "t") # use also transformed fitted values
+#'  par(mfrow = c(1, 1))
+#'  
 plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
-                                      "PC"), predictor = NULL,
+                                      "PC"), 
+                         resid.type = c("p", "n"),
+                         fitted.type = c("o", "t"),
+                         predictor = NULL,
                           reg.type = c("PredLine", "RegScore"), ...){
   plot.args <- list(...)
+  type <- match.arg(type)
+  resid.type <- match.arg(resid.type)
+  fitted.type <- match.arg(fitted.type)
   
   if(x$LM$gls) {
     r <- as.matrix(x$LM$gls.residuals)
     f <- as.matrix(x$LM$gls.fitted)
+    
+    if(resid.type == "n"){
+      if(!is.null(x$LM$Pcov)) r <- x$LM$Pcov %*% r
+      if(!is.null(x$LM$weights)) r <- r * sqrt(x$LM$weights)
+    }
+    if(fitted.type == "t"){
+      if(!is.null(x$LM$Pcov)) f <- x$LM$Pcov %*% f
+      if(!is.null(x$LM$weights)) f <- f * sqrt(x$LM$weights)
+    }
+    
   } else {
     r <- as.matrix(x$LM$residuals)
     f <- as.matrix(x$LM$fitted)
   }
-  type <- match.arg(type)
+  
   if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
     type <- "diagnostics"
   PL <- Reg.proj <- PC.points <- NULL
@@ -603,11 +656,17 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       plot.args <- NULL
       
       y <- x$LM$Y
-      if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% y
-      if(!is.null(x$LM$weights)) Y <- y * sqrt(x$LM$weights)
+      if(resid.type == "n"){
+        if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% y
+        if(!is.null(x$LM$weights)) y <- y * sqrt(x$LM$weights)
+      }
+      
       X <- x$LM$X
-      if(!is.null(x$LM$Pcov)) X <- x$LM$Pcov %*% X
-      if(!is.null(x$LM$weights)) X <- X * sqrt(x$LM$weights)
+      if(fitted.type == "t"){
+        if(!is.null(x$LM$Pcov)) X <- x$LM$Pcov %*% X
+        if(!is.null(x$LM$weights)) X <- X * sqrt(x$LM$weights)
+      }
+
       X <- as.matrix(X)
       y <- as.matrix(y)
       lm.new <- lm(y ~ X + 0)

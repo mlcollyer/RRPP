@@ -24,7 +24,7 @@ edd78797987966f67d689a7a02d7709c *man/lm.rrpp.Rd
 519cee3a198c5adc1ba8ad24511e1235 *man/ordinate.Rd
 cff2f0f14aff61f5e3237532f54b8b55 *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
-06bed2fd6a0565a41616bb737a3016c7 *man/plot.lm.rrpp.Rd
+44a2f69384927bdd65e6c52c51502f6d *man/plot.lm.rrpp.Rd
 33c3529beda41e33f92cb446d4567764 *man/plot.looCV.Rd
 f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 51de9e6cc9b8082064ff0a346f5b37f1 *man/plot.ordinate.Rd
@@ -84,7 +84,7 @@ a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
 87efe78e54d3c9bac0e0770f6d7e4671 *R/RRPP.support.code.r
-6260d334890994a3be4ab43aefc5432b *R/RRPP.utils.r
+42b3bb45b492afe0abcfc5c477aa3f41 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 69d12a23b58aefc41394ffe5cbe30830 *R/shared.support.code.r
 846b10b5a8bd58c47e72666815dd306c *R/trajectory.analysis.r

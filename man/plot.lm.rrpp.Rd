@@ -7,6 +7,8 @@
 \method{plot}{lm.rrpp}(
   x,
   type = c("diagnostics", "regression", "PC"),
+  resid.type = c("p", "n"),
+  fitted.type = c("o", "t"),
   predictor = NULL,
   reg.type = c("PredLine", "RegScore"),
   ...
@@ -20,6 +22,14 @@ regression, or principal component plots.  Diagnostic plots are similar to
 \code{\link{lm}} diagnostic plots, but for multivariate data.  Regression plots
 plot multivariate dispersion in some fashion against predictor values. PC plots
 project data onto the eigenvectors of the covariance matrix for fitted values.}
+
+\item{resid.type}{If type = "diagnostics", an optional argument for whether Pearson ("p") or normalized ("n")
+residuals should be used.  These residuals are the same for ordinary least-squares (OLS) estimation
+but differ for generalized least-squares (GLS) estimation.  For the latter, normalizing residuals
+requires multiplying them by the transformation matrix obtained for GLS estimation.}
+
+\item{fitted.type}{As with resid.type, whether fitted values use observed ("o") or transformed ("t")
+values.}
 
 \item{predictor}{An optional vector if "regression" plot type is chosen, 
 and is a variable likely used in \code{\link{lm.rrpp}}.
@@ -38,6 +48,38 @@ different colors or symbols for different groups).  See
 }
 \description{
 Plot Function for RRPP
+}
+\examples{
+
+# Univariate example
+data(PlethMorph)
+fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
+ print.progress = FALSE, iter = 0)
+ 
+ par(mfrow = c(2, 2))
+ plot(fitGLS)
+ plot(fitGLS, resid.type = "n") # use normalized (transformed) residuals
+ plot(fitGLS, resid.type = "n", fitted.type = "t") # use also transformed fitted values
+ 
+ # Multivariate example
+ 
+Y <- as.matrix(cbind(PlethMorph$TailLength,
+PlethMorph$HeadLength,
+PlethMorph$Snout.eye,
+PlethMorph$BodyWidth,
+PlethMorph$Forelimb,
+PlethMorph$Hindlimb))
+PlethMorph$Y <- Y
+fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+Cov = PlethMorph$PhyCov,
+print.progress = FALSE, iter = 0)
+
+par(mfrow = c(2, 2))
+ plot(fitGLSm)
+ plot(fitGLSm, resid.type = "n") # use normalized (transformed) residuals
+ plot(fitGLSm, resid.type = "n", fitted.type = "t") # use also transformed fitted values
+ par(mfrow = c(1, 1))
+ 
 }
 \references{
 Drake, A. G., and C. P. Klingenberg. 2008. 
