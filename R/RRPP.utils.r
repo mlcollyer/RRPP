@@ -2379,6 +2379,11 @@ print.summary.ordinate <- function(x, ...){
 #' and axis2 = 4, flip = 1 will not
 #' change either axis; flip = 3 will flip only the horizontal axis; 
 #' flip = c(3, 4) will flip both axes.
+#' @param include.axes A logical argument for whether axes should be shown at x = 0 and y = 0.  
+#' This is different than the axes argument in the generic \code{\link{plot.default}} function, which
+#' controls the edges of the plot (providing a box effect or not).  Using include.axes = TRUE does not 
+#' allow aesthetic control of the axes.  If desired, it is better to use include.axes = FALSE and augment
+#' the plot object with \code{\link{abline}} (choosing h = 0 and v = 0 in separate applications).
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See
 #' @return An object of class "plot.ordinate" is a list with components
@@ -2389,7 +2394,8 @@ print.summary.ordinate <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 #' @keywords visualization
-plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
+plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, 
+                          include.axes = TRUE, ...) {
   options(warn = -1)
   if(NCOL(x$x) == 1) 
     stop("Only one component.  No plotting capability with this function.\n", 
@@ -2404,7 +2410,9 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
     if(length(flip > 0)) pcdata[, flip] <- pcdata[, flip] * -1
   }
   
-  plot.args <- list(x = pcdata[,1], y = pcdata[,2],  ...)
+  plot.args <- list(...)
+  plot.args$x = pcdata[,1]
+  plot.args$y = pcdata[,2]
   
   if(x$alignment == "principal") {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
@@ -2416,15 +2424,14 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
 
   if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
   if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
-  if(!is.null(plot.args$axes)) axes <- plot.args$axes else axes <- TRUE
-  if(!is.logical(axes)) axes <- as.logical(axes)
   if(is.null(plot.args$xlim)) plot.args$xlim <- 1.05*range(plot.args$x)
   if(is.null(plot.args$ylim)) plot.args$ylim <- 1.05*range(plot.args$y)
   if(is.null(plot.args$asp)) plot.args$asp <- 1
+  if(is.null(plot.args$axes)) plot.args$axes <- TRUE
   
   do.call(plot, plot.args)
   
-  if(axes){
+  if(include.axes){
     abline(h = 0, lty=2, ...)
     abline(v = 0, lty=2, ...)
   }
