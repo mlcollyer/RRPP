@@ -2396,6 +2396,7 @@ print.summary.ordinate <- function(x, ...){
 #' @keywords visualization
 plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, 
                           include.axes = TRUE, ...) {
+  wrn <- options()$warn
   options(warn = -1)
   if(NCOL(x$x) == 1) 
     stop("Only one component.  No plotting capability with this function.\n", 
@@ -2427,21 +2428,20 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
   if(is.null(plot.args$xlim)) plot.args$xlim <- 1.05*range(plot.args$x)
   if(is.null(plot.args$ylim)) plot.args$ylim <- 1.05*range(plot.args$y)
   if(is.null(plot.args$asp)) plot.args$asp <- 1
-  if(is.null(plot.args$axes)) plot.args$axes <- TRUE
   
-  do.call(plot, plot.args)
+  do.call(plot.default, plot.args)
   
   if(include.axes){
     abline(h = 0, lty=2, ...)
     abline(v = 0, lty=2, ...)
   }
   
-  options(warn = 0)
   out <- list(points = pcdata,   
               call = match.call())
   
   out$plot.args <- plot.args
   class(out) <- "plot.ordinate"
+  options(warn = wrn)
   invisible(out)
   
 }

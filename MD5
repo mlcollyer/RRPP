@@ -3,7 +3,7 @@ ea24193d9758815c4a180726d5645d4c *cran-comments.md
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-9fdcd89e471c11bafdc4f949bcd739c7 *DESCRIPTION
+4553ca9e3f3fa88a73e2ade0d307ef42 *DESCRIPTION
 6082623ccb3b560f21ddd7de2e9960ce *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -21,7 +21,7 @@ edd78797987966f67d689a7a02d7709c *man/lm.rrpp.Rd
 7e9ba29071c4cee40bdeb5bc861ffe51 *man/model.matrix.lm.rrpp.Rd
 0e726f552fbf03e943ad5cebcc3fc09d *man/motionpaths.Rd
 2d4e482f72e3883ab05852e215e58acd *man/na.omit.rrpp.data.frame.Rd
-519cee3a198c5adc1ba8ad24511e1235 *man/ordinate.Rd
+3d3bbec30c1aec40d6ee0a7be8febdb5 *man/ordinate.Rd
 cff2f0f14aff61f5e3237532f54b8b55 *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
 44a2f69384927bdd65e6c52c51502f6d *man/plot.lm.rrpp.Rd
@@ -67,7 +67,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 e2f11f0585d5822886ccd3c86d1c21e4 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 c141227072c72b7d484a75e7e92ab9ab *NAMESPACE
-4b3ca812da2469d4af196a45f27e6a02 *NEWS.md
+1e3ce38f1dcb9ddc39c0cc88998d169e *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 f32134cc27403cea765bc84785d571a3 *R/anova.lm.rrpp.r
 12a242809b917dc77a5462854f008574 *R/coef.lm.rrpp.r
@@ -78,13 +78,13 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 5c80a00dcd6e5109d4216b75d8a4a9da *R/manova.update.r
 7725b8ee03999c4a4788699f39728b43 *R/model.comparison.r
-81df6d969413234ce941947cb7a5f013 *R/ordinate.r
+cc12447780d0e3a0d57e3148487ea503 *R/ordinate.r
 a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
 0e04399b62c429907f58643c82e26dc8 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
 87efe78e54d3c9bac0e0770f6d7e4671 *R/RRPP.support.code.r
-b3e08a39517a66c1a622ac3967d632ca *R/RRPP.utils.r
+31a3fca3b1bd2fcd0fd70c6d64a8a457 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 69d12a23b58aefc41394ffe5cbe30830 *R/shared.support.code.r
 846b10b5a8bd58c47e72666815dd306c *R/trajectory.analysis.r
