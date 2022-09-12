@@ -1,6 +1,8 @@
-# CHANGES IN RRPP 1.3.0.999
+# CHANGES IN RRPP 1.3.1
 
 ### NEW FEATURES
+*  Added ability to use either Pearson or normalized residuals in residual plots for `plot.lm.rrpp`
+* Updated arguments for `plot.ordinate` to better work with `plot.default`.
 
 ### BUG FIXES
 *  Fixed S4 issue with GLS for `plot.lm.rrpp` diagnostic plots.

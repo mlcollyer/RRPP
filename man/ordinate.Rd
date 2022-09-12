@@ -238,7 +238,22 @@ Cov = PlethMorph$PhyCov)
  plot(PaCA.gls, main = "PaCA GLS")
  plot(PaCA.t.gls, main = "PaCA t-GLS")
  par(mfrow = c(1,1))
+ 
+ # Changing some plot aesthetics (the arguments in plot.ordinate and 
+ # plot.default are important for changing plot parameters)
+ 
+ P1 <- plot(PaCA.gls, main = "PaCA GLS", include.axes = TRUE)
+ 
+ P2 <- plot(PaCA.gls, main = "PaCA GLS", include.axes = TRUE, 
+ frame.plot = FALSE, col = 4, pch = 21, bg = PlethMorph$group)
+ add.tree(P2, PlethMorph$tree, edge.col = 4)
 
+ P3 <- plot(PaCA.gls, main = "PaCA GLS", include.axes = TRUE, 
+ frame.plot = FALSE, col = 4, pch = 21, bg = PlethMorph$group,
+ flip = 1)
+ add.tree(P3, PlethMorph$tree, edge.col = 4)
+ 
+ 
 }
 \references{
 Collyer, M.L. and D.C. Adams.  2021. 
@@ -251,6 +266,7 @@ studies. Evolution, 63:3258-3268.
 }
 \seealso{
 \code{\link{plot.ordinate}}, \code{\link{prcomp}}, 
+\code{\link{plot.default}},
 \code{gm.prcomp} within \code{geomorph}
 }
 \author{

@@ -557,6 +557,12 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' \code{\link{lm}} diagnostic plots, but for multivariate data.  Regression plots
 #' plot multivariate dispersion in some fashion against predictor values. PC plots
 #' project data onto the eigenvectors of the covariance matrix for fitted values.
+#' @param resid.type If type = "diagnostics", an optional argument for whether Pearson ("p") or normalized ("n")
+#' residuals should be used.  These residuals are the same for ordinary least-squares (OLS) estimation
+#' but differ for generalized least-squares (GLS) estimation.  For the latter, normalizing residuals
+#' requires multiplying them by the transformation matrix obtained for GLS estimation.
+#' @param fitted.type As with resid.type, whether fitted values use observed ("o") or transformed ("t")
+#' values.  
 #' @param predictor An optional vector if "regression" plot type is chosen, 
 #' and is a variable likely used in \code{\link{lm.rrpp}}.
 #' This vector is a vector of covariate values equal to the number of observations.
@@ -580,19 +586,66 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' @references Adams, D. C., and A. Nistri. 2010. Ontogenetic convergence 
 #' and evolution of foot morphology 
 #' in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
+#' @examples 
+#' 
+#' # Univariate example
+#' data(PlethMorph)
+#' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
+#'  print.progress = FALSE, iter = 0)
+#'  
+#'  par(mfrow = c(2, 2))
+#'  plot(fitGLS)
+#'  plot(fitGLS, resid.type = "n") # use normalized (transformed) residuals
+#'  plot(fitGLS, resid.type = "n", fitted.type = "t") # use also transformed fitted values
+#'  
+#'  # Multivariate example
+#'  
+#' Y <- as.matrix(cbind(PlethMorph$TailLength,
+#' PlethMorph$HeadLength,
+#' PlethMorph$Snout.eye,
+#' PlethMorph$BodyWidth,
+#' PlethMorph$Forelimb,
+#' PlethMorph$Hindlimb))
+#' PlethMorph$Y <- Y
+#' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+#' Cov = PlethMorph$PhyCov,
+#' print.progress = FALSE, iter = 0)
+#' 
+#' par(mfrow = c(2, 2))
+#'  plot(fitGLSm)
+#'  plot(fitGLSm, resid.type = "n") # use normalized (transformed) residuals
+#'  plot(fitGLSm, resid.type = "n", fitted.type = "t") # use also transformed fitted values
+#'  par(mfrow = c(1, 1))
+#'  
 plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
-                                      "PC"), predictor = NULL,
+                                      "PC"), 
+                         resid.type = c("p", "n"),
+                         fitted.type = c("o", "t"),
+                         predictor = NULL,
                           reg.type = c("PredLine", "RegScore"), ...){
   plot.args <- list(...)
+  type <- match.arg(type)
+  resid.type <- match.arg(resid.type)
+  fitted.type <- match.arg(fitted.type)
   
   if(x$LM$gls) {
     r <- as.matrix(x$LM$gls.residuals)
     f <- as.matrix(x$LM$gls.fitted)
+    
+    if(resid.type == "n"){
+      if(!is.null(x$LM$Pcov)) r <- x$LM$Pcov %*% r
+      if(!is.null(x$LM$weights)) r <- r * sqrt(x$LM$weights)
+    }
+    if(fitted.type == "t"){
+      if(!is.null(x$LM$Pcov)) f <- x$LM$Pcov %*% f
+      if(!is.null(x$LM$weights)) f <- f * sqrt(x$LM$weights)
+    }
+    
   } else {
     r <- as.matrix(x$LM$residuals)
     f <- as.matrix(x$LM$fitted)
   }
-  type <- match.arg(type)
+  
   if(is.na(match(type, c("diagnostics", "regression", "PC")))) 
     type <- "diagnostics"
   PL <- Reg.proj <- PC.points <- NULL
@@ -603,11 +656,17 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       plot.args <- NULL
       
       y <- x$LM$Y
-      if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% y
-      if(!is.null(x$LM$weights)) Y <- y * sqrt(x$LM$weights)
+      if(resid.type == "n"){
+        if(!is.null(x$LM$Pcov)) y <- x$LM$Pcov %*% y
+        if(!is.null(x$LM$weights)) y <- y * sqrt(x$LM$weights)
+      }
+      
       X <- x$LM$X
-      if(!is.null(x$LM$Pcov)) X <- x$LM$Pcov %*% X
-      if(!is.null(x$LM$weights)) X <- X * sqrt(x$LM$weights)
+      if(fitted.type == "t"){
+        if(!is.null(x$LM$Pcov)) X <- x$LM$Pcov %*% X
+        if(!is.null(x$LM$weights)) X <- X * sqrt(x$LM$weights)
+      }
+
       X <- as.matrix(X)
       y <- as.matrix(y)
       lm.new <- lm(y ~ X + 0)
@@ -2320,6 +2379,11 @@ print.summary.ordinate <- function(x, ...){
 #' and axis2 = 4, flip = 1 will not
 #' change either axis; flip = 3 will flip only the horizontal axis; 
 #' flip = c(3, 4) will flip both axes.
+#' @param include.axes A logical argument for whether axes should be shown at x = 0 and y = 0.  
+#' This is different than the axes argument in the generic \code{\link{plot.default}} function, which
+#' controls the edges of the plot (providing a box effect or not).  Using include.axes = TRUE does not 
+#' allow aesthetic control of the axes.  If desired, it is better to use include.axes = FALSE and augment
+#' the plot object with \code{\link{abline}} (choosing h = 0 and v = 0 in separate applications).
 #' @param ... other arguments passed to plot (helpful to employ
 #' different colors or symbols for different groups).  See
 #' @return An object of class "plot.ordinate" is a list with components
@@ -2330,7 +2394,9 @@ print.summary.ordinate <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 #' @keywords visualization
-plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
+plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, 
+                          include.axes = TRUE, ...) {
+  wrn <- options()$warn
   options(warn = -1)
   if(NCOL(x$x) == 1) 
     stop("Only one component.  No plotting capability with this function.\n", 
@@ -2345,7 +2411,9 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
     if(length(flip > 0)) pcdata[, flip] <- pcdata[, flip] * -1
   }
   
-  plot.args <- list(x = pcdata[,1], y = pcdata[,2],  ...)
+  plot.args <- list(...)
+  plot.args$x = pcdata[,1]
+  plot.args$y = pcdata[,2]
   
   if(x$alignment == "principal") {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
@@ -2357,25 +2425,23 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL, ...) {
 
   if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
   if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
-  if(!is.null(plot.args$axes)) axes <- plot.args$axes else axes <- TRUE
-  if(!is.logical(axes)) axes <- as.logical(axes)
   if(is.null(plot.args$xlim)) plot.args$xlim <- 1.05*range(plot.args$x)
   if(is.null(plot.args$ylim)) plot.args$ylim <- 1.05*range(plot.args$y)
   if(is.null(plot.args$asp)) plot.args$asp <- 1
   
-  do.call(plot, plot.args)
+  do.call(plot.default, plot.args)
   
-  if(axes){
+  if(include.axes){
     abline(h = 0, lty=2, ...)
     abline(v = 0, lty=2, ...)
   }
   
-  options(warn = 0)
   out <- list(points = pcdata,   
               call = match.call())
   
   out$plot.args <- plot.args
   class(out) <- "plot.ordinate"
+  options(warn = wrn)
   invisible(out)
   
 }
