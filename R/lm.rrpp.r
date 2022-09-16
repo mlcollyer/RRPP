@@ -147,6 +147,7 @@
 #' @param full.resid A logical value for whether to use the full model residuals, only. 
 #' This only works if RRPP = TRUE.  Rather than permuting reduced model residuals,
 #' this option permutes only the full model residuals in every random permutation of RRPP.
+#' @param block An optional factor for blocks within which to restrict permutations.
 #' @param SS.type A choice between type I (sequential), type II 
 #' (hierarchical), or type III (marginal)
 #' sums of squares and cross-products computations.
@@ -400,7 +401,7 @@
 #' plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
 
 lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALSE,
-                     RRPP = TRUE, full.resid = FALSE,
+                     RRPP = TRUE, full.resid = FALSE, block = NULL,
                      SS.type = c("I", "II", "III"),
                      data = NULL, Cov = NULL,
                      print.progress = FALSE, Parallel = FALSE, ...) {
@@ -537,7 +538,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   names(Qs) <- names(Qs.sparse) <- c("reduced", "full")
   
-  ind <- perm.index(n, iter = iter, seed = seed)
+  ind <- perm.index(n, iter = iter, block = block, seed = seed)
   perms <- iter + 1
   
   checkers.args <- list(Y = Y, Qs = Qs, Qs.sparse = Qs.sparse, Xs = Xs,
