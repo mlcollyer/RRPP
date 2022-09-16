@@ -502,7 +502,8 @@ print.anova.lm.rrpp <- function(x, ...) {
   effect.type <- x$effect.type
   
   if(pm == "RRPP") pm <- "Randomization of null model residuals" else
-    pm <- ("Randomization of raw values (residuals of mean)")
+    if(pm == "FMRP") pm <- "Randomization of the full model residuals" else 
+      pm <- ("Randomization of raw values (residuals of mean)")
   
   if(est == "GLS") est <- "Generalized Least-Squares (via OLS projection)" else
     est <- "Ordinary Least Squares"

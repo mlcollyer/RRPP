@@ -1373,6 +1373,8 @@ aov.single.model <- function(object, ...,
   TSS <- x$TSS
   perms <- object$PermInfo$perms
   pm <- object$PermInfo$perm.method
+  if(pm == "RRPP" && object$PermInfo$full.resid)
+    pm <- "FMRP"
   trms <- object$LM$term.labels
   
   if(!is.null(error)) {
