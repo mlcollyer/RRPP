@@ -12,6 +12,7 @@ lm.rrpp(
   int.first = FALSE,
   RRPP = TRUE,
   full.resid = FALSE,
+  block = NULL,
   SS.type = c("I", "II", "III"),
   data = NULL,
   Cov = NULL,
@@ -49,6 +50,8 @@ should be used for significance testing}
 \item{full.resid}{A logical value for whether to use the full model residuals, only. 
 This only works if RRPP = TRUE.  Rather than permuting reduced model residuals,
 this option permutes only the full model residuals in every random permutation of RRPP.}
+
+\item{block}{An optional factor for blocks within which to restrict permutations.}
 
 \item{SS.type}{A choice between type I (sequential), type II 
 (hierarchical), or type III (marginal)
