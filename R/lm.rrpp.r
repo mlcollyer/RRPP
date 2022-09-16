@@ -144,6 +144,9 @@
 #' main effects should precede subsequent main effects
 #' @param RRPP A logical value indicating whether residual randomization 
 #' should be used for significance testing
+#' @param full.resid A logical value for whether to use the full model residuals, only. 
+#' This only works if RRPP = TRUE.  Rather than permuting reduced model residuals,
+#' this option permutes only the full model residuals in every random permutation of RRPP.
 #' @param SS.type A choice between type I (sequential), type II 
 #' (hierarchical), or type III (marginal)
 #' sums of squares and cross-products computations.
@@ -397,7 +400,8 @@
 #' plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
 
 lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALSE,
-                     RRPP = TRUE, SS.type = c("I", "II", "III"),
+                     RRPP = TRUE, full.resid = FALSE,
+                     SS.type = c("I", "II", "III"),
                      data = NULL, Cov = NULL,
                      print.progress = FALSE, Parallel = FALSE, ...) {
   
@@ -558,11 +562,24 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   kk <- length(Ur)
   
   if(RRPP) {
-    FR <- obs.FR <-lapply(1:max(1, kk), function(j){
-      fitted <- as.matrix(fastFit(Ur[[j]], TY, n , p))
-      residuals <- as.matrix(TY - fitted)
-      out <- list(fitted = fitted, residuals = residuals)
-    })
+    if(full.resid) {
+      Uf <- cks$Uf
+      Fitted <- as.matrix(fastFit(Uf[[kk]], TY, n, p))
+      Residuals <- as.matrix(TY - Fitted)
+      FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+        fitted <- Fitted
+        residuals <- Residuals
+        out <- list(fitted = fitted, residuals = residuals)
+      })
+      Uf <- NULL
+    } else {
+      FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+        fitted <- as.matrix(fastFit(Ur[[j]], TY, n , p))
+        residuals <- as.matrix(TY - fitted)
+        out <- list(fitted = fitted, residuals = residuals)
+      })
+    }
+
   } else {
     FR <- obs.FR <- lapply(1:max(1, kk), function(j){
       fitted <-  matrix(0, n, p)
@@ -591,13 +608,26 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   cks$Y <- TYp
   
   if(PCA){
+    
     if(RRPP) {
-      FR <- lapply(1:max(1, k), function(j){
-        fitted <- as.matrix(fastFit(Ur[[j]], TYp, n , p.prime))
-        residuals <- as.matrix(TYp - fitted)
-        list(fitted = fitted, residuals = residuals)
-      })
-    } else {
+      if(full.resid) {
+        Uf <- cks$Uf
+        Fitted <- as.matrix(fastFit(Uf[[kk]], TYp, n , p.prime))
+        Residuals <- as.matrix(TYp - Fitted)
+        FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+          fitted <- Fitted
+          residuals <- Residuals
+          out <- list(fitted = fitted, residuals = residuals)
+        })
+        Uf <- NULL
+      } else {
+        FR <- lapply(1:max(1, k), function(j){
+          fitted <- as.matrix(fastFit(Ur[[j]], TYp, n , p.prime))
+          residuals <- as.matrix(TYp - fitted)
+          list(fitted = fitted, residuals = residuals)
+        })
+        }
+      } else {
       FR <- lapply(1:max(1, k), function(j){
         fitted <- matrix(0, n, p.prime)
         residuals <- as.matrix(TYp)
@@ -669,6 +699,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   PermInfo <- list(perms = perms,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
+                   full.resid = ifelse(RRPP==TRUE, full.resid, FALSE), 
                    perm.schedule = ind, perm.seed = seed)
   out <- list(call = match.call(), 
               LM = LM, ANOVA = ANOVA, PermInfo = PermInfo, turbo = turbo)
