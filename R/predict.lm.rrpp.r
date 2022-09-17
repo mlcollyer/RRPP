@@ -34,6 +34,8 @@
 #' \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, 
 #' with appropriate factor levels.
 #' @param confidence The desired confidence interval level for prediction.
+#' @param block An optional factor for blocks within which to restrict resampling
+#' permutations.
 #' @param ... Other arguments (currently none)
 #' @export
 #' @author Michael Collyer
@@ -68,7 +70,8 @@
 #' plot(shapePreds99, PC = TRUE)
 #' plot(shapePreds99, PC = TRUE, ellipse = TRUE)
 #' 
-predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
+predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
+                            confidence = 0.95, ...) {
   if(!inherits(object, "lm.rrpp")) stop("Object is not class lm.rrpp")
   Terms <- object$LM$Terms
   trms <- object$LM$term.labels
@@ -133,7 +136,7 @@ predict.lm.rrpp <- function(object, newdata = NULL, confidence = 0.95, ...) {
   PI <- object$PermInfo$perm.schedule
   seed <- attr(PI, "seed")
   perms <- length(PI)
-  indb <- boot.index(length(PI[[1]]), perms -1, seed)
+  indb <- boot.index(length(PI[[1]]), perms -1, block, seed)
   k <- length(object$Models$full)
   betas <- beta.boot.iter(object, indb)
   

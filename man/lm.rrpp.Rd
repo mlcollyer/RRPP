@@ -47,11 +47,13 @@ main effects should precede subsequent main effects}
 \item{RRPP}{A logical value indicating whether residual randomization 
 should be used for significance testing}
 
-\item{full.resid}{A logical value for whether to use the full model residuals, only. 
-This only works if RRPP = TRUE.  Rather than permuting reduced model residuals,
+\item{full.resid}{A logical value for whether to use the full model residuals, only 
+(sensu ter Braak, 1992). This only works if RRPP = TRUE and SS.type = III.  
+Rather than permuting reduced model residuals,
 this option permutes only the full model residuals in every random permutation of RRPP.}
 
-\item{block}{An optional factor for blocks within which to restrict permutations.}
+\item{block}{An optional factor for blocks within which to restrict resampling
+permutations.}
 
 \item{SS.type}{A choice between type I (sequential), type II 
 (hierarchical), or type III (marginal)
@@ -440,10 +442,14 @@ datasets. Evolution. 70:2623-2631.
 Adams, D.C and M.L. Collyer. 2018. Multivariate phylogenetic 
 anova: group-clade aggregation, biological 
 challenges, and a refined permutation procedure. Evolution. 72:1204-1215.
+
+ter Braak, C.J.F. 1992. Permutation versus bootstrap significance tests in 
+multiple regression and ANOVA. pp .79–86 In Bootstrapping and Related Techniques. eds K-H. Jockel, 
+G. Rothe & W. Sendler.Springer-Verlag, Berlin.
+\code{\link[stats]{lm}} for more on linear model fits.
 }
 \seealso{
-\code{procD.lm} and \code{procD.pgls} within \code{geomorph}; 
-\code{\link[stats]{lm}} for more on linear model fits.
+\code{procD.lm} and \code{procD.pgls} within \code{geomorph};
 }
 \author{
 Michael Collyer

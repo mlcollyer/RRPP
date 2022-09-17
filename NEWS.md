@@ -1,3 +1,8 @@
+# CHANGES IN RRPP 1.3.1.999
+
+### NEW FEATURES
+*  Added arguments for restricted resampling to `lm.rrpp` and `predict.lm.rrpp`, and permutation of full model residuals (with restrictions) to lm.rrpp
+
 # CHANGES IN RRPP 1.3.1
 
 ### NEW FEATURES
