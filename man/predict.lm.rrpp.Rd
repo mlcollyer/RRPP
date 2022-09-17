@@ -4,7 +4,7 @@
 \alias{predict.lm.rrpp}
 \title{predict for lm.rrpp model fits}
 \usage{
-\method{predict}{lm.rrpp}(object, newdata = NULL, confidence = 0.95, ...)
+\method{predict}{lm.rrpp}(object, newdata = NULL, block = NULL, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}.}
@@ -19,6 +19,9 @@ will be made in prediction; i.e., least squares means for factor levels
 can be found.  All factors used in the
 \code{\link{lm.rrpp}} fit should be represented in the newdata data frame, 
 with appropriate factor levels.}
+
+\item{block}{An optional factor for blocks within which to restrict resampling
+permutations.}
 
 \item{confidence}{The desired confidence interval level for prediction.}
 

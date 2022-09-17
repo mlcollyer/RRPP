@@ -144,10 +144,12 @@
 #' main effects should precede subsequent main effects
 #' @param RRPP A logical value indicating whether residual randomization 
 #' should be used for significance testing
-#' @param full.resid A logical value for whether to use the full model residuals, only. 
-#' This only works if RRPP = TRUE.  Rather than permuting reduced model residuals,
+#' @param full.resid A logical value for whether to use the full model residuals, only 
+#' (sensu ter Braak, 1992). This only works if RRPP = TRUE and SS.type = III.  
+#' Rather than permuting reduced model residuals,
 #' this option permutes only the full model residuals in every random permutation of RRPP.
-#' @param block An optional factor for blocks within which to restrict permutations.
+#' @param block An optional factor for blocks within which to restrict resampling
+#' permutations.
 #' @param SS.type A choice between type I (sequential), type II 
 #' (hierarchical), or type III (marginal)
 #' sums of squares and cross-products computations.
@@ -226,6 +228,9 @@
 #' anova: group-clade aggregation, biological 
 #' challenges, and a refined permutation procedure. Evolution. 72:1204-1215.
 #' @seealso \code{procD.lm} and \code{procD.pgls} within \code{geomorph}; 
+#' @references ter Braak, C.J.F. 1992. Permutation versus bootstrap significance tests in 
+#' multiple regression and ANOVA. pp .79–86 In Bootstrapping and Related Techniques. eds K-H. Jockel, 
+#' G. Rothe & W. Sendler.Springer-Verlag, Berlin.
 #' \code{\link[stats]{lm}} for more on linear model fits.
 #' @examples
 #' 
@@ -414,6 +419,16 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if(int.first) ko = TRUE else ko = FALSE
   SS.type <- match.arg(SS.type)
   
+  full.resid <- ifelse(RRPP, full.resid, FALSE)
+  if(full.resid && SS.type != "III"){
+    SS.type = "III"
+    cat("\nWarning: a permutation of full model residuals was chosen.\n")
+    cat("SS.type is being forced to be III, as this is the only applicable\n")
+    cat("estimation method when using full model residuals as exchangeable units\n")
+    cat("under the null hypotheses of model effects.  Additionally, all random\n")
+    cat("ANOVA statistics will have the form, |random.stat - observed.stat|.\n\n")
+  }
+  
   dots <- list(...)
   if(length(dots) > 0) {
     w <- dots$weights
@@ -565,11 +580,9 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if(RRPP) {
     if(full.resid) {
       Uf <- cks$Uf
-      Fitted <- as.matrix(fastFit(Uf[[kk]], TY, n, p))
-      Residuals <- as.matrix(TY - Fitted)
       FR <- obs.FR <-lapply(1:max(1, kk), function(j){
-        fitted <- Fitted
-        residuals <- Residuals
+        fitted <- as.matrix(fastFit(Uf[[j]], TY, n , p))
+        residuals <- as.matrix(TY - fitted)
         out <- list(fitted = fitted, residuals = residuals)
       })
       Uf <- NULL
@@ -613,12 +626,10 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     if(RRPP) {
       if(full.resid) {
         Uf <- cks$Uf
-        Fitted <- as.matrix(fastFit(Uf[[kk]], TYp, n , p.prime))
-        Residuals <- as.matrix(TYp - Fitted)
-        FR <- obs.FR <-lapply(1:max(1, kk), function(j){
-          fitted <- Fitted
-          residuals <- Residuals
-          out <- list(fitted = fitted, residuals = residuals)
+        FR <- lapply(1:max(1, k), function(j){
+          fitted <- as.matrix(fastFit(Uf[[j]], TYp, n , p.prime))
+          residuals <- as.matrix(TYp - fitted)
+          list(fitted = fitted, residuals = residuals)
         })
         Uf <- NULL
       } else {
@@ -643,7 +654,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   FR <- NULL
   SS <- do.call(SS.iter, SS.args)
   cks$SS.type <- SS.type
-  ANOVA <- anova.parts(cks, SS)
+
+  ANOVA <- anova.parts(cks, SS, full.resid)
   SS.args <- NULL
   
   obs.fit <- lm.rrpp.fit(X, Y, Pcov = Pcov, w = w, offset = o, 
@@ -700,7 +712,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   PermInfo <- list(perms = perms,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
-                   full.resid = ifelse(RRPP==TRUE, full.resid, FALSE), 
+                   full.resid = full.resid, 
                    perm.schedule = ind, perm.seed = seed)
   out <- list(call = match.call(), 
               LM = LM, ANOVA = ANOVA, PermInfo = PermInfo, turbo = turbo)
