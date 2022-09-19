@@ -41,6 +41,7 @@
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
+#' \dontrun{
 #' # See examples for lm.rrpp to see how predict.lm.rrpp works in conjunction
 #' # with other functions
 #' 
@@ -48,7 +49,7 @@
 #' 
 #' # CS is centroid (fish) size
 #' fit <- lm.rrpp(coords ~ log(CS)  + Sex*Pop, 
-#' SS.type = "I", data = Pupfish, iter = 499) 
+#' SS.type = "I", data = Pupfish, iter = 999) 
 #'
 #' # Predictions (holding alternative effects constant)
 #' 
@@ -69,6 +70,7 @@
 #' plot(shapePreds, PC = TRUE, ellipse = TRUE)
 #' plot(shapePreds99, PC = TRUE)
 #' plot(shapePreds99, PC = TRUE, ellipse = TRUE)
+#' }
 #' 
 predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
                             confidence = 0.95, ...) {
@@ -118,8 +120,15 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
       stop("\nVariables in newdata do not match variables used in lm.rrpp fit",
            call. = FALSE)
     if(any(is.na(tm))) {
-      cat("\nWarning: Not all variables in model accounted for in newdata.")
-      cat("\nMissing variables will be averaged from observed data for prediction.\n\n")
+      
+      warning(
+        paste(
+          "\nThis is not an error!  It is a friendly warning.\n",
+          "\nNot all variables in model accounted for in newdata.",
+          "\nMissing variables will be averaged from observed data for prediction.\n",
+          "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+        noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
+      
     }
     
     nform <- formula(TT[which(!is.na(tm))])

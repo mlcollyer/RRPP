@@ -190,11 +190,16 @@ rrpp.data.frame<- function(...) {
     class(dots) <- "rrpp.data.frame"
   } else if(length(dots) == 1 && inherits(dots[[1]], "geomorph.data.frame")) {
     dots <- dots[[1]]
-    cat("\nWarning: Some geomorph.data.frame objects might not be 
-        compatible with RRPP functions.")
-    cat("\nIf any part of the geomorph.data.frame conatins a 3D array,")
-    cat("\nconsider converting it to a matrix before attempting to 
-        make an rrpp.data.frame.")
+    
+    warning(
+      paste(
+        "\nThis is not an error!  It is a friendly warning.\n",
+        "\nSome geomorph.data.frame objects might not be compatible with RRPP functions.",
+        "\nIf any part of the geomorph.data.frame conatins a 3D array,",
+        "consider converting it to a matrix before attempting to make an rrpp.data.frame\n",
+        "Use options(warn = -1) to turn off these warnings.\n\n", sep = " "),
+      noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
+
     class(dots) <- "rrpp.data.frame"
   } else if(length(dots) == 1 && inherits(dots[[1]], "rrpp.data.frame")) {
     dots <- dots[[1]]
@@ -579,11 +584,16 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
   
   if(fix) {
     Terms <- Terms[uk]
-    cat("\nWarning: Because variables in the linear model are redundant,")
-    cat("\nthe linear model design has been truncated (via QR decomposition).")
-    cat("\nOriginal X columns:", X.n.k.obs)
-    cat("\nFinal X columns (rank):", X.n.k)
-    cat("\nCheck coefficients or degrees of freedom in ANOVA to see changes.\n\n")
+    warning(
+      paste(
+        "\nThis is not an error!  It is a friendly warning.\n",
+        "\nBecause variables in the linear model are redundant,",
+        "\nthe linear model design has been truncated (via QR decomposition).",
+        "\nOriginal X columns:", X.n.k.obs,
+        "\nFinal X columns (rank):", X.n.k,
+        "\nCheck coefficients or degrees of freedom in ANOVA to see changes.\n",
+        "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+      noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
   } 
   
   term.labels <- attr(Terms, "term.labels")
@@ -1373,10 +1383,15 @@ aov.single.model <- function(object, ...,
   k <- length(df)-2
   kk <- length(object$LM$term.labels)
   if(k > 0 && k != kk) {
-    cat("Warning ANOVA is missing some terms, likely because\n") 
-    cat("some independent variables were redundant.\n")
-    cat("If the residual SS is 0, results should not be trusted\n")
-  }
+    warning(
+      paste(
+        "\nThis is not an error!  It is a friendly warning.\n",
+        "\nANOVA is missing some terms, likely because",
+        "\nsome independent variables were redundant.",
+        "\nIf the residual SS is 0, results should not be trusted\n", 
+        "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+      noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
+  } 
     
   SS <- x$SS
   MS <- x$MS 
@@ -1418,14 +1433,27 @@ aov.single.model <- function(object, ...,
       est <- "GLS"
       
       if(effect.type == "SS") {
-        cat("\nWarning: calculating effect size on SS is illogical with GLS.
-            Effect type has been changed to F distributions.\n\n")
+        
+        warning(
+          paste(
+            "\nThis is not an error!  It is a friendly warning.\n",
+            "\nCalculating effect size on SS is illogical with GLS.",
+            "\nEffect type has been changed to F distributions.\n",
+            "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+          noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
+        
         effect.type = "F"
       }
       
       if(effect.type == "MS") {
-        cat("\nWarning: calculating effect size on MS is illogical with GLS.
-            Effect type has been changed to F distributions.\n\n")
+        warning(
+          paste(
+            "\nThis is not an error!  It is a friendly warning.\n",
+            "\nCalculating effect size on MS is illogical with GLS.",
+            "\nEffect type has been changed to F distributions.\n",
+            "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+          noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
+        
         effect.type = "F"
       }
     } else est <- "OLS"
