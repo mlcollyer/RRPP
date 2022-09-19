@@ -233,6 +233,7 @@
 #' G. Rothe & W. Sendler.Springer-Verlag, Berlin.
 #' \code{\link[stats]{lm}} for more on linear model fits.
 #' @examples
+#' \dontrun{
 #' 
 #' # Examples use geometric morphometric data
 #' # See the package, geomorph, for details about obtaining such data
@@ -241,14 +242,9 @@
 #' names(PupfishHeads)
 #' 
 #' # Head Size Analysis (Univariate)-------------------------------------------------------
-#' 
-#' # Note: one should increase RRPP iterations but a smaller number is 
-#' # used here for demonstration 
-#' # efficiency.  Generally, iter = 999 will take less
-#' # than 1s for this example with a modern computer.
 #'
 #' fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "I", 
-#' data = PupfishHeads, print.progress = FALSE, iter = 199)
+#' data = PupfishHeads, print.progress = FALSE, iter = 999)
 #' summary(fit)
 #' anova(fit, effect.type = "F") # Maybe not most appropriate
 #' anova(fit, effect.type = "Rsq") # Change effect type, but still not 
@@ -263,7 +259,7 @@
 #' # Change to Type III SS
 #' 
 #' fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
-#' data = PupfishHeads, print.progress = FALSE, iter = 199)
+#' data = PupfishHeads, print.progress = FALSE, iter = 999)
 #' summary(fit)
 #' anova(fit, effect.type = "F", error = c("Residuals", "locality:year", 
 #' "Residuals"))
@@ -292,14 +288,9 @@
 #' # Note:
 #' 
 #' dim(Pupfish$coords) # highly multivariate!
-#'
-#' # Note: one should increase RRPP iterations but they are 
-#' # not used at all here for a fast example.  
-#' # Generally, iter = 999 will take less
-#' # than 1 second for this example with a modern computer.
-#' 
+
 #' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 0) 
+#' data = Pupfish, print.progress = FALSE, iter = 999) 
 #' summary(fit, formula = FALSE)
 #' anova(fit) 
 #' coef(fit, test = TRUE)
@@ -341,13 +332,8 @@
 #' length(D)
 #' Pupfish$D <- D
 #' 
-#' # Note: one should increase RRPP iterations but they are 
-#' # not used at all here for a fast example.  Generally, 
-#' # iter = 999 will take less than 1 second 
-#' # for this example with a modern computer.
-#' 
 #' fitD <- lm.rrpp(D ~ log(CS) + Sex*Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 0) 
+#' data = Pupfish, print.progress = FALSE, iter = 999) 
 #' 
 #' # These should be the same:
 #' summary(fitD, formula = FALSE)
@@ -387,10 +373,10 @@
 #' PlethMorph$Hindlimb))
 #' PlethMorph$Y <- Y
 #' fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
-#' print.progress = FALSE, iter = 199)
+#' print.progress = FALSE, iter = 999)
 #' fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 #' Cov = PlethMorph$PhyCov,
-#' print.progress = FALSE, iter = 199)
+#' print.progress = FALSE, iter = 999)
 #' 
 #' anova(fitOLSm)
 #' anova(fitGLSm)
@@ -404,6 +390,7 @@
 #' # With respect to independent variable (using abscissa)
 #' plot(predict(fitOLSm, sizeDF), abscissa = sizeDF) # Correlated error
 #' plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
+#' }
 
 lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALSE,
                      RRPP = TRUE, full.resid = FALSE, block = NULL,
@@ -422,11 +409,16 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   full.resid <- ifelse(RRPP, full.resid, FALSE)
   if(full.resid && SS.type != "III"){
     SS.type = "III"
-    cat("\nWarning: a permutation of full model residuals was chosen.\n")
-    cat("SS.type is being forced to be III, as this is the only applicable\n")
-    cat("estimation method when using full model residuals as exchangeable units\n")
-    cat("under the null hypotheses of model effects.  Additionally, all random\n")
-    cat("ANOVA statistics will have the form, |random.stat - observed.stat|.\n\n")
+    warning(
+      paste(
+        "\nThis is not an error!  It is a friendly warning.\n",
+        "\nBecause a permutation of full model residuals was chosen,",
+        "\nSS.type is being forced to be III, as this is the only applicable",
+        "\nestimation method when using full model residuals as exchangeable units",
+        "\nunder the null hypotheses of model effects.  Additionally, all random",
+        "\nANOVA statistics will have the form, |random.stat - observed.stat|.\n",
+        "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+        noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
   }
   
   dots <- list(...)
@@ -437,12 +429,17 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   if(!is.null(w) && !is.null(Cov)) {
     w <- NULL
-    cat("\nWarning: It is not possible to use both a Cov matrix and weights.")
-    cat("\nBoth are inputs to perform generalized least squares estimation of coefficients,")
-    cat("\nbut at present only one covariance matrix can be used.")
-    cat("\nAs a result, weights are set to NULL.")
-    cat("\nYou could consider adjusting your Cov matrix; e.g., Cov <- Cov * 1/weights,")
-    cat("\nmaking sure the Cov matrix and weights are ordered consistently.\n\n")
+    warning(
+    paste(
+      "\nThis is not an error!  It is a friendly warning.\n",
+      "\nIt is not possible to use both a Cov matrix and weights.",
+      "\nBoth are inputs to perform generalized least squares estimation of coefficients,",
+      "\nbut at present only one covariance matrix can be used.",
+      "\nAs a result, weights are set to NULL.",
+      "\nYou could consider adjusting your Cov matrix; e.g., Cov <- Cov * 1/weights,",
+      "\nmaking sure the Cov matrix and weights are ordered consistently.\n",
+      "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+    noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
   }
   
   Terms <- D <- NULL

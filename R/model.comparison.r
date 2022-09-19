@@ -223,12 +223,16 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
       colnames(rank.list) <- dot.names
       
       if(any(pc.no > p.list)) {
-        cat("Warning: The number of PCs requested exceeds 
-            possible dimensions for some model fits\n")
-        cat("PC number will be dropped initially to\n\n")
-        print(rank.list)
-        cat("\nand might be reduced further,
-            if the tolerance was also adjusted. \n\n")
+        
+        warning(
+          paste(
+            "\nThis is not an error!  It is a friendly warning.\n",
+            "\nThe number of PCs requested exceeds possible dimensions for some model fits.",
+            "\nPC number will be dropped initially to", rank.list, 
+            "and might be reduced further, if the tolerance was also adjusted.\n",
+            "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+          noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
+        
         pc.no <- p.list
       }
     }

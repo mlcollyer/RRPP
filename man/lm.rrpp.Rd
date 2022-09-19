@@ -250,6 +250,7 @@ vectors (Adams and Collyer 2016).
 }
 }
 \examples{
+\dontrun{
 
 # Examples use geometric morphometric data
 # See the package, geomorph, for details about obtaining such data
@@ -259,13 +260,8 @@ names(PupfishHeads)
 
 # Head Size Analysis (Univariate)-------------------------------------------------------
 
-# Note: one should increase RRPP iterations but a smaller number is 
-# used here for demonstration 
-# efficiency.  Generally, iter = 999 will take less
-# than 1s for this example with a modern computer.
-
 fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "I", 
-data = PupfishHeads, print.progress = FALSE, iter = 199)
+data = PupfishHeads, print.progress = FALSE, iter = 999)
 summary(fit)
 anova(fit, effect.type = "F") # Maybe not most appropriate
 anova(fit, effect.type = "Rsq") # Change effect type, but still not 
@@ -280,7 +276,7 @@ anova(fit, effect.type = "F", error = c("Residuals", "locality:year",
 # Change to Type III SS
 
 fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
-data = PupfishHeads, print.progress = FALSE, iter = 199)
+data = PupfishHeads, print.progress = FALSE, iter = 999)
 summary(fit)
 anova(fit, effect.type = "F", error = c("Residuals", "locality:year", 
 "Residuals"))
@@ -309,14 +305,8 @@ names(Pupfish)
 # Note:
 
 dim(Pupfish$coords) # highly multivariate!
-
-# Note: one should increase RRPP iterations but they are 
-# not used at all here for a fast example.  
-# Generally, iter = 999 will take less
-# than 1 second for this example with a modern computer.
-
 fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
-data = Pupfish, print.progress = FALSE, iter = 0) 
+data = Pupfish, print.progress = FALSE, iter = 999) 
 summary(fit, formula = FALSE)
 anova(fit) 
 coef(fit, test = TRUE)
@@ -358,13 +348,8 @@ D <- dist(Pupfish$coords) # inter-observation distances
 length(D)
 Pupfish$D <- D
 
-# Note: one should increase RRPP iterations but they are 
-# not used at all here for a fast example.  Generally, 
-# iter = 999 will take less than 1 second 
-# for this example with a modern computer.
-
 fitD <- lm.rrpp(D ~ log(CS) + Sex*Pop, SS.type = "I", 
-data = Pupfish, print.progress = FALSE, iter = 0) 
+data = Pupfish, print.progress = FALSE, iter = 999) 
 
 # These should be the same:
 summary(fitD, formula = FALSE)
@@ -404,10 +389,10 @@ PlethMorph$Forelimb,
 PlethMorph$Hindlimb))
 PlethMorph$Y <- Y
 fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
-print.progress = FALSE, iter = 199)
+print.progress = FALSE, iter = 999)
 fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
 Cov = PlethMorph$PhyCov,
-print.progress = FALSE, iter = 199)
+print.progress = FALSE, iter = 999)
 
 anova(fitOLSm)
 anova(fitGLSm)
@@ -421,6 +406,7 @@ plot(predict(fitGLSm, sizeDF)) # Independent error
 # With respect to independent variable (using abscissa)
 plot(predict(fitOLSm, sizeDF), abscissa = sizeDF) # Correlated error
 plot(predict(fitGLSm, sizeDF), abscissa = sizeDF) # Independent error
+}
 }
 \references{
 Anderson MJ. 2001. A new method for non-parametric 

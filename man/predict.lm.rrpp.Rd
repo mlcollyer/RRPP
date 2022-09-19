@@ -50,6 +50,7 @@ different number of observations than the original
 model fit.
 }
 \examples{
+\dontrun{
 # See examples for lm.rrpp to see how predict.lm.rrpp works in conjunction
 # with other functions
 
@@ -57,7 +58,7 @@ data(Pupfish)
 
 # CS is centroid (fish) size
 fit <- lm.rrpp(coords ~ log(CS)  + Sex*Pop, 
-SS.type = "I", data = Pupfish, iter = 499) 
+SS.type = "I", data = Pupfish, iter = 999) 
 
 # Predictions (holding alternative effects constant)
 
@@ -78,6 +79,7 @@ plot(shapePreds, PC = TRUE)
 plot(shapePreds, PC = TRUE, ellipse = TRUE)
 plot(shapePreds99, PC = TRUE)
 plot(shapePreds99, PC = TRUE, ellipse = TRUE)
+}
 
 }
 \author{
