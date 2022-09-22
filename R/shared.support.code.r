@@ -124,10 +124,10 @@ pcoa <- function(D){
   Yp
 }
 
+
 # perm.index
 # creates a permutation index for resampling
 # used in all functions with a resampling procedure
-
 perm.index <-function(n, iter, block = NULL, seed = NULL){
   
   if(!is.null(block)){
@@ -135,6 +135,15 @@ perm.index <-function(n, iter, block = NULL, seed = NULL){
     if(length(block) != n)
       stop("block factor not the same length as the number of observations.\n",
            call. = FALSE)
+    n <- length(block)
+    indx <- 1:n
+    g <- nlevels(block)
+    gp <- levels(block)
+    loc.list <- lapply(1:g, function(j) {
+      indx[block == gp[[j]]]
+    })
+    rindx <- unlist(loc.list)
+    
   }
   
   if(is.null(seed)) seed = iter else
@@ -143,8 +152,11 @@ perm.index <-function(n, iter, block = NULL, seed = NULL){
       set.seed(seed)
       get.samp <- function(n){
         if(!is.null(block)){
-          unlist(by(1:n, block, sample))
-        } else (sample.int(n, n))
+          out <- array(NA, n)
+          r <- unlist(lapply(loc.list, sample, replace = FALSE))
+          for(i in indx) out[rindx[i]] <- r[i]
+        } else  out <- sample.int(n, n)
+        out
       }
       ind <- c(list(1:n), (Map(function(x) get.samp(n), 1:iter)))
       rm(.Random.seed, envir=globalenv())
@@ -165,6 +177,14 @@ boot.index <-function(n, iter, block = NULL, seed = NULL){
     if(length(block) != n)
       stop("block factor not the same length as the number of observations.\n",
            call. = FALSE)
+    n <- length(block)
+    indx <- 1:n
+    g <- nlevels(block)
+    gp <- levels(block)
+    loc.list <- lapply(1:g, function(j) {
+      indx[block == gp[[j]]]
+    })
+    rindx <- unlist(loc.list)
   }
   
   if(is.null(seed)) seed = iter else
@@ -173,8 +193,11 @@ boot.index <-function(n, iter, block = NULL, seed = NULL){
       set.seed(seed)
       get.samp <- function(n){
         if(!is.null(block)){
-          unlist(by(1:n, block, sample, replace = TRUE))
-        } else (sample.int(n, n, replace = TRUE))
+          out <- array(NA, n)
+          r <- unlist(lapply(loc.list, sample, replace = TRUE))
+          for(i in indx) out[rindx[i]] <- r[i]
+        } else  out <- sample.int(n, n)
+        out
       }
       ind <- c(list(1:n), (Map(function(x) get.samp(n), 
                               1:iter)))
