@@ -101,7 +101,11 @@ covariance matrices, as descriptive statistics.  Multivariate generalizations of
 described by Liljequist et al. (2019) are used.  Three statistics describe the ICC for the population,
 agreement of measurements among subjects, and consistency between measurements.  The last statistic does not 
 necessarily measure the sameness between measurements but the consistency of change between measurements,
-which might be indicative of a systematic measurement error.
+which might be indicative of a systematic measurement error.  If groups are used, these three statistics are 
+repeated, using the SSCP for groups:reps rather than subjects.  This approach accounts for group differences,
+which would avoid large subject variation compared to measurement error inflating ICC values.  If there are 
+inherently disparate groups from which subjects are sampled, this approach can elucidate better agreement and 
+consistency in light of group differences.
 }
 \examples{
 # TBD

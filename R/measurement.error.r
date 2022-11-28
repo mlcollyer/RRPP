@@ -24,7 +24,11 @@
 #' described by Liljequist et al. (2019) are used.  Three statistics describe the ICC for the population,
 #' agreement of measurements among subjects, and consistency between measurements.  The last statistic does not 
 #' necessarily measure the sameness between measurements but the consistency of change between measurements,
-#' which might be indicative of a systematic measurement error.
+#' which might be indicative of a systematic measurement error.  If groups are used, these three statistics are 
+#' repeated, using the SSCP for groups:reps rather than subjects.  This approach accounts for group differences,
+#' which would avoid large subject variation compared to measurement error inflating ICC values.  If there are 
+#' inherently disparate groups from which subjects are sampled, this approach can elucidate better agreement and 
+#' consistency in light of group differences.
 #'
 #'   
 #' @param Y A matrix (n x p) of data for n observations and p variables.
@@ -236,8 +240,27 @@ measurement.error <- function(Y,
   icca1 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE + 
                                nr / ns * (EMSBM - EMSE))
   iccc1 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE)
+  
+  if(!is.null(groups)) {
+    SSE <- RSS 
+    SSBS <- SSInt
+    SSWM <- SSBS + SSE
+    SSWS <- SSBM + SSE
+    MSWS <- SSWS / (ns * (nr - 1))
+    MSBS <-  SSBS / Df[names(SS) %in% c("reps:groups")]
+    EMSBS <- nr * MSBS + MSWS
+    EMSWS <- MSWS
+    EMSBM <- ns * MSBM + MSE
+    EMSE <- MSE
+    icc2 <- (EMSBS - EMSWS) / (EMSBS + (nr - 1) * EMSWS)
+    icca2 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE + 
+                                 nr / ns * (EMSBM - EMSE))
+    iccc2 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE)
+  } else icc2 <- icca2 <- iccc2 <- NULL
 
-  icc <- list(icc.1 = icc1, icc.a1 = icca1, icc.c1 = iccc1)
+
+  icc <- list(icc = icc1, icc.a = icca1, icc.c = iccc1,
+              icc.g = icc2, icc.a.g = icca2, icc.c.g = iccc2)
   
   # ICC (multivariate) need to generalized
   
@@ -270,7 +293,30 @@ measurement.error <- function(Y,
     den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE))
     miccc1 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
     
-    micc <- list(icc.1 = micc1, icc.a1 = micca1, icc.c1 = miccc1)
+    if(!is.null(groups)) {
+      SSCPE <- RSSCP 
+      SSCPBS <- SSCPInt
+      SSCPWM <- SSCPBS + SSCPE
+      SSCPWS <- SSCPBM + SSCPE
+      
+      MSCPBS <- SSCPBS / Df[names(SS) %in% c("reps:groups")]
+      MSCPE <- SSCPE / DfE
+      
+      EMSCPBS <- as.matrix(nr * MSCPBS + MSCPWS)
+      EMSCPWS <- as.matrix(MSCPWS)
+      den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPWS))
+      micc2 <- t(den) %*% (EMSCPBS - EMSCPWS) %*% den
+      EMSCPBM <- as.matrix(ns * MSCPBM + MSCPE)
+      EMSCPE <- as.matrix(MSCPE)
+      den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE + 
+                          nr / ns * (EMSCPBM - EMSCPE)))
+      micca2 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
+      den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE))
+      miccc2 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
+    }
+    
+    micc <- list(icc = micc1, icc.a = micca1, icc.c = miccc1,
+                 icc.g = micc1, icc.a.g = micca1, icc.c.g = miccc1)
     
   }
   

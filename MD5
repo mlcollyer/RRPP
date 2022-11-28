@@ -16,7 +16,7 @@ a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 19a39a42115e81d1d1d7e5acb17a1a03 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 9ccd6f86b81f5b77785def01ca99a1a1 *man/manova.update.Rd
-ed9257805720050815a97928a1655448 *man/measurement.error.Rd
+3e6c758142de586a112a02be7303c0e0 *man/measurement.error.Rd
 01d84c69b3cb0e9f2f33ea527fc44f61 *man/model.comparison.Rd
 05471ca269ac60530b233dce90a0f3f5 *man/model.frame.lm.rrpp.Rd
 7e9ba29071c4cee40bdeb5bc861ffe51 *man/model.matrix.lm.rrpp.Rd
@@ -81,7 +81,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 451b076ed1762bfe69e283c6ef6dfb4f *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 6b42451861a3626f3c88a2e266189e61 *R/manova.update.r
-2edde5336e89573c4ed8ccaa14bab536 *R/measurement.error.r
+8de32507d7bedcddabac47dcd2ad59db *R/measurement.error.r
 a93d1585c9a0c39055acdd143e794c3b *R/model.comparison.r
 cc12447780d0e3a0d57e3148487ea503 *R/ordinate.r
 a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
@@ -89,7 +89,7 @@ a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 b31047f3feb173e1f2de50976c52e55a *R/reveal.model.designs.r
 717f62e5ffa23dd26e594456512ff4fc *R/RRPP.support.code.r
-8fae3663e8b67dd3ec86eff79002024c *R/RRPP.utils.r
+64c4345e457e7d0f0b8a6c58784087f8 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r
