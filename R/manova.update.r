@@ -229,7 +229,7 @@ manova.update <- function(fit, error = NULL,
                   call. = FALSE)
   int <- attr(Terms, "intercept")
   
-  E.rank <- qr(var(full[[k]]$residuals))$rank
+  E.rank <- getRank(qr(var(as.matrix(resid(fit)))))
   
   PCA <- prcomp(Y, tol = tol, rank. = PC.no)
   d <- PCA$sdev
@@ -302,7 +302,7 @@ manova.update <- function(fit, error = NULL,
   r0 <- Y - yh0
   
   rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+    lapply(FR, function(x) as.matrix(x$fitted) + as.matrix(x$residuals)[ind.i, ])
   }
   
   fitted <- lapply(Ur, function(u) fastFit(u, Y, n, p.prime))
@@ -319,7 +319,7 @@ manova.update <- function(fit, error = NULL,
   rrpp.args <- list(FR = FR, ind.i = ind[[1]])
   
   rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+    lapply(FR, function(x) as.matrix(x$fitted) + as.matrix(x$residuals)[ind.i, ])
   }
   
   sscp.args <- list(Uf = Uf, Ur = Ur, 

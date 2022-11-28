@@ -264,17 +264,17 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     full <- x$Models$full
     
     if(k > 0) {
-      RR <- lapply(reduced, function(j) j$residuals)
-      RF <- lapply(full, function(j) j$residuals)
+      
       if(LM$gls) {
-        if(!is.null(LM$Cov)) {
-          RR <- lapply(RR, function(r) LM$Pcov %*%r)
-          RF <- lapply(RF, function(r) LM$Pcov %*%r)
-        } else {
-          RR <- lapply(RR, function(r) r * sqrt(LM$weights))
-          RF <- lapply(RF, function(r) r * sqrt(LM$weights))
-        }
-      }
+        TY <- if(!is.null(LM$Pcov)) LM$Pcov %*% LM$Y else
+          sqrt(LM$weights)
+      } else TY <- LM$Y
+      
+      Ur <- lapply(reduced, function(x) qr.Q(x$qr))
+      Uf <- lapply(full, function(x) qr.Q(x$qr))
+      
+      RR <- Map(function(u) TY - fastFit(u, TY, n, p), Ur)
+      RF <- Map(function(u) TY - fastFit(u, TY, n, p), Uf)
       
       SSCP <- lapply(1:length(RF), function(j) crossprod(RR[[j]] - RF[[j]]))
       names(SSCP) <- trms
@@ -2591,5 +2591,163 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
   abline(0, 1, lty = 3)
  
   par(opars)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{measurement.error}}
+#' @param ... Other arguments passed onto measurement.error
+#' @method print measurement.error
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.measurement.error <- function(x, ...){
+  
+  all.stats <- x$all.stats
+  AOV <- x$AOV
+  mAOV <- x$mAOV
+  icc <- x$icc
+  micc <- x$mult.icc
+  
+  cat("\nAnalyses for measurement error\n")
+  cat("\nRRPP performed with", all.stats$PermInfo$perms, "permutations,\n")
+  cat("restricted within replicates for subjects and within subjects for measurement error.\n")
+  cat("\nANOVA (based on dispersion of values):\n")
+  print(AOV)
+  cat("\nThe Rsq values for ME exclude research subject variation.\n")
+  
+  if(!is.null(mAOV)) {
+    
+    cat("\n\nRelative eigenanlysis (multivariate):\n\n")
+    print(mAOV)
+    
+  }
+  
+  ICC.tab <- data.frame(icc = unlist(icc))
+  rownames(ICC.tab) <- c("Population ICC(1)",
+                         "Agreement ICC(A,1)",
+                         "Consistency ICC(C,1)")
+  cat("\n\nIntraclass correlations (dispersion):\n\n")
+  print(ICC.tab)
+  
+  if(!is.null(micc)) {
+    cat("\nIntraclass correlation matrices can be viewed with $mult.icc output.\n")
+  }
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{measurement.error}}
+#' @param ... Other arguments passed onto measurement.error
+#' @method summary measurement.error
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.measurement.error <- function(object, ...){
+  
+  print.measurement.error(object)
+  
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{measurement.error}}
+#' @param add.legend A logical value for whether to add a legend.
+#' @param ... Other arguments passed onto plot
+#' @method plot measurement.error
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+plot.measurement.error <- function(x, add.legend = TRUE, ...){
+  
+  orig.par <- par(no.readonly = TRUE)
+  
+  S <- lapply(x$SSCP.ME.products.orthog, 
+              function(j) svd(as.matrix(j)))
+  Y <- center(x$all.stats$LM$Y)
+  pts <- lapply(S, function(x) 
+    as.matrix(Y %*% x[[3]] %*% diag(sqrt(x[[1]]))))
+  
+  plot.args <- list(...)
+  
+  if(is.null(plot.args$bg) || is.null(plot.args$col || plot.args$ pch)) {
+    cat("\n\nIf symbols and colors were not defined by user,")
+    cat("\ngroups have been differntiated by symbol and replicates by color.\n")
+  }
+    
+  if(is.null(plot.args$bg)) plot.args$bg <- as.numeric(x$all.stats$LM$data$reps)
+  if(is.null(plot.args$col)) plot.args$col <- as.numeric(x$all.stats$LM$data$reps)
+  plot.args$asp <- 1
+    
+  if(length(S) == 2) {
+    
+    par(mfrow = c(1, 2))
+    if(is.null(plot.args$pch)) plot.args$pch <- 20 + 
+        as.numeric(x$all.stats$LM$data$groups)
+    d <- S[[1]]$d
+    dx <- d[1]/sum(d)
+    dy <- if(length(d) > 0) d[2]/sum(d) else 0
+    plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
+    plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
+    plot.args$main <- "Relative Eigenvectors: Systematic ME / Random ME"
+    plot.args$cex.main <- 0.6
+    plot.args$x <- as.matrix(pts[[1]])[,1]
+    plot.args$y <- if(NCOL(as.matrix(pts[[1]])) == 1) 
+      rep(0, length(pts[[1]])) else
+      as.matrix(pts[[1]])[,2]
+    do.call(plot, plot.args)
+    if(add.legend) {
+      legend("topleft", 
+             legend = levels(interaction(x$all.stats$LM$data$group, 
+                                         x$all.stats$LM$data$reps)),
+             pch = rep(unique(plot.args$pch), 
+                       nlevels(x$all.stats$LM$data$reps)),
+             col = rep(unique(plot.args$col), 
+                       each = nlevels(x$all.stats$LM$data$groups)),
+             pt.bg = rep(unique(plot.args$col), 
+                         each = nlevels(x$all.stats$LM$data$groups)),
+             bg = "white"
+      )
+    }
+      
+    d <- S[[2]]$d
+    dx <- d[1]/sum(d)
+    dy <- if(length(d) > 0) d[2]/sum(d) else 0
+    plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
+    plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
+    plot.args$main <- "Relative Eigenvectors: Systematic ME:groups / Random ME"
+    plot.args$cex.main <- 0.6
+    plot.args$x <- as.matrix(pts[[1]])[,1]
+    plot.args$y <- if(NCOL(as.matrix(pts[[2]])) == 1) 
+      rep(0, length(pts[[2]])) else
+      as.matrix(pts[[2]])[,2]
+    do.call(plot, plot.args)
+  } else {
+    if(is.null(plot.args$pch)) plot.args$pch <- 21
+    d <- S[[1]]$d
+    dx <- d[1]/sum(d)
+    dy <- if(length(d) > 0) d[2]/sum(d) else 0
+    plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
+    plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
+    plot.args$main <- "Relative Eigenvectors: Systematic ME / Random ME"
+    plot.args$cex.main <- 0.6
+    plot.args$x <- as.matrix(pts[[1]])[,1]
+    plot.args$y <- if(NCOL(as.matrix(pts[[1]])) == 1) 
+      rep(0, length(pts[[1]])) else
+      as.matrix(pts[[1]])[,2]
+    do.call(plot, plot.args)
+    
+    if(add.legend) {
+      legend("topleft", 
+             legend = levels(x$all.stats$LM$data$reps),
+             pch = unique(plot.args$pch),
+             col = unique(plot.args$col), 
+             pt.bg = unique(plot.args$col),
+             bg = "white"
+      )
+    }
+  }
+  
+  par(orig.par)
 }
 

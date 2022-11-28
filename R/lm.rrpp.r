@@ -507,6 +507,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     Cov.name <- deparse(substitute(Cov))
     Cov.match <- match(Cov.name, names(data))
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
+    if(is.null(rownames(Cov))) rownames(Cov) <- 1:n
+    if(is.null(colnames(Cov))) colnames(Cov) <- 1:n
     if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
     if(!is.null(id) && !is.null(rownames(Cov))) {
       if(length(setdiff(id, rownames(Cov))) > 0)
@@ -577,14 +579,14 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if(RRPP) {
     if(full.resid) {
       Uf <- cks$Uf
-      FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+      FR <- lapply(1:max(1, kk), function(j){
         fitted <- as.matrix(fastFit(Uf[[j]], TY, n , p))
         residuals <- as.matrix(TY - fitted)
         out <- list(fitted = fitted, residuals = residuals)
       })
       Uf <- NULL
     } else {
-      FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+      FR <-lapply(1:max(1, kk), function(j){
         fitted <- as.matrix(fastFit(Ur[[j]], TY, n , p))
         residuals <- as.matrix(TY - fitted)
         out <- list(fitted = fitted, residuals = residuals)
@@ -592,7 +594,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     }
 
   } else {
-    FR <- obs.FR <- lapply(1:max(1, kk), function(j){
+    FR <- lapply(1:max(1, kk), function(j){
       fitted <-  matrix(0, n, p)
       residuals <- as.matrix(TY)
       list(fitted = fitted, residuals = residuals)
@@ -729,10 +731,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     res <- lapply(1:max(1, kk), function(jj){
       X <- Xs[[j]][[jj]]
       qr <- cks$QR[[j]][[jj]]
-      fitted <- obs.FR[[max(1, jj)]]$fitted
-      residuals <- obs.FR[[max(1, jj)]]$residuals
-      list(X = X, qr = qr, fitted.values = fitted, 
-           residuals = residuals)
+      list(X = X, qr = qr)
     })
     names(res) <- cks$realized.trms
     res

@@ -2,6 +2,12 @@
 
 ### NEW FEATURES
 *  Added arguments for restricted resampling to `lm.rrpp` and `predict.lm.rrpp`, and permutation of full model residuals (with restrictions) to lm.rrpp
+* Added new function, `measurement.error`.
+
+### BUG FIXES
+*  Fixed SSCP issue in `summary.lm.rrpp` that produces matrices of 0s.  The issue was inherent to `lm.rrpp`, from erroneous assignment of models, only for output (not for mechanics).
+
+### OTHER CHANGES
 
 # CHANGES IN RRPP 1.3.1
 
