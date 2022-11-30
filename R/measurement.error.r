@@ -283,14 +283,14 @@ measurement.error <- function(Y,
     
     EMSCPBS <- as.matrix(nr * MSCPBS + MSCPWS)
     EMSCPWS <- as.matrix(MSCPWS)
-    den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPWS))
+    den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPWS, symmetric = TRUE)
     micc1 <- t(den) %*% (EMSCPBS - EMSCPWS) %*% den
     EMSCPBM <- as.matrix(ns * MSCPBM + MSCPE)
     EMSCPE <- as.matrix(MSCPE)
-    den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE + 
-                        nr / ns * (EMSCPBM - EMSCPE)))
+    den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE + 
+                        nr / ns * (EMSCPBM - EMSCPE), symmetric = TRUE)
     micca1 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
-    den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE))
+    den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE, symmetric = TRUE)
     miccc1 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
     
     if(!is.null(groups)) {
@@ -304,14 +304,14 @@ measurement.error <- function(Y,
       
       EMSCPBS <- as.matrix(nr * MSCPBS + MSCPWS)
       EMSCPWS <- as.matrix(MSCPWS)
-      den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPWS))
+      den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPWS, symmetric = TRUE)
       micc2 <- t(den) %*% (EMSCPBS - EMSCPWS) %*% den
       EMSCPBM <- as.matrix(ns * MSCPBM + MSCPE)
       EMSCPE <- as.matrix(MSCPE)
-      den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE + 
-                          nr / ns * (EMSCPBM - EMSCPE)))
+      den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE + 
+                          nr / ns * (EMSCPBM - EMSCPE), symmetric = TRUE)
       micca2 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
-      den <- solve(chol(EMSCPBS + (nr - 1) * EMSCPE))
+      den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE, symmetric = TRUE)
       miccc2 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
     }
     
@@ -365,14 +365,14 @@ measurement.error <- function(Y,
   
   SSCP.ME.products <- if(!is.null(groups)) {
     lapply(2:3, function(j){
-    solve(S$SSCP$Residuals) %*% S$SSCP[[j]]
+    fast.solve(S$SSCP$Residuals) %*% S$SSCP[[j]]
   }) 
-    } else list(SSCP.ME = as.matrix(solve(S$SSCP$Residuals) %*% S$SSCP[[2]]))
+    } else list(SSCP.ME = as.matrix(fast.solve(S$SSCP$Residuals) %*% S$SSCP[[2]]))
   
 
   # for plotting (orthogonalized)
   
-  sscp.sqrt <- solve(chol(S$SSCP$Residuals))
+  sscp.sqrt <- Cov.proj(S$SSCP$Residuals, symmetric = TRUE)
   SSCP.ME.products.orthog <- if(!is.null(groups)) {
     lapply(1:2, function(j){
       as.matrix(t(sscp.sqrt) %*% S$SSCP[[j]] %*% sscp.sqrt)

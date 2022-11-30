@@ -81,7 +81,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 451b076ed1762bfe69e283c6ef6dfb4f *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 6b42451861a3626f3c88a2e266189e61 *R/manova.update.r
-8de32507d7bedcddabac47dcd2ad59db *R/measurement.error.r
+d00d769e686e53fe84b19697389b1238 *R/measurement.error.r
 a93d1585c9a0c39055acdd143e794c3b *R/model.comparison.r
 cc12447780d0e3a0d57e3148487ea503 *R/ordinate.r
 a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
