@@ -111,6 +111,8 @@ measurement.error <- function(Y,
   n <- dims[1]
   p <- dims[2]
   
+  if(p == 1) multivariate = FALSE
+  
   if(length(subj) != n)
     stop("The number of observations do not match for data and subjects.\n",
          call. = FALSE)
@@ -187,7 +189,7 @@ measurement.error <- function(Y,
   mAOV <- micc <- NULL
   
   if(multivariate) {
-    if(print.progress && p > 1) {
+    if(print.progress) {
       cat("\nFor the random linear model fits performed in the previous step.\n")
       cat("The inverse of the SSCP matrix for random measurement error will be multiplied\n")
       cat("by the SSCP matrix for subjects and replicates, for performing realtive eigenanalysis.\n")
@@ -205,120 +207,133 @@ measurement.error <- function(Y,
       }
     }
   }
-
-  #ICC (dispersion)
   
-  SS <- fit$ANOVA$SS[,1]
-  RSS <- fit$ANOVA$RSS[1]
-  SSBS <- SS[1]
-  SSBM <- SS[2]
-  SSInt <- if(!is.null(groups)) SS[which(names(SS) == "reps:groups")] else 0
-  SSE <- RSS + SSInt
-  
-  SSWM <- SSBS + SSE
-  SSWS <- SSBM + SSE
-  Df <- fit$ANOVA$df
-  MSBS <- SSBS / Df[1]
-  MSBM <- SSBM / Df[2]
-  MSWS <- SSWS / (ns * (nr - 1))
-  MSWM <- SSWM / (nr * (ns - 1))
-  DfE <- Df[names(SS) %in% c("reps:groups")]
-  DfE <- if(length(DfE) > 0) DfE + Df[length(Df) - 1] else Df[length(Df) - 1]
-  MSE <- SSE / DfE
-  
-  # ICC(1)
-  
-  EMSBS <- nr * MSBS + MSWS
-  EMSWS <- MSWS
-
-  icc1 <- (EMSBS - EMSWS) / (EMSBS + (nr - 1) * EMSWS)
-  
-  # ICC(A,1) & ICC(C,1)
-  
-  EMSBM <- ns * MSBM + MSE
-  EMSE <- MSE
-  icca1 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE + 
-                               nr / ns * (EMSBM - EMSE))
-  iccc1 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE)
+  # ICC Dispersion
   
   if(!is.null(groups)) {
-    SSE <- RSS 
-    SSBS <- SSInt
-    SSWM <- SSBS + SSE
-    SSWS <- SSBM + SSE
-    MSWS <- SSWS / (ns * (nr - 1))
-    MSBS <-  SSBS / Df[names(SS) %in% c("reps:groups")]
-    EMSBS <- nr * MSBS + MSWS
-    EMSWS <- MSWS
-    EMSBM <- ns * MSBM + MSE
-    EMSE <- MSE
-    icc2 <- (EMSBS - EMSWS) / (EMSBS + (nr - 1) * EMSWS)
-    icca2 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE + 
-                                 nr / ns * (EMSBM - EMSE))
-    iccc2 <- (EMSBS - EMSE) / (EMSBS + (nr - 1) * EMSE)
-  } else icc2 <- icca2 <- iccc2 <- NULL
-
-
+    fitf <- fit
+    fit <- fitr <- lm.rrpp(Y ~ subj + reps, data = dat, 
+                   SS.type = "II", iter = 0, print.progress = 0)
+    MS <- fit$ANOVA$MS[, 1]
+    Df <- fit$ANOVA$df
+    MSBS <- MS[1]
+    MSBM <- MS[2]
+    RSS <- fit$ANOVA$RSS[1]
+    MSWS <- (MS[2] * Df[2] + RSS) / sum(Df[c(2:3)])
+    MSE <- RSS / Df[3]
+    icc1 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)
+    icca1 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE + 
+                               nr / ns * (MSBM - MSE))
+    iccc1 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE)
+    
+    fit <- fitf
+    MS <- fit$ANOVA$MS[, 1]
+    Df <- fit$ANOVA$df
+    MSBS <- MS[1]
+    MSBM <- MS[2]
+    RSS <- fit$ANOVA$RSS[1]
+    MSWS <- (MS[2] * Df[2] + MS[3] * Df[3] + RSS) / sum(Df[c(2:4)])
+    MSE <- RSS / Df[4]
+    icc2 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)
+    icca2 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE + 
+                               nr / ns * (MSBM - MSE))
+    iccc2 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE)
+    
+  } else {
+    
+    MS <- fit$ANOVA$MS[, 1]
+    Df <- fit$ANOVA$df
+    MSBS <- MS[1]
+    MSBM <- MS[2]
+    RSS <- fit$ANOVA$RSS[1]
+    MSWS <- (MS[2] * Df[2] + RSS) / sum(Df[c(2:3)])
+    MSE <- RSS / Df[3]
+    icc1 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)
+    icca1 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE + 
+                               nr / ns * (MSBM - MSE))
+    iccc1 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE)
+    icc2 <- icca2 <- iccc2 <- NULL
+  }
+  
   icc <- list(icc = icc1, icc.a = icca1, icc.c = iccc1,
               icc.g = icc2, icc.a.g = icca2, icc.c.g = iccc2)
   
   # ICC (multivariate) need to generalized
   
   if(multivariate){
-    
-    SSCP <- S$SSCP
-    RSSCP <- as.matrix(SSCP[[length(SSCP)]])
-    SSCPBS <- as.matrix(SSCP[[1]])
-    SSCPBM <- as.matrix(SSCP[[2]])
-    SSCPInt <- if(!is.null(groups)) as.matrix(SSCP[[which(names(SSCP) == "reps:groups")]]) else 0
-    SSCPE <- RSSCP + SSCPInt
-    SSCPWM <- SSCPBS + SSCPE
-    SSCPWS <- SSCPBM + SSCPE
-    
-    MSCPBS <- SSCPBS / Df[1]
-    MSCPBM <- SSCPBM / Df[2]
-    MSCPWS <- SSCPWS / (ns * (nr - 1))
-    MSCPWM <- SSCPWM / (nr * (ns - 1))
-    MSCPE <- SSCPE / DfE
-    
-    EMSCPBS <- as.matrix(nr * MSCPBS + MSCPWS)
-    EMSCPWS <- as.matrix(MSCPWS)
-    den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPWS, symmetric = TRUE)
-    micc1 <- t(den) %*% (EMSCPBS - EMSCPWS) %*% den
-    EMSCPBM <- as.matrix(ns * MSCPBM + MSCPE)
-    EMSCPE <- as.matrix(MSCPE)
-    den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE + 
-                        nr / ns * (EMSCPBM - EMSCPE), symmetric = TRUE)
-    micca1 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
-    den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE, symmetric = TRUE)
-    miccc1 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
-    
     if(!is.null(groups)) {
-      SSCPE <- RSSCP 
-      SSCPBS <- SSCPInt
-      SSCPWM <- SSCPBS + SSCPE
-      SSCPWS <- SSCPBM + SSCPE
+      fit <- fitr
+      S <- summary(fit)
+      SSCP <- S$SSCP
+      RSSCP <- as.matrix(SSCP[[length(SSCP)]])
+      SSCPBS <- as.matrix(SSCP[[1]])
+      SSCPBM <- as.matrix(SSCP[[2]])
+      SSCPWS <- RSSCP + SSCPBM
+      Df <- fit$ANOVA$df
+      MSCPBS <- SSCPBS / Df[1]
+      MSCPBM <- SSCPBM / Df[2]
+      MSCPWS <- SSCPWS / sum(Df[2:3])
+      MSCPE <- RSSCP / Df[3]
       
-      MSCPBS <- SSCPBS / Df[names(SS) %in% c("reps:groups")]
-      MSCPE <- SSCPE / DfE
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
+      micc1 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE + 
+                        nr / ns * (MSCPBM - MSCPE), symmetric = TRUE)
+      micca1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
+      miccc1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
       
-      EMSCPBS <- as.matrix(nr * MSCPBS + MSCPWS)
-      EMSCPWS <- as.matrix(MSCPWS)
-      den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPWS, symmetric = TRUE)
-      micc2 <- t(den) %*% (EMSCPBS - EMSCPWS) %*% den
-      EMSCPBM <- as.matrix(ns * MSCPBM + MSCPE)
-      EMSCPE <- as.matrix(MSCPE)
-      den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE + 
-                          nr / ns * (EMSCPBM - EMSCPE), symmetric = TRUE)
-      micca2 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
-      den <- Cov.proj(EMSCPBS + (nr - 1) * EMSCPE, symmetric = TRUE)
-      miccc2 <- t(den) %*% (EMSCPBS - EMSCPE) %*% den
+      fit <- fitf
+      
+      S <- summary(fit)
+      SSCP <- S$SSCP
+      RSSCP <- as.matrix(SSCP[[length(SSCP)]])
+      SSCPBS <- as.matrix(SSCP[[1]])
+      SSCPBM <- as.matrix(SSCP[[2]])
+      SSCPInt <- as.matrix(SSCP[[3]])
+      SSCPWS <- RSSCP + SSCPBM + SSCPInt
+      Df <- fit$ANOVA$df
+      MSCPBS <- SSCPBS / Df[1]
+      MSCPBM <- SSCPBM / Df[2]
+      MSCPWS <- SSCPWS / sum(Df[2:4])
+      MSCPE <- RSSCP / Df[4]
+      
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
+      micc2 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE + 
+                        nr / ns * (MSCPBM - MSCPE), symmetric = TRUE)
+      micca2 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
+      miccc2 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      
+    } else {
+      
+      SSCP <- S$SSCP
+      RSSCP <- as.matrix(SSCP[[length(SSCP)]])
+      SSCPBS <- as.matrix(SSCP[[1]])
+      SSCPBM <- as.matrix(SSCP[[2]])
+      SSCPWS <- RSSCP + SSCPBM
+      Df <- fit$ANOVA$df
+      MSCPBS <- SSCPBS / Df[1]
+      MSCPBM <- SSCPBM / Df[2]
+      MSCPWS <- SSCPWS / sum(Df[2:3])
+      MSCPE <- RSSCP / Df[3]
+      
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
+      micc1 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE + 
+                        nr / ns * (MSCPBM - MSCPE), symmetric = TRUE)
+      micca1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
+      miccc1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      
+      micc2 <- micca2 <- miccc2 <- NULL
     }
     
     micc <- list(icc = micc1, icc.a = micca1, icc.c = miccc1,
-                 icc.g = micc1, icc.a.g = micca1, icc.c.g = miccc1)
+                 icc.g = micc2, icc.a.g = micca2, icc.c.g = miccc2)
     
-  }
+  } else micc <- NULL
   
   # ANOVA 
   
@@ -362,25 +377,29 @@ measurement.error <- function(Y,
   # SSCP products
   
   # for relative EVs
-  
-  SSCP.ME.products <- if(!is.null(groups)) {
-    lapply(2:3, function(j){
-    fast.solve(S$SSCP$Residuals) %*% S$SSCP[[j]]
-  }) 
+  if(p > 1) {
+    
+    SSCP.ME.products <- if(!is.null(groups)) {
+      lapply(2:3, function(j){
+        fast.solve(S$SSCP$Residuals) %*% S$SSCP[[j]]
+      }) 
     } else list(SSCP.ME = as.matrix(fast.solve(S$SSCP$Residuals) %*% S$SSCP[[2]]))
+    
+    
+    # for plotting (orthogonalized)
+    
+    sscp.sqrt <- Cov.proj(S$SSCP$Residuals, symmetric = TRUE)
+    SSCP.ME.products.orthog <- if(!is.null(groups)) {
+      lapply(1:2, function(j){
+        as.matrix(t(sscp.sqrt) %*% S$SSCP[[j]] %*% sscp.sqrt)
+      })
+    } else list(SSCP.ME = t(sscp.sqrt) %*% S$SSCP[[2]] %*% sscp.sqrt)
+    
+    names(SSCP.ME.products) <- names(SSCP.ME.products.orthog) <-
+      c("Systematic/Random ME","Systematic ME:groups/Random ME")[1:length(SSCP.ME.products)]
   
-
-  # for plotting (orthogonalized)
+    } else  SSCP.ME.products <- SSCP.ME.products.orthog <- NULL
   
-  sscp.sqrt <- Cov.proj(S$SSCP$Residuals, symmetric = TRUE)
-  SSCP.ME.products.orthog <- if(!is.null(groups)) {
-    lapply(1:2, function(j){
-      as.matrix(t(sscp.sqrt) %*% S$SSCP[[j]] %*% sscp.sqrt)
-    })
-  } else list(SSCP.ME = t(sscp.sqrt) %*% S$SSCP[[2]] %*% sscp.sqrt)
-
-  names(SSCP.ME.products) <- names(SSCP.ME.products.orthog) <-
-     c("Systematic/Random ME","Systematic ME:groups/Random ME")[1:length(SSCP.ME.products)]
   
   options(warn = wrn)
   

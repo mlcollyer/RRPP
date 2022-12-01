@@ -2625,12 +2625,12 @@ print.measurement.error <- function(x, ...){
   
   ICC.tab <- data.frame(icc = unlist(icc))
   
-  rownames(ICC.tab) <- c("Population ICC",
+  rownames(ICC.tab) <- c("Absolute ICC",
                          "Agreement ICC",
                          "Consistency ICC",
-                         "Population ICC accounting for group differences",
-                         "Agreement ICC accounting for group differences",
-                         "Consistency ICC accounting for group differences"
+                         "Absolute ICC, accounting for group differences",
+                         "Agreement ICC, accounting for group differences",
+                         "Consistency ICC, accounting for group differences"
                          )[1:NROW(ICC.tab)]
   
   cat("\n\nIntraclass correlations (dispersion):\n\n")
