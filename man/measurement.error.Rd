@@ -15,6 +15,7 @@ measurement.error(
   multivariate = FALSE,
   use.PCs = TRUE,
   tol = 0.001,
+  Parallel = TRUE,
   print.progress = FALSE
 )
 }
@@ -55,7 +56,11 @@ in which case inverting singular covariance matrices would not be possible.}
 \item{tol}{A value indicating the magnitude below which 
 components should be omitted., if use.PCs is TRUE. (Components are omitted if their 
 standard deviations are less than or equal to tol times the 
-standard deviation of the first component.)  See \code{\link{ordinate}} for more details}
+standard deviation of the first component.)  See \code{\link{ordinate}} for more details.}
+
+\item{Parallel}{The same argument as in \code{\link{lm.rrpp}} to govern parallel processing (
+either a logical vale -- TRUE or FALSE -- or the number of threaded cores to use).  See \code{\link{lm.rrpp}} 
+for additional details.}
 
 \item{print.progress}{A logical value to indicate whether a progress 
 bar should be printed to the screen.}

@@ -28,6 +28,7 @@
 #'reveal.model.designs(fit3)
 #' 
 reveal.model.designs <- function(fit) {
+  if(inherits(fit, "measurement.error")) fit <- fit$all.stats
   model.sets <- fit$Models
   terms.f <- lapply(model.sets$full, function(x) x$terms)
   terms.r <- lapply(model.sets$reduced, function(x) x$terms)

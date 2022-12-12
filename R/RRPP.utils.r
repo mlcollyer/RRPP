@@ -2666,14 +2666,15 @@ summary.measurement.error <- function(object, ...){
 #' @keywords utilities
 plot.measurement.error <- function(x, add.legend = TRUE, ...){
   
-  orig.par <- par(no.readonly = TRUE)
+  S <- svd(x$SSCP.ME.product.orthog)
   
-  S <- lapply(x$SSCP.ME.products.orthog, 
-              function(j) svd(as.matrix(j)))
   Y <- center(x$all.stats$LM$Y)
-  pts <- lapply(S, function(x) 
-    as.matrix(Y %*% x[[3]] %*% diag(sqrt(x[[1]]))))
+  if(length(x$all.stats$LM$data) > 3){
+    gp <- x$all.stats$LM$data$groups
+    Y <- resid(lm(Y ~ gp))
+  }
   
+
   plot.args <- list(...)
   
   if(is.null(plot.args$bg) || is.null(plot.args$col || plot.args$ pch)) {
@@ -2685,26 +2686,37 @@ plot.measurement.error <- function(x, add.legend = TRUE, ...){
   if(is.null(plot.args$col)) plot.args$col <- as.numeric(x$all.stats$LM$data$reps)
   plot.args$asp <- 1
     
-  if(length(S) == 2) {
-    
-    par(mfrow = c(1, 2))
-    if(is.null(plot.args$pch)) plot.args$pch <- 20 + 
-        as.numeric(x$all.stats$LM$data$groups)
-    d <- S[[1]]$d
-    dx <- d[1]/sum(d)
-    dy <- if(length(d) > 0) d[2]/sum(d) else 0
-    plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
-    plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
-    plot.args$main <- "Relative Eigenvectors: Systematic ME / Random ME"
-    plot.args$cex.main <- 0.6
-    plot.args$x <- as.matrix(pts[[1]])[,1]
-    plot.args$y <- if(NCOL(as.matrix(pts[[1]])) == 1) 
-      rep(0, length(pts[[1]])) else
-      as.matrix(pts[[1]])[,2]
-    do.call(plot, plot.args)
-    if(add.legend) {
+  d <- S$d
+  dx <- d[1]/sum(d)
+  dy <- if(length(d) > 0) d[2]/sum(d) else 0
+  
+  pts <- as.matrix(Y) %*% S[[3]] %*% diag(sqrt(S[[1]]))[, 1:2]
+  
+  oldmf <- par()$mfcol
+  par(mfcol = c(1, 1))
+  
+  if(is.null(plot.args$pch)) {
+    plot.args$pch <- 20 
+    if(length(x$all.stats$LM$data) > 3) {
+      plot.args$pch <- plot.args$pch + as.numeric(x$all.stats$LM$data$groups)
+    } else {
+      plot.args$pch <- plot.args$pch + 1
+    }
+  }
+      
+  plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
+  plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
+  plot.args$main <- "Relative Eigenvectors: Systematic ME / Random ME"
+  plot.args$cex.main <- 0.6
+  plot.args$x <- as.matrix(pts)[,1]
+  plot.args$y <- if(NCOL(as.matrix(pts)) == 1) 
+    rep(0, length(pts)) else
+      as.matrix(pts)[,2]
+  do.call(plot, plot.args)
+  if(add.legend) {
+    if(length(x$all.stats$LM$data) > 3) {
       legend("topleft", 
-             legend = levels(interaction(x$all.stats$LM$data$group, 
+             legend = levels(interaction(x$all.stats$LM$data$groups, 
                                          x$all.stats$LM$data$reps)),
              pch = rep(unique(plot.args$pch), 
                        nlevels(x$all.stats$LM$data$reps)),
@@ -2714,46 +2726,17 @@ plot.measurement.error <- function(x, add.legend = TRUE, ...){
                          each = nlevels(x$all.stats$LM$data$groups)),
              bg = "white"
       )
-    }
-      
-    d <- S[[2]]$d
-    dx <- d[1]/sum(d)
-    dy <- if(length(d) > 0) d[2]/sum(d) else 0
-    plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
-    plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
-    plot.args$main <- "Relative Eigenvectors: Systematic ME:groups / Random ME"
-    plot.args$cex.main <- 0.6
-    plot.args$x <- as.matrix(pts[[1]])[,1]
-    plot.args$y <- if(NCOL(as.matrix(pts[[2]])) == 1) 
-      rep(0, length(pts[[2]])) else
-      as.matrix(pts[[2]])[,2]
-    do.call(plot, plot.args)
-  } else {
-    if(is.null(plot.args$pch)) plot.args$pch <- 21
-    d <- S[[1]]$d
-    dx <- d[1]/sum(d)
-    dy <- if(length(d) > 0) d[2]/sum(d) else 0
-    plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
-    plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
-    plot.args$main <- "Relative Eigenvectors: Systematic ME / Random ME"
-    plot.args$cex.main <- 0.6
-    plot.args$x <- as.matrix(pts[[1]])[,1]
-    plot.args$y <- if(NCOL(as.matrix(pts[[1]])) == 1) 
-      rep(0, length(pts[[1]])) else
-      as.matrix(pts[[1]])[,2]
-    do.call(plot, plot.args)
-    
-    if(add.legend) {
-      legend("topleft", 
-             legend = levels(x$all.stats$LM$data$reps),
-             pch = unique(plot.args$pch),
-             col = unique(plot.args$col), 
-             pt.bg = unique(plot.args$col),
-             bg = "white"
-      )
+    } else {
+        legend("topleft", 
+               legend = levels(x$all.stats$LM$data$reps),
+               pch = unique(plot.args$pch),
+               col = unique(plot.args$col), 
+               pt.bg = unique(plot.args$col),
+               bg = "white")
     }
   }
   
-  par(orig.par)
+  par(mfcol = oldmf)
 }
+
 

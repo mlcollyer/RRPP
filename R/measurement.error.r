@@ -59,7 +59,10 @@
 #' @param tol A value indicating the magnitude below which 
 #' components should be omitted., if use.PCs is TRUE. (Components are omitted if their 
 #' standard deviations are less than or equal to tol times the 
-#' standard deviation of the first component.)  See \code{\link{ordinate}} for more details
+#' standard deviation of the first component.)  See \code{\link{ordinate}} for more details.
+#' @param Parallel The same argument as in \code{\link{lm.rrpp}} to govern parallel processing (
+#' either a logical vale -- TRUE or FALSE -- or the number of threaded cores to use).  See \code{\link{lm.rrpp}} 
+#' for additional details.
 #' @param print.progress A logical value to indicate whether a progress 
 #' bar should be printed to the screen.
 #' @export
@@ -99,6 +102,7 @@ measurement.error <- function(Y,
                               multivariate = FALSE,
                               use.PCs = TRUE, 
                               tol = 0.001, 
+                              Parallel = TRUE,
                               print.progress = FALSE) {
 
   wrn <- options()$warn
@@ -149,6 +153,10 @@ measurement.error <- function(Y,
       stop("The number of observations do not match for data and groups factor\n",
            call. = FALSE)
     groups <- as.factor(groups)
+    
+    Xg <- model.matrix(~ groups)
+    Xnull <- matrix(1, length(subj))
+    dat$Ya <- LM.fit(Xg, Y)$residuals + LM.fit(Xnull, Y)$fitted.values
   }
   
   form <- if(!is.null(groups)) Y ~ subj + reps * groups else
@@ -159,11 +167,10 @@ measurement.error <- function(Y,
   suppressWarnings(fit <- lm.rrpp(form, 
                  SS.type = "II", block = subj,
                  data = dat, iter = iter, 
+                 Parallel = Parallel,
                  print.progress = print.progress, turbo = TRUE,
                  seed = seed))
   fit$call[[2]] <- form
-
-  S <- summary(fit)
   
   if(print.progress) {
     cat("\nPerforming within-replicate RRPP.\n")
@@ -174,6 +181,7 @@ measurement.error <- function(Y,
   suppressWarnings(fit2 <- lm.rrpp(form, 
                  SS.type = "II", block = reps,
                  data = dat, iter = iter, 
+                 Parallel = Parallel,
                  print.progress = print.progress, turbo = TRUE,
                  seed = seed))
   
@@ -210,6 +218,8 @@ measurement.error <- function(Y,
   
   # ICC Dispersion
   
+  fita <- NULL
+  
   if(!is.null(groups)) {
     fitf <- fit
     fit <- fitr <- lm.rrpp(Y ~ subj + reps, data = dat, 
@@ -226,18 +236,21 @@ measurement.error <- function(Y,
                                nr / ns * (MSBM - MSE))
     iccc1 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE)
     
-    fit <- fitf
+    fit <- fita <- lm.rrpp(Ya ~ subj + reps, data = dat, 
+                   SS.type = "II", iter = 0, print.progress = 0)
+    
     MS <- fit$ANOVA$MS[, 1]
     Df <- fit$ANOVA$df
     MSBS <- MS[1]
     MSBM <- MS[2]
     RSS <- fit$ANOVA$RSS[1]
-    MSWS <- (MS[2] * Df[2] + MS[3] * Df[3] + RSS) / sum(Df[c(2:4)])
-    MSE <- RSS / Df[4]
+    MSWS <- (MS[2] * Df[2] + RSS) / sum(Df[c(2:3)])
+    MSE <- RSS / Df[3]
     icc2 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)
     icca2 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE + 
                                nr / ns * (MSBM - MSE))
     iccc2 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE)
+    fit <- fitf
     
   } else {
     
@@ -283,20 +296,18 @@ measurement.error <- function(Y,
       den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
       miccc1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
       
-      fit <- fitf
-      
+      fit <- fita
       S <- summary(fit)
       SSCP <- S$SSCP
       RSSCP <- as.matrix(SSCP[[length(SSCP)]])
       SSCPBS <- as.matrix(SSCP[[1]])
       SSCPBM <- as.matrix(SSCP[[2]])
-      SSCPInt <- as.matrix(SSCP[[3]])
-      SSCPWS <- RSSCP + SSCPBM + SSCPInt
+      SSCPWS <- RSSCP + SSCPBM
       Df <- fit$ANOVA$df
       MSCPBS <- SSCPBS / Df[1]
       MSCPBM <- SSCPBM / Df[2]
-      MSCPWS <- SSCPWS / sum(Df[2:4])
-      MSCPE <- RSSCP / Df[4]
+      MSCPWS <- SSCPWS / sum(Df[2:3])
+      MSCPE <- RSSCP / Df[3]
       
       den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
       micc2 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
@@ -306,8 +317,11 @@ measurement.error <- function(Y,
       den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
       miccc2 <- t(den) %*% (MSCPBS - MSCPE) %*% den
       
+      fit <- fitf
+      
     } else {
       
+      S <- summary(fit)
       SSCP <- S$SSCP
       RSSCP <- as.matrix(SSCP[[length(SSCP)]])
       SSCPBS <- as.matrix(SSCP[[1]])
@@ -363,7 +377,11 @@ measurement.error <- function(Y,
   
   
   AOV$Rsq.ME <- NA
-  SS.tot <- sum(AOV$SS[rownames(AOV) %in% c("Systematic ME", "Systematic ME:Groups", "Random ME")])
+ 
+  Xsub <- model.matrix(~subj)
+  R <- LM.fit(Xsub, Y)$residuals
+  SS.tot <- sum(R^2)
+  
   AOV$Rsq.ME[which(rownames(AOV) == "Systematic ME")] <- 
     AOV$SS[which(rownames(AOV) == "Systematic ME")] / SS.tot
   AOV$Rsq.ME[which(rownames(AOV) == "Systematic ME:Groups")] <- 
@@ -373,32 +391,21 @@ measurement.error <- function(Y,
     
   AOV <- AOV[, -5]                  
   
-  
   # SSCP products
+  
+  S <- summary(fit)
+  
   
   # for relative EVs
   if(p > 1) {
     
-    SSCP.ME.products <- if(!is.null(groups)) {
-      lapply(2:3, function(j){
-        fast.solve(S$SSCP$Residuals) %*% S$SSCP[[j]]
-      }) 
-    } else list(SSCP.ME = as.matrix(fast.solve(S$SSCP$Residuals) %*% S$SSCP[[2]]))
-    
-    
-    # for plotting (orthogonalized)
-    
+    SSCP.ME.product <- fast.solve(S$SSCP$Residuals) %*% 
+      S$SSCP[[2]]
     sscp.sqrt <- Cov.proj(S$SSCP$Residuals, symmetric = TRUE)
-    SSCP.ME.products.orthog <- if(!is.null(groups)) {
-      lapply(1:2, function(j){
-        as.matrix(t(sscp.sqrt) %*% S$SSCP[[j]] %*% sscp.sqrt)
-      })
-    } else list(SSCP.ME = t(sscp.sqrt) %*% S$SSCP[[2]] %*% sscp.sqrt)
-    
-    names(SSCP.ME.products) <- names(SSCP.ME.products.orthog) <-
-      c("Systematic/Random ME","Systematic ME:groups/Random ME")[1:length(SSCP.ME.products)]
-  
-    } else  SSCP.ME.products <- SSCP.ME.products.orthog <- NULL
+    SSCP.ME.product.orthog<- as.matrix(t(sscp.sqrt) %*% 
+                                                S$SSCP[[2]] %*% sscp.sqrt)
+
+    } else  SSCP.ME.product <- SSCP.ME.product.orthog <- NULL
   
   
   options(warn = wrn)
@@ -406,8 +413,8 @@ measurement.error <- function(Y,
   out <- list(AOV = AOV, mAOV = mAOV, 
               icc = icc, mult.icc = micc,
               SSCP = S$SSCP,
-              SSCP.ME.products = SSCP.ME.products,
-              SSCP.ME.products.orthog = SSCP.ME.products.orthog)
+              SSCP.ME.product = SSCP.ME.product,
+              SSCP.ME.product.orthog = SSCP.ME.product.orthog)
   out$all.stats = if(multivariate) fitm else fit
   
   class(out) <- "measurement.error"
