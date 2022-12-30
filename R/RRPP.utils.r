@@ -2658,13 +2658,25 @@ summary.measurement.error <- function(object, ...){
 #' Print/Summary Function for RRPP
 #'
 #' @param x Object from \code{\link{measurement.error}}
-#' @param add.legend A logical value for whether to add a legend.
+#' @param separate.by.groups A logical value for whether to make separate plots
+#' for each group, if different groups are available.  If FALSE, groups
+#' are still represented by different symbols in the plot, unless overridden
+#' by plot arguments.
+#' @param add.connectors A logical value for whether to add connectors, like
+#' vectors, between replicate observations of the same subjects.  Connectors
+#' are labeled either by subject name (if available) or by number of occurrence
+#' in the data set.
+#' @param add.legend A logical value for whether to add a legend to plots.  If
+#' separate.by.groups is TRUE, adding a legend to plots will be slightly redundant.
 #' @param ... Other arguments passed onto plot
 #' @method plot measurement.error
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
-plot.measurement.error <- function(x, add.legend = TRUE, ...){
+plot.measurement.error <- function(x, 
+                                   separate.by.groups = TRUE,
+                                   add.connectors = TRUE,
+                                   add.legend = TRUE, ...){
   
   S <- svd(x$SSCP.ME.product.orthog)
   
@@ -2674,10 +2686,11 @@ plot.measurement.error <- function(x, add.legend = TRUE, ...){
     Y <- resid(lm(Y ~ gp))
   }
   
+  subj <- x$all.stats$LM$data$subj
 
   plot.args <- list(...)
   
-  if(is.null(plot.args$bg) || is.null(plot.args$col || plot.args$ pch)) {
+  if(is.null(plot.args$bg) || is.null(plot.args$col || plot.args$pch)) {
     cat("\n\nIf symbols and colors were not defined by user,")
     cat("\ngroups have been differntiated by symbol and replicates by color.\n")
   }
@@ -2694,6 +2707,31 @@ plot.measurement.error <- function(x, add.legend = TRUE, ...){
   
   oldmf <- par()$mfcol
   par(mfcol = c(1, 1))
+  
+  add.me.connectors <- function(x, y, subj, d) {
+    
+    dindx <- which(zapsmall(d) > 0)
+    if(length(dindx) == 1) {
+      y <- y + 0.1 * max(x) 
+      subjjig <- seq(0, 0.9 * max(x), (0.9 * max(x)) / (nlevels(subj) - 1))
+      for(i in 1:length(subjjig)) {
+        y[which(subj == levels(subj)[i])] <- 
+          y[which(subj == levels(subj)[i])] + subjjig[i]
+      }
+    }
+    subjlv <- levels(subj)
+    for(i in 1:length(subjlv)){
+      xx <- x[subj == subjlv[i]]
+      yy <- y[subj == subjlv[i]]
+      xmean <- mean(xx)
+      ymean <- mean(yy)
+      for(j in 1:length(xx)) {
+        arrows(xmean, ymean, xx[j], yy[j], length = 0, 
+               angle = 0, lwd = 0.5)
+        text(xmean, ymean, subjlv[i], pos = 3, cex = 0.4, offset = 0.1)
+      }
+    }
+  }
   
   if(is.null(plot.args$pch)) {
     plot.args$pch <- 20 
@@ -2712,27 +2750,82 @@ plot.measurement.error <- function(x, add.legend = TRUE, ...){
   plot.args$y <- if(NCOL(as.matrix(pts)) == 1) 
     rep(0, length(pts)) else
       as.matrix(pts)[,2]
-  do.call(plot, plot.args)
-  if(add.legend) {
-    if(length(x$all.stats$LM$data) > 3) {
-      legend("topleft", 
-             legend = levels(interaction(x$all.stats$LM$data$groups, 
-                                         x$all.stats$LM$data$reps)),
-             pch = rep(unique(plot.args$pch), 
-                       nlevels(x$all.stats$LM$data$reps)),
-             col = rep(unique(plot.args$col), 
-                       each = nlevels(x$all.stats$LM$data$groups)),
-             pt.bg = rep(unique(plot.args$col), 
+  if(is.null(plot.args$ylim)) {
+    ymax <- max(c(plot.args$y, max(plot.args$x)))
+    ymin <- min(plot.args$y)
+    plot.args$ylim <- c(ymin, ymax)
+  }
+  
+  if(separate.by.groups && is.null(x$all.stats$LM$data$groups))
+    separate.by.groups <- FALSE
+  
+  if(separate.by.groups) {
+    nplots <- nlevels(x$all.stats$LM$data$groups)
+    point.args <- plot.args
+    plot.args$type <- "n"
+    plot.args$main <- NULL
+    gps <- levels(x$all.stats$LM$data$groups)
+    
+    for(i in 1:nplots) {
+      do.call(plot, plot.args)
+      title(paste("Relative Eigenvectors: Systematic ME / Random ME for", 
+                  "Group", gps[[i]], sep = " "),
+            cex.main = 0.7)
+      point.args.b <- point.args
+      point.args.b$pch[which(x$all.stats$LM$data$groups != gps[[i]])] <- NA
+      
+      do.call(points, point.args.b)
+      
+      if(add.connectors) add.me.connectors(
+        point.args.b$x[which(!is.na(point.args.b$pch))],
+        point.args.b$y[which(!is.na(point.args.b$pch))],
+        factor(subj[which(!is.na(point.args.b$pch))]), d)
+      
+      if(add.legend) {
+        
+        legend("topleft", 
+               legend = levels(interaction(x$all.stats$LM$data$groups, 
+                                           x$all.stats$LM$data$reps)),
+               pch = rep(unique(plot.args$pch), 
+                         nlevels(x$all.stats$LM$data$reps)),
+               col = rep(unique(plot.args$col), 
                          each = nlevels(x$all.stats$LM$data$groups)),
-             bg = "white"
-      )
-    } else {
+               pt.bg = rep(unique(plot.args$col), 
+                           each = nlevels(x$all.stats$LM$data$groups)),
+               bg = "white")
+      }
+    }
+    
+  } else {
+    do.call(plot, plot.args)
+    
+    if(add.connectors)
+      add.me.connectors(plot.args$x, plot.args$y, subj, d)
+   
+    if(add.legend) {
+      
+      if(length(x$all.stats$LM$data) > 3) {
+        
+        legend("topleft", 
+               legend = levels(interaction(x$all.stats$LM$data$groups, 
+                                           x$all.stats$LM$data$reps)),
+               pch = rep(unique(plot.args$pch), 
+                         nlevels(x$all.stats$LM$data$reps)),
+               col = rep(unique(plot.args$col), 
+                         each = nlevels(x$all.stats$LM$data$groups)),
+               pt.bg = rep(unique(plot.args$col), 
+                           each = nlevels(x$all.stats$LM$data$groups)),
+               bg = "white")
+        
+      } else {
+        
         legend("topleft", 
                legend = levels(x$all.stats$LM$data$reps),
                pch = unique(plot.args$pch),
                col = unique(plot.args$col), 
                pt.bg = unique(plot.args$col),
                bg = "white")
+      }
     }
   }
   

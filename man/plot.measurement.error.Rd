@@ -4,12 +4,29 @@
 \alias{plot.measurement.error}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{plot}{measurement.error}(x, add.legend = TRUE, ...)
+\method{plot}{measurement.error}(
+  x,
+  separate.by.groups = TRUE,
+  add.connectors = TRUE,
+  add.legend = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{Object from \code{\link{measurement.error}}}
 
-\item{add.legend}{A logical value for whether to add a legend.}
+\item{separate.by.groups}{A logical value for whether to make separate plots
+for each group, if different groups are available.  If FALSE, groups
+are still represented by different symbols in the plot, unless overridden
+by plot arguments.}
+
+\item{add.connectors}{A logical value for whether to add connectors, like
+vectors, between replicate observations of the same subjects.  Connectors
+are labeled either by subject name (if available) or by number of occurrence
+in the data set.}
+
+\item{add.legend}{A logical value for whether to add a legend to plots.  If
+separate.by.groups is TRUE, adding a legend to plots will be slightly redundant.}
 
 \item{...}{Other arguments passed onto plot}
 }
