@@ -2708,12 +2708,12 @@ plot.measurement.error <- function(x,
   oldmf <- par()$mfcol
   par(mfcol = c(1, 1))
   
-  add.me.connectors <- function(x, y, subj, d) {
+  add.me.connectors <- function(x, y, subj, d, maxy) {
     
     dindx <- which(zapsmall(d) > 0)
     if(length(dindx) == 1) {
-      y <- y + 0.1 * max(x) 
-      subjjig <- seq(0, 0.9 * max(x), (0.9 * max(x)) / (nlevels(subj) - 1))
+      y <- y + 0.1 * maxy
+      subjjig <- seq(0, 0.9 * maxy, (0.9 * maxy) / (nlevels(subj) - 1))
       for(i in 1:length(subjjig)) {
         y[which(subj == levels(subj)[i])] <- 
           y[which(subj == levels(subj)[i])] + subjjig[i]
@@ -2779,7 +2779,8 @@ plot.measurement.error <- function(x,
       if(add.connectors) add.me.connectors(
         point.args.b$x[which(!is.na(point.args.b$pch))],
         point.args.b$y[which(!is.na(point.args.b$pch))],
-        factor(subj[which(!is.na(point.args.b$pch))]), d)
+        factor(subj[which(!is.na(point.args.b$pch))]), 
+        d, point.args.b$ylim[2])
       
       if(add.legend) {
         
@@ -2800,7 +2801,7 @@ plot.measurement.error <- function(x,
     do.call(plot, plot.args)
     
     if(add.connectors)
-      add.me.connectors(plot.args$x, plot.args$y, subj, d)
+      add.me.connectors(plot.args$x, plot.args$y, subj, d, plot.args$ylim[2])
    
     if(add.legend) {
       
