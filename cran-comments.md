@@ -1,5 +1,5 @@
 ## Resubmission
-This is a patch release, 1.3.1, that updates a few function arguments for better operation.
+This is a patch release, 1.3.2, that adds a new function plus S3 generic functions.
 
 The package, `geomorph`, is developed by the same authors as `RRPP`.  The reverse dependency has been addressed during development of this release.  All other dependencies should be unaffected, functionally, as no attribute or functional changes have been introduced.
 

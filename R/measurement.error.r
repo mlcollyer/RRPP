@@ -16,16 +16,21 @@
 #' sums of squares and cross-products (SSCP) are calculated to assure conditional estimation.
 #' 
 #' The results include univariate-like statistics based on dispersion of values and
-#' relative eigenanalysis (Bookstein and Mitteroecker, 2014) performed on a product of SSCP matrices, 
+#' eigenanalysis performed on a signal to noise matrix product of SSCP matrices 
+#' (sensu Bookstein and Mitteroecker, 2014) 
 #' including the inverse of the random component of ME and the systematic
-#' component of ME.  The first eigenvalue is used as a test statistic for tests using relative eigenanalysis.
+#' component of ME.  The multivriate test is a permutational form of multivariate ANOVA (MANOVA).
+#' 
+#' The first eigenvalue (Roy's maximum root) is used as a test statistic 
+#' for tests using MANOVA.
 #' Intraclass correlation coefficients (ICC) are also calculated, both based on dispersion of values and 
 #' covariance matrices, as descriptive statistics.  Multivariate generalizations of the statistics
-#' described by Liljequist et al. (2019) are used.  Three statistics describe the ICC for the population,
+#' described by Liljequist et al. (2019) are also used, along with eigenanalysis.  
+#' Three statistics describe the ICC for the population,
 #' agreement of measurements among subjects, and consistency between measurements.  The last statistic does not 
 #' necessarily measure the sameness between measurements but the consistency of change between measurements,
 #' which might be indicative of a systematic measurement error.  If groups are used, these three statistics are 
-#' repeated, using the SSCP for groups:reps rather than subjects.  This approach accounts for group differences,
+#' repeated, using the SSCP for groups-adjusted data.  This approach accounts for group differences,
 #' which would avoid large subject variation compared to measurement error inflating ICC values.  If there are 
 #' inherently disparate groups from which subjects are sampled, this approach can elucidate better agreement and 
 #' consistency in light of group differences.
@@ -73,12 +78,12 @@
 #'  \item{mAOV}{Multivariate AOV based on product of the inverse of the random component (SSCP) of ME
 #'  times the systematic component of ME.}
 #'  \item{icc}{The intraclass correlation coefficient (ICC) based on the dispersion of values.}
-#'  \item{mult.icc}{A p x p correlation matrix of ICC based on a product of covariance matrices.}
+#'  \item{mult.icc.eigs}{The eigenvalues of ICC matrices, culled to principal dimensions with positive eigenvalues.}
 #'  \item{SSCP}{The sums of squares and cross-products matrices for model effects.}
 #'  \item{SSCP.ME.product}{The products of the inverse of the random ME SSCP and the SSCP matrices
 #'  for systematic ME,.  These are the same matrix products used for eigenanalysis.  
 #'  This is the observed matrix.}
-#'  \item{SSCP.ME.product.orthog}{A list ofsymmetric form of SSCP.ME.products 
+#'  \item{SSCP.ME.product.std}{A list of the symmetric forms of standradized SSCP.ME.products 
 #'  that yield orthogonal eigenvectors.}
 #'  \item{all.stats}{All SS, MS, eigen values, etc., from the RRPP analyses performed.  This is the same
 #'  as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.}
@@ -288,13 +293,10 @@ measurement.error <- function(Y,
       MSCPWS <- SSCPWS / sum(Df[2:3])
       MSCPE <- RSSCP / Df[3]
       
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
-      micc1 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE + 
-                        nr / ns * (MSCPBM - MSCPE), symmetric = TRUE)
-      micca1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
-      miccc1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      micc1 <- fast.solve(MSCPBS + (nr - 1) * MSCPWS) %*% (MSCPBS - MSCPWS) 
+      micca1 <- fast.solve(MSCPBS + (nr - 1) * MSCPE + 
+                             nr / ns * (MSCPBM - MSCPE)) %*% (MSCPBS - MSCPE) 
+      miccc1 <- solve(MSCPBS + (nr - 1) * MSCPE) %*% (MSCPBS - MSCPE) 
       
       fit <- fita
       S <- summary(fit)
@@ -308,14 +310,11 @@ measurement.error <- function(Y,
       MSCPBM <- SSCPBM / Df[2]
       MSCPWS <- SSCPWS / sum(Df[2:3])
       MSCPE <- RSSCP / Df[3]
-      
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
-      micc2 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE + 
-                        nr / ns * (MSCPBM - MSCPE), symmetric = TRUE)
-      micca2 <- t(den) %*% (MSCPBS - MSCPE) %*% den
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
-      miccc2 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+
+      micc2 <- fast.solve(MSCPBS + (nr - 1) * MSCPWS) %*% (MSCPBS - MSCPWS) 
+      micca2 <- fast.solve(MSCPBS + (nr - 1) * MSCPE + 
+                             nr / ns * (MSCPBM - MSCPE)) %*% (MSCPBS - MSCPE) 
+      miccc2 <- fast.solve(MSCPBS + (nr - 1) * MSCPE) %*% (MSCPBS - MSCPE) 
       
       fit <- fitf
       
@@ -333,13 +332,10 @@ measurement.error <- function(Y,
       MSCPWS <- SSCPWS / sum(Df[2:3])
       MSCPE <- RSSCP / Df[3]
       
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPWS, symmetric = TRUE)
-      micc1 <- t(den) %*% (MSCPBS - MSCPWS) %*% den
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE + 
-                        nr / ns * (MSCPBM - MSCPE), symmetric = TRUE)
-      micca1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
-      den <- Cov.proj(MSCPBS + (nr - 1) * MSCPE, symmetric = TRUE)
-      miccc1 <- t(den) %*% (MSCPBS - MSCPE) %*% den
+      micc1 <- fast.solve(MSCPBS + (nr - 1) * MSCPWS) %*% (MSCPBS - MSCPWS) 
+      micca1 <- fast.solve(MSCPBS + (nr - 1) * MSCPE + 
+                             nr / ns * (MSCPBM - MSCPE)) %*% (MSCPBS - MSCPE) 
+      miccc1 <- fast.solve(MSCPBS + (nr - 1) * MSCPE) %*% (MSCPBS - MSCPE) 
       
       micc2 <- micca2 <- miccc2 <- NULL
     }
@@ -371,25 +367,26 @@ measurement.error <- function(Y,
     rownames(mAOV)[which(rownames(mAOV) == "groups")] <- "Groups / Random ME"
     rownames(mAOV)[which(rownames(mAOV) == "reps:groups")] <- "Systematic ME:Groups / Random ME"
     mAOV <- mAOV[, -(1:2)]
-    colnames(mAOV) <- c("RelEV", "Z", "Pr(>EV)")
     
   }
   
-  
-  AOV$Rsq.ME <- NA
+  AOV$EtaSq.ME <- NA
  
   Xsub <- model.matrix(~subj)
   R <- LM.fit(Xsub, Y)$residuals
   SS.tot <- sum(R^2)
   
-  AOV$Rsq.ME[which(rownames(AOV) == "Systematic ME")] <- 
+  AOV$EtaSq.ME[which(rownames(AOV) == "Systematic ME")] <- 
     AOV$SS[which(rownames(AOV) == "Systematic ME")] / SS.tot
-  AOV$Rsq.ME[which(rownames(AOV) == "Systematic ME:Groups")] <- 
+  AOV$EtaSq.ME[which(rownames(AOV) == "Systematic ME:Groups")] <- 
     AOV$SS[which(rownames(AOV) == "Systematic ME:Groups")] / SS.tot
-  AOV$Rsq.ME[which(rownames(AOV) == "Random ME")] <- 
+  AOV$EtaSq.ME[which(rownames(AOV) == "Random ME")] <- 
     AOV$SS[which(rownames(AOV) == "Random ME")] / SS.tot
     
-  AOV <- AOV[, -5]                  
+  indx <- length(na.omit(AOV$F))    
+  AOV$F[1:indx] <- AOV$F[1:indx] * AOV$Df[1:indx] / AOV$Df[indx + 1]
+  names(AOV)[which(names(AOV) == "F")] <- "SNR"
+  AOV <- AOV[c(1:4, 6, 7, 8, 5)]
   
   # SSCP products
   
@@ -402,19 +399,31 @@ measurement.error <- function(Y,
     SSCP.ME.product <- fast.solve(S$SSCP$Residuals) %*% 
       S$SSCP[[2]]
     sscp.sqrt <- Cov.proj(S$SSCP$Residuals, symmetric = TRUE)
-    SSCP.ME.product.orthog<- as.matrix(t(sscp.sqrt) %*% 
+    SSCP.ME.product.std<- as.matrix(t(sscp.sqrt) %*% 
                                                 S$SSCP[[2]] %*% sscp.sqrt)
 
-    } else  SSCP.ME.product <- SSCP.ME.product.orthog <- NULL
+    } else  SSCP.ME.product <- SSCP.ME.product.std <- NULL
   
+  micc.eigs <- NULL
+  if(!is.null(micc)){
+    micc.eigs <- lapply(1:length(micc), function(j){
+      x <- micc[[j]]
+      if(!is.null(x)){
+        res <- Re(eigen(as.matrix(x), only.values = TRUE)$values)
+      } else res <- NULL
+      res
+    })
+    names(micc.eigs) <- names(micc)
+  } 
   
   options(warn = wrn)
   
   out <- list(AOV = AOV, mAOV = mAOV, 
-              icc = icc, mult.icc = micc,
+              icc = icc, 
+              mult.icc.eigs = micc.eigs,
               SSCP = S$SSCP,
               SSCP.ME.product = SSCP.ME.product,
-              SSCP.ME.product.orthog = SSCP.ME.product.orthog)
+              SSCP.ME.product.std = SSCP.ME.product.std)
   out$all.stats = if(multivariate) fitm else fit
   
   class(out) <- "measurement.error"

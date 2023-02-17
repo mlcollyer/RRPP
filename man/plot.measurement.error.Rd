@@ -8,6 +8,7 @@
   x,
   separate.by.groups = TRUE,
   add.connectors = TRUE,
+  use.std.vectors = FALSE,
   add.legend = TRUE,
   ...
 )
@@ -24,6 +25,9 @@ by plot arguments.}
 vectors, between replicate observations of the same subjects.  Connectors
 are labeled either by subject name (if available) or by number of occurrence
 in the data set.}
+
+\item{use.std.vectors}{A logical value for whether to use vectors obtained from
+a standardized matrix, which are orthogonal.  This is not strictly necessary.}
 
 \item{add.legend}{A logical value for whether to add a legend to plots.  If
 separate.by.groups is TRUE, adding a legend to plots will be slightly redundant.}

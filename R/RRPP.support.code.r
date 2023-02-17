@@ -29,14 +29,16 @@
 #' effects can also be evaluated.
 #' 
 #' @import parallel
-#' @import stats
-#' @import graphics
-#' @import utils
 #' @import ggplot2 
 #' @import Matrix
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @importFrom ape collapse.singles
+#' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
+#' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
+#' resid sd spline var
+#' @importFrom graphics abline arrows axis legend lines par plot.default points text title
+#' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp

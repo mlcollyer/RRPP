@@ -71,12 +71,12 @@ Objects of class "measurement.error" return a list of the following:
  \item{mAOV}{Multivariate AOV based on product of the inverse of the random component (SSCP) of ME
  times the systematic component of ME.}
  \item{icc}{The intraclass correlation coefficient (ICC) based on the dispersion of values.}
- \item{mult.icc}{A p x p correlation matrix of ICC based on a product of covariance matrices.}
+ \item{mult.icc.eigs}{The eigenvalues of ICC matrices, culled to principal dimensions with positive eigenvalues.}
  \item{SSCP}{The sums of squares and cross-products matrices for model effects.}
  \item{SSCP.ME.product}{The products of the inverse of the random ME SSCP and the SSCP matrices
  for systematic ME,.  These are the same matrix products used for eigenanalysis.  
  This is the observed matrix.}
- \item{SSCP.ME.product.orthog}{A list ofsymmetric form of SSCP.ME.products 
+ \item{SSCP.ME.product.std}{A list of the symmetric forms of standradized SSCP.ME.products 
  that yield orthogonal eigenvectors.}
  \item{all.stats}{All SS, MS, eigen values, etc., from the RRPP analyses performed.  This is the same
  as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.}
@@ -98,16 +98,21 @@ inter-replicate variation remains constant across all random permutations within
 sums of squares and cross-products (SSCP) are calculated to assure conditional estimation.
 
 The results include univariate-like statistics based on dispersion of values and
-relative eigenanalysis (Bookstein and Mitteroecker, 2014) performed on a product of SSCP matrices, 
+eigenanalysis performed on a signal to noise matrix product of SSCP matrices 
+(sensu Bookstein and Mitteroecker, 2014) 
 including the inverse of the random component of ME and the systematic
-component of ME.  The first eigenvalue is used as a test statistic for tests using relative eigenanalysis.
+component of ME.  The multivriate test is a permutational form of multivariate ANOVA (MANOVA).
+
+The first eigenvalue (Roy's maximum root) is used as a test statistic 
+for tests using MANOVA.
 Intraclass correlation coefficients (ICC) are also calculated, both based on dispersion of values and 
 covariance matrices, as descriptive statistics.  Multivariate generalizations of the statistics
-described by Liljequist et al. (2019) are used.  Three statistics describe the ICC for the population,
+described by Liljequist et al. (2019) are also used, along with eigenanalysis.  
+Three statistics describe the ICC for the population,
 agreement of measurements among subjects, and consistency between measurements.  The last statistic does not 
 necessarily measure the sameness between measurements but the consistency of change between measurements,
 which might be indicative of a systematic measurement error.  If groups are used, these three statistics are 
-repeated, using the SSCP for groups:reps rather than subjects.  This approach accounts for group differences,
+repeated, using the SSCP for groups-adjusted data.  This approach accounts for group differences,
 which would avoid large subject variation compared to measurement error inflating ICC values.  If there are 
 inherently disparate groups from which subjects are sampled, this approach can elucidate better agreement and 
 consistency in light of group differences.

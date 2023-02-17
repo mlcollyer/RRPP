@@ -2607,7 +2607,7 @@ print.measurement.error <- function(x, ...){
   AOV <- x$AOV
   mAOV <- x$mAOV
   icc <- x$icc
-  micc <- x$mult.icc
+  micc <- x$mult.icc.eigs
   
   cat("\nAnalyses for measurement error\n")
   cat("\nRRPP performed with", all.stats$PermInfo$perms, "permutations,\n")
@@ -2618,7 +2618,7 @@ print.measurement.error <- function(x, ...){
   
   if(!is.null(mAOV)) {
     
-    cat("\n\nRelative eigenanlysis (multivariate):\n\n")
+    cat("\n\nMANOVA:\n\n")
     print(mAOV)
     
   }
@@ -2637,7 +2637,28 @@ print.measurement.error <- function(x, ...){
   print(ICC.tab)
   
   if(!is.null(micc)) {
-    cat("\nIntraclass correlation matrices can be viewed with $mult.icc output.\n")
+    cat("\nGeneralized ICC values (cumulative eigenvalue products)\n")
+    kmax <- max(sapply(micc, length))
+    eig.fix <- function(x) {
+      if(length(x) < kmax) x <- c(x, rep(0, kmax - length(x)))
+      x
+    }
+    micc <- lapply(micc, eig.fix)
+    micc <- abs(do.call(rbind, micc))
+    colnames(micc) <- paste("Comp", 1:ncol(micc), sep = "")
+    micc.p <- t(apply(micc, 1, function(x) 
+      round(abs(cumprod(x)),4)))
+    micc.p <- micc.p[, which(colSums(micc.p) > (0.1 * nrow(micc.p)))]
+    cat("Showing values for ", ncol(micc.p), "of", ncol(micc), "vectors\n\n")
+    rownames(micc.p) <- c("Absolute ICC",
+                           "Agreement ICC",
+                           "Consistency ICC",
+                           "Absolute ICC, accounting for group differences",
+                           "Agreement ICC, accounting for group differences",
+                           "Consistency ICC, accounting for group differences"
+    )[1:NROW(micc.p)]
+    
+    print(micc.p)
   }
 }
 
@@ -2666,6 +2687,8 @@ summary.measurement.error <- function(object, ...){
 #' vectors, between replicate observations of the same subjects.  Connectors
 #' are labeled either by subject name (if available) or by number of occurrence
 #' in the data set.
+#' @param use.std.vectors A logical value for whether to use vectors obtained from
+#' a standardized matrix, which are orthogonal.  This is not strictly necessary.
 #' @param add.legend A logical value for whether to add a legend to plots.  If
 #' separate.by.groups is TRUE, adding a legend to plots will be slightly redundant.
 #' @param ... Other arguments passed onto plot
@@ -2676,9 +2699,11 @@ summary.measurement.error <- function(object, ...){
 plot.measurement.error <- function(x, 
                                    separate.by.groups = TRUE,
                                    add.connectors = TRUE,
+                                   use.std.vectors = FALSE,
                                    add.legend = TRUE, ...){
   
-  S <- svd(x$SSCP.ME.product.orthog)
+  S <- if(use.std.vectors) svd(x$SSCP.ME.product.std) else
+    svd(x$SSCP.ME.product)
   
   Y <- center(x$all.stats$LM$Y)
   if(length(x$all.stats$LM$data) > 3){
@@ -2704,9 +2729,6 @@ plot.measurement.error <- function(x,
   dy <- if(length(d) > 0) d[2]/sum(d) else 0
   
   pts <- as.matrix(Y) %*% S[[3]] %*% diag(sqrt(S[[1]]))[, 1:2]
-  
-  oldmf <- par()$mfcol
-  par(mfcol = c(1, 1))
   
   add.me.connectors <- function(x, y, subj, d, maxy) {
     
@@ -2742,9 +2764,9 @@ plot.measurement.error <- function(x,
     }
   }
       
-  plot.args$xlab <- paste("Rel-EV 1:", round(dx *100, 2), "%")
-  plot.args$ylab <- paste("Rel-EV 2:", round(dy *100, 2), "%")
-  plot.args$main <- "Relative Eigenvectors: Systematic ME / Random ME"
+  plot.args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
+  plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
+  plot.args$main <- "Systematic ME / Random ME"
   plot.args$cex.main <- 0.6
   plot.args$x <- as.matrix(pts)[,1]
   plot.args$y <- if(NCOL(as.matrix(pts)) == 1) 
@@ -2768,7 +2790,7 @@ plot.measurement.error <- function(x,
     
     for(i in 1:nplots) {
       do.call(plot, plot.args)
-      title(paste("Relative Eigenvectors: Systematic ME / Random ME for", 
+      title(paste("Systematic ME / Random ME for", 
                   "Group", gps[[i]], sep = " "),
             cex.main = 0.7)
       point.args.b <- point.args
@@ -2830,7 +2852,6 @@ plot.measurement.error <- function(x,
     }
   }
   
-  par(mfcol = oldmf)
 }
 
 
