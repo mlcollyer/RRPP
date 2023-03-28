@@ -88,8 +88,8 @@ a3d8e8292a8a475007576dd06d646e0c *R/pairwise.r
 279422208d9121557ae73aaba524a18b *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 1d95a01701a0186c456a5e9c48823af4 *R/reveal.model.designs.r
-24c3cbc2254d23f5f1c6f817cff84399 *R/RRPP.support.code.r
-66af30ee64c66d8bac163e48e012b794 *R/RRPP.utils.r
+c764746dae8e7a8ab025a8a8956ddd8f *R/RRPP.support.code.r
+2789e566426ffa5b1e3d74175d9eecb3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r

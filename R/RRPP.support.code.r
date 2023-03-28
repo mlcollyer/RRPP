@@ -1719,7 +1719,7 @@ getSlopes <- function(fit, x, g){
 
 # getLSmeans
 # gets the LS means for groups from a lm.rrpp fit, 
-# after constaining covariates to mean values
+# after constraining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
   k <- length(fit$Models$full)
@@ -1949,6 +1949,8 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   R <- if(gls) {
     if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
   } else R
+  
+  R <- as.matrix(R)
   
   if(!is.null(w)) {
     excl <- w <= 0

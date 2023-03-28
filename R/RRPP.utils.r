@@ -2614,7 +2614,6 @@ print.measurement.error <- function(x, ...){
   cat("restricted within replicates for subjects and within subjects for measurement error.\n")
   cat("\nANOVA (based on dispersion of values):\n")
   print(AOV)
-  cat("\nThe Rsq values for ME exclude research subject variation.\n")
   
   if(!is.null(mAOV)) {
     
@@ -2640,11 +2639,11 @@ print.measurement.error <- function(x, ...){
     cat("\nGeneralized ICC values (cumulative eigenvalue products)\n")
     kmax <- max(sapply(micc, length))
     eig.fix <- function(x) {
-      if(length(x) < kmax) x <- c(x, rep(0, kmax - length(x)))
+      if(length(x) < kmax) x <- c(x, rep(NA, kmax - length(x)))
       x
     }
     micc <- lapply(micc, eig.fix)
-    micc <- abs(do.call(rbind, micc))
+    micc <- na.omit(abs(do.call(rbind, micc)))
     colnames(micc) <- paste("Comp", 1:ncol(micc), sep = "")
     micc.p <- t(apply(micc, 1, function(x) 
       round(abs(cumprod(x)),4)))
@@ -2701,9 +2700,10 @@ plot.measurement.error <- function(x,
                                    add.connectors = TRUE,
                                    use.std.vectors = FALSE,
                                    add.legend = TRUE, ...){
-  
-  S <- if(use.std.vectors) svd(x$SSCP.ME.product.std) else
-    svd(x$SSCP.ME.product)
+  if(!is.null(x$SSCP.ME.product)) {
+    S <- if(use.std.vectors) svd(x$SSCP.ME.product.std) else
+      svd(x$SSCP.ME.product)
+  } else S <- list(d=1, u = 1, v = 1)
   
   Y <- center(x$all.stats$LM$Y)
   if(length(x$all.stats$LM$data) > 3){
@@ -2715,20 +2715,18 @@ plot.measurement.error <- function(x,
 
   plot.args <- list(...)
   
-  if(is.null(plot.args$bg) || is.null(plot.args$col || plot.args$pch)) {
-    cat("\n\nIf symbols and colors were not defined by user,")
-    cat("\ngroups have been differntiated by symbol and replicates by color.\n")
-  }
-    
   if(is.null(plot.args$bg)) plot.args$bg <- as.numeric(x$all.stats$LM$data$reps)
   if(is.null(plot.args$col)) plot.args$col <- as.numeric(x$all.stats$LM$data$reps)
   plot.args$asp <- 1
     
   d <- S$d
   dx <- d[1]/sum(d)
-  dy <- if(length(d) > 0) d[2]/sum(d) else 0
+  dy <- if(length(d) > 1) d[2]/sum(d) else 0
   
-  pts <- as.matrix(Y) %*% S[[3]] %*% diag(sqrt(S[[1]]))[, 1:2]
+  pts <- as.matrix(Y) %*% S[[3]] %*% 
+    diag(sqrt(S[[1]]))[, 1:(min(length(d), 2))]
+  
+  if(NCOL(pts) == 1) pts <- cbind(pts, 0)
   
   add.me.connectors <- function(x, y, subj, d, maxy) {
     
@@ -2764,10 +2762,15 @@ plot.measurement.error <- function(x,
     }
   }
       
-  plot.args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
-  plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
-  plot.args$main <- "Systematic ME / Random ME"
-  plot.args$cex.main <- 0.6
+  if(is.null(plot.args$xlab))
+    plot.args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
+  if(is.null(plot.args$ylab))
+    plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
+  if(is.null(plot.args$main))
+    plot.args$main <- "Systematic ME / Random ME"
+  if(is.null(plot.args$cex.main))
+    plot.args$cex.main <- 0.6
+  
   plot.args$x <- as.matrix(pts)[,1]
   plot.args$y <- if(NCOL(as.matrix(pts)) == 1) 
     rep(0, length(pts)) else
