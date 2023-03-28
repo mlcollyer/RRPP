@@ -2703,7 +2703,7 @@ plot.measurement.error <- function(x,
   if(!is.null(x$SSCP.ME.product)) {
     S <- if(use.std.vectors) svd(x$SSCP.ME.product.std) else
       svd(x$SSCP.ME.product)
-  } else S <- list(d=1, u = 1, v = 1)
+  } else S <- list(d = 1, u = 1, v = 1)
   
   Y <- center(x$all.stats$LM$Y)
   if(length(x$all.stats$LM$data) > 3){
