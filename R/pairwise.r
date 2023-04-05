@@ -300,7 +300,8 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   
   coef.n <- lapply(1:perms, function(j){
     step <- j
-    if(print.progress) setTxtProgressBar(pb,step)
+    if(print.progress && !is.null(fit.null)) 
+      setTxtProgressBar(pb,step)
     rrpp.args$ind.i <- ind[[j]]
     y <- do.call(rrpp, rrpp.args)
     getCoef(y)
@@ -312,7 +313,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   }
   fitf$LM$random.coef[[max(1, kk)]] <- coef.n
   step <- perms + 1
-  if(print.progress) {
+  if(print.progress && !is.null(fit.null)) {
     setTxtProgressBar(pb,step)
     close(pb)
   }

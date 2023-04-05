@@ -7,6 +7,7 @@
 ### BUG FIXES
 *  Fixed SSCP issue in `summary.lm.rrpp` that produces matrices of 0s.  The issue was inherent to `lm.rrpp`, from erroneous assignment of models, only for output (not for mechanics).
 *  Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
+* Fixed illogical `print.progess` conditions in `pairwise`.
 
 ### OTHER CHANGES
 
