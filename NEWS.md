@@ -5,7 +5,7 @@
 
 ### BUG FIXES
 *  Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
-
+* Fixed illogical `print.progess` conditions in `pairwise`.
 
 # CHANGES IN RRPP 1.3.1
 
