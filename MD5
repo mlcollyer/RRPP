@@ -78,7 +78,7 @@ da9ac26867f339e21cd86a2a31af1da1 *R/convert2ggplot.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 5c80a00dcd6e5109d4216b75d8a4a9da *R/manova.update.r
 a93d1585c9a0c39055acdd143e794c3b *R/model.comparison.r
-cc12447780d0e3a0d57e3148487ea503 *R/ordinate.r
+bd8d283272914e133d13e79312ff2065 *R/ordinate.r
 016afd6baf3127de3f9effb91cb63a45 *R/pairwise.r
 2595115366a8c829850ac8ce13fe2670 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r

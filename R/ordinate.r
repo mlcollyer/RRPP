@@ -337,6 +337,9 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   s$v <- as.matrix(s$v)
   dimnames(s$v) <- list(colnames(Z), paste0("Comp", j))
   
+  if(!is.null(RV))
+    RV <- RV[1:min(length(RV), length(s$d))]
+  
   r <- list(d = s$d, sdev = s$sdev, 
             rot = s$v, 
             center = cen, 
