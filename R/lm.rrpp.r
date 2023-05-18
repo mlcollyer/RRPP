@@ -509,7 +509,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
     if(is.null(rownames(Cov))) rownames(Cov) <- 1:n
     if(is.null(colnames(Cov))) colnames(Cov) <- 1:n
-    if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
+    if(!inherits(Cov, "Matrix") && !inherits(Cov, "matrix")) 
+      stop("The covariance matrix must be a matrix.")
     if(!is.null(id) && !is.null(rownames(Cov))) {
       if(length(setdiff(id, rownames(Cov))) > 0)
         stop("Data names and covariance matrix names do not match.\n", call. = FALSE)

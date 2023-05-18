@@ -350,7 +350,8 @@ makeDF <- function(form, data, n, nms) {
     
     var.check <- sapply(seq_len(length(dat)), function(j) {
       x <- dat[[j]]
-      length(x) == n
+      nn <- if(is.matrix(x)) nrow(x) else length(x)
+      nn == n
     })
     
     if(any(!var.check)) 
