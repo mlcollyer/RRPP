@@ -193,7 +193,7 @@ lm.rrpp.ws <- function(f1, subjects,
     Xs <- Matrix(Xsub, sparse = TRUE)
     nn <- nrow(Cov)
     if(nn == nrow(Xsub)) cov.type <- 1 else 
-      if(nn == length(subj.lev)) cov.type <- 2 else
+      if(nn == length(sub.lev)) cov.type <- 2 else
         stop(paste("There is an irreconcilable covariance matrix, in terms of",
                    "\nsubject number or subject factor levels.  Please make sure that",
                    "\nthe number of Cov rows or columns match the number of subject levels",
@@ -203,7 +203,7 @@ lm.rrpp.ws <- function(f1, subjects,
       Cov.names <- dimnames(Cov)[[1]]
       Cov <- Matrix(Cov, sparse = TRUE)
       if(is.vector(delta) && length(delta) > 1 &&
-         length(delta) != length(subj.lev)) {
+         length(delta) != length(sub.lev)) {
         stop(paste("Either a single value or vector equal in length to the number",
                    "of subject levels is required.\n", sep = " "), call. = FALSE)
         
