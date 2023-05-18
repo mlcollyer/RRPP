@@ -184,8 +184,6 @@ lm.rrpp.ws <- function(f1, subjects,
   
   if(!is.null(Cov)) {
     
-    Xsub <- t(t(Xsub) / sqrt(colSums(Xsub)))
-    
     cov.lev <- levels(as.factor(dimnames(Cov)[[1]]))
     if(!all(sub.lev %in% cov.lev) || !all(cov.lev %in% sub.lev))
       stop("\nThere is a mismatch between subject levels and covariance levels\n
@@ -213,15 +211,16 @@ lm.rrpp.ws <- function(f1, subjects,
       if(!is.numeric(delta))
         stop("delta must be a numeric value or vector.\n", call. = FALSE)
       
+      n.list <- as.vector(by(subjects, subjects, length))
       gamma <- match.arg(gamma)
       gam <- if(gamma == "equal") 1 else 
-        sqrt(as.vector(by(subjects, subjects, length)))
+        sqrt(n.list)
       
       Xr <- t(t(Xs) * exp(-delta * gam))
-      
       CovEx <- Xr %*% Cov %*% t(Xr)
-      D <- Matrix(diag(diag(Cov)), sparse = TRUE)
-      D <- diag(Xs %*% D %*% t(Xs))
+      D <- diag(Cov)
+      D <- unlist(lapply(1:length(D), function(j) 
+        rep(D[j], n.list[j])))
       diag(CovEx) <- D
       Xs <- Xr <- NULL
     } else {
@@ -236,6 +235,7 @@ lm.rrpp.ws <- function(f1, subjects,
   L.args$Cov <- CovEx
   L.args$SS.type <- "III"
   L.args$block <- NULL
+  L.args$turbo <- TRUE
   CovEx <- Cov <- NULL
   
   if(print.progress)
@@ -247,6 +247,7 @@ lm.rrpp.ws <- function(f1, subjects,
   
   L.args$SS.type <- "II"
   L.args$block <- subjects
+  L.args$turbo <- turbo
   sSS <- fit.subjects$ANOVA$SS[sub.rpl, ]
   sMS <- fit.subjects$ANOVA$MS[sub.rpl, ]
   sRSS <- fit.subjects$ANOVA$RSS[sub.rpl, ]
