@@ -6,29 +6,45 @@
 #'
 #' The function fits a linear model using ordinary least squares (OLS) or 
 #' generalized least squares (GLS) estimation of coefficients over any 
-#' number of random permutations of the data, but the permutations are restricted
-#' to occur with subject blocks for any model terms other than subjects.  All
-#' functionality should resemble that of \code{\link{lm.rrpp}}.  However, an argument
-#' for subjects is also required.  The purpose of this function is to account for the 
-#' non-independence among observations of research subjects (due to repeated sampling
-#' within subjects), while also allowing for the non-independence among subjects to be 
-#' considered.
+#' number of random permutations of the data, but the permutations are mostly 
+#' restricted to occur with subject blocks for any model terms other than subjects.  
+#' All functionality should resemble that of \code{\link{lm.rrpp}}.  However, 
+#' an argument for research subjects is also required.  The purpose of this function 
+#' is to account for the non-independence among observations of research subjects 
+#' (due to sampling within subjects), while also allowing for the non-independence 
+#' among subjects to be considered.  
+#' 
+#' By comparison, the covariance matrix option in \code{\link{lm.rrpp}} must have a
+#' one-to-one match to observations, which can be matched by the row names of the data.
+#' In this function, the covariance matrix can be the same one used in \code{\link{lm.rrpp}}
+#' but the number of observations can be greater.  For example, if subjects are
+#' species or some other level of taxonomic organization, data can comprise measurements
+#' on individuals.  User have the option to expand the covariance matrix for subjects
+#' or input one they have generated.
 #' 
 #' Most attributes for this analysis are explained with \code{\link{lm.rrpp}}.  
 #' The notable different attributes for this function are that: (1) a covariance 
 #' matrix for the non-independence of subjects can be either a symmetric matrix 
 #' that matches in dimensions the number of subjects or the number of observations; 
-#' (2) a parameter (delta) that can range between near 0 and 1 to calibrate the covariances
-#' between observations of different subjects; and (3) a parameter (gamma) that is either
+#' (2) a parameter (delta) that can range between near 0 and 1 to calibrate the 
+#' covariances
+#' between observations of different subjects; and (3) a parameter (gamma) 
+#' that is either
 #' 1 (equal) or the square-root of the subject sample size (sample) to calibrate
-#' the covarianaces among observations within subjects.  If delta = 0, covariances between
-#' observations between different subjects are assumed to be the same as the covariances 
+#' the covariances among observations within subjects.  If delta = 0, covariances 
+#' between
+#' observations between different subjects are assumed to be the same as the 
+#' covariances 
 #' between subjects as if each subject had only one observation.  If delta = 1,
-#' then observations are considered most independent, despite inter-subject covariance. 
-#' However, the sample size (n_i) for subject i can influence the trend, as inter-subject
-#' covariances are multiplied by exp(-delta * gamma), and gamma = sqrt(n_i) or 1.  In
-#' essence, one can tune the expected covariances between observations by how variable
+#' then observations are considered most independent, despite inter-subject 
+#' covariance. 
+#' However, the sample size (n_i) for subject i can influence the trend, as 
+#' inter-subject
+#' covariances are multiplied by exp(-delta * gamma), and gamma = sqrt(n_i) or 1.  
+#' In essence, one can tune the expected covariances between observations by 
+#' how variable
 #' one expects the observations to be within subjects.
+#' 
 #' 
 #' This option could be important for data with hierarchical organization.
 #' For example, data sampled from multiple species with expected covariances 
@@ -36,6 +52,11 @@
 #' strongly if sampling encounters other strata like population, sex, and age.
 #' An a priori expectation is that covariances among observations would be expected to
 #' be smaller than between species, if only one observation per species were made.
+#' 
+#' If one wishes to have better control over between-subject and within-subject
+#' covariances, based on either a model or empirical knowledge, a covariance matrix should 
+#' be generated prior to analysis.  A function to generate such matrices based on separate
+#' inter-subject and intra-subject coavriance matrices is forthcoming.
 #' 
 #' IMPORTANT.  It is assumed that either the levels of the covariance matrix (if 
 #' subject by subject) match the subject levels in the subject argument, or that
