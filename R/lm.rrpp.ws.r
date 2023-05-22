@@ -78,9 +78,9 @@
 #' for within-subject effects.
 #' 
 #' 
-#' @param f1 A formula for the linear model (e.g., y~x1+x2).  Can also 
-#' be a linear model fit
-#' from \code{\link{lm}}.
+#' @param f1 A formula for the linear model (e.g., y~x1+x2).  
+#' @param subjects A required factor (or vector coercible to factor) of 
+#' subjects that might have multiple data observations.
 #' @param iter Number of iterations for significance testing
 #' @param turbo A logical value that if TRUE, suppresses coefficient estimation 
 #' in every random permutation.  This will affect subsequent analyses that 
@@ -194,10 +194,7 @@ lm.rrpp.ws <- function(f1, subjects,
 
   sub.var.name <- deparse(substitute(subjects))
   STerm <- which(attr(Terms, "term.labels") == sub.var.name)
-  if(length(STerm) == 0)
-    stop("The variable used for subjects must also be part of the model formula.\n",
-         call. = FALSE)
-
+  subTest <- !(length(STerm) == 0)
   subjects <- as.factor(subjects)
   sub.lev <- levels(subjects)
   Xsub <- model.matrix(~ subjects + 0)
@@ -232,6 +229,9 @@ lm.rrpp.ws <- function(f1, subjects,
       if(!is.numeric(delta))
         stop("delta must be a numeric value or vector.\n", call. = FALSE)
       
+      delta[which(delta <= 0)] <- 0.001
+      delta[which(delta > 1)] <- 1
+      
       n.list <- as.vector(by(subjects, subjects, length))
       gamma <- match.arg(gamma)
       gam <- if(gamma == "equal") 1 else 
@@ -259,45 +259,50 @@ lm.rrpp.ws <- function(f1, subjects,
   L.args$turbo <- TRUE
   CovEx <- Cov <- NULL
   
-  if(print.progress)
-    cat("\nPerformig among-subjects analysis...\n")
-
-  fit.subjects <- suppressWarnings( do.call(lm.rrpp, L.args) )
-  
-  sub.rpl <- which(rownames(fit.subjects$ANOVA$SS) == sub.var.name)
+  if(subTest){
+    
+    if(print.progress)
+      cat("\nPerforming among-subjects analysis...\n")
+    
+    fit.subjects <- suppressWarnings( do.call(lm.rrpp, L.args) )
+    
+    sub.rpl <- which(rownames(fit.subjects$ANOVA$SS) == sub.var.name)
+    sSS <- fit.subjects$ANOVA$SS[sub.rpl, ]
+    sMS <- fit.subjects$ANOVA$MS[sub.rpl, ]
+    sRSS <- fit.subjects$ANOVA$RSS[sub.rpl, ]
+    sTSS <- fit.subjects$ANOVA$TSS[sub.rpl, ]
+    sRSS.model <- fit.subjects$ANOVA$RSS.model[sub.rpl, ]
+    sRsq <- fit.subjects$ANOVA$Rsq[sub.rpl, ]
+    sFs <- fit.subjects$ANOVA$Fs[sub.rpl, ]
+    scohenf <- fit.subjects$ANOVA$cohenf[sub.rpl, ]
+    sRed <- fit.subjects$Models$reduced[[sub.rpl]]
+    sFull <- fit.subjects$Models$full[[sub.rpl]]
+    fit.subjects <- NULL
+  }
   
   L.args$SS.type <- "II"
   L.args$block <- subjects
   L.args$turbo <- turbo
-  sSS <- fit.subjects$ANOVA$SS[sub.rpl, ]
-  sMS <- fit.subjects$ANOVA$MS[sub.rpl, ]
-  sRSS <- fit.subjects$ANOVA$RSS[sub.rpl, ]
-  sTSS <- fit.subjects$ANOVA$TSS[sub.rpl, ]
-  sRSS.model <- fit.subjects$ANOVA$RSS.model[sub.rpl, ]
-  sRsq <- fit.subjects$ANOVA$Rsq[sub.rpl, ]
-  sFs <- fit.subjects$ANOVA$Fs[sub.rpl, ]
-  scohenf <- fit.subjects$ANOVA$cohenf[sub.rpl, ]
-  sRed <- fit.subjects$Models$reduced[[sub.rpl]]
-  sFull <- fit.subjects$Models$full[[sub.rpl]]
-  fit.subjects <- NULL
-  
+
   if(print.progress)
-    cat("\nPerformig within-subjects analysis...\n")
+    cat("\nPerforming within-subjects analysis...\n")
   
   out <- suppressWarnings( do.call(lm.rrpp, L.args) )
   L.args <- NULL
   
-  out$ANOVA$SS.type <- "Within-subject type II"
-  out$ANOVA$SS[sub.rpl, ] <- sSS
-  out$ANOVA$MS[sub.rpl, ] <- sMS
-  out$ANOVA$RSS[sub.rpl, ] <- sRSS
-  out$ANOVA$TSS[sub.rpl, ] <- sTSS
-  out$ANOVA$RSS.model[sub.rpl, ] <- sRSS.model
-  out$ANOVA$Rsq[sub.rpl, ] <- sRsq
-  out$ANOVA$Fs[sub.rpl, ] <- sFs
-  out$ANOVA$cohenf[sub.rpl, ] <- scohenf
-  out$Models$reduced[[sub.rpl]] <- sRed
-  out$Models$full[[sub.rpl]] <- sFull
+  if(subTest){
+    out$ANOVA$SS.type <- "Within-subject type II"
+    out$ANOVA$SS[sub.rpl, ] <- sSS
+    out$ANOVA$MS[sub.rpl, ] <- sMS
+    out$ANOVA$RSS[sub.rpl, ] <- sRSS
+    out$ANOVA$TSS[sub.rpl, ] <- sTSS
+    out$ANOVA$RSS.model[sub.rpl, ] <- sRSS.model
+    out$ANOVA$Rsq[sub.rpl, ] <- sRsq
+    out$ANOVA$Fs[sub.rpl, ] <- sFs
+    out$ANOVA$cohenf[sub.rpl, ] <- scohenf
+    out$Models$reduced[[sub.rpl]] <- sRed
+    out$Models$full[[sub.rpl]] <- sFull
+  }
 
   out$call <- match.call()
   out$subjects <- subjects

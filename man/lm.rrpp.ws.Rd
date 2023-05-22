@@ -22,9 +22,10 @@ lm.rrpp.ws(
 )
 }
 \arguments{
-\item{f1}{A formula for the linear model (e.g., y~x1+x2).  Can also 
-be a linear model fit
-from \code{\link{lm}}.}
+\item{f1}{A formula for the linear model (e.g., y~x1+x2).}
+
+\item{subjects}{A required factor (or vector coercible to factor) of 
+subjects that might have multiple data observations.}
 
 \item{iter}{Number of iterations for significance testing}
 
