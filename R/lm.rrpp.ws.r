@@ -19,7 +19,7 @@
 #' In this function, the covariance matrix can be the same one used in \code{\link{lm.rrpp}}
 #' but the number of observations can be greater.  For example, if subjects are
 #' species or some other level of taxonomic organization, data can comprise measurements
-#' on individuals.  User have the option to expand the covariance matrix for subjects
+#' on individuals.  Users have the option to expand the covariance matrix for subjects
 #' or input one they have generated.
 #' 
 #' Most attributes for this analysis are explained with \code{\link{lm.rrpp}}.  
@@ -27,26 +27,29 @@
 #' matrix for the non-independence of subjects can be either a symmetric matrix 
 #' that matches in dimensions the number of subjects or the number of observations; 
 #' (2) a parameter (delta) that can range between near 0 and 1 to calibrate the 
-#' covariances
-#' between observations of different subjects; and (3) a parameter (gamma) 
-#' that is either
-#' 1 (equal) or the square-root of the subject sample size (sample) to calibrate
-#' the covariances among observations within subjects.  If delta = 0, covariances 
-#' between
-#' observations between different subjects are assumed to be the same as the 
-#' covariances 
-#' between subjects as if each subject had only one observation.  If delta = 1,
-#' then observations are considered most independent, despite inter-subject 
-#' covariance. 
-#' However, the sample size (n_i) for subject i can influence the trend, as 
-#' inter-subject
-#' covariances are multiplied by exp(-delta * gamma), and gamma = sqrt(n_i) or 1.  
-#' In essence, one can tune the expected covariances between observations by 
-#' how variable
-#' one expects the observations to be within subjects.
+#' covariances between observations of different subjects; and (3) a 
+#' parameter (gamma) that is either 1 (equal) or the square-root of the subject 
+#' sample size (sample) to calibrate the covariances among observations 
+#' within subjects.  If delta = 0, it is expected that the covariance between
+#' individual observations, between subjects, is the same as expected from the
+#' covariance matrix, as if observations were the single observations made on subjects.
+#' As delta approaches 1, the observations become more independent, as if it is 
+#' expected that the many observations would not be expected to be
+#' as correlated as if from one observation.  Increasing delta might be useful, if, 
+#' for example, many individuals are sampled within species, from different locations,
+#' different age groups, etc.  Alternatively, the sample size (n_i) for subject i 
+#' can also influence the trend of inter-subject covariances.  If more individual
+#' observations are sampled, the correlation between subjects might be favored
+#' to be smaller compared to fewer observations.  The covariances can be adjusted
+#' to allow for greater independence among observations to be assumed for larger samples.
+#'
+#' A design matrix, \bold{X}, is constructed with 0s and 1s to indicate subjects association,
+#' and it is used to expand the covariance matrix (\bold{C}) by \bold{XCt(X)}, where \bold{t(X)}
+#' is the matrix transpose.  The parameters in \bold{X} are multiplied by exp(-delta * gamma)
+#' to scale the covariances.  (If delta = 0 and gamma = 1, they are unscaled.)  
 #' 
-#' 
-#' This option could be important for data with hierarchical organization.
+#' These options for scaling covariances could be important for data with 
+#' hierarchical organization.
 #' For example, data sampled from multiple species with expected covariances 
 #' among species based on phylogenetic distances, might be expected to not covary as
 #' strongly if sampling encounters other strata like population, sex, and age.
@@ -55,8 +58,10 @@
 #' 
 #' If one wishes to have better control over between-subject and within-subject
 #' covariances, based on either a model or empirical knowledge, a covariance matrix should 
-#' be generated prior to analysis.  A function to generate such matrices based on separate
-#' inter-subject and intra-subject coavriance matrices is forthcoming.
+#' be generated prior to analysis.  One can input a covariance matrix with dimensions 
+#' the same as \bold{XCt(X)}, if they prefer to define covariances in an alternative way.
+#' A function to generate such matrices based on separate
+#' inter-subject and intra-subject covariance matrices is forthcoming.
 #' 
 #' IMPORTANT.  It is assumed that either the levels of the covariance matrix (if 
 #' subject by subject) match the subject levels in the subject argument, or that
@@ -69,6 +74,20 @@
 #' to make sure that observations and covariances are ordered the same before analysis.  If the
 #' covariance matrix is small (same in dimension as the number of subject levels), the function
 #' will compile a large covariance matrix that is correct in terms of order.
+#' 
+#' The covariance matrix is important for describing the expected covariances
+#' among observations, especially knowing observations between and within subjects 
+#' are not independent.  However, the randomization of residuals in a permutation
+#' procedure (RRPP) is also important for testing inter-subject and 
+#' intra-subject effects.  There are two RRPP philosophies used.  If the
+#' variable for subjects is part of the formula, the subject effect is evaluated with
+#' type III sums of squares and cross-products (estimates SSCPs between a model with all
+#' terms and a model lacking subject term), and RRPP performed for all residuals of the
+#' reduced model.  Effects for all other terms are evaluated with type II SSCPs and RRPP
+#' resiticted to randomization of reduced model residuals, within subject blocks.  This
+#' assures that subject effects are held constant across permutations, so that intra-sbject
+#' effects are not confounded by inter-subject effects.
+#' 
 #' 
 #' More details will be made.
 #' 
