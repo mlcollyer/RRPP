@@ -70,6 +70,9 @@
 #' for additional details.
 #' @param print.progress A logical value to indicate whether a progress 
 #' bar should be printed to the screen.
+#' @param verbose A logical value to indicate if all the output from an
+#' \code{\link{lm.rrpp}} analysis should be retained.  If FALSE, only the needed
+#' output for summaries and plotting is retained.
 #' @export
 #' @keywords analysis
 #' @author Michael Collyer
@@ -86,7 +89,8 @@
 #'  \item{SSCP.ME.product.std}{A list of the symmetric forms of standradized SSCP.ME.products 
 #'  that yield orthogonal eigenvectors.}
 #'  \item{all.stats}{All SS, MS, eigen values, etc., from the RRPP analyses performed.  This is the same
-#'  as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.}
+#'  as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.
+#'  This object only contains the many RRPP ANOVA and MANOVA statistics if verbose = TRUE.}
 
 #' @references  yet to be determined.
 #' @references Bookstein, F. L., & Mitteroecker, P. (2014). Comparing covariance matrices by relative eigenanalysis, 
@@ -108,7 +112,8 @@ measurement.error <- function(Y,
                               use.PCs = TRUE, 
                               tol = 0.001, 
                               Parallel = TRUE,
-                              print.progress = FALSE) {
+                              print.progress = FALSE,
+                              verbose = FALSE) {
 
   wrn <- options()$warn
   options(warn = -1)
@@ -425,6 +430,24 @@ measurement.error <- function(Y,
               SSCP.ME.product = SSCP.ME.product,
               SSCP.ME.product.std = SSCP.ME.product.std)
   out$all.stats = if(multivariate) fitm else fit
+  fit <- fitm <- NULL
+  if(!verbose) {
+    out$all.stats$ANOVA <- out$all.stats$MANOVA <- NULL
+    out$all.stats$LM$QR <- NULL
+    out$all.stats$Models$reduced <- 
+      lapply(out$all.stats$Models$reduced, function(x){
+      x$qr <- NULL
+      x$X <- NULL
+      x
+    })
+    out$all.stats$Models$full <- 
+      lapply(out$all.stats$Models$full, function(x){
+        x$qr <- NULL
+        x$X <- NULL
+        x
+      })
+    out$all.stats$PermInfo$perm.schedule <- NULL
+  } 
   
   class(out) <- "measurement.error"
   out

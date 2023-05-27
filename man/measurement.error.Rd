@@ -64,6 +64,10 @@ for additional details.}
 
 \item{print.progress}{A logical value to indicate whether a progress 
 bar should be printed to the screen.}
+
+\item{verbose}{A logical value to indicate if all the output from an
+\code{\link{lm.rrpp}} analysis should be retained.  If FALSE, only the needed
+output for summaries and plotting is retained.}
 }
 \value{
 Objects of class "measurement.error" return a list of the following:
@@ -79,7 +83,8 @@ Objects of class "measurement.error" return a list of the following:
  \item{SSCP.ME.product.std}{A list of the symmetric forms of standradized SSCP.ME.products 
  that yield orthogonal eigenvectors.}
  \item{all.stats}{All SS, MS, eigen values, etc., from the RRPP analyses performed.  This is the same
- as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.}
+ as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.
+ This object only contains the many RRPP ANOVA and MANOVA statistics if verbose = TRUE.}
 }
 \description{
 Function performs analyses concerned with the repeatability (reliability) of multivariate data 
