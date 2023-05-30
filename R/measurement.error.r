@@ -238,11 +238,17 @@ measurement.error <- function(Y,
     fitf <- fit
     fit <- fitr <- lm.rrpp(Y ~ subj + reps, data = dat, 
                    SS.type = "II", iter = 0, print.progress = 0)
-    MS <- fit$ANOVA$MS[, 1]
-    Df <- fit$ANOVA$df
+    
+    ANOVA <- fit$ANOVA
+    ANOVA2 <- getANOVAStats(fit, stat = "all")
+    ANOVA[c("MS", "Rsq", "Fs", "cohenf")] <-
+      ANOVA2[c("MS", "Rsq", "Fs", "cohenf")]
+    
+    MS <- ANOVA$MS[, 1]
+    Df <- ANOVA$df
     MSBS <- MS[1]
     MSBM <- MS[2]
-    RSS <- fit$ANOVA$RSS[1]
+    RSS <- ANOVA$RSS[1]
     MSWS <- (MS[2] * Df[2] + RSS) / sum(Df[c(2:3)])
     MSE <- RSS / Df[3]
     icc1 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)
@@ -253,11 +259,16 @@ measurement.error <- function(Y,
     fit <- fita <- lm.rrpp(Ya ~ subj + reps, data = dat, 
                    SS.type = "II", iter = 0, print.progress = 0)
     
-    MS <- fit$ANOVA$MS[, 1]
-    Df <- fit$ANOVA$df
+    ANOVA <- fit$ANOVA
+    ANOVA2 <- getANOVAStats(fit, stat = "all")
+    ANOVA[c("MS", "Rsq", "Fs", "cohenf")] <-
+      ANOVA2[c("MS", "Rsq", "Fs", "cohenf")]
+    
+    MS <- ANOVA$MS[, 1]
+    Df <- ANOVA$df
     MSBS <- MS[1]
     MSBM <- MS[2]
-    RSS <- fit$ANOVA$RSS[1]
+    RSS <- ANOVA$RSS[1]
     MSWS <- (MS[2] * Df[2] + RSS) / sum(Df[c(2:3)])
     MSE <- RSS / Df[3]
     icc2 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)
@@ -269,11 +280,16 @@ measurement.error <- function(Y,
     
   } else {
     
-    MS <- fit$ANOVA$MS[, 1]
-    Df <- fit$ANOVA$df
+    ANOVA <- fit$ANOVA
+    ANOVA2 <- getANOVAStats(fit, stat = "all")
+    ANOVA[c("MS", "Rsq", "Fs", "cohenf")] <-
+      ANOVA2[c("MS", "Rsq", "Fs", "cohenf")]
+    
+    MS <- ANOVA$MS[, 1]
+    Df <- ANOVA$df
     MSBS <- MS[1]
     MSBM <- MS[2]
-    RSS <- fit$ANOVA$RSS[1]
+    RSS <- ANOVA$RSS[1]
     MSWS <- (MS[2] * Df[2] + RSS) / sum(Df[c(2:3)])
     MSE <- RSS / Df[3]
     icc1 <- (MSBS - MSWS) / (MSBS + (nr - 1) * MSWS)

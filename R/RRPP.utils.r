@@ -3057,7 +3057,6 @@ getTerms <- function(fit){
 getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   
   attribute <- match.arg(attribute)
-  k <- length(fit$LM$term.labels)
   create <- is.null(fit$Models)
   if(!create) Models <- fit$Models else Models <- NULL
   
@@ -3078,7 +3077,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
     })
   }
   names(Xs) <- c("reduced", "full")
-
+  k <- length(Xs[[1]])
   
   if(attribute == "all" || attribute == "qr") {
     
@@ -3088,9 +3087,9 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
           X <- Xs[[j]][[jj]]
           TX <- if(!is.null(Pcov)) Pcov %*% X else if(!is.null(w)) X*w else X
           qr <- qr(TX)
-          list(X = X, qr = qr)
+          out <- list(X = X, qr = qr)
         })
-        names(res) <- names(Model.Terms[[j]])
+        
         res
       })
       
@@ -3100,6 +3099,8 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
         }
       }
       names(Models) <- c("reduced", "full")
+      names(Models$reduced) <- names(Xs[[1]])
+      names(Models$full) <- names(Xs[[2]])
     }
     
   }
