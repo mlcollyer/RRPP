@@ -426,8 +426,6 @@ lm.args.from.formula <- function(cl){
   }
   form <- update(form, Y ~.,)
   lm.args$formula <- form
-  
-  Y <- add.names(Y, nmsY)
   n <- NROW(Y)
   
   if(!is.null(lm.args$data)) {
@@ -435,7 +433,8 @@ lm.args.from.formula <- function(cl){
       attr(lm.args$data, "row.names") else 
         get.names.from.list(lm.args$data)
 
-    lm.args$data <- makeDF(form, lm.args$data, n, nmsDF)
+    lm.args$data <- makeDF(form, lm.args$data, n, nms = NULL)
+    
   }
   
   if(is.null(lm.args$data)) {
@@ -457,7 +456,7 @@ lm.args.from.formula <- function(cl){
          call. = FALSE)
   
   Y <- as.matrix(f$y)
-  Y <- add.names(Y, rownames(f$model))
+  Y <- add.names(Y, nmsY)
   out <- list(Terms = f$terms, model = f$model, Y = Y)
   if(!is.null(Dy)) {
     d <- as.matrix(Dy)
@@ -468,7 +467,7 @@ lm.args.from.formula <- function(cl){
   out
 }
 
-getTerms <- function(Terms, SS.type = "I") {
+.getTerms <- function(Terms, SS.type = "I") {
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
@@ -1168,6 +1167,8 @@ beta.boot.iter <- function(fit, ind) {
   perms <- length(ind)
   
   Pcov <- fit$LM$Pcov
+  if(is.null(Pcov) && !is.null(fit$LM$Cov))
+    Pcov <- Cov.proj(fit$LM$Cov)
   
   rrpp.args <- list(fitted = as.matrix(fitted), 
                     residuals = as.matrix(res),
@@ -1382,6 +1383,14 @@ aov.single.model <- function(object, ...,
                              effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
                              error = NULL) {
   x <- object$ANOVA
+  if(is.null(x$Fs)) {
+    AN <- getANOVAStats(object, stat = "all")
+    x[c("SS", "MS", "Rsq", "Fs", "cohenf")] <-
+       AN[ c("SS", "MS", "Rsq", "Fs", "cohenf")]
+    AN <- NULL
+  }
+  
+  if(is.null(x$Fs)) x$Fs <- x$F
   df <- x$df
   k <- length(df)-2
   kk <- length(object$LM$term.labels)
@@ -1485,7 +1494,7 @@ aov.single.model <- function(object, ...,
     Residuals <- c(df[k+1], RSS[[1]], RSS[[1]]/df[k+1], 
                    RSS[[1]]/TSS[[1]], rep(NA, 3))
     Total <- c(df[k+2], TSS[[1]], rep(NA, 5))
-    tab <- data.frame(Df=df[1:k], SS=SS, MS = MS, Rsq = Rsq, 
+    tab <- data.frame(Df = df[1:k], SS=SS, MS = MS, Rsq = Rsq, 
                       F = Fs, Z = Z, P.val = P.val)
     tab <- rbind(tab, Residuals = Residuals, Total = Total)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
@@ -1524,7 +1533,8 @@ aov.multi.model <- function(object, lm.list,
   
   if(inherits(object, "lm.rrpp")) refModel <- object else 
     stop("The reference model is not a class lm.rrpp object")
-  ind <- refModel$PermInfo$perm.schedule
+  PermInfo <- getPermInfo(refModel, attribute = "all")
+  ind <- PermInfo$perm.schedule
   perms <- length(ind)
   
   if(refModel$LM$gls) {
@@ -1689,7 +1699,8 @@ out
 # gets the slopes for groups from a lm.rrpp fit
 # used in pairwise
 getSlopes <- function(fit, x, g){
-  k <- length(fit$Models$full)
+  Models <- getModels(fit, attribute = "all")
+  k <- length(Models$full)
   p <- fit$LM$p
   beta <- fit$LM$random.coef[[k]]
   X <- fit$LM$X
@@ -1723,7 +1734,8 @@ getSlopes <- function(fit, x, g){
 # after constraining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
-  k <- length(fit$Models$full)
+  Models <- getModels(fit, attribute = "all")
+  k <- length(Models$full)
   n <- fit$LM$n
   beta <- fit$LM$random.coef[[k]]
   dat <- fit$LM$data

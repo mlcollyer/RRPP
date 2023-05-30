@@ -38,7 +38,7 @@ changing from one format to the other.
 
 data(Pupfish)
 fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
-data = Pupfish, print.progress = FALSE, iter = 0) 
+data = Pupfish, print.progress = FALSE) 
 
 # Predictions (holding alternative effects constant)
 
@@ -63,7 +63,7 @@ Y <- as.data.frame(PlethMorph[c("TailLength", "HeadLength",
                                "Forelimb", "Hindlimb")])
 Y <- as.matrix(Y)
 R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
-            iter = 0, print.progress = FALSE)$LM$residuals
+             print.progress = FALSE)$LM$residuals
 
 # PCA (on correlation matrix)
 

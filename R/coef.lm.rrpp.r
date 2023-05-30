@@ -75,7 +75,8 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   RRPP <- x$PermInfo$perm.method
   gls <- x$LM$gls
   
-  if(test && x$turbo) {
+  test.ok <- (x$verbose && !x$turbo)
+  if(test && !test.ok) {
     cat("\nCoefficients test not available because you turbo-charged your model fit.\n")
     cat("Go back to lm.rrpp and choose turbo = FALSE ")
     cat("if you wish to also test coefficients.\n\n")

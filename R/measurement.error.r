@@ -179,7 +179,7 @@ measurement.error <- function(Y,
                  data = dat, iter = iter, 
                  Parallel = Parallel,
                  print.progress = print.progress, turbo = TRUE,
-                 seed = seed))
+                 seed = seed, verbose = verbose))
   fit$call[[2]] <- form
   
   if(print.progress) {
@@ -223,8 +223,12 @@ measurement.error <- function(Y,
         fitm$MANOVA$invR.H[[i]][[1]] <- fitm2$MANOVA$invR.H[[i]][[1]]
         fitm$MANOVA$eigs[[i]][1,] <- fitm2$MANOVA$eigs[[i]][1,] 
       }
+      rm(fitm2)
     }
   }
+  
+  rm(fit2)
+  
   
   # ICC Dispersion
   
@@ -261,6 +265,7 @@ measurement.error <- function(Y,
                                nr / ns * (MSBM - MSE))
     iccc2 <- (MSBS - MSE) / (MSBS + (nr - 1) * MSE)
     fit <- fitf
+    if(!multivariate) rm(fitr, fitf)
     
   } else {
     
@@ -280,7 +285,7 @@ measurement.error <- function(Y,
   
   icc <- list(icc = icc1, icc.a = icca1, icc.c = iccc1,
               icc.g = icc2, icc.a.g = icca2, icc.c.g = iccc2)
-  
+  icc1 <- icc.a <- icc.c <- icc.g <- icc.a.g <- icc.c.g <- NULL
   # ICC (multivariate) need to generalized
   
   if(multivariate){
@@ -322,6 +327,7 @@ measurement.error <- function(Y,
       miccc2 <- fast.solve(MSCPBS + (nr - 1) * MSCPE) %*% (MSCPBS - MSCPE) 
       
       fit <- fitf
+      rm(fitr, fitf, fita)
       
     } else {
       
@@ -347,8 +353,11 @@ measurement.error <- function(Y,
     
     micc <- list(icc = micc1, icc.a = micca1, icc.c = miccc1,
                  icc.g = micc2, icc.a.g = micca2, icc.c.g = miccc2)
-    
+    micc1 <- micca1 <- micc1 <- micc2 <- micca2 <- micc2 <- NULL
   } else micc <- NULL
+  
+  # clear memory
+  rm(dat)
   
   # ANOVA 
   
@@ -429,26 +438,33 @@ measurement.error <- function(Y,
               SSCP = S$SSCP,
               SSCP.ME.product = SSCP.ME.product,
               SSCP.ME.product.std = SSCP.ME.product.std)
-  out$all.stats = if(multivariate) fitm else fit
-  fit <- fitm <- NULL
+  rm(S)
+  out.fit = if(multivariate) fitm else fit
+  fit <- fitm <- icc <- mult.icc.eigs <- SSCP <-
+    SSCP.ME.product <- SSCP.ME.product.std <- NULL
+  
+  
   if(!verbose) {
-    out$all.stats$ANOVA <- out$all.stats$MANOVA <- NULL
-    out$all.stats$LM$QR <- NULL
-    out$all.stats$Models$reduced <- 
-      lapply(out$all.stats$Models$reduced, function(x){
-      x$qr <- NULL
-      x$X <- NULL
-      x
-    })
-    out$all.stats$Models$full <- 
-      lapply(out$all.stats$Models$full, function(x){
-        x$qr <- NULL
-        x$X <- NULL
-        x
-      })
-    out$all.stats$PermInfo$perm.schedule <- NULL
+    out.fit$ANOVA <- out.fit$MANOVA <- NULL
+    out.fit$LM$QR <- NULL
+    out.fit$Models <- NULL
+    out.fit$Models$full <- NULL
+    out.fit$PermInfo$perm.schedule <- NULL
   } 
   
+  out$LM <- out.fit$LM
+  out.fit$LM <- NULL
+  out$ANOVA <- out.fit$ANOVA
+  out.fit$ANOVA <- NULL
+  if(!is.null(out.fit$MANOVA))
+    out$MANOVA <- out.fit$MANOVA
+  out.fit$MANOVA <- NULL
+  out$PermInfo <- out.fit$PermInfo
+  out.fit$PermInfo <- NULL
+  out$Models <- out.fit$Models
+  out.fit$Models <- NULL
+  rm(out.fit)
+  out$verbose = verbose
   class(out) <- "measurement.error"
   out
 }

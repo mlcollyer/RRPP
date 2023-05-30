@@ -16,7 +16,8 @@ measurement.error(
   use.PCs = TRUE,
   tol = 0.001,
   Parallel = TRUE,
-  print.progress = FALSE
+  print.progress = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{

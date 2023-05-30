@@ -29,7 +29,7 @@
 #' 
 reveal.model.designs <- function(fit) {
   if(inherits(fit, "measurement.error")) fit <- fit$all.stats
-  model.sets <- fit$Models
+  model.sets <- getModels(fit, attribute = "all")
   terms.f <- lapply(model.sets$full, function(x) x$terms)
   terms.r <- lapply(model.sets$reduced, function(x) x$terms)
   forms.r <- lapply(terms.r, function(x) formula(x)[[3]])

@@ -8,6 +8,7 @@
   x,
   separate.by.groups = TRUE,
   add.connectors = TRUE,
+  add.labels = FALSE,
   use.std.vectors = FALSE,
   add.legend = TRUE,
   ...
@@ -22,15 +23,19 @@ are still represented by different symbols in the plot, unless overridden
 by plot arguments.}
 
 \item{add.connectors}{A logical value for whether to add connectors, like
-vectors, between replicate observations of the same subjects.  Connectors
-are labeled either by subject name (if available) or by number of occurrence
+vectors, between replicate observations of the same subjects.}
+
+\item{add.labels}{A logical value for whether to label subjects.
+Labels are either subject name (if available) or number of occurrence
 in the data set.}
 
 \item{use.std.vectors}{A logical value for whether to use vectors obtained from
 a standardized matrix, which are orthogonal.  This is not strictly necessary.}
 
 \item{add.legend}{A logical value for whether to add a legend to plots.  If
-separate.by.groups is TRUE, adding a legend to plots will be slightly redundant.}
+separate.by.groups is TRUE, adding a legend to plots will be slightly redundant. If
+certain parameters are augmented by user (point characters, colors), add.legend
+will be made to be FALSE to prevent misinterpretation of intended plotting scheme.}
 
 \item{...}{Other arguments passed onto plot}
 }

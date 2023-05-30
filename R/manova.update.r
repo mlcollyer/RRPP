@@ -9,7 +9,7 @@
 #' MANOVA statistics or sums of squares and cross-products (SSCP) matrices
 #' are calculated over the random permutations of a \code{\link{lm.rrpp}} 
 #' fit.  SSCP matrices are 
-#' computed, as are the inverse of R time H (invR.H), where R is a SSCP 
+#' computed, as are the inverse of R times H (invR.H), where R is a SSCP 
 #' for the residuals or random effects and H is
 #' the difference between SSCP matrices of full and reduced models 
 #' (see below).   From invR.H,
@@ -128,6 +128,11 @@
 #' @param print.progress A logical value to indicate whether a 
 #' progress bar should be printed to the screen.
 #' This is helpful for long-running analyses.
+#' @param verbose Either a NULL or logical value for whether to retain
+#' all MANOVA result (if TRUE).  If NULL, the verbose argument used for
+#' the \code{\link{lm.rrpp}} is retained for MANOVA update.  Essentially,
+#' verbose indicates wehether to retain all SSCP matrices and all invR.H matrices,
+#' for every model effect, in every RRPP iteration.
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
@@ -191,13 +196,18 @@
 
 manova.update <- function(fit, error = NULL, 
                               tol = 1e-7, PC.no = NULL,
-                              print.progress = TRUE) {
+                              print.progress = TRUE,
+                          verbose = NULL) {
+  
   if(inherits(fit, "manova.lm.rrpp")) 
     stop("\nlm.rrpp object has already been updated for MANOVA.\n", 
                                            call. = FALSE)
   if(!inherits(fit, "lm.rrpp")) 
     stop("\nOnly an lm.rrpp object can be updated for MANOVA.\n", 
                                      call. = FALSE)
+  if(is.null(verbose)) verbose <- fit$verbose else
+    verbose <- as.logical(verbose)
+  
   p <- fit$LM$p
   if(p < 2) 
     stop("\n Multiple responses are required for this analysis.\n", 
@@ -209,20 +219,24 @@ manova.update <- function(fit, error = NULL,
   Pcov <- if(!is.null(fit$LM$Pcov)) fit$LM$Pcov else NULL
   Y <- fit$LM$Y
   
-  perm.method <- fit$PermInfo$perm.method
+  PermInfo <- getPermInfo(fit, attribute = "all")
+  
+  perm.method <- PermInfo$perm.method
   if(perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
-  ind <- fit$PermInfo$perm.schedule
+  ind <- PermInfo$perm.schedule
   perms <- length(ind)
   
-  reduced <- fit$Models$reduced
-  full <- fit$Models$full
+  Models <- getModels(fit, attribute = "all")
+  
+  reduced <- Models$reduced
+  full <- Models$full
   Terms <- fit$LM$Terms
   trms <- fit$LM$term.labels
   k <- length(trms)
   
-  if(k > length(fit$Models$full)) {
-    k <- length(fit$Models$full)
-    trms <- names(fit$Models$full)
+  if(k > length(Models$full)) {
+    k <- length(Models$full)
+    trms <- names(Models$full)
   }
   
   if(k == 0) stop("\nNo model terms from which to calculate SSCPs.\n",
@@ -231,7 +245,7 @@ manova.update <- function(fit, error = NULL,
   
   E.rank <- getRank(qr(var(as.matrix(resid(fit)))))
   
-  PCA <- prcomp(Y, tol = tol, rank. = PC.no)
+  PCA <- ordinate(Y, tol = tol, rank. = PC.no)
   d <- PCA$sdev
   if(!is.null(PC.no)) {
     ld <- seq_len(min(PC.no, length(d)))
@@ -379,7 +393,9 @@ manova.update <- function(fit, error = NULL,
     ss <- do.call(sscp, sscp.args)
     invRH <- invR.H(ss)
     eigs <- getEigsL(invRH)
-    list(SSCP = ss, invR.H = invRH, eigs = eigs)
+    list(SSCP = if(verbose) ss else NULL, 
+         invR.H = if(verbose) invRH else NULL, 
+         eigs = eigs)
     
   })
   
@@ -391,12 +407,15 @@ manova.update <- function(fit, error = NULL,
   }
   
   
-  SSCP <- lapply(result, function(x) x$SSCP)
-  invR.H <- lapply(result, function(x) x$invR.H)
+  SSCP <- if(verbose) lapply(result, function(x) x$SSCP) else NULL
+  invR.H <- if(verbose) lapply(result, function(x) x$invR.H) else NULL
   eigs <- lapply(result, function(x) x$eigs)
   
-  names(SSCP) <- names(invR.H) <- names(eigs) <- c("obs", 
-                                paste("iter", 1:(perms - 1), sep = "."))
+  if(verbose){
+    names(SSCP) <- names(invR.H) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
+  }
+  names(eigs) <- c("obs", paste("iter", 1:(perms - 1), sep = "."))
+  
   
   out <- fit
   out$MANOVA <- list(SSCP = SSCP, invR.H = invR.H, eigs = eigs,

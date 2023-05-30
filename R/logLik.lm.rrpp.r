@@ -31,7 +31,8 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   
   if(is.null(tol)) tol = 0
   
-  ind <- object$PermInfo$perm.schedule
+  PermInfo <- getPermInfo(object, attribute = "all")
+  ind <- PermInfo$perm.schedule
   gls <- object$LM$gls
   n <- object$LM$n
   p <- object$LM$p.prime
@@ -43,6 +44,8 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   w <- object$LM$weights
   Pcov <- object$LM$Pcov
   Cov <- object$LM$Cov  
+  if(!is.null(Cov) && is.null(Pcov)) 
+    Pcov <- Cov.proj(Cov)
   
   PY <- if(gls) {
     if(!is.null(Pcov)) Pcov %*% Y else Y * sqrt(w)

@@ -49,7 +49,8 @@ where $\mathbf{S}_{random}$ is typically the $\mathbf{S}$ matrix for residuals. 
 
 ## Example of ANOVA and MANOVA in RRPP
 
-When fitting a linear model in *RRPP* over many permutations, ANOVA statistics are calculated automatically in every permutation.
+When fitting a linear model in *RRPP* over many permutations, some ANOVA statistics are calculated automatically in every permutation.  Others
+can be obtained from those statsistics.
 
 ```{r}
 library(RRPP)
@@ -58,6 +59,7 @@ fit <- lm.rrpp(coords ~ Sex*Pop, SS.type = "I",
                data = Pupfish, print.progress = FALSE) 
 attributes(fit)
 attributes(fit$ANOVA)
+attributes(getANOVAStats(fit, stat = "all"))
 ```
 
 The distributions of ANOVA statistics can then be used to construct an ANOVA table, via the anova.lm.rrpp S3 generic; i.e.,

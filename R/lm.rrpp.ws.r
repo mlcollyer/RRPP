@@ -22,6 +22,24 @@
 #' on individuals.  Users have the option to expand the covariance matrix for subjects
 #' or input one they have generated.
 #' 
+#' Irrespective of covariance matrix type, the row names of the data matrix must match the
+#' subjects.  This step assures that the analysis can proceed in \code{\link{lm.rrpp}}.  It
+#' is also best to make sure to use an \code{\link{rrpp.data.frame}}, so that the subjects
+#' can be a name in that data frame.  For example, if research subjects are species and
+#' data (observations) are collected from individuals within species, then a procedure like 
+#' the following should produce results:
+#' 
+#' rownames(Y) <- species
+#' rdf <- rrpp.data.frame(Y = Y, subjects = species, x = x)
+#' fit <- lm.rrpp.ws(Y ~ species * x, data = rdf, Cov = myCov, ...)
+#' 
+#' where ... means other arguments.  The covariances in the the Covariance matrix can be 
+#' sorted by the subjects factor but data will not be sorted.  Therefore, names matching
+#' the subjects is essential.  Additionally, subjects must be a factor in the data frame
+#' or a factor in the global environment.  It cannot be part of a list.  Something like
+#' subjects - mylist$species will not work.  Assuring that data and subjects are in the 
+#' same \code{\link{rrpp.data.frame}} object as data is the best way to avoid errors.
+#' 
 #' Most attributes for this analysis are explained with \code{\link{lm.rrpp}}.  
 #' The notable different attributes for this function are that: (1) a covariance 
 #' matrix for the non-independence of subjects can be either a symmetric matrix 
@@ -67,13 +85,11 @@
 #' subject by subject) match the subject levels in the subject argument, or that
 #' the order of the covariance matrix (if observation by observation) matches the order
 #' of the observations in the data.  
-#' No attempt is made to reorder the a covariance matrix by observations
-#' and row-names of data are not used to re-order the covariance matrix.  It is best to
-#' not use data names but make sure the subjects variable is accurate with respect to the data.
-#' If the covariance matrix is large (same in dimension as the number of observations), one has
-#' to make sure that observations and covariances are ordered the same before analysis.  If the
+#' No attempt is made to reorder a covariance matrix by observations
+#' and row-names of data are not used to re-order the covariance matrix.  If the
 #' covariance matrix is small (same in dimension as the number of subject levels), the function
-#' will compile a large covariance matrix that is correct in terms of order.
+#' will compile a large covariance matrix that is correct in terms of order, but
+#' this is based on the subjects argument.
 #' 
 #' The covariance matrix is important for describing the expected covariances
 #' among observations, especially knowing observations between and within subjects 
@@ -84,8 +100,8 @@
 #' type III sums of squares and cross-products (estimates SSCPs between a model with all
 #' terms and a model lacking subject term), and RRPP performed for all residuals of the
 #' reduced model.  Effects for all other terms are evaluated with type II SSCPs and RRPP
-#' resiticted to randomization of reduced model residuals, within subject blocks.  This
-#' assures that subject effects are held constant across permutations, so that intra-sbject
+#' restricted to randomization of reduced model residuals, within subject blocks.  This
+#' assures that subject effects are held constant across permutations, so that intra-subject
 #' effects are not confounded by inter-subject effects.
 #' 
 #' 
@@ -198,6 +214,13 @@ lm.rrpp.ws <- function(f1, subjects,
                        gamma = c("sample", "equal"),
                        print.progress = FALSE, Parallel = FALSE, ...) {
   
+  sub.var.name <- deparse(substitute(subjects))
+  if(!is.null(data)) {
+    subj.no <- which(names(data) %in% sub.var.name)
+    subj <- data[[subj.no]]
+    if(!is.null(subj)) subjects <- subj
+  }
+  
   L <- L.args <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
   
@@ -206,12 +229,23 @@ lm.rrpp.ws <- function(f1, subjects,
     if(!is.null(exchange.args$D)) D <- exchange.args$D
     exchange.args <- exchange.args[c("Terms", "Y", "model")]
     Terms <- exchange.args$Terms
+    Y <- exchange.args$Y
     
   } else stop("\n lm.rrpp.ws currently requires a formula rather than an lm object.\n",
               call. = FALSE)
   L <- NULL
+  Ynames <- rownames(Y)
 
-  sub.var.name <- deparse(substitute(subjects))
+  n <- NROW(Y)
+  if(is.null(L.args$data)) L.args$data <- rrpp.data.frame(Y = Y) else
+    L.args$data$Y <- Y
+  L.args$f1 <- update(L.args$f1, Y ~ .)
+  Y <- NULL
+  
+  if(!identical(Ynames, as.character(subjects)))
+    stop("The rownames of the data must match the subjects.\n", 
+         call. = FALSE)
+  
   STerm <- which(attr(Terms, "term.labels") == sub.var.name)
   subTest <- !(length(STerm) == 0)
   subjects <- as.factor(subjects)
@@ -273,10 +307,13 @@ lm.rrpp.ws <- function(f1, subjects,
   } else CovEx <- NULL
   
   L.args$Cov <- CovEx
+  if(!is.null(L.args$Cov)) rownames(L.args$data$Y) <- rownames(L.args$Cov) <-
+    colnames(L.args$Cov) <- 1:n
   L.args$SS.type <- "III"
   L.args$block <- NULL
   L.args$turbo <- TRUE
   CovEx <- Cov <- NULL
+  
   
   if(subTest){
     
@@ -321,6 +358,11 @@ lm.rrpp.ws <- function(f1, subjects,
     out$ANOVA$cohenf[sub.rpl, ] <- scohenf
     out$Models$reduced[[sub.rpl]] <- sRed
     out$Models$full[[sub.rpl]] <- sFull
+  }
+  
+  rownames(out$LM$Y) <- Ynames
+  if(!is.null(out$LM$Cov)){
+    rownames(out$LM$Cov) <- colnames(out$LM$Cov) <- Ynames
   }
 
   out$call <- match.call()

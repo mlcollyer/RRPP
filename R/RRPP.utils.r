@@ -87,8 +87,11 @@ na.omit.rrpp.data.frame <- function(object, ...) {
 print.lm.rrpp <- function(x, ...){
   cat("\nLinear Model fit with lm.rrpp\n")
   LM <- x$LM
-  PI <- x$PermInfo
+  PI <- getPermInfo(x, attribute = "all")
   AN <- x$ANOVA
+  if(is.null(AN$Fs))
+    AN[c("SS", "MS", "Rsq", "F", "cohenf", "all")] <
+    getANOVAStats(objects, stat = "all")
   if(!is.null(x$LM$dist.coefficients)) 
     dv <- "(dimensions of data after PCoA of distance matrix)" else
     dv <- " "
@@ -118,8 +121,15 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
   if(inherits(object, "manova.lm.rrpp")) out <- summary.manova.lm.rrpp(object) else {
     x <- object
     LM <- x$LM
-    PI <- x$PermInfo
+    PI <- getPermInfo(x, attribute = "all")
     AN <- x$ANOVA
+    if(is.null(AN$Fs)) {
+      AN2 <- getANOVAStats(object, stat = "all")
+      AN[c("SS", "MS", "Rsq", "Fs", "cohenf")] <-
+        AN2[c("SS", "MS", "Rsq", "Fs", "cohenf")]
+    }
+      
+    Models <- getModels(x, attribute = "all")
     perms <- PI$perms
     dv <- LM$dist.coefficients
     n <- LM$n
@@ -135,10 +145,10 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     SS.type <- AN$SS.type
     trms <- LM$term.labels
     k <- length(trms)
-    kk <- length(object$Models$full)
+    kk <- length(Models$full)
     if(k > kk){
       k <- kk
-      trms <- names(object$Models$full)
+      trms <- names(Models$full)
     }
     
     if(k > 0) {
@@ -260,8 +270,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     rownames(eigs) <- c("Fitted", "Residuals", "Total")
     colnames(eigs) <- paste("PC", 1:rank.t, sep="")
     
-    reduced <- x$Models$reduced
-    full <- x$Models$full
+    reduced <- Models$reduced
+    full <- Models$full
     
     if(k > 0) {
       
@@ -1655,16 +1665,18 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
   p <- object$LM$p
   p.prime <- object$LM$p.prime
   n <- object$LM$n
+  Models <- getModels(object, attribute = "all")
+  PermInfo <- getPermInfo(object, attribute = "all")
   perm.method <- object$PermInfo$perm.method
   if(perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
-  ind <- object$PermInfo$perm.schedule
+  ind <- PermInfo$perm.schedule
   perms <- length(ind)
   trms <- object$LM$term.labels
   k <- length(trms)
-  kk <- length(object$Models$full)
+  kk <- length(Models$full)
   if(k > kk){
     k <- kk
-    trms <- names(object$Models$full)
+    trms <- names(Models$full)
   }
   df <- object$ANOVA$df
   df.model <- sum(df[1:k])
@@ -2603,14 +2615,13 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
 #' @keywords utilities
 print.measurement.error <- function(x, ...){
   
-  all.stats <- x$all.stats
   AOV <- x$AOV
   mAOV <- x$mAOV
   icc <- x$icc
   micc <- x$mult.icc.eigs
   
   cat("\nAnalyses for measurement error\n")
-  cat("\nRRPP performed with", all.stats$PermInfo$perms, "permutations,\n")
+  cat("\nRRPP performed with", x$PermInfo$perms, "permutations,\n")
   cat("restricted within replicates for subjects and within subjects for measurement error.\n")
   cat("\nANOVA (based on dispersion of values):\n")
   print(AOV)
@@ -2683,13 +2694,16 @@ summary.measurement.error <- function(object, ...){
 #' are still represented by different symbols in the plot, unless overridden
 #' by plot arguments.
 #' @param add.connectors A logical value for whether to add connectors, like
-#' vectors, between replicate observations of the same subjects.  Connectors
-#' are labeled either by subject name (if available) or by number of occurrence
+#' vectors, between replicate observations of the same subjects.  
+#' @param add.labels A logical value for whether to label subjects.  
+#' Labels are either subject name (if available) or number of occurrence
 #' in the data set.
 #' @param use.std.vectors A logical value for whether to use vectors obtained from
 #' a standardized matrix, which are orthogonal.  This is not strictly necessary.
 #' @param add.legend A logical value for whether to add a legend to plots.  If
-#' separate.by.groups is TRUE, adding a legend to plots will be slightly redundant.
+#' separate.by.groups is TRUE, adding a legend to plots will be slightly redundant. If
+#' certain parameters are augmented by user (point characters, colors), add.legend
+#' will be made to be FALSE to prevent misinterpretation of intended plotting scheme.
 #' @param ... Other arguments passed onto plot
 #' @method plot measurement.error
 #' @export
@@ -2698,26 +2712,53 @@ summary.measurement.error <- function(object, ...){
 plot.measurement.error <- function(x, 
                                    separate.by.groups = TRUE,
                                    add.connectors = TRUE,
+                                   add.labels = FALSE,
                                    use.std.vectors = FALSE,
                                    add.legend = TRUE, ...){
+  
+  subj <- x$LM$data$subj
+  reps <- x$LM$data$reps
+  groups <- if(!is.null(x$LM$data$groups))
+    x$LM$data$groups else NULL
+  
+  plot.args <- list(...)
+  
+  if(is.null(plot.args$pch)) {
+    plot.args$pch <- 20 
+    if(length(x$LM$data) > 3) {
+      plot.args$pch <- plot.args$pch + as.numeric(groups)
+      ldf.pch <- unique(data.frame(a = groups, 
+                                  b = plot.args$pch))
+    } else {
+      plot.args$pch <- plot.args$pch + 1
+      ldf.pch <- data.frame(a = 1, b = plot.args$pch)
+    }
+  } else {
+    if(length(x$LM$data) > 3) {
+      ldf.pch <- unique(data.frame(a = groups, 
+                                  b = plot.args$pch))
+    } else {
+      ldf.pch <-unique(data.frame(a = 1, b = plot.args$pch))
+    }
+  }
+  
+  if(is.null(plot.args$bg)) plot.args$bg <- as.numeric(reps)
+  ldf.bg <- unique(data.frame(a = reps, b = plot.args$bg))
+  
+  if(is.null(plot.args$col)) plot.args$col <- as.numeric(reps)
+  ldf.col <- unique(data.frame(a = reps, b = plot.args$col))
+  
+  
   if(!is.null(x$SSCP.ME.product)) {
     S <- if(use.std.vectors) svd(x$SSCP.ME.product.std) else
       svd(x$SSCP.ME.product)
   } else S <- list(d = 1, u = 1, v = 1)
   
-  Y <- center(x$all.stats$LM$Y)
-  if(length(x$all.stats$LM$data) > 3){
-    gp <- x$all.stats$LM$data$groups
+  Y <- center(x$LM$Y)
+  if(length(x$LM$data) > 3){
+    gp <- x$LM$data$groups
     Y <- resid(lm(Y ~ gp))
   }
-  
-  subj <- x$all.stats$LM$data$subj
-
-  plot.args <- list(...)
-  
-  if(is.null(plot.args$bg)) plot.args$bg <- as.numeric(x$all.stats$LM$data$reps)
-  if(is.null(plot.args$col)) plot.args$col <- as.numeric(x$all.stats$LM$data$reps)
-  plot.args$asp <- 1
     
   d <- S$d
   dx <- d[1]/sum(d)
@@ -2727,6 +2768,16 @@ plot.measurement.error <- function(x,
     diag(sqrt(S[[1]]))[, 1:(min(length(d), 2))]
   
   if(NCOL(pts) == 1) pts <- cbind(pts, 0)
+  
+  plot.args$asp <- 1
+  if(is.null(plot.args$xlab))
+    plot.args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
+  if(is.null(plot.args$ylab))
+    plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
+  if(is.null(plot.args$main))
+    plot.args$main <- "Systematic ME / Random ME"
+  if(is.null(plot.args$cex.main))
+    plot.args$cex.main <- 0.6
   
   add.me.connectors <- function(x, y, subj, d, maxy) {
     
@@ -2747,29 +2798,33 @@ plot.measurement.error <- function(x,
       ymean <- mean(yy)
       for(j in 1:length(xx)) {
         arrows(xmean, ymean, xx[j], yy[j], length = 0, 
-               angle = 0, lwd = 0.5)
-        text(xmean, ymean, subjlv[i], pos = 3, cex = 0.4, offset = 0.1)
+               angle = 0, lwd = 0.5, ...)
+        
       }
     }
   }
   
-  if(is.null(plot.args$pch)) {
-    plot.args$pch <- 20 
-    if(length(x$all.stats$LM$data) > 3) {
-      plot.args$pch <- plot.args$pch + as.numeric(x$all.stats$LM$data$groups)
-    } else {
-      plot.args$pch <- plot.args$pch + 1
+  add.me.labels <- function(x, y, subj, d, maxy) {
+    dindx <- which(zapsmall(d) > 0)
+    if(length(dindx) == 1) {
+      y <- y + 0.1 * maxy
+      subjjig <- seq(0, 0.9 * maxy, (0.9 * maxy) / (nlevels(subj) - 1))
+      for(i in 1:length(subjjig)) {
+        y[which(subj == levels(subj)[i])] <- 
+          y[which(subj == levels(subj)[i])] + subjjig[i]
+      }
+    }
+    subjlv <- levels(subj)
+    for(i in 1:length(subjlv)){
+      xx <- x[subj == subjlv[i]]
+      yy <- y[subj == subjlv[i]]
+      xmean <- mean(xx)
+      ymean <- mean(yy)
+      for(j in 1:length(xx)) {
+        text(xmean, ymean, subjlv[i], pos = 3, cex = 0.4, offset = 0.1)
+      }
     }
   }
-      
-  if(is.null(plot.args$xlab))
-    plot.args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
-  if(is.null(plot.args$ylab))
-    plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
-  if(is.null(plot.args$main))
-    plot.args$main <- "Systematic ME / Random ME"
-  if(is.null(plot.args$cex.main))
-    plot.args$cex.main <- 0.6
   
   plot.args$x <- as.matrix(pts)[,1]
   plot.args$y <- if(NCOL(as.matrix(pts)) == 1) 
@@ -2781,15 +2836,15 @@ plot.measurement.error <- function(x,
     plot.args$ylim <- c(ymin, ymax)
   }
   
-  if(separate.by.groups && is.null(x$all.stats$LM$data$groups))
+  if(separate.by.groups && is.null(x$LM$data$groups))
     separate.by.groups <- FALSE
   
   if(separate.by.groups) {
-    nplots <- nlevels(x$all.stats$LM$data$groups)
+    nplots <- nlevels(x$LM$data$groups)
     point.args <- plot.args
     plot.args$type <- "n"
     plot.args$main <- NULL
-    gps <- levels(x$all.stats$LM$data$groups)
+    gps <- levels(x$LM$data$groups)
     
     for(i in 1:nplots) {
       do.call(plot, plot.args)
@@ -2797,7 +2852,7 @@ plot.measurement.error <- function(x,
                   "Group", gps[[i]], sep = " "),
             cex.main = 0.7)
       point.args.b <- point.args
-      point.args.b$pch[which(x$all.stats$LM$data$groups != gps[[i]])] <- NA
+      point.args.b$pch[which(x$LM$data$groups != gps[[i]])] <- NA
       
       do.call(points, point.args.b)
       
@@ -2806,18 +2861,19 @@ plot.measurement.error <- function(x,
         point.args.b$y[which(!is.na(point.args.b$pch))],
         factor(subj[which(!is.na(point.args.b$pch))]), 
         d, point.args.b$ylim[2])
+      if(add.labels) add.me.labels(
+        point.args.b$x[which(!is.na(point.args.b$pch))],
+        point.args.b$y[which(!is.na(point.args.b$pch))],
+        factor(subj[which(!is.na(point.args.b$pch))]), 
+        d, point.args.b$ylim[2])
       
       if(add.legend) {
         
         legend("topleft", 
-               legend = levels(interaction(x$all.stats$LM$data$groups, 
-                                           x$all.stats$LM$data$reps)),
-               pch = rep(unique(plot.args$pch), 
-                         nlevels(x$all.stats$LM$data$reps)),
-               col = rep(unique(plot.args$col), 
-                         each = nlevels(x$all.stats$LM$data$groups)),
-               pt.bg = rep(unique(plot.args$col), 
-                           each = nlevels(x$all.stats$LM$data$groups)),
+               legend = ldf.col$a,
+               pch = unique(na.omit(point.args.b$pch)),
+               col = ldf.col$b,
+               pt.bg = ldf.bg$b,
                bg = "white")
       }
     }
@@ -2827,34 +2883,249 @@ plot.measurement.error <- function(x,
     
     if(add.connectors)
       add.me.connectors(plot.args$x, plot.args$y, subj, d, plot.args$ylim[2])
-   
+    if(add.labels)
+      add.me.labels(plot.args$x, plot.args$y, subj, d, plot.args$ylim[2])
+    
     if(add.legend) {
-      
-      if(length(x$all.stats$LM$data) > 3) {
-        
-        legend("topleft", 
-               legend = levels(interaction(x$all.stats$LM$data$groups, 
-                                           x$all.stats$LM$data$reps)),
-               pch = rep(unique(plot.args$pch), 
-                         nlevels(x$all.stats$LM$data$reps)),
-               col = rep(unique(plot.args$col), 
-                         each = nlevels(x$all.stats$LM$data$groups)),
-               pt.bg = rep(unique(plot.args$col), 
-                           each = nlevels(x$all.stats$LM$data$groups)),
-               bg = "white")
-        
-      } else {
-        
-        legend("topleft", 
-               legend = levels(x$all.stats$LM$data$reps),
-               pch = unique(plot.args$pch),
-               col = unique(plot.args$col), 
-               pt.bg = unique(plot.args$col),
-               bg = "white")
-      }
+      legend("topleft", 
+             legend = ldf.col$a,
+             pch = min(ldf.pch$b),
+             col = ldf.col$b,
+             pt.bg = ldf.bg$b,
+             bg = "white")
+
     }
   }
   
+}
+
+
+#' Utility Function for RRPP
+#' 
+#' A function mostly for internal processing but can be used to extract
+#' ANOVA statistics for other uses, such as plotting histograms
+#'
+#' @param fit Object from \code{\link{lm.rrpp}}.
+#' @param stat The ANOVA statistic to extract.  Returns every RRPP permutation of 
+#' the statistic.  If "all", a list of each statistic is returned.  
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples
+#' 
+#' data(Pupfish)
+#' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
+#' data = Pupfish, print.progress = FALSE, iter = 999) 
+#' anova(fit)
+#' Fstats <- getANOVAStats(fit, stat = "F")
+#' par(mfrow = c(2, 2))
+#' hist(Fstats$Fs[1,], breaks = 50, main = "log(CS)", xlab = "F")
+#' abline(v = Fstats$Fs[1, 1])
+#' hist(Fstats$Fs[2,], breaks = 50, main = "Sex", xlab = "F")
+#' abline(v = Fstats$Fs[2, 1])
+#' hist(Fstats$Fs[3,], breaks = 50, main = "Pop", xlab = "F")
+#' abline(v = Fstats$Fs[3, 1])
+#' hist(Fstats$Fs[4,], breaks = 50, main = "Sex:Pop", xlab = "F")
+#' abline(v = Fstats$Fs[4, 1])
+#' 
+getANOVAStats <- function(fit, stat = c("SS", "MS", "Rsq", "F", "cohenf", "all")){
+  ANOVA <- fit$ANOVA
+  verbose <- fit$verbose
+  SS <- ANOVA$SS
+  MS <- ANOVA$MS
+  Fs <- ANOVA$Fs
+  cohenf <- ANOVA$cohenf
+  Rsq <- ANOVA$Rsq
+  Df <- ANOVA$df
+  RSS <- ANOVA$RSS
+  TSS <- ANOVA$TSS
+  SS.type <- ANOVA$SS.type
+  k <- length(fit$LM$term.labels)
+  
+  if(is.null(SS)){
+    k <- 0
+    SS <- ANOVA$RSS.model
+    MS <- SS/Df
+    Rsq <- rep(1, length(SS))
+    names(Rsq) <- names(SS)
+    Fs <- cohenf <- rep(0, length(SS))
+    names(Fs) <- names(cohenf) <- names(SS)
+    verbose <- TRUE
+  }
+  
+  if(!verbose) {
+    MS <- SS / Df[1:k]
+    MSE <- RSS / Df[k + 1]
+    Fs <- MS / MSE
+    Rsq <- SS/TSS
+    cohenf <- Rsq / (1 - Rsq)
+    if(SS.type != "III"){
+      etas <- Rsq
+      if(k == 1) unexp <- 1 - etas else unexp <- 1 - apply(etas, 2, cumsum)
+      cohenf <- etas/unexp
+    }
+  }
+  out <- list(SS = SS, MS = MS, Rsq = Rsq, Fs = Fs, cohenf = cohenf)
+  stat <- match.arg(stat)
+  keep <- which(c("SS", "MS", "Rsq", "F", "cohenf", "all") %in% stat)
+  if(keep == 6) keep <- 1:5
+  out[keep]
+}
+
+#' Utility Function for RRPP
+#' 
+#' A function mostly for internal processing but can be used to extract
+#' RRPP permutation information for other reasons.
+#'
+#' @param fit Object from \code{\link{lm.rrpp}}
+#' @param attribute The various attributes that are used to generate RRPP
+#'  permutation schedules.  If there are n observations, each iteration has
+#'  some randomization of 1:n, restricted by the arguments that match attributes
+#'  provided by this function.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+getPermInfo <- function(fit, attribute = c("perms", "perm.method",
+                                           "block", "perm.seed",
+                                           "perm.schedule", "all")){
+  
+  PermInfo <- fit$PermInfo
+  perms <- PermInfo$perms
+  perm.method <- PermInfo$perm.method
+  block <- PermInfo$block
+  perm.seed <- PermInfo$perm.seed
+  perm.schedule <- PermInfo$perm.schedule
+  n <- fit$LM$n
+  
+  if(is.null(perm.schedule)) {
+    if(perms == 1) perms <- 2
+    perm.schedule <- perm.index(n, perms - 1, block = block, 
+                                seed = perm.seed)
+  }
+  
+  out <- list(perms = perms, perm.method = perm.method, block = block,
+              perm.seed = perm.seed, perm.schedule = perm.schedule)
+  
+  attribute <- match.arg(attribute)
+  keep <- which(c("perms", "perm.method",
+                  "block", "perm.seed",
+                  "perm.schedule", "all") %in% attribute)
+  if(keep == 6) keep <- 1:5
+  out[keep]
+}
+
+#' Utility Function for RRPP
+#' 
+#' A function mostly for internal processing but can be used to extract
+#' The terms for each reduced and full model used in an \code{\link{lm.rrpp}} fit.
+#'
+#' @param fit Object from \code{\link{lm.rrpp}}
+
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+getTerms <- function(fit){
+  Model.Terms <- .getTerms(fit$LM$Terms, fit$ANOVA$SS.type)
+  Model.Terms <- lapply(Model.Terms, function(x){
+    lapply(x, function(y){
+      attr(y, "dataClasses") <- NULL
+      y
+    })
+  })
+  
+  names(Model.Terms) <- c("reduced", "full")
+  Model.Terms
+}
+
+#' Utility Function for RRPP
+#' 
+#' A function mostly for internal processing but can be used to terms,
+#' design matrices, or QR decompositions used for each reduced or full
+#' model that is fitted in an \code{\link{lm.rrpp}} fit.
+#'
+#' @param fit Object from \code{\link{lm.rrpp}}
+#' @param attribute The various attributes that are used to generate RRPP
+#'  permutation schedules.  If there are n observations, each iteration has
+#'  some randomization of 1:n, restricted by the arguments that match attributes
+#'  provided by this function.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
+  
+  attribute <- match.arg(attribute)
+  k <- length(fit$LM$term.labels)
+  create <- is.null(fit$Models)
+  if(!create) Models <- fit$Models else Models <- NULL
+  
+  Pcov <- if(!is.null(fit$LM$Pcov)) Pcov else
+    if(!is.null(fit$LM$Cov)) Cov.proj(fit$LM$Cov) else NULL
+  w <- if(!is.null(fit$LM$weights)) sqrt(fit$LM$weights) else NULL
+
+  Model.Terms <- getTerms(fit)
+  
+  if(create){
+    Xs <- suppressWarnings( getXs(Terms = fit$LM$Terms, 
+                                  Y = fit$LM$Y, 
+                                  SS.type = fit$ANOVA$SS.type,
+                                  model = fit$LM$data) ) 
+  } else {
+    Xs <- lapply(Models, function(x){
+      lapply(x, function(y) y$X )
+    })
+  }
+  names(Xs) <- c("reduced", "full")
+
+  
+  if(attribute == "all" || attribute == "qr") {
+    
+    if(create) {
+      Models <-lapply(1:2, function(j){
+        res <- lapply(1:max(1, k), function(jj){
+          X <- Xs[[j]][[jj]]
+          TX <- if(!is.null(Pcov)) Pcov %*% X else if(!is.null(w)) X*w else X
+          qr <- qr(TX)
+          list(X = X, qr = qr)
+        })
+        names(res) <- names(Model.Terms[[j]])
+        res
+      })
+      
+      for(i in 1:2){
+        for(j in 1:max(1, k)){
+          Models[[i]][[j]]$terms <- Model.Terms[[i]][[j]]
+        }
+      }
+      names(Models) <- c("reduced", "full")
+    }
+    
+  }
+  
+  if(!is.null(Models)){
+    Models <- lapply(Models, function(x){
+      lapply(x, function(y){
+        attr(y$terms, "dataClasses") <- NULL
+        y
+      })
+    })
+  }
+  
+  if(attribute == "all")
+    out <- Models
+  if(attribute == "terms")
+    out <- Model.Terms
+  if(attribute == "X")
+    out <- Xs
+  if(attribute == "qr"){
+    QR <- lapply(Models, function(x){
+      lapply(x, function(y) y$qr)
+    })
+    out <- QR
+  }
+  out
 }
 
 
