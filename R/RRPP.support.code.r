@@ -1699,10 +1699,12 @@ out
 # gets the slopes for groups from a lm.rrpp fit
 # used in pairwise
 getSlopes <- function(fit, x, g){
-  Models <- getModels(fit, attribute = "all")
-  k <- length(Models$full)
+  
+  beta <- fit$LM$random.coef
+  k <- length(beta)
+  beta <- beta[[k]]
+  n <- fit$LM$n
   p <- fit$LM$p
-  beta <- fit$LM$random.coef[[k]]
   X <- fit$LM$X
   X <- X[, colnames(X)  %in% rownames(beta[[1]])]
   getFitted <- function(b) X %*% b
@@ -1734,10 +1736,10 @@ getSlopes <- function(fit, x, g){
 # after constraining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
-  Models <- getModels(fit, attribute = "all")
-  k <- length(Models$full)
+  beta <- fit$LM$random.coef
+  k <- length(beta)
+  beta <- beta[[k]]
   n <- fit$LM$n
-  beta <- fit$LM$random.coef[[k]]
   dat <- fit$LM$data
   covCheck <- sapply(dat, class)
   for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") 

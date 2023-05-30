@@ -231,9 +231,8 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   term.labels <- fit$LM$term.labels
   n <- fit$LM$n
   p <- fit$LM$p
-  fit <- NULL
-  PermInfo <- getPermInfo(fitf, attribute = "all")
-  Models <- getModels(fitf, attribute = "all")
+  PermInfo <- getPermInfo(fit, attribute = "all")
+  Models <- getModels(fit, attribute = "all")
   ind <- PermInfo$perm.schedule
   perms <- length(ind)
   gls <- fitf$LM$gls
@@ -252,7 +251,8 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     }
   }
   
-
+  fit <- NULL
+  
   k <- length(term.labels)
   kk <- length(Models$full)
   if(k != kk) {
@@ -331,7 +331,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   gp.rep <- by(groups, groups, length)
   
   
-  if(length(groups) != fitf$LM$n) 
+  if(length(groups) != n) 
     stop("The length of the groups factor does not match the number of observations 
          in the lm.rrpp fit")
   if(!is.null(covariate)) {
@@ -341,7 +341,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       stop("The covariate argument can only be a single covariate, not a matrix")
     if(length(unique(covariate)) < 2) 
       stop("The covariate vector appears to have no variation.")
-    if(length(covariate) != fitf$LM$n)
+    if(length(covariate) != n)
       stop("The length of the covariate does not match the number of observations 
            in the lm.rrpp fit")
   }

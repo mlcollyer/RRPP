@@ -89,9 +89,11 @@ print.lm.rrpp <- function(x, ...){
   LM <- x$LM
   PI <- getPermInfo(x, attribute = "all")
   AN <- x$ANOVA
-  if(is.null(AN$Fs))
-    AN[c("SS", "MS", "Rsq", "F", "cohenf", "all")] <
-    getANOVAStats(objects, stat = "all")
+  if(is.null(AN$Fs)) {
+    AN2 <- getANOVAStats(x, stat = "all")
+    AN[c("MS", "Rsq", "F", "cohenf")] <- AN2[c("MS", "Rsq", "F", "cohenf")]
+  }
+    
   if(!is.null(x$LM$dist.coefficients)) 
     dv <- "(dimensions of data after PCoA of distance matrix)" else
     dv <- " "
