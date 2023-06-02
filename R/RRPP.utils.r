@@ -3143,19 +3143,25 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
 #' Utility Function for RRPP
 #' 
 #' A function mostly for internal processing but can be used to extract either
-#' the covariance matrix (Cov) or the projection matrix for transformations made 
+#' the model covariance matrix (Cov) or the projection matrix for transformations made 
 #' from the covariance matrix (Pcov), which is basically the square-root of 
-#' the covariance matrix.  There is also an option for S3 or S4 versions.
+#' the covariance matrix.  This matrix is the model covariance used for estimation,
+#' not the residual covariance matrix (see \code{\link{getResCov}}). 
+#' There are also options for S3 or S4 format versions, or
+#' a forcing of symmetry for Pcov.
 #'
 #' @param fit Object from \code{\link{lm.rrpp}}
 #' @param type Whether the Cov or Pcov matrix is returned
 #' @param format Whether an S3 or S4 format is returned
+#' @param forceSym Logical value for whether a symmetric matrix should 
+#' be returned for Pcov, even if Pcov was triangular as a solution.
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 
 getModelCov <- function(fit, type = c("Cov", "Pcov"), 
-                        format = c("S3", "S4")) {
+                        format = c("S3", "S4"),
+                        forceSym = TRUE) {
   if(is.null(fit$LM$Cov))
     stop("There was no model covariance matrix used in this lm.rrpp fit.\n",
          call. = FALSE)
@@ -3167,7 +3173,55 @@ getModelCov <- function(fit, type = c("Cov", "Pcov"),
   res <- if(type == "Pcov") fit$LM$Pcov else fit$LM$Cov
   res <- if(format == "S4") Matrix(res, sparse = TRUE) else
     as.matrix(res)
+  isSym <- (res[2, 1] == res[1, 2])
+  if(!isSym && forceSym && type == "Pcov"){
+    res <- Cov.proj(fit$LM$Cov, symmetric = TRUE)
+    res <- if(format == "S4") Matrix(res, sparse = TRUE) else
+      as.matrix(res)
+  }
+    
   
   res
 }
 
+#' Utility Function for RRPP
+#' 
+#' A function mostly for internal processing but can be used to extract the residual
+#' covariance matrix.  This matrix is the residual covariance matrix,
+#' not the model covariance matrix used for estimation (see \code{\link{getModelCov}}). 
+#' Options for averaging over degrees of freedom or number of
+#' observations, plus standardization, are also available.
+#'
+#' @param fit Object from \code{\link{lm.rrpp}}
+#' @param useDf Logical value for whether the degrees of freedom from the linear model
+#' fit should be used (if TRUE), as opposed to the number of observations (if FALSE).
+#' @param standardize Logical value for whether residuals should be standarized.  If TRUE,
+#' a correlation matrix is produced.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+getResCov <- function(fit, useDf = TRUE, standardize = FALSE) {
+  gls <- fit$LM$gls
+  if(gls && is.null(fit$LM$Pcov) && !is.null(fit$LM$Cov)) 
+    fit$LM$Pcov <- Cov.proj(fit$LM$Cov)
+  if(gls && !is.null(fit$LM$Pcov)) R <- fit$LM$Pcov %*% fit$LM$gls.residuals
+  if(gls && is.null(fit$LM$Pcov)) R <- fit$LM$gls.residuals * sqrt(fit$LM$weights)
+  if(!gls) R <-  fit$LM$residuals
+  S <- as.matrix(crossprod(R))
+  if(useDf){
+    df <- fit$ANOVA$df
+    if(length(df) > 1) df <- df[(length(df) - 1)] 
+  } else df <- fit$LM$n
+  
+  S <- S / df
+  
+  if(standardize && length(S) > 1) {
+    w <- diag(1 / sqrt(diag(S))) 
+    S <- w %*% S %*% w
+  } else if(standardize && length(S) == 1) S <- 1
+    
+    
+  S
+  
+}
