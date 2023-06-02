@@ -3165,7 +3165,7 @@ getModelCov <- function(fit, type = c("Cov", "Pcov"),
   format <- match.arg(format)
   
   res <- if(type == "Pcov") fit$LM$Pcov else fit$LM$Cov
-  res <- if(type == "S4") Matrix(res, sparse = TRUE) else
+  res <- if(format == "S4") Matrix(res, sparse = TRUE) else
     as.matrix(res)
   
   res

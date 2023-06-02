@@ -96,7 +96,7 @@ fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 0d914e884771028a6a6a158ed113329d *R/RRPP.support.code.r
-9488e592ee2bdbf2809ac9cca76b6765 *R/RRPP.utils.r
+42e3b44254c554fdb95e6fadc7e827a3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r
