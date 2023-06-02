@@ -3052,12 +3052,12 @@ getTerms <- function(fit){
 
 #' Utility Function for RRPP
 #' 
-#' A function mostly for internal processing but can be used to terms,
+#' A function mostly for internal processing but can be used to obtain terms,
 #' design matrices, or QR decompositions used for each reduced or full
 #' model that is fitted in an \code{\link{lm.rrpp}} fit.
 #'
 #' @param fit Object from \code{\link{lm.rrpp}}
-#' @param attribute The various attributes that are used to generate RRPP
+#' @param attribute The various attributes that are used to extract RRPP
 #'  permutation schedules.  If there are n observations, each iteration has
 #'  some randomization of 1:n, restricted by the arguments that match attributes
 #'  provided by this function.
@@ -3140,4 +3140,34 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   out
 }
 
+#' Utility Function for RRPP
+#' 
+#' A function mostly for internal processing but can be used to extract either
+#' the covariance matrix (Cov) or the projection matrix for transformations made 
+#' from the covariance matrix (Pcov), which is basically the square-root of 
+#' the covariance matrix.  There is also an option for S3 or S4 versions.
+#'
+#' @param fit Object from \code{\link{lm.rrpp}}
+#' @param type Whether the Cov or Pcov matrix is returned
+#' @param format Whether an S3 or S4 format is returned
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+
+getModelCov <- function(fit, type = c("Cov", "Pcov"), 
+                        format = c("S3", "S4")) {
+  if(is.null(fit$LM$Cov))
+    stop("There was no model covariance matrix used in this lm.rrpp fit.\n",
+         call. = FALSE)
+  if(is.null(fit$LM$Pcov)) fit$LM$Pcov <- Cov.proj(fit$LM$Cov)
+  
+  type <- match.arg(type)
+  format <- match.arg(format)
+  
+  res <- if(type == "Pcov") fit$LM$Pcov else fit$LM$Cov
+  res <- if(type == "S4") Matrix(res, sparse = TRUE) else
+    as.matrix(res)
+  
+  res
+}
 

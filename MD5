@@ -13,7 +13,8 @@ eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
 bc5a7bf4623c09147b94399a6df758f1 *man/convert2ggplot.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 72d643efc38a8cffd733f058d447031a *man/getANOVAStats.Rd
-640135cf7b10abb694fe6c51033e6a46 *man/getModels.Rd
+48f87df6a64a86f68a8047ee04d35291 *man/getModelCov.Rd
+4be6344afaae7955e5a34cadeb231587 *man/getModels.Rd
 88c7bb0028505b5cfb7bd7f3491cd14c *man/getPermInfo.Rd
 5fa1cb32075adf22ffdc34740171e2c4 *man/getTerms.Rd
 638f34352f2bcdb0fdfb43ac870c2f10 *man/lm.rrpp.Rd
@@ -75,7 +76,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 63a84cde4ccd20f033b499e87bc6ee71 *man/terms.lm.rrpp.Rd
 e2f11f0585d5822886ccd3c86d1c21e4 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
-dbebf8fb028301d2cc7a62086558207f *NAMESPACE
+f96389e11b2532de0948643129b43611 *NAMESPACE
 fc3b95ffcc31c8e2e575b0a2b06d8ff1 *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
@@ -95,7 +96,7 @@ fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 0d914e884771028a6a6a158ed113329d *R/RRPP.support.code.r
-2fdd6ffb363c7fdef3b8255410fcb303 *R/RRPP.utils.r
+9488e592ee2bdbf2809ac9cca76b6765 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r

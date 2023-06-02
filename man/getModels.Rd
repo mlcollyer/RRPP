@@ -9,13 +9,13 @@ getModels(fit, attribute = c("terms", "X", "qr", "all"))
 \arguments{
 \item{fit}{Object from \code{\link{lm.rrpp}}}
 
-\item{attribute}{The various attributes that are used to generate RRPP
+\item{attribute}{The various attributes that are used to extract RRPP
 permutation schedules.  If there are n observations, each iteration has
 some randomization of 1:n, restricted by the arguments that match attributes
 provided by this function.}
 }
 \description{
-A function mostly for internal processing but can be used to terms,
+A function mostly for internal processing but can be used to obtain terms,
 design matrices, or QR decompositions used for each reduced or full
 model that is fitted in an \code{\link{lm.rrpp}} fit.
 }
