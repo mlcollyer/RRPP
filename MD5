@@ -86,7 +86,7 @@ bd9769ef1c00648cb2a40b4890eeaedd *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 ce62197ad39a4762fddd132e368987b9 *R/lm.rrpp.r
 8367b9ab8fa770e73f99f98a54d74700 *R/lm.rrpp.ws.r
-b53a4303051e0ae15f6d3baceddfdb0a *R/logLik.lm.rrpp.r
+72fa4b797683791d4a8b2713c7106897 *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 1c3af717caa4843b653407ae9f865892 *R/manova.update.r
 55779fb77c6c0184f62d8fa531321edc *R/measurement.error.r

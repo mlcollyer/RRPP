@@ -42,10 +42,12 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
   rnk <- length(PCA$d)
   w <- object$LM$weights
-  Pcov <- object$LM$Pcov
   Cov <- object$LM$Cov  
-  if(!is.null(Cov) && is.null(Pcov)) 
-    Pcov <- Cov.proj(Cov)
+  if(!is.null(object$LM$Cov) && is.null(object$LM$Pcov)) 
+    object$LM$Pcov <- Cov.proj(object$LM$Cov)
+  Pcov <- NULL
+  if(!is.null((object$LM$Pcov)))
+    Pcov <- object$LM$Pcov
   
   PY <- if(gls) {
     if(!is.null(Pcov)) Pcov %*% Y else Y * sqrt(w)
