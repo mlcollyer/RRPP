@@ -294,6 +294,15 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   rrpp.args$o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
   rrpp.args$offset <- if(!is.null(o)) TRUE else FALSE
   
+  if(gls) {
+    if(!is.null(fitf$LM$Cov) && is.null(fitf$LM$PCov)){
+      Pcov <- Cov.proj(fitf$LM$Cov)
+      Qf <- qr(Pcov %*% fitf$LM$X)
+    } else {
+      Qf <- qr(fitf$LM$X * sqrt(fit$LM$weights))
+    }
+  } else Qf <- qr(fitf$LM$X)
+  
   Qf <- qr(fitf$LM$X)
   H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
   getCoef <- function(y) H %*% y
