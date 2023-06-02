@@ -1788,28 +1788,28 @@ vec.cor.matrix <- function(M) {
 # P-values across a list
 # used in pairwise
 Pval.list <- function(M){
-  pvals <- M[[1]]
-  n <- length(M)
-  for(i in 1:length(pvals)) {
-    y <- sapply(1:n, function(j) M[[j]][i])
-    pvals[i] <- pval(y)
-  }
-  diag(pvals) <- 1
-  pvals
+  
+  y <- sapply(M, function(x) as.vector(as.dist(x)))
+  if(is.vector(y)) y <- matrix(y, 1, length(y))
+  P <- apply(y, 1, pval)
+  D <- as.dist(M[[1]])
+  D[1:length(D)] <- P
+  P <- as.matrix(D)
+  diag(P) <- 1
+  P
 }
 
 # effect.list
 # effect size across a list
 # used in pairwise
 effect.list <- function(M){
-  Z <- M[[1]]
-  n <- length(M)
-  for(i in 1:length(Z)) {
-    y <- sapply(1:n, function(j) M[[j]][i])
-    Z[i] <- effect.size(y)
-  }
-  diag(Z) <- 0
-  Z
+  
+  y <- sapply(M, function(x) as.vector(as.dist(x)))
+  if(is.vector(y)) y <- matrix(y, 1, length(y))
+  Z <- apply(y, 1, effect.size)
+  D <- as.dist(M[[1]])
+  D[1:length(D)] <- Z
+  as.matrix(D)
 }
 
 # percentile.list

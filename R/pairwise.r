@@ -303,24 +303,34 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   rrpp.args$o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
   rrpp.args$offset <- if(!is.null(o)) TRUE else FALSE
   
-  Qf <- qr(fitf$LM$X)
+  if(gls) {
+    if(!is.null(fitf$LM$Cov) && is.null(fitf$LM$PCov)){
+      Pcov <- Cov.proj(fitf$LM$Cov)
+      Qf <- qr(Pcov %*% fitf$LM$X)
+    } else {
+      Qf <- qr(fitf$LM$X * sqrt(fit$LM$weights))
+    }
+  } else Qf <- qr(fitf$LM$X)
+
   H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
   getCoef <- function(y) H %*% y
   
-  coef.n <- lapply(1:perms, function(j){
-    step <- j
-    if(print.progress && !is.null(fit.null)) 
-      setTxtProgressBar(pb,step)
-    rrpp.args$ind.i <- ind[[j]]
-    y <- do.call(rrpp, rrpp.args)
-    getCoef(y)
-  })
-  
   if(is.null(fitf$LM$random.coef)) {
+    
+    coef.n <- lapply(1:perms, function(j){
+      step <- j
+      if(print.progress && !is.null(fit.null)) 
+        setTxtProgressBar(pb,step)
+      rrpp.args$ind.i <- ind[[j]]
+      y <- do.call(rrpp, rrpp.args)
+      getCoef(y)
+    })
+    
     fitf$LM$random.coef <- vector("list", length = kk)
     names(fitf$LM$random.coef) <- term.labels
+    fitf$LM$random.coef[[max(1, kk)]] <- coef.n
   }
-  fitf$LM$random.coef[[max(1, kk)]] <- coef.n
+  
   step <- perms + 1
   if(print.progress && !is.null(fit.null)) {
     setTxtProgressBar(pb,step)

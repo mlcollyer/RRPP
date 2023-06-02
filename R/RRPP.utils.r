@@ -196,6 +196,9 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     if(LM$gls) {
       int <- attr(LM$Terms, "intercept")
       
+      if(!is.null(LM$Cov) && is.null(LM$Pcov))
+        LM$Pcov <- Cov.proj(LM$Cov)
+      
       if(is.null(LM$Pcov)) {
         w <- sqrt(LM$weights)
         PY <- LM$Y * w
@@ -298,6 +301,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       
       if(LM$gls) {
         if(!is.null(LM$Cov)) {
+          if(!is.null(LM$Cov) && is.null(LM$Pcov))
+            LM$Pcov <- Cov.proj(LM$Cov)
           RR <- LM$Pcov %*% RR
           RF <- LM$Pcov %*% RF
         } else {
@@ -641,7 +646,11 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
   resid.type <- match.arg(resid.type)
   fitted.type <- match.arg(fitted.type)
   
+  if(!is.null(x$LM$Cov) && is.null(x$LM$Pcov))
+    x$LM$Pcov <- Cov.proj(x$LM$Cov)
+  
   if(x$LM$gls) {
+    
     r <- as.matrix(x$LM$gls.residuals)
     f <- as.matrix(x$LM$gls.fitted)
     
@@ -3062,7 +3071,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   create <- is.null(fit$Models)
   if(!create) Models <- fit$Models else Models <- NULL
   
-  Pcov <- if(!is.null(fit$LM$Pcov)) Pcov else
+  Pcov <- if(!is.null(fit$LM$Pcov)) fit$LM$Pcov else
     if(!is.null(fit$LM$Cov)) Cov.proj(fit$LM$Cov) else NULL
   w <- if(!is.null(fit$LM$weights)) sqrt(fit$LM$weights) else NULL
 
@@ -3103,9 +3112,9 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
       names(Models) <- c("reduced", "full")
       names(Models$reduced) <- names(Xs[[1]])
       names(Models$full) <- names(Xs[[2]])
-    }
+    } else Models <- fit$Models
     
-  }
+  } else Models <- NULL
   
   if(!is.null(Models)){
     Models <- lapply(Models, function(x){
