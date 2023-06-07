@@ -96,7 +96,7 @@ bd8d283272914e133d13e79312ff2065 *R/ordinate.r
 fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
-0d914e884771028a6a6a158ed113329d *R/RRPP.support.code.r
+183fa6d7838f7bd418806183909f2af9 *R/RRPP.support.code.r
 fa5cdf1d34f3a5c2e7318724f6731ff3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r

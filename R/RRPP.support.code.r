@@ -441,7 +441,6 @@ lm.args.from.formula <- function(cl){
     lm.args$data <- data.frame(Int = rep(1, n))
     lm.args$data$Y <- as.matrix(Y)
     lm.args$data <- lm.args$data[-1]
-    rownames(lm.args$data) <-nmsY
   }
   
   lm.args$data$Y <- Y
