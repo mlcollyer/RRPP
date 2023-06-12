@@ -2,7 +2,7 @@
 % Please edit documentation in R/RRPP.utils.r
 \name{plot.measurement.error}
 \alias{plot.measurement.error}
-\title{Print/Summary Function for RRPP}
+\title{Plot Function for RRPP}
 \usage{
 \method{plot}{measurement.error}(
   x,
@@ -40,7 +40,7 @@ will be made to be FALSE to prevent misinterpretation of intended plotting schem
 \item{...}{Other arguments passed onto plot}
 }
 \description{
-Print/Summary Function for RRPP
+Plot Function for RRPP
 }
 \author{
 Michael Collyer

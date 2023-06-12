@@ -2697,7 +2697,7 @@ summary.measurement.error <- function(object, ...){
   
 }
 
-#' Print/Summary Function for RRPP
+#' Plot Function for RRPP
 #'
 #' @param x Object from \code{\link{measurement.error}}
 #' @param separate.by.groups A logical value for whether to make separate plots
@@ -2908,8 +2908,52 @@ plot.measurement.error <- function(x,
     }
   }
   
+  plot.args$data <- x$LM$data
+  class(plot.args) <- "plot.measurement.error"
+  invisible(plot.args)
+  
 }
 
+
+
+#' Plot Function for RRPP
+#' 
+#' Reduces a plot.measurement.error to a single research subject.  This can be 
+#' for cases when many overlapping subjects in a plot obscure interpretation 
+#' for specific subjects.
+#'
+#' @param x Plot from \code{\link{plot.measurement.error}}
+#' @param subject The specific subject to plot
+#' @param ... Other arguments passed onto plot
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+focusMEonSubject <- function(x, subject = NULL, ...){
+  if(is.null(subject))
+    stop("Please specify one subject to plot.\n", call. = FALSE)
+  if(length(subject) > 1)
+    stop("Please specify only one subject to plot.\n", call. = FALSE)
+  
+  keep <- which(x$data$subj %in% subject)  
+  if(length(keep) == 0)
+  stop("Specific subject not found within subject factor.\n", call. = FALSE)
+
+  no.trm <- which(names(x) == "data")
+  plot.args <- x[-no.trm]
+  plot.args$type <- "n"
+  do.call(plot, plot.args)
+  point.args <- list(x = x$x[keep], y = x$y[keep])
+  if(!is.null(x$pch)) point.args$pch <- x$pch[keep]
+  if(!is.null(x$col)) point.args$col <- x$col[keep]
+  if(!is.null(x$bg)) point.args$bg <- x$bg[keep]
+  if(!is.null(x$lty)) point.args$lty <- x$lty[keep]
+  if(!is.null(x$lwd)) point.args$lwd <- x$lwd[keep]
+  if(!is.null(x$cex)) point.args$cex <- x$cex
+  do.call(points, point.args)
+  points(mean(point.args$x), mean(point.args$y), pch = 3, cex = 0.5)
+  
+}
 
 #' Utility Function for RRPP
 #' 
