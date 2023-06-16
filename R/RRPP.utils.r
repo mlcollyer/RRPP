@@ -2706,6 +2706,9 @@ summary.measurement.error <- function(object, ...){
 #' by plot arguments.
 #' @param add.connectors A logical value for whether to add connectors, like
 #' vectors, between replicate observations of the same subjects.  
+#' @param titles An optional vector or list for augmenting the titles of plots produced.
+#' The length of the vector or list should match the number of plots produced by 
+#' other arguments.
 #' @param add.labels A logical value for whether to label subjects.  
 #' Labels are either subject name (if available) or number of occurrence
 #' in the data set.
@@ -2725,6 +2728,7 @@ plot.measurement.error <- function(x,
                                    add.connectors = TRUE,
                                    add.labels = FALSE,
                                    use.std.vectors = FALSE,
+                                   titles = NULL,
                                    add.legend = TRUE, ...){
   
   subj <- x$LM$data$subj
@@ -2733,6 +2737,7 @@ plot.measurement.error <- function(x,
     x$LM$data$groups else NULL
   
   plot.args <- list(...)
+  if(!is.null(titles)) titles <- as.list(titles)
   
   if(is.null(plot.args$pch)) {
     plot.args$pch <- 20 
@@ -2787,6 +2792,8 @@ plot.measurement.error <- function(x,
     plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
   if(is.null(plot.args$main))
     plot.args$main <- "Systematic ME / Random ME"
+  if(!is.null(titles))
+    plot.args$main <- titles[[1]]
   if(is.null(plot.args$cex.main))
     plot.args$cex.main <- 0.6
   
@@ -2856,12 +2863,24 @@ plot.measurement.error <- function(x,
     plot.args$type <- "n"
     plot.args$main <- NULL
     gps <- levels(x$LM$data$groups)
+    if(!is.null(titles)) {
+      if(length(titles) != nplots) {
+        if(length(titles) > nplots)
+          titles <- titles[1:nplots] else
+            titles <- rep(titles, nplots)[1:nplots]
+      }
+    }
     
     for(i in 1:nplots) {
       do.call(plot, plot.args)
-      title(paste("Systematic ME / Random ME for", 
-                  "Group", gps[[i]], sep = " "),
-            cex.main = 0.7)
+      if(is.null(titles)) {
+        title(paste("Systematic ME / Random ME for", 
+                    "Group", gps[[i]], sep = " "),
+              cex.main = 0.7)
+      } else {
+        title(titles[[i]], cex.main = 0.7)
+      }
+      
       point.args.b <- point.args
       point.args.b$pch[which(x$LM$data$groups != gps[[i]])] <- NA
       
@@ -2923,35 +2942,66 @@ plot.measurement.error <- function(x,
 #' for specific subjects.
 #'
 #' @param x Plot from \code{\link{plot.measurement.error}}
-#' @param subject The specific subject to plot
+#' @param subjects The specific subject to plot
+#' @param shadow A logical value for whether to show other subject values as
+#' shadows of their locations.
 #' @param ... Other arguments passed onto plot
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 #' 
-focusMEonSubject <- function(x, subject = NULL, ...){
-  if(is.null(subject))
-    stop("Please specify one subject to plot.\n", call. = FALSE)
-  if(length(subject) > 1)
-    stop("Please specify only one subject to plot.\n", call. = FALSE)
+focusMEonSubjects <- function(x, subjects = NULL, 
+                              shadow = TRUE, ...){
+  if(is.null(subjects))
+    stop("Please specify at least 
+         one subject to plot.\n", call. = FALSE)
+  if(length(unique(subjects)) > length(x$x)) 
+    stop("Please specify subjects within the vector origianlly used.\n",
+         call. = FALSE)
   
-  keep <- which(x$data$subj %in% subject)  
+  keep <- which(x$data$subj %in% unique(subjects))
   if(length(keep) == 0)
-  stop("Specific subject not found within subject factor.\n", call. = FALSE)
+  stop("Subjects names not found within subject factor.\n", call. = FALSE)
 
   no.trm <- which(names(x) == "data")
   plot.args <- x[-no.trm]
   plot.args$type <- "n"
   do.call(plot, plot.args)
+  if(shadow){
+    plot.args$type <- "p"
+    plot.args$cex <- if(!is.null(plot.args$cex)) 
+      min(c(plot.args$cex / 2, 0.5)) else 0.5
+    if(!is.null(plot.args$col)) plot.args$col <- alpha(plot.args$col, 0.1)
+    if(!is.null(plot.args$bg)) plot.args$bg <- alpha(plot.args$bg, 0.1)
+    do.call(points, plot.args)
+  }
+
   point.args <- list(x = x$x[keep], y = x$y[keep])
-  if(!is.null(x$pch)) point.args$pch <- x$pch[keep]
-  if(!is.null(x$col)) point.args$col <- x$col[keep]
-  if(!is.null(x$bg)) point.args$bg <- x$bg[keep]
-  if(!is.null(x$lty)) point.args$lty <- x$lty[keep]
-  if(!is.null(x$lwd)) point.args$lwd <- x$lwd[keep]
+  if(!is.null(x$pch)) point.args$pch <- if(length(x$pch) > 1)
+    x$pch[keep] else x$pch
+  if(!is.null(x$col)) point.args$col <- if(length(x$col) > 1)
+    x$col[keep] else x$col
+  if(!is.null(x$bg)) point.args$bg <- if(length(x$bg) > 1)
+    x$bg[keep] else x$bg
+  if(!is.null(x$lty)) point.args$lty <- if(length(x$lty) > 1)
+    x$lty[keep] else x$lty
+  if(!is.null(x$lwd)) point.args$lwd <- if(length(x$lwd) > 1)
+    x$lwd[keep] else x$lwd
   if(!is.null(x$cex)) point.args$cex <- x$cex
   do.call(points, point.args)
-  points(mean(point.args$x), mean(point.args$y), pch = 3, cex = 0.5)
+
+  for(i in 1:length(subjects)) {
+    keep <- which(x$data$subj %in% subjects[i])
+    xx <- x$x[keep]
+    yy <- x$y[keep]
+    xmean <- mean(xx)
+    ymean <- mean(yy)
+    for(j in 1:length(xx)) {
+      arrows(xmean, ymean, xx[j], yy[j], length = 0, 
+             angle = 0, lwd = 0.5, ...)
+      
+    }
+  }
   
 }
 

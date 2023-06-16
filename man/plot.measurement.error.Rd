@@ -10,6 +10,7 @@
   add.connectors = TRUE,
   add.labels = FALSE,
   use.std.vectors = FALSE,
+  titles = NULL,
   add.legend = TRUE,
   ...
 )
@@ -31,6 +32,10 @@ in the data set.}
 
 \item{use.std.vectors}{A logical value for whether to use vectors obtained from
 a standardized matrix, which are orthogonal.  This is not strictly necessary.}
+
+\item{titles}{An optional vector or list for augmenting the titles of plots produced.
+The length of the vector or list should match the number of plots produced by 
+other arguments.}
 
 \item{add.legend}{A logical value for whether to add a legend to plots.  If
 separate.by.groups is TRUE, adding a legend to plots will be slightly redundant. If

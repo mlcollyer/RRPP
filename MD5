@@ -12,7 +12,7 @@ eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
 969243a0a9e512eb12d2355f219c29ab *man/coef.lm.rrpp.Rd
 bc5a7bf4623c09147b94399a6df758f1 *man/convert2ggplot.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
-c845d423a69ea21b445f6ebfbc902a19 *man/focusMEonSubject.Rd
+b95e20b5ff5d305dc293892c8a4b0fca *man/focusMEonSubjects.Rd
 72d643efc38a8cffd733f058d447031a *man/getANOVAStats.Rd
 d28f1c70c8ca9d75c9e67f1cfd555d88 *man/getModelCov.Rd
 4be6344afaae7955e5a34cadeb231587 *man/getModels.Rd
@@ -35,7 +35,7 @@ cff2f0f14aff61f5e3237532f54b8b55 *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
 44a2f69384927bdd65e6c52c51502f6d *man/plot.lm.rrpp.Rd
 33c3529beda41e33f92cb446d4567764 *man/plot.looCV.Rd
-8e2e01f965c7bf226c3fb667c0748a28 *man/plot.measurement.error.Rd
+63f0e44e15a01767759bbd0c46cafef6 *man/plot.measurement.error.Rd
 f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 07b85c07d339d5d0af32216ae315ef34 *man/plot.ordinate.Rd
 f7b9852412ce4e90209c5ec1ec02ce35 *man/plot.predict.lm.rrpp.Rd
@@ -78,7 +78,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 63a84cde4ccd20f033b499e87bc6ee71 *man/terms.lm.rrpp.Rd
 e2f11f0585d5822886ccd3c86d1c21e4 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
-177e4214473779aa95dd16fa1988beb3 *NAMESPACE
+2a7afd118ed4cab387038a2019d80a80 *NAMESPACE
 fc3b95ffcc31c8e2e575b0a2b06d8ff1 *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
@@ -98,7 +98,7 @@ fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 82ef13a8e6251dc4435f58e3c6bbe1ea *R/RRPP.support.code.r
-daa94c55d2a9a2f25d277d462300230b *R/RRPP.utils.r
+ac281fa032e66827e395741af88f3e5a *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r
