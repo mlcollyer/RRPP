@@ -672,7 +672,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   QR <- obs.fit$qr
   U <- qr.Q(QR)
-  R <- if(inherits(QR, "qr")) qr.R(QR) else qrR(QR)
+  R <- suppressWarnings(qr.R(QR))
   Hb <- as.matrix(tcrossprod(fast.solve(R), U))
   if(is.null(rownames(Hb))) rownames(Hb) <- colnames(X)
   coefficients <- as.matrix(Hb %*% TY)

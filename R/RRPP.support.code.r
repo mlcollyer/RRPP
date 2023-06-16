@@ -771,7 +771,7 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 getHb <- function(Q) {
   S4 <- !(inherits(Q, "qr"))
   k <- getRank(Q)
-  R <- if(S4) qrR(Q) else qr.R(Q)
+  R <- suppressWarnings(qr.R(Q))
   U <- qr.Q(Q)
   Rs <- try(fast.solve(R), silent = TRUE)
   if(inherits(Rs, "try-error")){

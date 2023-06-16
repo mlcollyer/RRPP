@@ -6,11 +6,13 @@
 * Added new function, `lm.rrpp.ws`.
 * Added `verbose` arguments to most analytical functions to reduce dense results.
 * Added utility functions (`getANOVAStats`, `getPermInfo`, `getTerms`, and `getModels`) to accommodate `verbose` function choices, plus allow users to easily extract objects as output.
+* Added S3 generix functions for `measurement.error`, but also added a plot utility function, `focusMEonSubjects`, which builds off of `plot.measurement.error`, to focus attention on specific plot details.
 
 ### BUG FIXES
 *  Fixed SSCP issue in `summary.lm.rrpp` that produces matrices of 0s.  The issue was inherent to `lm.rrpp`, from erroneous assignment of models, only for output (not for mechanics).
 *  Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
 * Fixed illogical `print.progess` conditions in `pairwise`.
+* Fixed potential problem with reliance on `Matrix::qrQ`, using rather, `Matrix::qr.Q`.
 
 ### OTHER CHANGES
 
