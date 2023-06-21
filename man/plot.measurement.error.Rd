@@ -45,7 +45,11 @@ will be made to be FALSE to prevent misinterpretation of intended plotting schem
 \item{...}{Other arguments passed onto plot}
 }
 \description{
-Plot Function for RRPP
+This function produces multivariate signal-to-noise ratio plots for  
+\code{\link{measurement.error}} objects.  See the function, 
+\code{\link{plot.interSubVar}} for plotting the inter-subject variability
+from a \code{\link{measurement.error}} object, after applying the function, 
+\code{\link{interSubVar}}.
 }
 \author{
 Michael Collyer

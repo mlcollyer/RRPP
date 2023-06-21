@@ -195,14 +195,23 @@ measurement.error <- function(Y,
                  print.progress = print.progress, turbo = TRUE,
                  seed = seed))
   
-  fit$ANOVA$SS[1,] <- fit2$ANOVA$SS[1,]
-  fit$ANOVA$MS[1,] <- fit2$ANOVA$MS[1,]
+  ANOVA <- getANOVAStats(fit, stat = "all")
+  ANOVA2 <- getANOVAStats(fit2, stat = "all")
+  ANOVA$SS[1,] <- ANOVA2$SS[1,]
+  ANOVA$MS[1,] <- ANOVA2$MS[1,]
+  ANOVA$Rsq[1,] <- ANOVA2$Rsq[1,]
+  ANOVA$Fs[1,] <- ANOVA2$Fs[1,]
+  ANOVA$cohenf[1,] <-  ANOVA2$cohenf[1,]
+  
   fit$ANOVA$RSS[1,] <- fit2$ANOVA$RSS[1,]
   fit$ANOVA$TSS[1,] <- fit2$ANOVA$TSS[1,]
   fit$ANOVA$RSS.model[1,] <- fit2$ANOVA$RSS.model[1,]
-  fit$ANOVA$Rsq[1,] <- fit2$ANOVA$Rsq[1,]
-  fit$ANOVA$Fs[1,] <- fit2$ANOVA$Fs[1,]
-  fit$ANOVA$cohenf[1,] <-  fit2$ANOVA$cohenf[1,]
+  fit$ANOVA$SS <- ANOVA$SS
+  fit$ANOVA$MS <- ANOVA$MS
+  fit$ANOVA$Rsq <- ANOVA$Rsq
+  fit$ANOVA$Fs <- ANOVA$Fs
+  fit$ANOVA$cohenf <-  ANOVA$cohenf
+  ANOVA <- ANOVA2 <- NULL
   
   mAOV <- micc <- NULL
   

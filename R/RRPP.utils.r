@@ -2698,6 +2698,12 @@ summary.measurement.error <- function(object, ...){
 }
 
 #' Plot Function for RRPP
+#' 
+#' This function produces multivariate signal-to-noise ratio plots for  
+#' \code{\link{measurement.error}} objects.  See the function, 
+#' \code{\link{plot.interSubVar}} for plotting the inter-subject variability
+#' from a \code{\link{measurement.error}} object, after applying the function, 
+#' \code{\link{interSubVar}}.
 #'
 #' @param x Object from \code{\link{measurement.error}}
 #' @param separate.by.groups A logical value for whether to make separate plots
@@ -2795,7 +2801,7 @@ plot.measurement.error <- function(x,
   if(!is.null(titles))
     plot.args$main <- titles[[1]]
   if(is.null(plot.args$cex.main))
-    plot.args$cex.main <- 0.6
+    plot.args$cex.main <- 1
   
   add.me.connectors <- function(x, y, subj, d, maxy) {
     
@@ -2876,9 +2882,9 @@ plot.measurement.error <- function(x,
       if(is.null(titles)) {
         title(paste("Systematic ME / Random ME for", 
                     "Group", gps[[i]], sep = " "),
-              cex.main = 0.7)
+              cex.main = plot.args$cex.main)
       } else {
-        title(titles[[i]], cex.main = 0.7)
+        title(titles[[i]], cex.main = plot.args$cex.main)
       }
       
       point.args.b <- point.args
@@ -2933,7 +2939,41 @@ plot.measurement.error <- function(x,
   
 }
 
-
+#' Plot Function for RRPP
+#' 
+#' This function produces a heat map for inter-subject variability, based on 
+#' results from a \code{\link{measurement.error}} object.  The function, 
+#' \code{\link{interSubVar}}, must first be used on the \code{\link{measurement.error}} 
+#' object to obtain variability statistics.  This function use the \code{\link{image}}
+#' function to produce plots.  It does little to manipulate such plots, but any
+#' argument for \code{\link{image}} can be manipulated here, as well as the graphical
+#' parameters that can be adjusted within \code{\link{image}}.
+#'
+#' @param x Object from \code{\link{inteSubVar}}
+#' @param ... Arguments passed onto \code{\link{image}} and \code{\link{plot}}.
+#' @method plot interSubVar
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+plot.interSubVar <- function(x, ...){
+  subj <- x$subject.order
+  n <- length(subj)
+  names(subj) <- 1:n
+  cat("If not apparent in the plot, the order of subjects on axes from 1 to",
+      n, "is:\n")
+  print(subj)
+  cat("\n\n")
+  image.args <- list(...)
+  d <- as.matrix(x$var.map)
+  image.args$x <- image.args$y <- 1:n
+  image.args$z <- d
+  image.args$xlab <- image.args$ylab <- "Subjects"
+  do.call(image, image.args)
+  out <- image.args
+  out$subj <- subj
+  class(out) <- "plot.interSubVar"
+  invisible(out)
+}
 
 #' Plot Function for RRPP
 #' 
