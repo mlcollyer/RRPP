@@ -34,7 +34,7 @@ bf617646e5f85466f19e06d6621fd84f *man/manova.update.Rd
 3d3bbec30c1aec40d6ee0a7be8febdb5 *man/ordinate.Rd
 cff2f0f14aff61f5e3237532f54b8b55 *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
-0b1c48422b0771bb762413ad3456f8ec *man/plot.interSubVar.Rd
+cbb0d2f1418836cfcecfced099801257 *man/plot.interSubVar.Rd
 44a2f69384927bdd65e6c52c51502f6d *man/plot.lm.rrpp.Rd
 33c3529beda41e33f92cb446d4567764 *man/plot.looCV.Rd
 59d090624ee285470baff6476c8df62e *man/plot.measurement.error.Rd
@@ -101,7 +101,7 @@ fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 6d26327e5bbe4d10205644df47a7f293 *R/RRPP.support.code.r
-c28601f6d5200deb252e710c41e34691 *R/RRPP.utils.r
+f11754ff6282f82cced4c1ad1bd30bc0 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r

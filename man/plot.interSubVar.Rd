@@ -7,7 +7,7 @@
 \method{plot}{interSubVar}(x, ...)
 }
 \arguments{
-\item{x}{Object from \code{\link{inteSubVar}}}
+\item{x}{Object from \code{\link{interSubVar}}}
 
 \item{...}{Arguments passed onto \code{\link{image}} and \code{\link{plot}}.}
 }

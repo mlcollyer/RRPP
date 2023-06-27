@@ -2949,7 +2949,7 @@ plot.measurement.error <- function(x,
 #' argument for \code{\link{image}} can be manipulated here, as well as the graphical
 #' parameters that can be adjusted within \code{\link{image}}.
 #'
-#' @param x Object from \code{\link{inteSubVar}}
+#' @param x Object from \code{\link{interSubVar}}
 #' @param ... Arguments passed onto \code{\link{image}} and \code{\link{plot}}.
 #' @method plot interSubVar
 #' @export
