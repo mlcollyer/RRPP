@@ -213,6 +213,8 @@ measurement.error <- function(Y,
   fit$ANOVA$cohenf <-  ANOVA$cohenf
   ANOVA <- ANOVA2 <- NULL
   
+  SNR <- fit$ANOVA$SS / fit$ANOVA$RSS
+  
   mAOV <- micc <- NULL
   
   if(multivariate) {
@@ -423,9 +425,12 @@ measurement.error <- function(Y,
     AOV$SS[which(rownames(AOV) == "Random ME")] / SS.tot
     
   indx <- length(na.omit(AOV$F))    
-  AOV$F[1:indx] <- AOV$F[1:indx] * AOV$Df[1:indx] / AOV$Df[indx + 1]
+  AOV$F[1:indx] <- AOV$SS[1:indx] / AOV$SS[indx + 1]
   names(AOV)[which(names(AOV) == "F")] <- "SNR"
-  AOV <- AOV[c(1:4, 6, 7, 8, 5)]
+  AOV <- AOV[c(1:4, 8, 5:7 )]
+  AOV[1:indx, 7] <- apply(SNR, 1, effect.size)
+  AOV[1:indx, 8] <- apply(SNR, 1, pval)
+  names(AOV)[8] <- "Pr(>SNR)"
   
   # SSCP products
   
@@ -488,6 +493,7 @@ measurement.error <- function(Y,
   out.fit$PermInfo <- NULL
   out$Models <- out.fit$Models
   out.fit$Models <- NULL
+  out$SNR <- SNR
   rm(out.fit)
   out$verbose = verbose
   class(out) <- "measurement.error"
