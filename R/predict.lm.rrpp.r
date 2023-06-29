@@ -132,6 +132,7 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
     }
     
     nform <- formula(TT[which(!is.na(tm))])
+    mX <- model.matrix(nform, data = newdata)
     vars <- colnames(nX)[colnames(nX) %in% colnames(mX)]
     if(length(vars) == 0)
       stop("\nVariables in newdata do not match variables used in lm.rrpp fit",
