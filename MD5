@@ -81,7 +81,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 e2f11f0585d5822886ccd3c86d1c21e4 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 e5377dca3d772d371310d259f3feb0d9 *NAMESPACE
-19830ff30939cde7f85b02a492d557eb *NEWS.md
+14a20ce73e3b0050a1f8ff9ddebd5f7f *NEWS.md
 a110900330d278eba804f1e1cfb0d248 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 7f1b8da2b9ac8a5153adfb962e04af57 *R/coef.lm.rrpp.r
@@ -100,12 +100,12 @@ bd8d283272914e133d13e79312ff2065 *R/ordinate.r
 fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
-6d26327e5bbe4d10205644df47a7f293 *R/RRPP.support.code.r
+2a9d7a9fc1025e83f23adc23d1f3786b *R/RRPP.support.code.r
 f11754ff6282f82cced4c1ad1bd30bc0 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r
-987d403df491c09b6db91776c4443a53 *README.md
+e51cd504651b739a78b01db7d8c790e0 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
 7afa9f64f831ffb4fd681eab67e14e81 *tests/testthat/test-RRPP.R

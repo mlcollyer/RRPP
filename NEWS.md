@@ -13,6 +13,7 @@
 *  Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
 * Fixed illogical `print.progess` conditions in `pairwise`.
 * Fixed potential problem with reliance on `Matrix::qrQ`, using rather, `Matrix::qr.Q`.
+* Fixed GLS estimation issue with `pairwise`.
 
 ### OTHER CHANGES
 

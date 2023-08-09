@@ -471,6 +471,11 @@ lm.args.from.formula <- function(cl){
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
   
+  if(SS.type == "Within-subject type II") {
+    SS.type <- "II"
+    WS <- TRUE
+  } else WS <- FALSE
+  
   if(k > 0) {
     if(SS.type == "III"){
       k3 <- mod.k[-1]
@@ -497,6 +502,13 @@ lm.args.from.formula <- function(cl){
     }
     
     names(modf) <- names(modr) <- trms
+    
+    if(WS) {
+      trms.change <- which(trms == fit$subjects.var)
+      modf[[trms.change]] <- Terms
+      modr[[trms.change]] <- Terms[!trms %in% fit$subjects.var]
+    }
+    
   } else {
     modr <- modf <- list("Intercept" = Terms)
   }
