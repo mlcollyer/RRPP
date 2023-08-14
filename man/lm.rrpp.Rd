@@ -82,7 +82,7 @@ the cluster information will be passed to \code{parallel}.}
 
 \item{verbose}{A logical value to indicate if all possible output from an analysis 
 should be retained.  Generally this should be FALSE, unless one wishes to extract, e.g.,
-all possible terms, model matrices, QR decomposition, or rnaom permutation schemes.}
+all possible terms, model matrices, QR decomposition, or random permutation schemes.}
 
 \item{...}{Arguments typically used in \code{\link{lm}}, such as 
 weights or offset, passed on to

@@ -466,12 +466,14 @@ lm.args.from.formula <- function(cl){
   out
 }
 
-.getTerms <- function(Terms, SS.type = "I") {
+.getTerms <- function(fit = NULL, Terms = NULL, SS.type = NULL) {
+  if(is.null(Terms)) Terms <-  fit$LM$Terms
+  if(is.null(SS.type)) SS.type <- fit$ANOVA$SS.type
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
   
-  if(SS.type == "Within-subject type II") {
+  if(!is.null(fit) && SS.type == "Within-subject type II") {
     SS.type <- "II"
     WS <- TRUE
   } else WS <- FALSE

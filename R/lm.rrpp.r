@@ -171,7 +171,7 @@
 #' the cluster information will be passed to \code{parallel}.
 #' @param verbose A logical value to indicate if all possible output from an analysis 
 #' should be retained.  Generally this should be FALSE, unless one wishes to extract, e.g.,
-#' all possible terms, model matrices, QR decomposition, or rnaom permutation schemes.
+#' all possible terms, model matrices, QR decomposition, or random permutation schemes.
 #' @param ... Arguments typically used in \code{\link{lm}}, such as 
 #' weights or offset, passed on to
 #' \code{LM.fit} (an internal RRPP function) for estimation of coefficients.  
@@ -764,7 +764,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     })
     names(Models) <- c("reduced", "full")
     
-    Model.Terms <- .getTerms(Terms, SS.type)
+    Model.Terms <- .getTerms(fit = NULL, Terms = Terms, SS.type = SS.type)
     
     for(i in 1:2){
       for(j in 1:max(1, kk)){

@@ -50,7 +50,7 @@ This is helpful for long-running analyses.}
 \item{verbose}{Either a NULL or logical value for whether to retain
 all MANOVA result (if TRUE).  If NULL, the verbose argument used for
 the \code{\link{lm.rrpp}} is retained for MANOVA update.  Essentially,
-verbose indicates wehether to retain all SSCP matrices and all invR.H matrices,
+verbose indicates whether to retain all SSCP matrices and all invR.H matrices,
 for every model effect, in every RRPP iteration.}
 }
 \value{

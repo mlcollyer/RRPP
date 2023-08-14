@@ -30,14 +30,16 @@
 #' the following should produce results:
 #' 
 #' rownames(Y) <- species
+#' 
 #' rdf <- rrpp.data.frame(Y = Y, subjects = species, x = x)
-#' fit <- lm.rrpp.ws(Y ~ species * x, data = rdf, Cov = myCov, ...)
+#' 
+#' fit <- lm.rrpp.ws(Y ~ species * x, subject = Species, data = rdf, Cov = myCov, ...)
 #' 
 #' where ... means other arguments.  The covariances in the the Covariance matrix can be 
 #' sorted by the subjects factor but data will not be sorted.  Therefore, names matching
 #' the subjects is essential.  Additionally, subjects must be a factor in the data frame
 #' or a factor in the global environment.  It cannot be part of a list.  Something like
-#' subjects - mylist$species will not work.  Assuring that data and subjects are in the 
+#' subjects <- mylist$species will not work.  Assuring that data and subjects are in the 
 #' same \code{\link{rrpp.data.frame}} object as data is the best way to avoid errors.
 #' 
 #' Most attributes for this analysis are explained with \code{\link{lm.rrpp}}.  
@@ -89,7 +91,7 @@
 #' and row-names of data are not used to re-order the covariance matrix.  If the
 #' covariance matrix is small (same in dimension as the number of subject levels), the function
 #' will compile a large covariance matrix that is correct in terms of order, but
-#' this is based on the subjects argument.
+#' this is based on the subjects argument, only.
 #' 
 #' The covariance matrix is important for describing the expected covariances
 #' among observations, especially knowing observations between and within subjects 
@@ -105,7 +107,9 @@
 #' effects are not confounded by inter-subject effects.
 #' 
 #' 
-#' More details will be made.
+#' More details will be made and examples provided after publication of articles introducing 
+#' the novel RRPP approach.
+#' 
 #' 
 #' The \code{\link{lm.rrpp}} arguments not available for this function include: 
 #' full.resid, block, and SS.type.  These arguments are fixed because of

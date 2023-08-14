@@ -81,7 +81,7 @@ Objects of class "measurement.error" return a list of the following:
  \item{SSCP.ME.product}{The products of the inverse of the random ME SSCP and the SSCP matrices
  for systematic ME,.  These are the same matrix products used for eigenanalysis.  
  This is the observed matrix.}
- \item{SSCP.ME.product.std}{A list of the symmetric forms of standradized SSCP.ME.products 
+ \item{SSCP.ME.product.std}{A list of the symmetric forms of standardized SSCP.ME.products 
  that yield orthogonal eigenvectors.}
  \item{all.stats}{All SS, MS, eigen values, etc., from the RRPP analyses performed.  This is the same
  as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.
@@ -94,7 +94,8 @@ requirement for repeated measurements on all research subjects, the analysis ass
 that multiple observations are made.
 }
 \details{
-This function performs analyses as described in XXX to assess systematic and random components of 
+This function performs analyses as described in Collyer and Adams (in review)
+ to assess systematic and random components of 
 measurement error (ME).  It basically performs ANOVA with RRPP,
 but with different restricted randomization strategies.  The reliability of research subject variation 
 can be considered by restricting randomization within replicates; the consistency of replicate measures
@@ -107,10 +108,8 @@ The results include univariate-like statistics based on dispersion of values and
 eigenanalysis performed on a signal to noise matrix product of SSCP matrices 
 (sensu Bookstein and Mitteroecker, 2014) 
 including the inverse of the random component of ME and the systematic
-component of ME.  The multivriate test is a permutational form of multivariate ANOVA (MANOVA).
-
-The first eigenvalue (Roy's maximum root) is used as a test statistic 
-for tests using MANOVA.
+component of ME.  The multivariate test is a form of multivariate ANOVA (MANOVA), using
+RRPP to generate sampling distributions of the major eigenvalue (Roy's maximum root).
 Intraclass correlation coefficients (ICC) are also calculated, both based on dispersion of values and 
 covariance matrices, as descriptive statistics.  Multivariate generalizations of the statistics
 described by Liljequist et al. (2019) are also used, along with eigenanalysis.  
@@ -122,6 +121,9 @@ repeated, using the SSCP for groups-adjusted data.  This approach accounts for g
 which would avoid large subject variation compared to measurement error inflating ICC values.  If there are 
 inherently disparate groups from which subjects are sampled, this approach can elucidate better agreement and 
 consistency in light of group differences.
+
+More details will be made and examples provided after publication of articles introducing 
+the novel RRPP approach for measurement error analysis.
 }
 \examples{
 # TBD

@@ -3166,13 +3166,12 @@ getPermInfo <- function(fit, attribute = c("perms", "perm.method",
 #' The terms for each reduced and full model used in an \code{\link{lm.rrpp}} fit.
 #'
 #' @param fit Object from \code{\link{lm.rrpp}}
-
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 
 getTerms <- function(fit){
-  Model.Terms <- .getTerms(fit$LM$Terms, fit$ANOVA$SS.type)
+  Model.Terms <- .getTerms(fit)
   Model.Terms <- lapply(Model.Terms, function(x){
     lapply(x, function(y){
       attr(y, "dataClasses") <- NULL

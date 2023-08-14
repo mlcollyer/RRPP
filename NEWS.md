@@ -1,4 +1,4 @@
-# CHANGES IN RRPP 1.3.1.999
+# CHANGES IN RRPP 1.4.0
 
 ### NEW FEATURES
 *  Added arguments for restricted resampling to `lm.rrpp` and `predict.lm.rrpp`, and permutation of full model residuals (with restrictions) to lm.rrpp
@@ -62,7 +62,7 @@
 *  Added catch to `anc.BM` for singleton nodes.
 
 ### OTHER CHANGES
-* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated supprot functions to work with updates.
+* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated support functions to work with updates.
 
 # CHANGES IN RRPP 1.1.2
 
