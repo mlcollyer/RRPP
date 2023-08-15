@@ -21,7 +21,7 @@ d28f1c70c8ca9d75c9e67f1cfd555d88 *man/getModelCov.Rd
 5fa1cb32075adf22ffdc34740171e2c4 *man/getTerms.Rd
 2811cac68d4f495d73d37feef0b58304 *man/interSubVar.Rd
 7d5a4f13991d8c3769d6b152aa0cbbec *man/lm.rrpp.Rd
-598b92d52e58e195ed863c688b1489b6 *man/lm.rrpp.ws.Rd
+36e0702d31b6b3e0be51ddc9da19793d *man/lm.rrpp.ws.Rd
 19a39a42115e81d1d1d7e5acb17a1a03 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 620d62785d8cbfd9f4b444024abe6b43 *man/manova.update.Rd
@@ -89,7 +89,7 @@ bd9769ef1c00648cb2a40b4890eeaedd *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 17650c72406414283cc806c56db93a29 *R/interSubVar.r
 2eadfffaebc929805b9c1a8344c1818f *R/lm.rrpp.r
-bf364575c59659b1a2022d696e3a9c8b *R/lm.rrpp.ws.r
+8148bcd7dc0a60a328732cbe6d00fd8e *R/lm.rrpp.ws.r
 72fa4b797683791d4a8b2713c7106897 *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 e81d8e0c3467cd0b1e9b4266abc32844 *R/manova.update.r
@@ -100,7 +100,7 @@ bd8d283272914e133d13e79312ff2065 *R/ordinate.r
 fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
-884eba77d6c67bb1f733ba17f953830b *R/RRPP.support.code.r
+20b4b57d3f2ed1cb7a35717308a40906 *R/RRPP.support.code.r
 4a3739231b0dc19af8f4edfd9d7805de *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r

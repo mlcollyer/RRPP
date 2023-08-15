@@ -12,7 +12,7 @@
 #' an argument for research subjects is also required.  The purpose of this function 
 #' is to account for the non-independence among observations of research subjects 
 #' (due to sampling within subjects), while also allowing for the non-independence 
-#' among subjects to be considered.  
+#' among subjects to be considered (Adams and Collyer, submitted).  
 #' 
 #' By comparison, the covariance matrix option in \code{\link{lm.rrpp}} must have a
 #' one-to-one match to observations, which can be matched by the row names of the data.
@@ -33,7 +33,7 @@
 #' 
 #' rdf <- rrpp.data.frame(Y = Y, subjects = species, x = x)
 #' 
-#' fit <- lm.rrpp.ws(Y ~ species * x, subject = Species, data = rdf, Cov = myCov, ...)
+#' fit <- lm.rrpp.ws(Y ~ species * x, subject = species, data = rdf, Cov = myCov, ...)
 #' 
 #' where ... means other arguments.  The covariances in the the Covariance matrix can be 
 #' sorted by the subjects factor but data will not be sorted.  Therefore, names matching
@@ -201,8 +201,10 @@
 #' \item{Models}{Reduced and full model fits for every possible model 
 #' combination, based on terms
 #' of the entire model, plus the method of SS estimation.}
-#' @references TBD
 #' @seealso \code{\link{lm.rrpp}}; 
+#' @references Adams, D.C and M.L Collyer. (submitted) Extended phylogenetic regression models for 
+#' comparing within-species patterns across the Tree of Life. Proceedings of the National 
+#' Academy of Science.
 #' @references ter Braak, C.J.F. 1992. Permutation versus bootstrap significance tests in 
 #' multiple regression and ANOVA. pp .79–86 In Bootstrapping and Related Techniques. eds K-H. Jockel, 
 #' G. Rothe & W. Sendler.Springer-Verlag, Berlin.
