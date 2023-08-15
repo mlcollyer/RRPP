@@ -129,7 +129,8 @@ the novel RRPP approach for measurement error analysis.
 # TBD
 }
 \references{
-yet to be determined.
+Collyer, M. L., & Adams, D.C. (In review). Interrogating random and 
+systematic measurement error in morphometric sata. Evolutionary Biology.
 
 Bookstein, F. L., & Mitteroecker, P. (2014). Comparing covariance matrices by relative eigenanalysis, 
 with applications to organismal biology. Evolutionary biology, 41(2), 336-350.

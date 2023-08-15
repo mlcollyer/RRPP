@@ -93,7 +93,8 @@
 #'  as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.
 #'  This object only contains the many RRPP ANOVA and MANOVA statistics if verbose = TRUE.}
 
-#' @references  yet to be determined.
+#' @references  Collyer, M. L., & Adams, D.C. (In review). Interrogating random and 
+#' systematic measurement error in morphometric sata. Evolutionary Biology.
 #' @references Bookstein, F. L., & Mitteroecker, P. (2014). Comparing covariance matrices by relative eigenanalysis, 
 #' with applications to organismal biology. Evolutionary biology, 41(2), 336-350.
 #' @references Liljequist, D., Elfving, B., & Skavberg Roaldsen, K. (2019). Intraclass correlation–A discussion 

@@ -661,7 +661,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   SS <- do.call(SS.iter, SS.args)
   cks$SS.type <- SS.type
 
-  ANOVA <- anova.parts(cks, SS, full.resid)
+  ANOVA <- anova_parts(cks, SS, full.resid)
   if(!verbose){
     ANOVA$MS <- ANOVA$Fs <- ANOVA$cohenf <- NULL
   }

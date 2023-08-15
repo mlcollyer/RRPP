@@ -1060,7 +1060,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
 }
 
 
-# anova.parts
+# anova_parts
 # construct an ANOVA tablefrom random SS output
 # used in lm.rrpp
 
@@ -1075,7 +1075,7 @@ getRank <- function(Q) {
   return(r)
 }
 
-anova.parts <- function(checkrs, SS, full.resid = FALSE){
+anova_parts <- function(checkrs, SS, full.resid = FALSE){
   SS.type <- checkrs$SS.type
   perms <- NCOL(SS)
   trms <- checkrs$terms
