@@ -84,7 +84,7 @@ add.tree <- function(OP, tree,
   
   if(anc.pts) points(ancs, ...)
   
-  do.call(points, OP$plot.args)
+  do.call(points, OP$plot_args)
   
   if(return.ancs) return(ancs)
   

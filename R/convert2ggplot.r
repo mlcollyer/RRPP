@@ -76,11 +76,11 @@
 
 convert2ggplot <- function(object){
   x <- y <- NULL
-  pa <- object$plot.args
-  if(!is.null(object$arrow.args)) {
+  pa <- object$plot_args
+  if(!is.null(object$arrow_args)) {
     arrowed <- TRUE
     ellipses <- FALSE
-    ea <- object$arrow.args
+    ea <- object$arrow_args
   } else if(!is.null(object$ellipse.points)) {
     arrowed <- FALSE
     ellipses <- TRUE

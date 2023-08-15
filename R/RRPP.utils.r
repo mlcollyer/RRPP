@@ -641,7 +641,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                          fitted.type = c("o", "t"),
                          predictor = NULL,
                           reg.type = c("PredLine", "RegScore"), ...){
-  plot.args <- list(...)
+  plot_args <- list(...)
   type <- match.arg(type)
   resid.type <- match.arg(resid.type)
   fitted.type <- match.arg(fitted.type)
@@ -675,7 +675,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
   if(type == "diagnostics") {
     
     if(x$LM$p == 1) {
-      plot.args <- NULL
+      plot_args <- NULL
       
       y <- x$LM$Y
       if(resid.type == "n"){
@@ -697,7 +697,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       
     } else {
       
-      plot.args <- NULL
+      plot_args <- NULL
       pca.r <- prcomp(r)
       var.r <- round(pca.r$sdev^2/sum(pca.r$sdev^2)*100,2)
       plot(pca.r$x, pch=19, asp =1,
@@ -707,7 +707,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       pca.f <- prcomp(f)
       var.f <- round(pca.f$sdev^2/sum(pca.f$sdev^2)*100,2)
       dr <- scale(sqrt(diag(tcrossprod(center(r)))))
-      plot.QQ(r)
+      plot_QQ(r)
       plot(pca.f$x[,1], dr, pch=19, 
            xlab = paste("PC 1", var.f[1],"%"),
            ylab = "Standardized Euclidean Distance Residuals",
@@ -727,7 +727,7 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
       } 
       lfr <- cbind(lfr$x, lfr$fitted); lfr <- lfr[order(lfr[,1]),]
       points(lfr, type="l", col="red")
-      plot.het(r,f)
+      plot_het(r,f)
       p <- ncol(r)
     }
     
@@ -744,10 +744,10 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     if(length(predictor) != n) 
       stop("Observations in predictor must equal observations if procD.lm fit")
     
-    plot.args$x <- predictor
+    plot_args$x <- predictor
     
-    plot.args$ylab <- "Regression Score"
-    if(is.null(plot.args$xlab)) plot.args$xlab <- deparse(substitute(predictor))
+    plot_args$ylab <- "Regression Score"
+    if(is.null(plot_args$xlab)) plot_args$xlab <- deparse(substitute(predictor))
 
     xc <- predictor
     if(x$LM$gls) {
@@ -758,13 +758,13 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     X <- as.matrix(X)
     b <- as.matrix(lm.fit(X, f)$coefficients)[1, ]
     Reg.proj <- center(x$LM$Y) %*% b %*% sqrt(solve(crossprod(b)))
-    plot.args$y <- Reg.proj
+    plot_args$y <- Reg.proj
     if(reg.type == "RegScore") {
-      do.call(plot, plot.args)
+      do.call(plot, plot_args)
     } else {
-      plot.args$y <- PL
-      plot.args$ylab <- "PC 1 for fitted values"
-      do.call(plot, plot.args)
+      plot_args$y <- PL
+      plot_args$ylab <- "PC 1 for fitted values"
+      do.call(plot, plot_args)
     }
   }
   if(type == "PC"){
@@ -773,22 +773,22 @@ plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
     P <- center(x$LM$Y)%*%eigs
     v <- pca$sdev^2
     ev <- round(v[1:2]/sum(v)*100, 2)
-    plot.args <- if(NCOL(P) > 1) list(x = P[,1], y = P[,2],  
+    plot_args <- if(NCOL(P) > 1) list(x = P[,1], y = P[,2],  
                         xlab = paste("PC 1 for fitted values: ",ev[1],"%", sep = "") ,
                         ylab = paste("PC 2 for fitted values: ",ev[2],"%", sep = "") ,
                         ...) else list(x = 1:length(P), y = P, 
                                        xlab = "Index", 
                                        ylab = "PC 1 for fitted values: 100%",...)
-    do.call(plot, plot.args)
+    do.call(plot, plot_args)
     PC.points <- P
     rownames(P) <- rownames(x$LM$data)
   }
   out <- list(PredLine = PL, RegScore = Reg.proj, PC.points = PC.points, 
-              plot.args = plot.args)
+              plot_args = plot_args)
   invisible(out)
 }
 
-plot.het <- function(r,f){
+plot_het <- function(r,f){
   r <- center(r)
   f <- center(f)
   r <- sqrt(diag(tcrossprod(r)))
@@ -815,7 +815,7 @@ plot.het <- function(r,f){
   points(lfr[,1], lfr[,3], type="l", col="red")
 }
 
-plot.QQ <- function(r){
+plot_QQ <- function(r){
   r <- center(r)
   r <- sqrt(diag(tcrossprod(r)))
   r <- sort(r)
@@ -871,17 +871,17 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
     c(x$pc.mean, x$pc.lcl, x$pc.ucl)
   conf <- x$confidence
   k <- NROW(x$mean)
-  plot.args <- dots <- list(...)
-  arrow.args <- text.args <- eP <- NULL
+  plot_args <- dots <- list(...)
+  arrow_args <- text_args <- eP <- NULL
   
-  plot.names <- names(plot.args)
+  plot_names <- names(plot_args)
   arrows.names <- c("angle", "length", "code", "col",
                     "lty", "lwd")
   text.names <- c("adj","offset", "pos", "vfont", "labels", "cex")
   
-  plot.args <- plot.args[!(plot.names %in% arrows.names)]
-  arrow.args <- dots[names(dots) %in% arrows.names]
-  arrow.args <- dots[names(dots) %in% text.names]
+  plot_args <- plot_args[!(plot_names %in% arrows.names)]
+  arrow_args <- dots[names(dots) %in% arrows.names]
+  arrow_args <- dots[names(dots) %in% text.names]
   
   absx <- FALSE
   
@@ -897,11 +897,11 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
            call. = FALSE)
   } else xlabel <-  "Predicted values"
   
-  plot.type <- if(NCOL(mpc) == 1) "uni" else "multi"
-  if(absx) plot.type <- "uni"
+  plot_type <- if(NCOL(mpc) == 1) "uni" else "multi"
+  if(absx) plot_type <- "uni"
   response.type <- if(NCOL(mpc) == 1) "uni" else "multi"
   
-  if(plot.type == "uni") {
+  if(plot_type == "uni") {
 
     if(response.type == "uni") {
       
@@ -919,33 +919,33 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       lcl <- if(PC) x$pc.lcl[,1] else x$lcl[,1]
       ucl <- if(PC) x$pc.ucl[,1] else x$ucl[,1]
       
-      plot.args$x <- xx
-      plot.args$y <- resp
-      if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
-      if(is.null(plot.args$ylab)) plot.args$ylab <- if(PC) "PC1: 100%" else  
+      plot_args$x <- xx
+      plot_args$y <- resp
+      if(is.null(plot_args$xlab)) plot_args$xlab <- xlabel
+      if(is.null(plot_args$ylab)) plot_args$ylab <- if(PC) "PC1: 100%" else  
         x$data.name
-      if(is.null(plot.args$ylim)) plot.args$ylim <- c(min(lcl), max(ucl))
-      if(is.null(plot.args$main)) plot.args$main <- mt
-      if(is.null(plot.args$pch)) plot.args$pch <- 19
-      if(is.null(plot.args$cex.main)) plot.args$cex.main <- 0.7
-      plot.args$xaxt <- "n"
+      if(is.null(plot_args$ylim)) plot_args$ylim <- c(min(lcl), max(ucl))
+      if(is.null(plot_args$main)) plot_args$main <- mt
+      if(is.null(plot_args$pch)) plot_args$pch <- 19
+      if(is.null(plot_args$cex.main)) plot_args$cex.main <- 0.7
+      plot_args$xaxt <- "n"
       
-      do.call(plot, plot.args)
+      do.call(plot, plot_args)
 
       if(absx && is.numeric(abscissa)) axis(1, xx) else
         axis(1, at = xx, labels = as.character(xf)) 
       
-      arrow.args$x0 <- xx
-      arrow.args$y0 <- resp
-      arrow.args$x1 <- xx
-      arrow.args$y1 <- lcl
-      if(is.null(arrow.args$angle)) arrow.args$angle <- 90
-      if(is.null(arrow.args$lemgth)) arrow.args$length <- 0.1
+      arrow_args$x0 <- xx
+      arrow_args$y0 <- resp
+      arrow_args$x1 <- xx
+      arrow_args$y1 <- lcl
+      if(is.null(arrow_args$angle)) arrow_args$angle <- 90
+      if(is.null(arrow_args$lemgth)) arrow_args$length <- 0.1
    
-      do.call(arrows, arrow.args)
-      arrow.args$y1 <- ucl
-      do.call(arrows, arrow.args)
-      do.call(points, plot.args)
+      do.call(arrows, arrow_args)
+      arrow_args$y1 <- ucl
+      do.call(arrows, arrow_args)
+      do.call(points, plot_args)
       
     }
     
@@ -979,17 +979,17 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       xf <- as.factor(rownames(x$mean))
       if(absx && is.numeric(abscissa)) xx <- abscissa
       
-      plot.args$x <- xx
-      plot.args$y <- mr[1:k]
-      if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
-      if(is.null(plot.args$ylab)) plot.args$ylab <- ylb
-      if(is.null(plot.args$ylim)) plot.args$ylim <- c(min(mr), max(mr))
-      if(is.null(plot.args$main)) plot.args$main <- mt
-      if(is.null(plot.args$pch)) plot.args$pch <- 19
-      if(is.null(plot.args$cex.main)) plot.args$cex.main <- 0.7
-      plot.args$xaxt <- "n"
+      plot_args$x <- xx
+      plot_args$y <- mr[1:k]
+      if(is.null(plot_args$xlab)) plot_args$xlab <- xlabel
+      if(is.null(plot_args$ylab)) plot_args$ylab <- ylb
+      if(is.null(plot_args$ylim)) plot_args$ylim <- c(min(mr), max(mr))
+      if(is.null(plot_args$main)) plot_args$main <- mt
+      if(is.null(plot_args$pch)) plot_args$pch <- 19
+      if(is.null(plot_args$cex.main)) plot_args$cex.main <- 0.7
+      plot_args$xaxt <- "n"
       
-      do.call(plot, plot.args)
+      do.call(plot, plot_args)
       
       if(absx && is.numeric(abscissa)) axis(1, xx) else
         axis(1, at = xx, labels = as.character(xf)) 
@@ -997,23 +997,23 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       la <- (k + 1):(2 * k)
       ua <- (2 * k +1):(3 * k)
       
-      arrow.args$x0 <- xx
-      arrow.args$y0 <- mr[1:k]
-      arrow.args$x1 <- xx
-      arrow.args$y1 <- mr[la]
-      if(is.null(arrow.args$angle)) arrow.args$angle <- 90
-      if(is.null(arrow.args$lemgth)) arrow.args$length <- 0.1
+      arrow_args$x0 <- xx
+      arrow_args$y0 <- mr[1:k]
+      arrow_args$x1 <- xx
+      arrow_args$y1 <- mr[la]
+      if(is.null(arrow_args$angle)) arrow_args$angle <- 90
+      if(is.null(arrow_args$lemgth)) arrow_args$length <- 0.1
       
-      do.call(arrows, arrow.args)
-      arrow.args$y1 <- mr[ua]
-      do.call(arrows, arrow.args)
-      do.call(points, plot.args)
+      do.call(arrows, arrow_args)
+      arrow_args$y1 <- mr[ua]
+      do.call(arrows, arrow_args)
+      do.call(points, plot_args)
       
     }
     
   }
   
-  if(plot.type == "multi") {
+  if(plot_type == "multi") {
     
     if(PC) {
       
@@ -1047,23 +1047,23 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
     xlim <- c(min(span[,1]), max(span[,1]))
     ylim <- c(min(span[,2]), max(span[,2]))
     
-    plot.args$x <- mr[1:k, 1]
-    plot.args$y <- mr[1:k, 2]
-    if(is.null(plot.args$xlab)) plot.args$xlab <- xlb
-    if(is.null(plot.args$ylab)) plot.args$ylab <- ylb
-    if(is.null(plot.args$xlim)) plot.args$xlim <- xlim
-    if(is.null(plot.args$ylim)) plot.args$ylim <- ylim
-    if(is.null(plot.args$main)) plot.args$main <- mt
-    if(is.null(plot.args$cex.main)) plot.args$cex.main <- 0.7
-    if(is.null(plot.args$asp)) plot.args$asp <- 1
+    plot_args$x <- mr[1:k, 1]
+    plot_args$y <- mr[1:k, 2]
+    if(is.null(plot_args$xlab)) plot_args$xlab <- xlb
+    if(is.null(plot_args$ylab)) plot_args$ylab <- ylb
+    if(is.null(plot_args$xlim)) plot_args$xlim <- xlim
+    if(is.null(plot_args$ylim)) plot_args$ylim <- ylim
+    if(is.null(plot_args$main)) plot_args$main <- mt
+    if(is.null(plot_args$cex.main)) plot_args$cex.main <- 0.7
+    if(is.null(plot_args$asp)) plot_args$asp <- 1
     
-    do.call(plot, plot.args)
+    do.call(plot, plot_args)
     
     if(ellipse) {
       for(i in 1:(dim(eP$ellP)[[3]])){
         points(eP$ellP[,,i], type = "l", ...)
       }
-      if(length(plot.args) == 0) points(eP$means, pch=19, cex = 0.7) else
+      if(length(plot_args) == 0) points(eP$means, pch=19, cex = 0.7) else
         points(eP$means, ...)
       
     } else {
@@ -1071,35 +1071,35 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
       la <- (k + 1):(2 * k)
       ua <- (2 * k +1):(3 * k)
       
-      if(is.null(arrow.args$angle)) arrow.args$angle <- 90
-      if(is.null(arrow.args$lemgth)) arrow.args$length <- 0.05
+      if(is.null(arrow_args$angle)) arrow_args$angle <- 90
+      if(is.null(arrow_args$lemgth)) arrow_args$length <- 0.05
 
-      arrow.args$x0 <- mr[1:k,1]
-      arrow.args$y0 <- mr[1:k,2]
-      arrow.args$x1 <- mr[1:k,1]
-      arrow.args$y1 <- mr[la, 2]
+      arrow_args$x0 <- mr[1:k,1]
+      arrow_args$y0 <- mr[1:k,2]
+      arrow_args$x1 <- mr[1:k,1]
+      arrow_args$y1 <- mr[la, 2]
       
-      do.call(arrows, arrow.args)
+      do.call(arrows, arrow_args)
       
-      arrow.args$y1 <- mr[ua, 2]
-      do.call(arrows, arrow.args)
+      arrow_args$y1 <- mr[ua, 2]
+      do.call(arrows, arrow_args)
       
-      arrow.args$x1 <- mr[la, 1]
-      arrow.args$y1 = mr[1:k,2]
-      do.call(arrows, arrow.args)
+      arrow_args$x1 <- mr[la, 1]
+      arrow_args$y1 = mr[1:k,2]
+      do.call(arrows, arrow_args)
       
-      arrow.args$x1 <- mr[ua, 1]
-      do.call(arrows, arrow.args)
+      arrow_args$x1 <- mr[ua, 1]
+      do.call(arrows, arrow_args)
       
-      do.call(points, plot.args)
+      do.call(points, plot_args)
       
-      arrow.args$y1 <- mr[la, 2] # return to original
+      arrow_args$y1 <- mr[la, 2] # return to original
     }
     
     
     if(label) {
       
-      text.args <- list(x = NULL, y = NULL, cex = 1, col = 1,
+      text_args <- list(x = NULL, y = NULL, cex = 1, col = 1,
                         adj = NULL, offset = 0.5, pos = 1, vfont = NULL,
                         labels = rownames(x$mean))
       
@@ -1107,20 +1107,20 @@ plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
                                "offset", "pos", "vfont", "labels"), 
                              names(dots))
       if(length(dot.match) > 0)
-        text.args[dot.match] <- dots[dot.match]
+        text_args[dot.match] <- dots[dot.match]
       
-      text.args$x <- plot.args$x
-      text.args$y <- plot.args$y
+      text_args$x <- plot_args$x
+      text_args$y <- plot_args$y
       
-      do.call(text, text.args)
+      do.call(text, text_args)
       
     }
     
   }
 
   options(warn = oldw)
-  out <- list(plot.args = plot.args, arrow.args = arrow.args, 
-           text.args = text.args, ellipse.points = eP)
+  out <- list(plot_args = plot_args, arrow_args = arrow_args, 
+           text_args = text_args, ellipse.points = eP)
   class(out) <- "plot.predict.lm.rrpp"
   invisible(out)
 }
@@ -2435,9 +2435,9 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
     if(length(flip > 0)) pcdata[, flip] <- pcdata[, flip] * -1
   }
   
-  plot.args <- list(...)
-  plot.args$x = pcdata[,1]
-  plot.args$y = pcdata[,2]
+  plot_args <- list(...)
+  plot_args$x = pcdata[,1]
+  plot_args$y = pcdata[,2]
   
   if(x$alignment == "principal") {
     xlabel <- paste("PC ", axis1, ": ", round(v[axis1] * 100, 2), "%", sep = "")
@@ -2447,13 +2447,13 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
     ylabel <- paste("C ", axis2,  sep = "")
   }
 
-  if(is.null(plot.args$xlab)) plot.args$xlab <- xlabel
-  if(is.null(plot.args$ylab)) plot.args$ylab <- ylabel
-  if(is.null(plot.args$xlim)) plot.args$xlim <- 1.05*range(plot.args$x)
-  if(is.null(plot.args$ylim)) plot.args$ylim <- 1.05*range(plot.args$y)
-  if(is.null(plot.args$asp)) plot.args$asp <- 1
+  if(is.null(plot_args$xlab)) plot_args$xlab <- xlabel
+  if(is.null(plot_args$ylab)) plot_args$ylab <- ylabel
+  if(is.null(plot_args$xlim)) plot_args$xlim <- 1.05*range(plot_args$x)
+  if(is.null(plot_args$ylim)) plot_args$ylim <- 1.05*range(plot_args$y)
+  if(is.null(plot_args$asp)) plot_args$asp <- 1
   
-  do.call(plot.default, plot.args)
+  do.call(plot.default, plot_args)
   
   if(include.axes){
     abline(h = 0, lty=2, ...)
@@ -2463,7 +2463,7 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
   out <- list(points = pcdata,   
               call = match.call())
   
-  out$plot.args <- plot.args
+  out$plot_args <- plot_args
   class(out) <- "plot.ordinate"
   options(warn = wrn)
   invisible(out)
@@ -2553,7 +2553,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
     stop("Only one component.  No plotting capability with this function.\n", 
          call. = FALSE)
   opars <- par()
-  plot.args <- list(...)
+  plot_args <- list(...)
   
   if(axis1 > length(x$d$obs) || axis2 > length(x$d$obs))
     stop("Choice of at least one axis exceeds total axes possible.\n",
@@ -2569,46 +2569,46 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
     if(length(flip > 0)) pcdata[, flip] <- pcdata[, flip] * -1
   }
   
-  plot.args$main <- NULL
-  plot.args$x <- pcdata[, 1]
-  plot.args$y <- pcdata[, 2]
-  plot.args$xlab <- paste("PC", axis1, "for fitted values:", 
+  plot_args$main <- NULL
+  plot_args$x <- pcdata[, 1]
+  plot_args$y <- pcdata[, 2]
+  plot_args$xlab <- paste("PC", axis1, "for fitted values:", 
                           round(x$d$obs[axis1]/sum(x$d$obs) * 100, 2),
                           "%")
-  plot.args$ylab <- paste("PC", axis2, "for fitted values:", 
+  plot_args$ylab <- paste("PC", axis2, "for fitted values:", 
                           round(x$d$obs[axis2]/sum(x$d$obs) * 100, 2),
                           "%")
-  do.call(plot, plot.args)
+  do.call(plot, plot_args)
   abline(h = 0, lty = 3)
   abline(v = 0, lty = 3)
   title("Observed PC values")
   
-  plot.args$x <- as.matrix(x$scores$cv)[, axis1]
-  plot.args$y <- as.matrix(x$scores$cv)[, axis2]
-  plot.args$xlab <- paste("PC", axis1, "for fitted values:", 
+  plot_args$x <- as.matrix(x$scores$cv)[, axis1]
+  plot_args$y <- as.matrix(x$scores$cv)[, axis2]
+  plot_args$xlab <- paste("PC", axis1, "for fitted values:", 
                           round(x$d$cv[axis1]/sum(x$d$cv) * 100, 2),
                           "%")
-  plot.args$ylab <- paste("PC", axis2, "for fitted values:", 
+  plot_args$ylab <- paste("PC", axis2, "for fitted values:", 
                           round(x$d$cv[axis2]/sum(x$d$cv) * 100, 2),
                           "%")
-  do.call(plot, plot.args)
+  do.call(plot, plot_args)
   abline(h = 0, lty = 3)
   abline(v = 0, lty = 3)
   title("Cross-validated PC values")
   
   k <- seq(1, min(c(length(x$d$obs), length(x$d$cv))))
-  plot.args$x <-  x$d$obs[k]
-  plot.args$y <- x$d$cv[k]
-  plot.args$xlab <- "Observed eigenvalues"
-  plot.args$ylab <- "Cross-validated eigenvalues"
-  plot.args$pch <- 19
-  plot.args$cex = 1
-  plot.args$col = 1
+  plot_args$x <-  x$d$obs[k]
+  plot_args$y <- x$d$cv[k]
+  plot_args$xlab <- "Observed eigenvalues"
+  plot_args$ylab <- "Cross-validated eigenvalues"
+  plot_args$pch <- 19
+  plot_args$cex = 1
+  plot_args$col = 1
   emax <- max(c(x$d$obs, x$d$cv))
-  plot.args$xlim <- c(0, emax)
-  plot.args$ylim <- c(0, emax)
-  plot.args$asp <- 1
-  do.call(plot, plot.args)
+  plot_args$xlim <- c(0, emax)
+  plot_args$ylim <- c(0, emax)
+  plot_args$asp <- 1
+  do.call(plot, plot_args)
   title("Values close to 1:1 imply robust observed scores", 
         cex.main = 0.6)
   abline(0, 1, lty = 3)
@@ -2742,33 +2742,33 @@ plot.measurement.error <- function(x,
   groups <- if(!is.null(x$LM$data$groups))
     x$LM$data$groups else NULL
   
-  plot.args <- list(...)
+  plot_args <- list(...)
   if(!is.null(titles)) titles <- as.list(titles)
   
-  if(is.null(plot.args$pch)) {
-    plot.args$pch <- 20 
+  if(is.null(plot_args$pch)) {
+    plot_args$pch <- 20 
     if(length(x$LM$data) > 3) {
-      plot.args$pch <- plot.args$pch + as.numeric(groups)
+      plot_args$pch <- plot_args$pch + as.numeric(groups)
       ldf.pch <- unique(data.frame(a = groups, 
-                                  b = plot.args$pch))
+                                  b = plot_args$pch))
     } else {
-      plot.args$pch <- plot.args$pch + 1
-      ldf.pch <- data.frame(a = 1, b = plot.args$pch)
+      plot_args$pch <- plot_args$pch + 1
+      ldf.pch <- data.frame(a = 1, b = plot_args$pch)
     }
   } else {
     if(length(x$LM$data) > 3) {
       ldf.pch <- unique(data.frame(a = groups, 
-                                  b = plot.args$pch))
+                                  b = plot_args$pch))
     } else {
-      ldf.pch <-unique(data.frame(a = 1, b = plot.args$pch))
+      ldf.pch <-unique(data.frame(a = 1, b = plot_args$pch))
     }
   }
   
-  if(is.null(plot.args$bg)) plot.args$bg <- as.numeric(reps)
-  ldf.bg <- unique(data.frame(a = reps, b = plot.args$bg))
+  if(is.null(plot_args$bg)) plot_args$bg <- as.numeric(reps)
+  ldf.bg <- unique(data.frame(a = reps, b = plot_args$bg))
   
-  if(is.null(plot.args$col)) plot.args$col <- as.numeric(reps)
-  ldf.col <- unique(data.frame(a = reps, b = plot.args$col))
+  if(is.null(plot_args$col)) plot_args$col <- as.numeric(reps)
+  ldf.col <- unique(data.frame(a = reps, b = plot_args$col))
   
   
   if(!is.null(x$SSCP.ME.product)) {
@@ -2791,17 +2791,17 @@ plot.measurement.error <- function(x,
   
   if(NCOL(pts) == 1) pts <- cbind(pts, 0)
   
-  plot.args$asp <- 1
-  if(is.null(plot.args$xlab))
-    plot.args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
-  if(is.null(plot.args$ylab))
-    plot.args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
-  if(is.null(plot.args$main))
-    plot.args$main <- "Systematic ME / Random ME"
+  plot_args$asp <- 1
+  if(is.null(plot_args$xlab))
+    plot_args$xlab <- paste("EV 1:", round(dx *100, 2), "%")
+  if(is.null(plot_args$ylab))
+    plot_args$ylab <- paste("EV 2:", round(dy *100, 2), "%")
+  if(is.null(plot_args$main))
+    plot_args$main <- "Systematic ME / Random ME"
   if(!is.null(titles))
-    plot.args$main <- titles[[1]]
-  if(is.null(plot.args$cex.main))
-    plot.args$cex.main <- 1
+    plot_args$main <- titles[[1]]
+  if(is.null(plot_args$cex.main))
+    plot_args$cex.main <- 1
   
   add.me.connectors <- function(x, y, subj, d, maxy) {
     
@@ -2850,14 +2850,14 @@ plot.measurement.error <- function(x,
     }
   }
   
-  plot.args$x <- as.matrix(pts)[,1]
-  plot.args$y <- if(NCOL(as.matrix(pts)) == 1) 
+  plot_args$x <- as.matrix(pts)[,1]
+  plot_args$y <- if(NCOL(as.matrix(pts)) == 1) 
     rep(0, length(pts)) else
       as.matrix(pts)[,2]
-  if(is.null(plot.args$ylim)) {
-    ymax <- max(c(plot.args$y, max(plot.args$x)))
-    ymin <- min(plot.args$y)
-    plot.args$ylim <- c(ymin, ymax)
+  if(is.null(plot_args$ylim)) {
+    ymax <- max(c(plot_args$y, max(plot_args$x)))
+    ymin <- min(plot_args$y)
+    plot_args$ylim <- c(ymin, ymax)
   }
   
   if(separate.by.groups && is.null(x$LM$data$groups))
@@ -2865,9 +2865,9 @@ plot.measurement.error <- function(x,
   
   if(separate.by.groups) {
     nplots <- nlevels(x$LM$data$groups)
-    point.args <- plot.args
-    plot.args$type <- "n"
-    plot.args$main <- NULL
+    point_args <- plot_args
+    plot_args$type <- "n"
+    plot_args$main <- NULL
     gps <- levels(x$LM$data$groups)
     if(!is.null(titles)) {
       if(length(titles) != nplots) {
@@ -2878,36 +2878,36 @@ plot.measurement.error <- function(x,
     }
     
     for(i in 1:nplots) {
-      do.call(plot, plot.args)
+      do.call(plot, plot_args)
       if(is.null(titles)) {
         title(paste("Systematic ME / Random ME for", 
                     "Group", gps[[i]], sep = " "),
-              cex.main = plot.args$cex.main)
+              cex.main = plot_args$cex.main)
       } else {
-        title(titles[[i]], cex.main = plot.args$cex.main)
+        title(titles[[i]], cex.main = plot_args$cex.main)
       }
       
-      point.args.b <- point.args
-      point.args.b$pch[which(x$LM$data$groups != gps[[i]])] <- NA
+      point_args.b <- point_args
+      point_args.b$pch[which(x$LM$data$groups != gps[[i]])] <- NA
       
-      do.call(points, point.args.b)
+      do.call(points, point_args.b)
       
       if(add.connectors) add.me.connectors(
-        point.args.b$x[which(!is.na(point.args.b$pch))],
-        point.args.b$y[which(!is.na(point.args.b$pch))],
-        factor(subj[which(!is.na(point.args.b$pch))]), 
-        d, point.args.b$ylim[2])
+        point_args.b$x[which(!is.na(point_args.b$pch))],
+        point_args.b$y[which(!is.na(point_args.b$pch))],
+        factor(subj[which(!is.na(point_args.b$pch))]), 
+        d, point_args.b$ylim[2])
       if(add.labels) add.me.labels(
-        point.args.b$x[which(!is.na(point.args.b$pch))],
-        point.args.b$y[which(!is.na(point.args.b$pch))],
-        factor(subj[which(!is.na(point.args.b$pch))]), 
-        d, point.args.b$ylim[2])
+        point_args.b$x[which(!is.na(point_args.b$pch))],
+        point_args.b$y[which(!is.na(point_args.b$pch))],
+        factor(subj[which(!is.na(point_args.b$pch))]), 
+        d, point_args.b$ylim[2])
       
       if(add.legend) {
         
         legend("topleft", 
                legend = ldf.col$a,
-               pch = unique(na.omit(point.args.b$pch)),
+               pch = unique(na.omit(point_args.b$pch)),
                col = ldf.col$b,
                pt.bg = ldf.bg$b,
                bg = "white")
@@ -2915,12 +2915,12 @@ plot.measurement.error <- function(x,
     }
     
   } else {
-    do.call(plot, plot.args)
+    do.call(plot, plot_args)
     
     if(add.connectors)
-      add.me.connectors(plot.args$x, plot.args$y, subj, d, plot.args$ylim[2])
+      add.me.connectors(plot_args$x, plot_args$y, subj, d, plot_args$ylim[2])
     if(add.labels)
-      add.me.labels(plot.args$x, plot.args$y, subj, d, plot.args$ylim[2])
+      add.me.labels(plot_args$x, plot_args$y, subj, d, plot_args$ylim[2])
     
     if(add.legend) {
       legend("topleft", 
@@ -2933,9 +2933,9 @@ plot.measurement.error <- function(x,
     }
   }
   
-  plot.args$data <- x$LM$data
-  class(plot.args) <- "plot.measurement.error"
-  invisible(plot.args)
+  plot_args$data <- x$LM$data
+  class(plot_args) <- "plot.measurement.error"
+  invisible(plot_args)
   
 }
 
@@ -3004,31 +3004,31 @@ focusMEonSubjects <- function(x, subjects = NULL,
   stop("Subjects names not found within subject factor.\n", call. = FALSE)
 
   no.trm <- which(names(x) == "data")
-  plot.args <- x[-no.trm]
-  plot.args$type <- "n"
-  do.call(plot, plot.args)
+  plot_args <- x[-no.trm]
+  plot_args$type <- "n"
+  do.call(plot, plot_args)
   if(shadow){
-    plot.args$type <- "p"
-    plot.args$cex <- if(!is.null(plot.args$cex)) 
-      min(c(plot.args$cex / 2, 0.5)) else 0.5
-    if(!is.null(plot.args$col)) plot.args$col <- alpha(plot.args$col, 0.1)
-    if(!is.null(plot.args$bg)) plot.args$bg <- alpha(plot.args$bg, 0.1)
-    do.call(points, plot.args)
+    plot_args$type <- "p"
+    plot_args$cex <- if(!is.null(plot_args$cex)) 
+      min(c(plot_args$cex / 2, 0.5)) else 0.5
+    if(!is.null(plot_args$col)) plot_args$col <- alpha(plot_args$col, 0.1)
+    if(!is.null(plot_args$bg)) plot_args$bg <- alpha(plot_args$bg, 0.1)
+    do.call(points, plot_args)
   }
 
-  point.args <- list(x = x$x[keep], y = x$y[keep])
-  if(!is.null(x$pch)) point.args$pch <- if(length(x$pch) > 1)
+  point_args <- list(x = x$x[keep], y = x$y[keep])
+  if(!is.null(x$pch)) point_args$pch <- if(length(x$pch) > 1)
     x$pch[keep] else x$pch
-  if(!is.null(x$col)) point.args$col <- if(length(x$col) > 1)
+  if(!is.null(x$col)) point_args$col <- if(length(x$col) > 1)
     x$col[keep] else x$col
-  if(!is.null(x$bg)) point.args$bg <- if(length(x$bg) > 1)
+  if(!is.null(x$bg)) point_args$bg <- if(length(x$bg) > 1)
     x$bg[keep] else x$bg
-  if(!is.null(x$lty)) point.args$lty <- if(length(x$lty) > 1)
+  if(!is.null(x$lty)) point_args$lty <- if(length(x$lty) > 1)
     x$lty[keep] else x$lty
-  if(!is.null(x$lwd)) point.args$lwd <- if(length(x$lwd) > 1)
+  if(!is.null(x$lwd)) point_args$lwd <- if(length(x$lwd) > 1)
     x$lwd[keep] else x$lwd
-  if(!is.null(x$cex)) point.args$cex <- x$cex
-  do.call(points, point.args)
+  if(!is.null(x$cex)) point_args$cex <- x$cex
+  do.call(points, point_args)
 
   for(i in 1:length(subjects)) {
     keep <- which(x$data$subj %in% subjects[i])
