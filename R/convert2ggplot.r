@@ -31,7 +31,7 @@
 #' 
 #' data(Pupfish)
 #' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
-#' data = Pupfish, print.progress = FALSE, iter = 0) 
+#' data = Pupfish, print.progress = FALSE) 
 #' 
 #' # Predictions (holding alternative effects constant)
 #' 
@@ -56,7 +56,7 @@
 #'                                "Forelimb", "Hindlimb")])
 #'Y <- as.matrix(Y)
 #'R <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
-#'             iter = 0, print.progress = FALSE)$LM$residuals
+#'              print.progress = FALSE)$LM$residuals
 #'
 #' # PCA (on correlation matrix)
 #'
@@ -76,11 +76,11 @@
 
 convert2ggplot <- function(object){
   x <- y <- NULL
-  pa <- object$plot.args
-  if(!is.null(object$arrow.args)) {
+  pa <- object$plot_args
+  if(!is.null(object$arrow_args)) {
     arrowed <- TRUE
     ellipses <- FALSE
-    ea <- object$arrow.args
+    ea <- object$arrow_args
   } else if(!is.null(object$ellipse.points)) {
     arrowed <- FALSE
     ellipses <- TRUE

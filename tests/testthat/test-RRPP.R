@@ -13,49 +13,49 @@ test_that("fit01.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords[,1] ~ 1, data = Pupfish, 
-                                print.progress = FALSE, iter = 3))
+                                print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit02.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ 1, data = Pupfish, 
-                  print.progress = FALSE, iter = 3))
+                  print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit03.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS, data = Pupfish, 
-                  print.progress = FALSE, iter = 3))
+                  print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit04.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  print.progress = FALSE, iter = 3))
+                  print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit05.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  SS.type = "II", print.progress = FALSE, iter = 3))
+                  SS.type = "II", print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit06.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  SS.type = "III", print.progress = FALSE, iter = 3))
+                  SS.type = "III", print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit07.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  turbo = TRUE, print.progress = FALSE, iter = 3))
+                  turbo = TRUE, print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 
@@ -63,7 +63,7 @@ test_that("fit10.works", {
   library(RRPP)
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
-                  print.progress = FALSE, iter = 3))
+                  print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit11.works", {
@@ -71,14 +71,14 @@ test_that("fit11.works", {
   data("Pupfish")
   succeed(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                   int.first = TRUE,
-                  print.progress = FALSE, iter = 3))
+                  print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 test_that("fit12.works", {
   library(RRPP)
   data("PlethMorph")
   succeed(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
-                  print.progress = FALSE, iter = 3))
+                  print.progress = FALSE, iter = 3, verbose = TRUE))
 })
 
 
@@ -88,7 +88,7 @@ test_that("fit13.works", {
   succeed(lm.rrpp(TailLength ~ 1, data = PlethMorph, 
                   print.progress = FALSE, 
                   Cov = PlethMorph$PhyCov,
-                  iter = 3))
+                  iter = 3, verbose = TRUE))
 })
 
 test_that("fit14.works", {
@@ -97,7 +97,7 @@ test_that("fit14.works", {
   succeed(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
                   print.progress = FALSE, 
                   Cov = PlethMorph$PhyCov,
-                  iter = 3))
+                  iter = 3, verbose = TRUE))
 })
 
 test_that("fit15.works", {
@@ -106,7 +106,7 @@ test_that("fit15.works", {
   succeed(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
                   print.progress = FALSE, 
                   Cov = PlethMorph$PhyCov,
-                  iter = 3))
+                  iter = 3, verbose = TRUE))
 })
 
 ### coef.lm.rrpp ----------------------------------------------------------
@@ -115,49 +115,49 @@ test_that("coef.fit01.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords[,1] ~ 1, data = Pupfish, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit02.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ 1, data = Pupfish, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit03.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS, data = Pupfish, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit04.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit05.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  SS.type = "II", print.progress = FALSE, iter = 3)))
+                  SS.type = "II", print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit06.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  SS.type = "III", print.progress = FALSE, iter = 3)))
+                  SS.type = "III", print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit07.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  turbo = TRUE, print.progress = FALSE, iter = 3)))
+                  turbo = TRUE, print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 
@@ -165,7 +165,7 @@ test_that("coef.fit10.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit11.works", {
@@ -173,7 +173,7 @@ test_that("coef.fit11.works", {
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                   int.first = TRUE,
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 
@@ -181,7 +181,7 @@ test_that("coef.fit12.works", {
   library(RRPP)
   data("PlethMorph")
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 
@@ -191,7 +191,7 @@ test_that("coef.fit13.works", {
   succeed(coef(lm.rrpp(TailLength ~ 1, data = PlethMorph, 
                   print.progress = FALSE, 
                   Cov = PlethMorph$PhyCov,
-                  iter = 3)))
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit14.works", {
@@ -200,7 +200,7 @@ test_that("coef.fit14.works", {
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
                   print.progress = FALSE, 
                   Cov = PlethMorph$PhyCov,
-                  iter = 3)))
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit15.works", {
@@ -209,14 +209,14 @@ test_that("coef.fit15.works", {
   succeed(coef(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
                   print.progress = FALSE, 
                   Cov = PlethMorph$PhyCov,
-                  iter = 3)))
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.t.fit01.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords[,1] ~ 1, data = Pupfish, 
-                       print.progress = FALSE, iter = 3),
+                       print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -224,7 +224,7 @@ test_that("coef.t.fit02.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ 1, data = Pupfish, 
-                       print.progress = FALSE, iter = 3),
+                       print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -232,7 +232,7 @@ test_that("coef.t.fit03.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS, data = Pupfish, 
-                       print.progress = FALSE, iter = 3),
+                       print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -240,7 +240,7 @@ test_that("coef.t.fit04.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       print.progress = FALSE, iter = 3),
+                       print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -248,7 +248,7 @@ test_that("coef.t.fit05.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       SS.type = "II", print.progress = FALSE, iter = 3),
+                       SS.type = "II", print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -256,7 +256,7 @@ test_that("coef.t.fit06.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       SS.type = "III", print.progress = FALSE, iter = 3),
+                       SS.type = "III", print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -264,7 +264,7 @@ test_that("coef.t.fit07.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       turbo = TRUE, print.progress = FALSE, iter = 3),
+                       turbo = TRUE, print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -274,7 +274,7 @@ test_that("coef.t.fit10.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
-                       print.progress = FALSE, iter = 3),
+                       print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -283,7 +283,7 @@ test_that("coef.t.fit11.works", {
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                        int.first = TRUE,
-                       print.progress = FALSE, iter = 3),
+                       print.progress = FALSE, iter = 3, verbose = TRUE),
           test = TRUE))
 })
 
@@ -291,7 +291,7 @@ test_that("coef.t.fit12.works", {
   library(RRPP)
   data("PlethMorph")
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
-                  print.progress = FALSE, iter = 3),
+                  print.progress = FALSE, iter = 3, verbose = TRUE),
                test = TRUE))
 })
 
@@ -302,7 +302,7 @@ test_that("coef.t.fit13.works", {
   succeed(coef(lm.rrpp(TailLength ~ 1, data = PlethMorph, 
                        print.progress = FALSE, 
                        Cov = PlethMorph$PhyCov,
-                       iter = 3),
+                       iter = 3, verbose = TRUE),
                test = TRUE))
 })
 
@@ -312,7 +312,7 @@ test_that("coef.t.fit14.works", {
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
                        print.progress = FALSE, 
                        Cov = PlethMorph$PhyCov,
-                       iter = 3),
+                       iter = 3, verbose = TRUE),
                test = TRUE))
 })
 
@@ -322,7 +322,7 @@ test_that("coef.t.fit15.works", {
   succeed(coef(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
                        print.progress = FALSE, 
                        Cov = PlethMorph$PhyCov,
-                       iter = 3),
+                       iter = 3, verbose = TRUE),
                test = TRUE))
 })
 
@@ -335,49 +335,49 @@ test_that("anova.fit01.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords[,1] ~ 1, data = Pupfish, 
-                       print.progress = FALSE, iter = 3)))
+                       print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit02.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ 1, data = Pupfish, 
-                       print.progress = FALSE, iter = 3)))
+                       print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit03.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS, data = Pupfish, 
-                       print.progress = FALSE, iter = 3)))
+                       print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit04.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       print.progress = FALSE, iter = 3)))
+                       print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit05.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       SS.type = "II", print.progress = FALSE, iter = 3)))
+                       SS.type = "II", print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit06.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       SS.type = "III", print.progress = FALSE, iter = 3)))
+                       SS.type = "III", print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit07.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                       turbo = TRUE, print.progress = FALSE, iter = 3)))
+                       turbo = TRUE, print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 
@@ -385,7 +385,7 @@ test_that("anova.fit10.works", {
   library(RRPP)
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
-                       print.progress = FALSE, iter = 3)))
+                       print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit11.works", {
@@ -393,7 +393,7 @@ test_that("anova.fit11.works", {
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                        int.first = TRUE,
-                       print.progress = FALSE, iter = 3)))
+                       print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 test_that("anova.fit11.b.works", {
@@ -401,7 +401,7 @@ test_that("anova.fit11.b.works", {
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                         int.first = TRUE,
-                        print.progress = FALSE, iter = 3),
+                        print.progress = FALSE, iter = 3, verbose = TRUE),
                 effect.type = "cohenf"))
 })
 
@@ -410,7 +410,7 @@ test_that("anova.fit11.c.works", {
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                         int.first = TRUE,
-                        print.progress = FALSE, iter = 3),
+                        print.progress = FALSE, iter = 3, verbose = TRUE),
                 effect.type = "Rsq"))
 })
 
@@ -419,7 +419,7 @@ test_that("anova.fit11.d.works", {
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                         int.first = TRUE,
-                        print.progress = FALSE, iter = 3),
+                        print.progress = FALSE, iter = 3, verbose = TRUE),
                 effect.type = "MS"))
 })
 
@@ -428,7 +428,7 @@ test_that("anova.fit11.e.works", {
   data("Pupfish")
   succeed(anova(lm.rrpp(coords ~ Pop * Sex, data = Pupfish, 
                         int.first = TRUE,
-                        print.progress = FALSE, iter = 3),
+                        print.progress = FALSE, iter = 3, verbose = TRUE),
                 error = c("Pop:Sex", "Pop:Sex", "Residuals")))
 })
 
@@ -437,7 +437,7 @@ test_that("anova.fit12.works", {
   library(RRPP)
   data("PlethMorph")
   succeed(anova(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
-                  print.progress = FALSE, iter = 3)))
+                  print.progress = FALSE, iter = 3, verbose = TRUE)))
 })
 
 
@@ -448,7 +448,7 @@ test_that("predict1.works", {
   library(RRPP)
   data("PupfishHeads")
   fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
-                 data = PupfishHeads, print.progress = FALSE, iter = 3)
+                 data = PupfishHeads, print.progress = FALSE, iter = 3, verbose = TRUE)
   succeed(predict(fit))
 })
 
@@ -459,7 +459,7 @@ test_that("manova1.works", {
   library(RRPP)
   data("Pupfish")
   fit <- lm.rrpp(coords ~ CS + Sex, SS.type = "I", 
-          data = Pupfish, print.progress = FALSE, iter = 3)
+          data = Pupfish, print.progress = FALSE, iter = 3, verbose = TRUE)
   succeed(manova.update(fit, print.progress = FALSE))
 })
 
@@ -469,7 +469,7 @@ test_that("pairwise1.works", {
   library(RRPP)
   data("Pupfish")
   fit <- lm.rrpp(coords ~ CS + Sex, SS.type = "I", 
-          data = Pupfish, print.progress = FALSE, iter = 3)
+          data = Pupfish, print.progress = FALSE, iter = 3, verbose = TRUE)
   succeed(pairwise(fit, groups = Pupfish$Sex, print.progress = FALSE))
 })
 
@@ -480,7 +480,7 @@ test_that("trajectory.analysis1.works", {
   library(RRPP)
   data("Pupfish")
   fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, print.progress = FALSE,
-                 iter = 3)
+                 iter = 3, verbose = TRUE)
   succeed(trajectory.analysis(fit, groups = Pupfish$Pop, 
                               traj.pts = Pupfish$Sex, print.progress = FALSE))
 })
@@ -488,7 +488,7 @@ test_that("trajectory.analysis1.works", {
 test_that("trajectory.analysis2.works", {
   library(RRPP)
   data("motionpaths")
-  fit <- lm.rrpp(trajectories ~ groups, data = motionpaths, iter = 3)
+  fit <- lm.rrpp(trajectories ~ groups, data = motionpaths, iter = 3, verbose = TRUE)
   succeed(trajectory.analysis(fit, groups = motionpaths$groups, traj.pts = 5))
 })
 

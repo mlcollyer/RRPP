@@ -146,11 +146,11 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
   n <- NROW(nX)
   p <- NCOL(object$LM$Y)
   
-  PI <- object$PermInfo$perm.schedule
-  seed <- attr(PI, "seed")
-  perms <- length(PI)
-  indb <- boot.index(length(PI[[1]]), perms -1, block, seed)
-  k <- length(object$Models$full)
+  PI <- getPermInfo(object, attribute = "all")
+  seed <- attr(PI$perm.schedule, "seed")
+  perms <- PI$perms
+  indb <- boot.index(length(PI$perm.schedule[[1]]), 
+                     perms -1, block, seed)
   betas <- beta.boot.iter(object, indb)
   
   predM <- function(b) as.matrix(nX[, rownames(b)] %*% b)

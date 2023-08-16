@@ -9,7 +9,8 @@ manova.update(
   error = NULL,
   tol = 1e-07,
   PC.no = NULL,
-  print.progress = TRUE
+  print.progress = TRUE,
+  verbose = NULL
 )
 }
 \arguments{
@@ -45,6 +46,12 @@ argument and PC.no argument is returned.}
 \item{print.progress}{A logical value to indicate whether a 
 progress bar should be printed to the screen.
 This is helpful for long-running analyses.}
+
+\item{verbose}{Either a NULL or logical value for whether to retain
+all MANOVA result (if TRUE).  If NULL, the verbose argument used for
+the \code{\link{lm.rrpp}} is retained for MANOVA update.  Essentially,
+verbose indicates whether to retain all SSCP matrices and all invR.H matrices,
+for every model effect, in every RRPP iteration.}
 }
 \value{
 An object of class \code{lm.rrpp} is updated to include 
@@ -72,7 +79,7 @@ of variance (MANOVA).
 MANOVA statistics or sums of squares and cross-products (SSCP) matrices
 are calculated over the random permutations of a \code{\link{lm.rrpp}} 
 fit.  SSCP matrices are 
-computed, as are the inverse of R time H (invR.H), where R is a SSCP 
+computed, as are the inverse of R times H (invR.H), where R is a SSCP 
 for the residuals or random effects and H is
 the difference between SSCP matrices of full and reduced models 
 (see below).   From invR.H,

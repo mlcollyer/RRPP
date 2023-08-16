@@ -1,12 +1,21 @@
-# CHANGES IN RRPP 1.3.1.999
+# CHANGES IN RRPP 1.4.0
 
 ### NEW FEATURES
 *  Added arguments for restricted resampling to `lm.rrpp` and `predict.lm.rrpp`, and permutation of full model residuals (with restrictions) to lm.rrpp
+* Added new function, `measurement.error`.
+* Added new function, `lm.rrpp.ws`.
+* Added `verbose` arguments to most analytical functions to reduce dense results.
+* Added utility functions (`getANOVAStats`, `getPermInfo`, `getTerms`, and `getModels`) to accommodate `verbose` function choices, plus allow users to easily extract objects as output.
+* Added S3 generic functions for `measurement.error`, but also added a plot utility function, `focusMEonSubjects`, which builds off of `plot.measurement.error`, to focus attention on specific plot details.
 
 ### BUG FIXES
+*  Fixed SSCP issue in `summary.lm.rrpp` that produces matrices of 0s.  The issue was inherent to `lm.rrpp`, from erroneous assignment of models, only for output (not for mechanics).
 *  Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
 * Fixed illogical `print.progess` conditions in `pairwise`.
+* Fixed potential problem with reliance on `Matrix::qrQ`, using rather, `Matrix::qr.Q`.
 * Fixed GLS estimation issue with `pairwise`.
+
+### OTHER CHANGES
 
 # CHANGES IN RRPP 1.3.1
 
@@ -53,7 +62,7 @@
 *  Added catch to `anc.BM` for singleton nodes.
 
 ### OTHER CHANGES
-* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated supprot functions to work with updates.
+* Updated `lm.rrpp` to have less detritus during use.  Also adjusted/updated support functions to work with updates.
 
 # CHANGES IN RRPP 1.1.2
 

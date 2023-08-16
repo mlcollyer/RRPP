@@ -29,14 +29,16 @@
 #' effects can also be evaluated.
 #' 
 #' @import parallel
-#' @import stats
-#' @import graphics
-#' @import utils
 #' @import ggplot2 
 #' @import Matrix
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @importFrom ape collapse.singles
+#' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
+#' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
+#' resid sd spline var
+#' @importFrom graphics abline arrows axis legend lines par plot.default points text title
+#' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp
@@ -348,7 +350,8 @@ makeDF <- function(form, data, n, nms) {
     
     var.check <- sapply(seq_len(length(dat)), function(j) {
       x <- dat[[j]]
-      length(x) == n
+      nn <- if(is.matrix(x)) nrow(x) else length(x)
+      nn == n
     })
     
     if(any(!var.check)) 
@@ -423,8 +426,6 @@ lm.args.from.formula <- function(cl){
   }
   form <- update(form, Y ~.,)
   lm.args$formula <- form
-  
-  Y <- add.names(Y, nmsY)
   n <- NROW(Y)
   
   if(!is.null(lm.args$data)) {
@@ -432,14 +433,14 @@ lm.args.from.formula <- function(cl){
       attr(lm.args$data, "row.names") else 
         get.names.from.list(lm.args$data)
 
-    lm.args$data <- makeDF(form, lm.args$data, n, nmsDF)
+    lm.args$data <- makeDF(form, lm.args$data, n, nms = NULL)
+    
   }
   
   if(is.null(lm.args$data)) {
     lm.args$data <- data.frame(Int = rep(1, n))
     lm.args$data$Y <- as.matrix(Y)
     lm.args$data <- lm.args$data[-1]
-    rownames(lm.args$data) <-nmsY
   }
   
   lm.args$data$Y <- Y
@@ -454,7 +455,7 @@ lm.args.from.formula <- function(cl){
          call. = FALSE)
   
   Y <- as.matrix(f$y)
-  Y <- add.names(Y, rownames(f$model))
+  Y <- add.names(Y, nmsY)
   out <- list(Terms = f$terms, model = f$model, Y = Y)
   if(!is.null(Dy)) {
     d <- as.matrix(Dy)
@@ -465,10 +466,17 @@ lm.args.from.formula <- function(cl){
   out
 }
 
-getTerms <- function(Terms, SS.type = "I") {
+.getTerms <- function(fit = NULL, Terms = NULL, SS.type = NULL) {
+  if(is.null(Terms)) Terms <-  fit$LM$Terms
+  if(is.null(SS.type)) SS.type <- fit$ANOVA$SS.type
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
+  
+  if(!is.null(fit) && SS.type == "Within-subject type II") {
+    SS.type <- "II"
+    WS <- TRUE
+  } else WS <- FALSE
   
   if(k > 0) {
     if(SS.type == "III"){
@@ -496,6 +504,13 @@ getTerms <- function(Terms, SS.type = "I") {
     }
     
     names(modf) <- names(modr) <- trms
+    
+    if(WS) {
+      trms.change <- which(trms == fit$subjects.var)
+      modf[[trms.change]] <- Terms
+      modr[[trms.change]] <- Terms[!trms %in% fit$subjects.var]
+    }
+    
   } else {
     modr <- modf <- list("Intercept" = Terms)
   }
@@ -770,7 +785,7 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 getHb <- function(Q) {
   S4 <- !(inherits(Q, "qr"))
   k <- getRank(Q)
-  R <- if(S4) qrR(Q) else qr.R(Q)
+  R <- suppressWarnings(qr.R(Q))
   U <- qr.Q(Q)
   Rs <- try(fast.solve(R), silent = TRUE)
   if(inherits(Rs, "try-error")){
@@ -1045,7 +1060,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
 }
 
 
-# anova.parts
+# anova_parts
 # construct an ANOVA tablefrom random SS output
 # used in lm.rrpp
 
@@ -1060,7 +1075,7 @@ getRank <- function(Q) {
   return(r)
 }
 
-anova.parts <- function(checkrs, SS, full.resid = FALSE){
+anova_parts <- function(checkrs, SS, full.resid = FALSE){
   SS.type <- checkrs$SS.type
   perms <- NCOL(SS)
   trms <- checkrs$terms
@@ -1165,6 +1180,8 @@ beta.boot.iter <- function(fit, ind) {
   perms <- length(ind)
   
   Pcov <- fit$LM$Pcov
+  if(is.null(Pcov) && !is.null(fit$LM$Cov))
+    Pcov <- Cov.proj(fit$LM$Cov)
   
   rrpp.args <- list(fitted = as.matrix(fitted), 
                     residuals = as.matrix(res),
@@ -1379,6 +1396,14 @@ aov.single.model <- function(object, ...,
                              effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
                              error = NULL) {
   x <- object$ANOVA
+  if(is.null(x$Fs)) {
+    AN <- getANOVAStats(object, stat = "all")
+    x[c("SS", "MS", "Rsq", "Fs", "cohenf")] <-
+       AN[ c("SS", "MS", "Rsq", "Fs", "cohenf")]
+    AN <- NULL
+  }
+  
+  if(is.null(x$Fs)) x$Fs <- x$F
   df <- x$df
   k <- length(df)-2
   kk <- length(object$LM$term.labels)
@@ -1482,7 +1507,7 @@ aov.single.model <- function(object, ...,
     Residuals <- c(df[k+1], RSS[[1]], RSS[[1]]/df[k+1], 
                    RSS[[1]]/TSS[[1]], rep(NA, 3))
     Total <- c(df[k+2], TSS[[1]], rep(NA, 5))
-    tab <- data.frame(Df=df[1:k], SS=SS, MS = MS, Rsq = Rsq, 
+    tab <- data.frame(Df = df[1:k], SS=SS, MS = MS, Rsq = Rsq, 
                       F = Fs, Z = Z, P.val = P.val)
     tab <- rbind(tab, Residuals = Residuals, Total = Total)
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
@@ -1521,7 +1546,8 @@ aov.multi.model <- function(object, lm.list,
   
   if(inherits(object, "lm.rrpp")) refModel <- object else 
     stop("The reference model is not a class lm.rrpp object")
-  ind <- refModel$PermInfo$perm.schedule
+  PermInfo <- getPermInfo(refModel, attribute = "all")
+  ind <- PermInfo$perm.schedule
   perms <- length(ind)
   
   if(refModel$LM$gls) {
@@ -1686,9 +1712,12 @@ out
 # gets the slopes for groups from a lm.rrpp fit
 # used in pairwise
 getSlopes <- function(fit, x, g){
-  k <- length(fit$Models$full)
+  
+  beta <- fit$LM$random.coef
+  k <- length(beta)
+  beta <- beta[[k]]
+  n <- fit$LM$n
   p <- fit$LM$p
-  beta <- fit$LM$random.coef[[k]]
   X <- fit$LM$X
   X <- X[, colnames(X)  %in% rownames(beta[[1]])]
   getFitted <- function(b) X %*% b
@@ -1717,12 +1746,13 @@ getSlopes <- function(fit, x, g){
 
 # getLSmeans
 # gets the LS means for groups from a lm.rrpp fit, 
-# after constaining covariates to mean values
+# after constraining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
-  k <- length(fit$Models$full)
+  beta <- fit$LM$random.coef
+  k <- length(beta)
+  beta <- beta[[k]]
   n <- fit$LM$n
-  beta <- fit$LM$random.coef[[k]]
   dat <- fit$LM$data
   covCheck <- sapply(dat, class)
   for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") 
@@ -1771,28 +1801,28 @@ vec.cor.matrix <- function(M) {
 # P-values across a list
 # used in pairwise
 Pval.list <- function(M){
-  pvals <- M[[1]]
-  n <- length(M)
-  for(i in 1:length(pvals)) {
-    y <- sapply(1:n, function(j) M[[j]][i])
-    pvals[i] <- pval(y)
-  }
-  diag(pvals) <- 1
-  pvals
+  
+  y <- sapply(M, function(x) as.vector(as.dist(x)))
+  if(is.vector(y)) y <- matrix(y, 1, length(y))
+  P <- apply(y, 1, pval)
+  D <- as.dist(M[[1]])
+  D[1:length(D)] <- P
+  P <- as.matrix(D)
+  diag(P) <- 1
+  P
 }
 
 # effect.list
 # effect size across a list
 # used in pairwise
 effect.list <- function(M){
-  Z <- M[[1]]
-  n <- length(M)
-  for(i in 1:length(Z)) {
-    y <- sapply(1:n, function(j) M[[j]][i])
-    Z[i] <- effect.size(y)
-  }
-  diag(Z) <- 0
-  Z
+  
+  y <- sapply(M, function(x) as.vector(as.dist(x)))
+  if(is.vector(y)) y <- matrix(y, 1, length(y))
+  Z <- apply(y, 1, effect.size)
+  D <- as.dist(M[[1]])
+  D[1:length(D)] <- Z
+  as.matrix(D)
 }
 
 # percentile.list
@@ -1947,6 +1977,8 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   R <- if(gls) {
     if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
   } else R
+  
+  R <- as.matrix(R)
   
   if(!is.null(w)) {
     excl <- w <= 0

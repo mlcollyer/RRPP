@@ -228,14 +228,19 @@
 pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL, 
                      print.progress = FALSE) {
   fitf <- fit
-  ind <- fitf$PermInfo$perm.schedule
+  term.labels <- fit$LM$term.labels
+  n <- fit$LM$n
+  p <- fit$LM$p
+  PermInfo <- getPermInfo(fit, attribute = "all")
+  Models <- getModels(fit, attribute = "all")
+  ind <- PermInfo$perm.schedule
   perms <- length(ind)
   gls <- fitf$LM$gls
-  if(!inherits(fit, "lm.rrpp")) 
+  if(!inherits(fitf, "lm.rrpp")) 
     stop("The model fit must be a lm.rrpp class object")
   
   if(!is.null(fit.null)) {
-    fitf$PermInfo$perm.method <- "RRPP"
+    PermInfo$perm.method <- "RRPP"
     if(!inherits(fit.null, "lm.rrpp")) 
       stop("The null model fit must be a lm.rrpp class object")
     
@@ -246,10 +251,10 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     }
   }
   
-  n <- fitf$LM$n
-  p <- fitf$LM$p
-  k <- length(fitf$LM$term.labels)
-  kk <- length(fitf$Models$full)
+  fit <- NULL
+  
+  k <- length(term.labels)
+  kk <- length(Models$full)
   if(k != kk) {
     cat("Because the linear model design matrix is not full rank, there might be an issue.\n")
     cat("If there is a subsequent error, this is probably why.\n\n")
@@ -257,14 +262,18 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   
   Y <- fitf$LM$Y
   if(gls) {
+    if(!is.null(fitf$LM$Cov) && is.null(fitf$LM$PCov))
+       fitf$LM$Pcov <- Cov.proj(fitf$LM$Cov)
     Y <- if(!is.null(fitf$LM$Pcov)) fitf$LM$Pcov %*% Y else
       Y %*% sqrt(fitf$LM$weights)
   }
   
-  X <- fitf$Models$reduced[[max(1, kk)]]$X
+  X <- Models$reduced[[max(1, kk)]]$X
   if(!is.null(fit.null)) {
     X <- fit.null$LM$X
     if(fit.null$LM$gls) {
+      if(!is.null(fit.null$LM$Cov) && is.null(fit.null$LM$PCov))
+        fit.null$LM$Pcov <- Cov.proj(fit.null$LM$Cov)
       X <- if(!is.null(fit.null$LM$Pcov)) fit.null$LM$Pcov %*% X else
         X %*% sqrt(fit.null$LM$weights)
     }
@@ -302,24 +311,26 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       Qf <- qr(fitf$LM$X * sqrt(fit$LM$weights))
     }
   } else Qf <- qr(fitf$LM$X)
-  
-  Qf <- qr(fitf$LM$X)
+
   H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
   getCoef <- function(y) H %*% y
   
-  coef.n <- lapply(1:perms, function(j){
-    step <- j
-    if(print.progress && !is.null(fit.null)) setTxtProgressBar(pb,step)
-    rrpp.args$ind.i <- ind[[j]]
-    y <- do.call(rrpp, rrpp.args)
-    getCoef(y)
-  })
-  
   if(is.null(fitf$LM$random.coef)) {
+    
+    coef.n <- lapply(1:perms, function(j){
+      step <- j
+      if(print.progress && !is.null(fit.null)) 
+        setTxtProgressBar(pb,step)
+      rrpp.args$ind.i <- ind[[j]]
+      y <- do.call(rrpp, rrpp.args)
+      getCoef(y)
+    })
+    
     fitf$LM$random.coef <- vector("list", length = kk)
-    names(fitf$LM$random.coef) <- fit$LM$term.labels
+    names(fitf$LM$random.coef) <- term.labels
+    fitf$LM$random.coef[[max(1, kk)]] <- coef.n
   }
-  fitf$LM$random.coef[[max(1, kk)]] <- coef.n
+  
   step <- perms + 1
   if(print.progress && !is.null(fit.null)) {
     setTxtProgressBar(pb,step)
@@ -330,7 +341,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   gp.rep <- by(groups, groups, length)
   
   
-  if(length(groups) != fitf$LM$n) 
+  if(length(groups) != n) 
     stop("The length of the groups factor does not match the number of observations 
          in the lm.rrpp fit")
   if(!is.null(covariate)) {
@@ -340,7 +351,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
       stop("The covariate argument can only be a single covariate, not a matrix")
     if(length(unique(covariate)) < 2) 
       stop("The covariate vector appears to have no variation.")
-    if(length(covariate) != fitf$LM$n)
+    if(length(covariate) != n)
       stop("The length of the covariate does not match the number of observations 
            in the lm.rrpp fit")
   }
@@ -399,7 +410,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
               slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
               slopes.length = slopes.length, 
               slopes.diff.length = slopes.diff.length,
-              vars = vars, n = fit$LM$n, p = fit$LM$p, PermInfo = fitf$PermInfo)
+              vars = vars, n = n, p = p, PermInfo = fitf$PermInfo)
   
   class(out) <- "pairwise"
   out

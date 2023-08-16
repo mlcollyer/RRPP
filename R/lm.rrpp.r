@@ -169,9 +169,13 @@
 #' except one.  If FALSE, only one core is used. A numeric value directs the number of cores to 
 #' use, but one core will always be spared.  If a predefined socket cluster (Windows) is provided,
 #' the cluster information will be passed to \code{parallel}.
+#' @param verbose A logical value to indicate if all possible output from an analysis 
+#' should be retained.  Generally this should be FALSE, unless one wishes to extract, e.g.,
+#' all possible terms, model matrices, QR decomposition, or random permutation schemes.
 #' @param ... Arguments typically used in \code{\link{lm}}, such as 
 #' weights or offset, passed on to
-#' \code{rrpp.fit} for estimation of coefficients.  If both weights and 
+#' \code{LM.fit} (an internal RRPP function) for estimation of coefficients.  
+#' If both weights and 
 #' a covariance matrix are included,
 #' weights are ignored (since inverses of weights are the diagonal elements 
 #' of weight matrix, used in lieu
@@ -396,7 +400,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
                      RRPP = TRUE, full.resid = FALSE, block = NULL,
                      SS.type = c("I", "II", "III"),
                      data = NULL, Cov = NULL,
-                     print.progress = FALSE, Parallel = FALSE, ...) {
+                     print.progress = FALSE, Parallel = FALSE, 
+                     verbose = FALSE, ...) {
   
   Parallel.args <- Parallel.setup(Parallel)
   
@@ -481,6 +486,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     Y <- add.names(Y, id)
   }
   
+  attr(Terms, ".Environment") <- NULL
   term.labels <- attr(Terms, "term.labels")
   k <- length(term.labels)
   
@@ -509,7 +515,8 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
     if(is.null(rownames(Cov))) rownames(Cov) <- 1:n
     if(is.null(colnames(Cov))) colnames(Cov) <- 1:n
-    if(!is.matrix(Cov)) stop("The covariance matrix must be a matrix.")
+    if(!inherits(Cov, "Matrix") && !inherits(Cov, "matrix")) 
+      stop("The covariance matrix must be a matrix.")
     if(!is.null(id) && !is.null(rownames(Cov))) {
       if(length(setdiff(id, rownames(Cov))) > 0)
         stop("Data names and covariance matrix names do not match.\n", call. = FALSE)
@@ -579,14 +586,14 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   if(RRPP) {
     if(full.resid) {
       Uf <- cks$Uf
-      FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+      FR <- lapply(1:max(1, kk), function(j){
         fitted <- as.matrix(fastFit(Uf[[j]], TY, n , p))
         residuals <- as.matrix(TY - fitted)
         out <- list(fitted = fitted, residuals = residuals)
       })
       Uf <- NULL
     } else {
-      FR <- obs.FR <-lapply(1:max(1, kk), function(j){
+      FR <-lapply(1:max(1, kk), function(j){
         fitted <- as.matrix(fastFit(Ur[[j]], TY, n , p))
         residuals <- as.matrix(TY - fitted)
         out <- list(fitted = fitted, residuals = residuals)
@@ -594,7 +601,7 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     }
 
   } else {
-    FR <- obs.FR <- lapply(1:max(1, kk), function(j){
+    FR <- lapply(1:max(1, kk), function(j){
       fitted <-  matrix(0, n, p)
       residuals <- as.matrix(TY)
       list(fitted = fitted, residuals = residuals)
@@ -654,7 +661,10 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   SS <- do.call(SS.iter, SS.args)
   cks$SS.type <- SS.type
 
-  ANOVA <- anova.parts(cks, SS, full.resid)
+  ANOVA <- anova_parts(cks, SS, full.resid)
+  if(!verbose){
+    ANOVA$MS <- ANOVA$Fs <- ANOVA$cohenf <- NULL
+  }
   SS.args <- NULL
   
   obs.fit <- lm.rrpp.fit(X, Y, Pcov = Pcov, w = w, offset = o, 
@@ -662,13 +672,14 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   QR <- obs.fit$qr
   U <- qr.Q(QR)
-  R <- if(inherits(QR, "qr")) qr.R(QR) else qrR(QR)
+  R <- suppressWarnings(qr.R(QR))
   Hb <- as.matrix(tcrossprod(fast.solve(R), U))
   if(is.null(rownames(Hb))) rownames(Hb) <- colnames(X)
   coefficients <- as.matrix(Hb %*% TY)
   if(is.null(rownames(coefficients)))  
     rownames(coefficients) <- rownames(Hb)
   R <- U <- QR <- NULL
+
   QR <- if(gls && !is.null(Pcov)) qr(Pcov %*% X) else
     if(gls && !is.null(w)) qr(X * sqrt(w)) else qr(X)
   
@@ -682,9 +693,17 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
              QR = QR,
              Terms = Terms, term.labels = term.labels,
              data = exchange.args$model,
-             random.coef = random.coef,
-             random.coef.distances = random.coef.distances 
+             random.coef = if(verbose) random.coef else NULL,
+             random.coef.distances = if(verbose) 
+               random.coef.distances else NULL
   )
+  
+  attr(LM$Terms,".Environment") <- NULL
+  attr(LM$form,".Environment") <- NULL
+  if(verbose && !turbo) {
+    environment(LM$random.coef) <- 
+      environment(LM$random.coef.distances) <- NULL
+  }
   
   LM$weights <- w
   LM$offset <- o
@@ -706,16 +725,22 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
   
   if(!is.null(Cov)) {
     LM$Cov <- Cov
-    LM$Pcov <- Pcov
+    LM$Pcov <- if(verbose) Pcov else NULL
+    rm(Cov, Pcov)
   }
+  
   
   PermInfo <- list(perms = perms,
                    perm.method = ifelse(RRPP==TRUE,"RRPP", "FRPP"), 
-                   full.resid = full.resid, 
+                   full.resid = full.resid, block = block,
                    perm.schedule = ind, perm.seed = seed)
+  if(!verbose) PermInfo$perm.schedule <- NULL
+  rm(ind)
+  
   out <- list(call = match.call(), 
               LM = LM, ANOVA = ANOVA, PermInfo = PermInfo, turbo = turbo)
-  
+  environment(out$PermInfo$perm.seed) <- 
+    environment(out$PermInfo$perm.sschedule) <- NULL
   
   if(k == 0 && print.progress)
     cat("\nNo terms for ANOVA; only RSS calculated in each permutation\n")
@@ -726,30 +751,31 @@ lm.rrpp <- function(f1, iter = 999, turbo = FALSE, seed = NULL, int.first = FALS
     out$LM$dist.coefficients <- D.coef
   }
   
-  
-  Models <-lapply(1:2, function(j){
-    res <- lapply(1:max(1, kk), function(jj){
-      X <- Xs[[j]][[jj]]
-      qr <- cks$QR[[j]][[jj]]
-      fitted <- fastFit(qr.Q(qr), TY, n, p)
-      residuals <- TY - fitted
-      list(X = X, qr = qr, fitted.values = fitted, 
-           residuals = residuals)
+  if(verbose) {
+    
+    Models <-lapply(1:2, function(j){
+      res <- lapply(1:max(1, kk), function(jj){
+        X <- Xs[[j]][[jj]]
+        qr <- cks$QR[[j]][[jj]]
+        list(X = X, qr = qr)
+      })
+      names(res) <- cks$realized.trms
+      res
     })
-    names(res) <- cks$realized.trms
-    res
-  })
-  names(Models) <- c("reduced", "full")
-  
-  Model.Terms <- getTerms(Terms, SS.type)
-  
-  for(i in 1:2){
-    for(j in 1:max(1, kk)){
-      Models[[i]][[j]]$terms <- Model.Terms[[i]][[j]]
+    names(Models) <- c("reduced", "full")
+    
+    Model.Terms <- .getTerms(fit = NULL, Terms = Terms, SS.type = SS.type)
+    
+    for(i in 1:2){
+      for(j in 1:max(1, kk)){
+        Models[[i]][[j]]$terms <- Model.Terms[[i]][[j]]
+      }
     }
-  }
-  
+    
+  } else Models <- NULL
+
   out$Models <- Models
+  out$verbose <- verbose
   
   class(out) = "lm.rrpp"
   

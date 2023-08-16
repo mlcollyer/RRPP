@@ -7,7 +7,7 @@ RRPP is a software package for evaluating linear models with residual randomizat
 
 <code> install.packages("RRPP") </code>
 
-### To install the current version of RRPP the R-package from Github using devtools:
+### To install the current version of the RRPP R-package from Github using devtools:
 
 <i> Within R:</i>
 

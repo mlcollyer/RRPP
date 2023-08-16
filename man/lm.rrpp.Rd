@@ -18,6 +18,7 @@ lm.rrpp(
   Cov = NULL,
   print.progress = FALSE,
   Parallel = FALSE,
+  verbose = FALSE,
   ...
 )
 }
@@ -79,9 +80,14 @@ except one.  If FALSE, only one core is used. A numeric value directs the number
 use, but one core will always be spared.  If a predefined socket cluster (Windows) is provided,
 the cluster information will be passed to \code{parallel}.}
 
+\item{verbose}{A logical value to indicate if all possible output from an analysis 
+should be retained.  Generally this should be FALSE, unless one wishes to extract, e.g.,
+all possible terms, model matrices, QR decomposition, or random permutation schemes.}
+
 \item{...}{Arguments typically used in \code{\link{lm}}, such as 
 weights or offset, passed on to
-\code{rrpp.fit} for estimation of coefficients.  If both weights and 
+\code{LM.fit} (an internal RRPP function) for estimation of coefficients.  
+If both weights and 
 a covariance matrix are included,
 weights are ignored (since inverses of weights are the diagonal elements 
 of weight matrix, used in lieu
