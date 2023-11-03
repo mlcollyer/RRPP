@@ -1,5 +1,4 @@
 3afd0240291efa1407fe893ad7e87e69 *cran-comments.md
-0710debb0814f1adcdd7947349c5900e *CRAN-SUBMISSION
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
@@ -104,11 +103,9 @@ d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 20b4b57d3f2ed1cb7a35717308a40906 *R/RRPP.support.code.r
 185e6f36fd76a56d750660cb68fa6cd6 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
-70cfb5fc752315e5da28b00ae9ec6143 *R/shared.support.code.r
+e1c8d08f10aa16de739a380ec3107603 *R/shared.support.code.r
 a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r
 e51cd504651b739a78b01db7d8c790e0 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
 7afa9f64f831ffb4fd681eab67e14e81 *tests/testthat/test-RRPP.R
-0635eca5f6d8a463b61c35f9596ee0f7 *vignettes/ANOVA.vs.MANOVA.Rmd
-7ecbf1880a3df2a70e696e9e36d0a447 *vignettes/Using.RRPP.Rmd
