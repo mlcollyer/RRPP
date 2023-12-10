@@ -1875,7 +1875,7 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   
   if(attribute == "TC"){
     if(is.null(TC)) stop("Trajectory correlations not available\n", 
-                         call = FALSE)
+                         call. = FALSE)
     L <- r.summary.from.list(TC, confidence = confidence)
     
     if(angle.type == "deg") {
