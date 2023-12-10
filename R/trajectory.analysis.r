@@ -270,18 +270,7 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
     dimnames(to) <- list(gl, gl)
     to
   }) else NULL
-  
-  if(is.null(Tcor)) {
-    
-    warning(
-      paste(
-        "\nUnivariate response variable detected...",
-        "\nTrajectory correlation analyses not possible.\n",
-        sep = " "),
-      noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
-    
-  }
-  
+
   # Pairwise shape differences
   
   p <- NROW(trajectories[[1]][[1]])

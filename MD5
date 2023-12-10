@@ -104,7 +104,7 @@ d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 185e6f36fd76a56d750660cb68fa6cd6 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 e1c8d08f10aa16de739a380ec3107603 *R/shared.support.code.r
-a137878d1c69d1852636ee86405d704c *R/trajectory.analysis.r
+0cc54f095d74a3b006a4d2b406d3c075 *R/trajectory.analysis.r
 e51cd504651b739a78b01db7d8c790e0 *README.md
 7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
