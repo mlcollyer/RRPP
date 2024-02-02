@@ -118,8 +118,13 @@
 #' 
 #' 
 #' @param f1 A formula for the linear model (e.g., y~x1+x2).  
-#' @param subjects A required factor (or vector coercible to factor) of 
-#' subjects that might have multiple data observations.
+#' @param subjects A variable that can be found in the data frame indicating the research subjects
+#' for the analysis.  This variable must be in the data frame.  Is can be either numeric 
+#' (if its slot in the data frame is known) or a character, e.g., "sub_id".  It is imperative that
+#' it is ordered the same as the data but that the data do not have row names the same as subjects.
+#' For example, the subjects variable in the data frame might be sub_id: sub1, sub1, sub1, sub2,
+#' sub2, sub2, ... and the row names of the data might be obs1, obs2, obs3, obs4, obs5, obs6, ...  
+#' The data do not need to have row names but the subjects variable has to be provided.
 #' @param iter Number of iterations for significance testing
 #' @param turbo A logical value that if TRUE, suppresses coefficient estimation 
 #' in every random permutation.  This will affect subsequent analyses that 
@@ -147,7 +152,7 @@
 #' @param gamma A sample-size scaling parameter that is adjusted to be 1 ("equal")
 #' scaling or the square-root of the sample size for subject observations ("sample").
 #' @param data A data frame for the function environment, see 
-#' \code{\link{rrpp.data.frame}}
+#' \code{\link{rrpp.data.frame}}.  A data frame is required for this analysis.
 #' @param print.progress A logical value to indicate whether a progress 
 #' bar should be printed to the screen.
 #' This is helpful for long-running analyses.
@@ -215,166 +220,39 @@ lm.rrpp.ws <- function(f1, subjects,
                        iter = 999, turbo = FALSE, 
                        seed = NULL, int.first = FALSE,
                        RRPP = TRUE, 
-                       data = NULL, Cov = NULL,
-                       delta = 0, 
+                       data, Cov = NULL,
+                       delta = 0.001, 
                        gamma = c("sample", "equal"),
                        print.progress = FALSE, Parallel = FALSE, ...) {
   
-  sub.var.name <- deparse(substitute(subjects))
-  if(!is.null(data)) {
-    subj.no <- which(names(data) %in% sub.var.name)
-    subj <- data[[subj.no]]
-    if(!is.null(subj)) subjects <- subj
-  }
+  L <- c(as.list(environment()), list(...))
+  if(is.null(L$data))
+    stop("\nWithin-subjects analysis requires a data frame, continaing the subjects factor.\n",
+         call. = FALSE)
+  if(is.numeric(subjects) && length(subjects) > 1)
+    stop("\nThe subjects argument should be a single numeric or character values.\n",
+         call. = FALSE)
+  if(is.numeric(subjects)) subj.no <- subjects else
+    subj.no <- which(names(L$data) %in% subjects)
   
-  L <- L.args <- c(as.list(environment()), list(...))
-  names(L)[which(names(L) == "f1")] <- "formula"
-  
-  if(inherits(f1, "formula")) {
-    exchange.args <- lm.args.from.formula(L)
-    if(!is.null(exchange.args$D)) D <- exchange.args$D
-    exchange.args <- exchange.args[c("Terms", "Y", "model")]
-    Terms <- exchange.args$Terms
-    Y <- exchange.args$Y
-    
-  } else stop("\n lm.rrpp.ws currently requires a formula rather than an lm object.\n",
-              call. = FALSE)
-  L <- NULL
-  Ynames <- rownames(Y)
-
-  n <- NROW(Y)
-  if(is.null(L.args$data)) L.args$data <- rrpp.data.frame(Y = Y) else
-    L.args$data$Y <- Y
-  L.args$f1 <- update(L.args$f1, Y ~ .)
-  Y <- NULL
-  
-  if(!identical(Ynames, as.character(subjects)))
-    stop("The rownames of the data must match the subjects.\n", 
+  if(length(subj.no) == 0)
+    stop("\nSubjects factor not found in data frame.\n",
          call. = FALSE)
   
-  STerm <- which(attr(Terms, "term.labels") == sub.var.name)
-  subTest <- !(length(STerm) == 0)
-  subjects <- as.factor(subjects)
-  sub.lev <- levels(subjects)
-  Xsub <- model.matrix(~ subjects + 0)
-  colnames(Xsub) <- sub.lev
-  
-  if(!is.null(Cov)) {
-    
-    cov.lev <- levels(as.factor(dimnames(Cov)[[1]]))
-    if(!all(sub.lev %in% cov.lev) || !all(cov.lev %in% sub.lev))
-      stop("\nThere is a mismatch between subject levels and covariance levels\n
-         Make sure there is direct correspondence between subjects in the model\n
-         and subjects in the covariance matrix.  Check spelling of names.\n", 
-           call. = FALSE)
-    Xs <- Matrix(Xsub, sparse = TRUE)
-    nn <- nrow(Cov)
-    if(nn == nrow(Xsub)) cov.type <- 1 else 
-      if(nn == length(sub.lev)) cov.type <- 2 else
-        stop(paste("There is an irreconcilable covariance matrix, in terms of",
-                   "\nsubject number or subject factor levels.  Please make sure that",
-                   "\nthe number of Cov rows or columns match the number of subject levels",
-                   "\nor the number of observations.", sep = " "), call. = FALSE)
-    if(cov.type == 2) {
-      Cov <- Cov[colnames(Xsub), colnames(Xsub)]
-      Cov.names <- dimnames(Cov)[[1]]
-      Cov <- Matrix(Cov, sparse = TRUE)
-      if(is.vector(delta) && length(delta) > 1 &&
-         length(delta) != length(sub.lev)) {
-        stop(paste("Either a single value or vector equal in length to the number",
-                   "of subject levels is required.\n", sep = " "), call. = FALSE)
-        
-      }
-      if(!is.numeric(delta))
-        stop("delta must be a numeric value or vector.\n", call. = FALSE)
-      
-      delta[which(delta <= 0)] <- 0.001
-      delta[which(delta > 1)] <- 1
-      
-      n.list <- as.vector(by(subjects, subjects, length))
-      gamma <- match.arg(gamma)
-      gam <- if(gamma == "equal") 1 else 
-        sqrt(n.list)
-      
-      Xr <- t(t(Xs) * exp(-delta * gam))
-      CovEx <- Xr %*% Cov %*% t(Xr)
-      D <- diag(Cov)
-      D <- unlist(lapply(1:length(D), function(j) 
-        rep(D[j], n.list[j])))
-      diag(CovEx) <- D
-      Xs <- Xr <- NULL
-    } else {
-      CovEx <- Cov
-      cat("\nIt is assumed that the Covariance matrix is ordered the same as the data...\n")
-    }
-    
-    Xsub <- NULL
-    
-  } else CovEx <- NULL
-  
-  L.args$Cov <- CovEx
-  if(!is.null(L.args$Cov)) rownames(L.args$data$Y) <- rownames(L.args$Cov) <-
-    colnames(L.args$Cov) <- 1:n
-  L.args$SS.type <- "III"
-  L.args$block <- NULL
-  L.args$turbo <- TRUE
-  CovEx <- Cov <- NULL
-  
-  
-  if(subTest){
-    
-    if(print.progress)
-      cat("\nPerforming among-subjects analysis...\n")
-    
-    fit.subjects <- suppressWarnings( do.call(lm.rrpp, L.args) )
-    
-    sub.rpl <- which(rownames(fit.subjects$ANOVA$SS) == sub.var.name)
-    sSS <- fit.subjects$ANOVA$SS[sub.rpl, ]
-    sMS <- fit.subjects$ANOVA$MS[sub.rpl, ]
-    sRSS <- fit.subjects$ANOVA$RSS[sub.rpl, ]
-    sTSS <- fit.subjects$ANOVA$TSS[sub.rpl, ]
-    sRSS.model <- fit.subjects$ANOVA$RSS.model[sub.rpl, ]
-    sRsq <- fit.subjects$ANOVA$Rsq[sub.rpl, ]
-    sFs <- fit.subjects$ANOVA$Fs[sub.rpl, ]
-    scohenf <- fit.subjects$ANOVA$cohenf[sub.rpl, ]
-    sRed <- fit.subjects$Models$reduced[[sub.rpl]]
-    sFull <- fit.subjects$Models$full[[sub.rpl]]
-    fit.subjects <- NULL
-  }
-  
-  L.args$SS.type <- "II"
-  L.args$block <- subjects
-  L.args$turbo <- turbo
-
-  if(print.progress)
-    cat("\nPerforming within-subjects analysis...\n")
-  
-  out <- suppressWarnings( do.call(lm.rrpp, L.args) )
-  L.args <- NULL
-  
-  if(subTest){
-    out$ANOVA$SS.type <- "Within-subject type II"
-    out$ANOVA$SS[sub.rpl, ] <- sSS
-    out$ANOVA$MS[sub.rpl, ] <- sMS
-    out$ANOVA$RSS[sub.rpl, ] <- sRSS
-    out$ANOVA$TSS[sub.rpl, ] <- sTSS
-    out$ANOVA$RSS.model[sub.rpl, ] <- sRSS.model
-    out$ANOVA$Rsq[sub.rpl, ] <- sRsq
-    out$ANOVA$Fs[sub.rpl, ] <- sFs
-    out$ANOVA$cohenf[sub.rpl, ] <- scohenf
-    out$Models$reduced[[sub.rpl]] <- sRed
-    out$Models$full[[sub.rpl]] <- sFull
-  }
-  
-  rownames(out$LM$Y) <- Ynames
-  if(!is.null(out$LM$Cov)){
-    rownames(out$LM$Cov) <- colnames(out$LM$Cov) <- Ynames
-  }
-
+  if(is.null(L$data))
+    stop(paste("\nA data frame is required for this analysis,",
+               "and it must contain the subjects factor.\n", sep = " "),
+         call. = FALSE)
+  L$sub.var.name <- names(L$data)[[subj.no]]
+  L$subjects <- as.factor(L$data[[subj.no]])
+  L$SS.type <- "IIws"
+  L$full.resid <- FALSE
+  L$gamma <- match.arg(gamma)
+  L$block <- NULL
+  if(length(L$gamma) > 1) L$gamma <- "equal"
+  out <- do.call(.lm.rrpp, L)
   out$call <- match.call()
-  out$subjects <- subjects
-  out$subjects.var <- sub.var.name
-  if(!is.null(Cov)) dimnames(out$LM$Cov) <- list(subjects, subjects)
+  out$ANOVA$SS.type <- "Within-subject type II"
   class(out) <- c("lm.rrpp.ws", class(out))
   out
 

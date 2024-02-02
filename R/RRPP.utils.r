@@ -418,17 +418,25 @@ model.matrix.lm.rrpp <- function(object, ...) return(object$LM$X)
 #' @author Michael Collyer
 #' @keywords utilities
 print.coef.lm.rrpp <- function(x, ...){
-  cat("\nLinear Model fit with lm.rrpp\n")
-  cat(paste("\nNumber of observations:", x$n))
-  cat(paste("\nNumber of dependent variables:", x$p))
-  cat(paste("\nData space dimensions:", x$p.prime))
-  cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
-  cat(paste("\nNumber of permutations:", x$nperms))
+  
   if(!x$test) {
     cat("\n\nObserved coefficients\n\n")
     print(x$coef.obs)
+    if(!is.null(x$coef.se)) {
+      cat("\n\nCoefficient standard errors\n\n")
+      print(x$coef.se)
+    }
   }
+  
   if(x$test){
+    
+    cat("\nLinear Model fit with lm.rrpp\n")
+    cat(paste("\nNumber of observations:", x$n))
+    cat(paste("\nNumber of dependent variables:", x$p))
+    cat(paste("\nData space dimensions:", x$p.prime))
+    cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
+    cat(paste("\nNumber of permutations:", x$nperms))
+    
     if(is.null(x$stat.table)) {
       cat("\n\nTests on coefficients are not possible (only an intercept).")
       cat("\n\nObserved coefficients\n\n")
@@ -1742,8 +1750,8 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     })
     
     test.stats <- rand.stats[, 1]
-    Z <- apply(rand.stats, 1, effect.size)
-    P <- apply(rand.stats, 1, pval)
+    Z <- apply(-1 * rand.stats, 1, effect.size)
+    P <- apply(-1 * rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
     stats$Wilks[1:(k+1)] <- test.stats
@@ -1808,10 +1816,37 @@ print.summary.manova.lm.rrpp <- function(x, ...){
   cat(paste("\nNumber of permutations:", x$perms), "\n\n")
   
   tab <- as.matrix(x$stats.table)
+  class(tab) <- c("anova", class(tab))
   print.table(tab, na.print = "")
   invisible(x)
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{lr_test}}
+#' @param ... Other arguments passed onto print.lr_test
+#' @method print lr_test
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.lr_test <- function(x, ...){
+  x <- if(!is.null(x$tab)) x$tab else as.data.frame(x)
+  colnames(x)[4] <- "Pr(>LR)"
+  class(x) <- c("anova", class(x))
+  print(x)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{lr_test}}
+#' @param ... Other arguments passed onto print.lr_test
+#' @method summary lr_test
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.lr_test <- function(object, ...){
+  print.lr_test(object)
+}
 
 #' Print/Summary Function for RRPP
 #'
@@ -3209,12 +3244,15 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   w <- if(!is.null(fit$LM$weights)) sqrt(fit$LM$weights) else NULL
 
   Model.Terms <- getTerms(fit)
+  STerm <- if(!is.null(fit$subjects.var))
+    which(fit$LM$term.labels == fit$subjects.var) else NULL
   
   if(create){
-    Xs <- suppressWarnings( getXs(Terms = fit$LM$Terms, 
+    Xs <- suppressWarnings(getXs(Terms = fit$LM$Terms, 
                                   Y = fit$LM$Y, 
                                   SS.type = fit$ANOVA$SS.type,
-                                  model = fit$LM$data) ) 
+                                  model = fit$LM$data,
+                                 subjects.term = STerm)) 
   } else {
     Xs <- lapply(Models, function(x){
       lapply(x, function(y) y$X )

@@ -12,9 +12,9 @@ lm.rrpp.ws(
   seed = NULL,
   int.first = FALSE,
   RRPP = TRUE,
-  data = NULL,
+  data,
   Cov = NULL,
-  delta = 0,
+  delta = 0.001,
   gamma = c("sample", "equal"),
   print.progress = FALSE,
   Parallel = FALSE,
@@ -24,8 +24,13 @@ lm.rrpp.ws(
 \arguments{
 \item{f1}{A formula for the linear model (e.g., y~x1+x2).}
 
-\item{subjects}{A required factor (or vector coercible to factor) of 
-subjects that might have multiple data observations.}
+\item{subjects}{A variable that can be found in the data frame indicating the research subjects
+for the analysis.  This variable must be in the data frame.  Is can be either numeric 
+(if its slot in the data frame is known) or a character, e.g., "sub_id".  It is imperative that
+it is ordered the same as the data but that the data do not have row names the same as subjects.
+For example, the subjects variable in the data frame might be sub_id: sub1, sub1, sub1, sub2,
+sub2, sub2, ... and the row names of the data might be obs1, obs2, obs3, obs4, obs5, obs6, ...  
+The data do not need to have row names but the subjects variable has to be provided.}
 
 \item{iter}{Number of iterations for significance testing}
 
@@ -49,7 +54,7 @@ main effects should precede subsequent main effects}
 should be used for significance testing}
 
 \item{data}{A data frame for the function environment, see 
-\code{\link{rrpp.data.frame}}}
+\code{\link{rrpp.data.frame}}.  A data frame is required for this analysis.}
 
 \item{Cov}{An optional argument for including a covariance matrix 
 to address the non-independence

@@ -174,7 +174,7 @@ data(Pupfish)
 # three principal components of body shape for demonstration.  
 # A larger number of random permutations should also be used.
 
-Pupfish$shape <- prcomp(Pupfish$coords)$x[, 1:3]
+Pupfish$shape <- ordinate(Pupfish$coords)$x[, 1:3]
 
 Pupfish$logSize <- log(Pupfish$CS) 
 

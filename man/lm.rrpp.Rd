@@ -282,7 +282,8 @@ anova(fit, effect.type = "F", error = c("Residuals", "locality:year",
 # Change to Type III SS
 
 fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
-data = PupfishHeads, print.progress = FALSE, iter = 999)
+data = PupfishHeads, print.progress = FALSE, iter = 999,
+verbose = TRUE)
 summary(fit)
 anova(fit, effect.type = "F", error = c("Residuals", "locality:year", 
 "Residuals"))

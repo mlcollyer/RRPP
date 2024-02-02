@@ -4,10 +4,13 @@
 \alias{coef.lm.rrpp}
 \title{coef for lm.rrpp model fits}
 \usage{
-\method{coef}{lm.rrpp}(object, test = FALSE, confidence = 0.95, ...)
+\method{coef}{lm.rrpp}(object, SE = FALSE, test = FALSE, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}
+
+\item{SE}{Whether to include standard errors of coefficients.  Standard
+errors are muted if test = TRUE.}
 
 \item{test}{Logical argument that if TRUE, performs hypothesis tests 
 (Null hypothesis is vector distance = 0)
