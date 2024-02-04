@@ -1,16 +1,19 @@
-# CHANGES IN RRPP 1.4.0
+# CHANGES IN RRPP 2.0.0
 
 ### NEW FEATURES
-*  Added arguments for restricted resampling to `lm.rrpp` and `predict.lm.rrpp`, and permutation of full model residuals (with restrictions) to lm.rrpp
+* Added arguments for restricted resampling to `lm.rrpp` and `predict.lm.rrpp`, and permutation of full model residuals (with restrictions) to `lm.rrpp`.
 * Added new function, `measurement.error`.
 * Added new function, `lm.rrpp.ws`.
 * Added `verbose` arguments to most analytical functions to reduce dense results.
 * Added utility functions (`getANOVAStats`, `getPermInfo`, `getTerms`, and `getModels`) to accommodate `verbose` function choices, plus allow users to easily extract objects as output.
+* Added new function, `ICCstats`, for calculating ICC statistics for `lm.rrpp` fits.
 * Added S3 generic functions for `measurement.error`, but also added a plot utility function, `focusMEonSubjects`, which builds off of `plot.measurement.error`, to focus attention on specific plot details.
+* Added function, `interSubVar`, a utility function to use along with `measurement.error`,
+to visualize how variation between replicate measures, within subjects, can affect inter-subject variation.
 
 ### BUG FIXES
 *  Fixed SSCP issue in `summary.lm.rrpp` that produces matrices of 0s.  The issue was inherent to `lm.rrpp`, from erroneous assignment of models, only for output (not for mechanics).
-*  Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
+* Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
 * Fixed illogical `print.progess` conditions in `pairwise`.
 * Fixed potential problem with reliance on `Matrix::qrQ`, using rather, `Matrix::qr.Q`.
 * Fixed GLS estimation issue with `pairwise`.

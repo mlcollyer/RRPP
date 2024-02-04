@@ -69,10 +69,13 @@ data(Pupfish)
 names(Pupfish)
 Pupfish$logSize <- log(Pupfish$CS)
 
-fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+fit <- lm.rrpp(coords ~ logSize + Sex*Pop, 
+SS.type = "I", data = Pupfish, verbose = TRUE) 
 
-coef(fit)
-coef(fit, test = TRUE, confidence = 0.99)
+coef(fit) # Just coefficients
+coef(fit, SE = TRUE) # Coefficients with SE
+coef(fit, test = TRUE, 
+confidence = 0.99) # Test of coefficients
 }
 \author{
 Michael Collyer

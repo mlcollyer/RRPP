@@ -313,7 +313,8 @@ names(Pupfish)
 
 dim(Pupfish$coords) # highly multivariate!
 fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
-data = Pupfish, print.progress = FALSE, iter = 999) 
+data = Pupfish, print.progress = FALSE, iter = 999,
+verbose = TRUE) 
 summary(fit, formula = FALSE)
 anova(fit) 
 coef(fit, test = TRUE)

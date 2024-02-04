@@ -252,7 +252,7 @@ lm.rrpp.ws <- function(f1, subjects,
   if(length(L$gamma) > 1) L$gamma <- "equal"
   out <- do.call(.lm.rrpp, L)
   out$call <- match.call()
-  out$ANOVA$SS.type <- "Within-subject type II"
+  out$ANOVA$SS.type <- "Within-subject II"
   class(out) <- c("lm.rrpp.ws", class(out))
   out
 

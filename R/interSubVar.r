@@ -42,15 +42,15 @@ interSubVar <- function(ME, type = c("range", "sd", "var", "cv")){
       var(x) else function(x) {max(x) - min(x)}
   
   Y <- ME$LM$data$Y
-  subj <- ME$LM$data$subj
-  reps <- ME$LM$data$reps
+  subj <- ME$LM$data$subjects
+  reps <- ME$LM$data$replicates
   rep.levels <- levels(reps)
   subj.levels <- levels(subj)
   
   tb <- table(subj, reps)
   if(any(tb == 0))
-    stop(paste("The ME design is not balanced and not all ionter-subject distances",
-               "can be estimate for every replicate.\n", sep = " "), call. = FALSE)
+    stop(paste("The ME design is not balanced and not all inter-subject distances",
+               "can be estimated for every replicate.\n", sep = " "), call. = FALSE)
   
   result <- lapply(1:length(rep.levels), function(j){
     keep <- which(reps == rep.levels[j])

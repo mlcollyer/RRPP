@@ -1,5 +1,4 @@
 #' @name RRPP-package
-#' @docType package
 #' @aliases RRPP
 #' @title Linear Model Evaluation with Randomized Residual Permutation Procedures
 #' @author Michael Collyer and Dean Adams
@@ -134,6 +133,26 @@ NULL
 #'   trajectories in evolutionary studies. Evolution 63:1143-1154.
 #' @keywords datasets
 NULL
+
+#' Simulated fish data for measurement error analysis
+#'
+#' @name fishy
+#' @docType data
+#' @author Michael Collyer
+#' @references Collyer, M.L, and D.C. Adams. 2024. 
+#' Interrogating random and systematic measurement 
+#' error in morphometric data. Evolutionary Biology. 
+#' In press.
+#' @details Data as simulated in Collyer and Adams (2024),
+#' resembling a fish shape, comprising Procrustes coordinates
+#' for 12 anatomical landmarks.  Data represent 120 
+#' configurations for 60 subjects, each with two replicates of
+#' measurement.  The 60 subjects represent 20 subjects each 
+#' from three groups.
+#' @keywords datasets
+NULL
+
+
 
 #####----------------------------------------------------------------------------------------------------
 
@@ -473,7 +492,7 @@ lm.args.from.formula <- function(cl){
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
   
-  if(!is.null(fit) && SS.type == "Within-subject type II") {
+  if(!is.null(fit) && SS.type == "Within-subject II") {
     SS.type <- "IIws"
     WS <- TRUE
   } else WS <- FALSE
@@ -546,7 +565,7 @@ getTerms <- function(Terms, SS.type = "I", subjects.term = NULL) {
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
-  if(SS.type == "Within-subject type II")
+  if(SS.type == "Within-subject II")
   SS.type <- "IIws"
   
   if(k > 0) {
@@ -1559,6 +1578,11 @@ aov.single.model <- function(object, ...,
     class(tab) = c("anova", class(tab))
     SS.type <- x$SS.type
     
+    if(any(tab$Df == 0)){
+      rmove <- which(tab$Df == 0)
+      tab <- tab[-rmove,]
+    }
+    
     options(warn = ow)
     
     out <- list(table = tab, perm.method = pm, perm.number = perms,
@@ -1751,6 +1775,17 @@ aov.multi.model <- function(object, lm.list,
 class(out) <- "anova.lm.rrpp"
 out
 
+}
+
+aov.me <- function(object){
+  
+  perms <- getPermInfo(object, "perms")
+
+  out <- list(table = object$AOV, perm.method = "RRPP", perm.number = perms,
+              est.method = "OLS", SS.type = "Within-subject II", effect.type = "SNR",
+              call = object$call)
+  class(out) <- "anova.lm.rrpp"
+  out
 }
 
 # getSlopes

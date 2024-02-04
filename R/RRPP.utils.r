@@ -2661,61 +2661,15 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
 #' @keywords utilities
 print.measurement.error <- function(x, ...){
   
-  AOV <- x$AOV
-  mAOV <- x$mAOV
-  icc <- x$icc
-  micc <- x$mult.icc.eigs
+  print(anova(x))
   
-  cat("\nAnalyses for measurement error\n")
-  cat("\nRRPP performed with", x$PermInfo$perms, "permutations,\n")
-  cat("restricted within replicates for subjects and within subjects for measurement error.\n")
-  cat("\nANOVA (based on dispersion of values):\n")
-  print(AOV)
+  ev <- Re(eigen(x$SSCP.ME.product)$values)
+  ev <- ev[zapsmall(ev) > 0]
   
-  if(!is.null(mAOV)) {
-    
-    cat("\n\nMANOVA:\n\n")
-    print(mAOV)
-    
-  }
+  cat("\n\nNumber of SNR components (eigenvectors):", length(ev), "\n\n")
+  cat("Use plot.measurement.error to visualize results\n\n")
+  cat("Use function, ICCstats, to get ICC statistics.\n\n")
   
-  ICC.tab <- data.frame(icc = unlist(icc))
-  
-  rownames(ICC.tab) <- c("Absolute ICC",
-                         "Agreement ICC",
-                         "Consistency ICC",
-                         "Absolute ICC, accounting for group differences",
-                         "Agreement ICC, accounting for group differences",
-                         "Consistency ICC, accounting for group differences"
-                         )[1:NROW(ICC.tab)]
-  
-  cat("\n\nIntraclass correlations (dispersion):\n\n")
-  print(ICC.tab)
-  
-  if(!is.null(micc)) {
-    cat("\nGeneralized ICC values (cumulative eigenvalue products)\n")
-    kmax <- max(sapply(micc, length))
-    eig.fix <- function(x) {
-      if(length(x) < kmax) x <- c(x, rep(NA, kmax - length(x)))
-      x
-    }
-    micc <- lapply(micc, eig.fix)
-    micc <- na.omit(abs(do.call(rbind, micc)))
-    colnames(micc) <- paste("Comp", 1:ncol(micc), sep = "")
-    micc.p <- t(apply(micc, 1, function(x) 
-      round(abs(cumprod(x)),4)))
-    micc.p <- micc.p[, which(colSums(micc.p) > (0.1 * nrow(micc.p)))]
-    cat("Showing values for ", ncol(micc.p), "of", ncol(micc), "vectors\n\n")
-    rownames(micc.p) <- c("Absolute ICC",
-                           "Agreement ICC",
-                           "Consistency ICC",
-                           "Absolute ICC, accounting for group differences",
-                           "Agreement ICC, accounting for group differences",
-                           "Consistency ICC, accounting for group differences"
-    )[1:NROW(micc.p)]
-    
-    print(micc.p)
-  }
 }
 
 #' Print/Summary Function for RRPP
@@ -2772,8 +2726,8 @@ plot.measurement.error <- function(x,
                                    titles = NULL,
                                    add.legend = TRUE, ...){
   
-  subj <- x$LM$data$subj
-  reps <- x$LM$data$reps
+  subj <- x$LM$data$subjects
+  reps <- x$LM$data$replicates
   groups <- if(!is.null(x$LM$data$groups))
     x$LM$data$groups else NULL
   
@@ -3395,4 +3349,36 @@ getResCov <- function(fit, useDf = TRUE, standardize = FALSE) {
     
   S
   
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x print/summary object (from \code{\link{ICCstats}})
+#' @param ... other arguments passed to print/summary
+#' @method print ICCstats
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.ICCstats <-function(x, ...){
+  
+  cat("\nICC stats based on dispersion of values\n\n")
+  print(x$ICC_disp)
+  
+  if(!is.null(x$ICC_mult)) {
+    cat("\nICC stats by Eignevector of multivariate ICC matrix\n\n")
+    print(x$ICC_mult)
+  }
+    
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object print/summary object (from \code{\link{ICCstats}})
+#' @param ... other arguments passed to print/summary
+#' @method summary ICCstats
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.ICCstats <-function(object, ...){
+  print.ICCstats(object, ...)
 }
