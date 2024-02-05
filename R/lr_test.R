@@ -1,4 +1,4 @@
-#' Likehood ratio test for a linear model, based on RRPP
+#' Likelihood ratio test for a linear model, based on RRPP
 #' 
 #' @description 
 #' Function performs likelihood ratio tests on an lm.rrpp fit, using 

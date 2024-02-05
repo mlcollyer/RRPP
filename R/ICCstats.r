@@ -31,7 +31,7 @@
 #' so long as research subjects can be defined. 
 #' 
 #' It is essential that all arguments are terms that can be found in the model frame
-#' of the model fit, as provoke by ANOVA.  Using anova(fit) will eludiate the row
+#' of the model fit, as provoke by ANOVA.  Using anova(fit) will elucidate the row
 #' names of the ANOVA that could be used.
 #' 
 #' @export
@@ -48,10 +48,10 @@
 #' the only replication within-subject will be considered as residuals.
 #' @param groups An optional character value to indicate if a factor in the 
 #' model frame of the \code{\link{lm.rrpp}} fit that could account for subject variation.
-#' Using this argument might minimize the importannce of subject variation, if subjects
+#' Using this argument might minimize the importance of subject variation, if subjects
 #' have disparate values that could inflate ICC.  Note that this name could be different
 #' than what is shown in the ANOVA table, if \code{\link{measurement.error}}
-#' was used.  Use names(fit$LM$data), substiuting fit with the name assigned
+#' was used.  Use names(fit$LM$data), substituting fit with the name assigned
 #' to the \code{\link{measurement.error}} object, to know the groups factor, 
 #' if used.
 #' @param multivariate Logical value for whether to include to calculate ICC matrix 

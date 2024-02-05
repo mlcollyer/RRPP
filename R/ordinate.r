@@ -81,7 +81,6 @@
 #' interpretation of the strength of linear association for 
 #' aligned components.  (It is most analogous to proportion of 
 #' variance for principal components.)}
-
 #' }
 #' 
 #' @param Y An n x p data matrix.

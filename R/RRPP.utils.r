@@ -3358,7 +3358,7 @@ getModelCov <- function(fit, type = c("Cov", "Pcov"),
 #' @param fit Object from \code{\link{lm.rrpp}}
 #' @param useDf Logical value for whether the degrees of freedom from the linear model
 #' fit should be used (if TRUE), as opposed to the number of observations (if FALSE).
-#' @param standardize Logical value for whether residuals should be standarized.  If TRUE,
+#' @param standardize Logical value for whether residuals should be standardized.  If TRUE,
 #' a correlation matrix is produced.
 #' @export
 #' @author Michael Collyer

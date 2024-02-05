@@ -2,7 +2,7 @@
 % Please edit documentation in R/lr_test.R
 \name{lr_test}
 \alias{lr_test}
-\title{Likehood ratio test for a linear model, based on RRPP}
+\title{Likelihood ratio test for a linear model, based on RRPP}
 \usage{
 lr_test(fit, verbose = FALSE, ...)
 }

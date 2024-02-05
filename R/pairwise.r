@@ -74,7 +74,7 @@
 #' bound of 0.)  
 #' 
 #'  \subsection{Notes for RRPP 0.6.2 and subsequent versions}{ 
-#'  In previous versions of pairwise, code{\link{summary.pairwise}} had three 
+#'  In previous versions of pairwise, \code{\link{summary.pairwise}} had three 
 #'  test types: "dist", "VC", and "var".  When one chose "dist", for LS mean 
 #'  vectors, the statistic was the inner-product of the vector difference.  
 #'  For slope vectors, "dist" returned the absolute value  of the difference 
