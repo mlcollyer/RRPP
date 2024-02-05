@@ -19,6 +19,7 @@ to visualize how variation between replicate measures, within subjects, can affe
 * Fixed GLS estimation issue with `pairwise`.
 
 ### OTHER CHANGES
+* argument `SE` added to `coef.lm.rrpp` for calculating bootstrap standard error.
 
 # CHANGES IN RRPP 1.3.1
 

@@ -67,8 +67,37 @@
 #' and demonstration of basic features. PloS one, 14(7), e0219854.
 #' 
 #' @examples
-#' # TBD
+#' # Measurement error analysis on simulated data of fish shapes
 #' 
+#' data(fishy)
+#' 
+#' # Analysis unconcerned with groups 
+#' 
+#' ME1 <- measurement.error(
+#'   Y = "coords",
+#'   subjects = "subj",
+#'   replicates = "reps",
+#'   data = fishy)
+#' 
+#' anova(ME1)
+#' ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
+#' 
+#' # Analysis concerned with groups 
+#' 
+#' ME2 <- measurement.error(
+#'   Y = "coords",
+#'   subjects = "subj",
+#'   replicates = "reps",
+#'   groups = "groups",
+#'   data = fishy)
+#' 
+#' anova(ME2)
+#' ICCstats(ME2, subjects = "Subjects", 
+#'   with_in = "Systematic ME", groups = "groups")
+#' ICCstats(ME2, subjects = "Subjects", 
+#'   with_in = c("Systematic ME", "Systematic ME:Groups"), 
+#'   groups = "groups")
+
 ICCstats <- function(fit, 
                      subjects = NULL,
                      with_in = NULL,
@@ -101,21 +130,37 @@ ICCstats <- function(fit,
   
   
   if(!is.null(groups)){
-    groups <- fit$LM$data[names(fit$LM$data) %in% groups]
-    if(is.null(groups))
+    gfac <- unlist(fit$LM$data[names(fit$LM$data) %in% groups])
+    if(is.null(gfac))
       stop("\nThe groups variable is not found in the fit model frame.\n",
             call. = FALSE)
+    Y <- fit$LM$Y
+    df <- rrpp.data.frame(Y = Y, gfac = gfac)
     
-    R <- resid(lm.rrpp(fit$LM$Y ~ groups, 
+    R <- resid(lm.rrpp(Y ~ gfac, 
                Cov = fit$LM$Cov, weights = fit$LM$weights,
-               iter = 1, data = fit$LM$data,
+               iter = 1, data = df,
                print.progress =  FALSE))
     form <- formula(fit$LM$Terms)
-    form <- update(form, R~.)
-    fit <- suppressWarnings(lm.rrpp(form,  
-                   Cov = fit$LM$Cov, weights = fit$LM$weights,
-                   iter = 1, data = fit$LM$data,
-                   print.progress =  FALSE))
+    fitb <- fit
+    fitb$LM$Y <- fitb$LM$data$Y <- R
+    if(fit$ANOVA$SS.type == "Within-subject II") {
+      fit <- suppressWarnings(
+        lm.rrpp(form, 
+                Cov = fitb$LM$Cov, weights = fitb$LM$weights,
+                iter = 1, data = fitb$LM$data, 
+                print.progress = FALSE, 
+                subjects = fit$LM$data[names(fit$LM$data) == fit$subjects.var]))
+    } else {
+      fit <- suppressWarnings(lm.rrpp(form,  
+                                      Cov = fitb$LM$Cov, 
+                                      weights = fitb$LM$weights,
+                                      iter = 1, data = fitb$LM$data, 
+                                      SS.type = fit$ANOVA$SS.type,
+                                        print.progress =  FALSE))
+    }
+    
+    rm(fitb)
     AOV2 <- anova(fit)$table
     rownames(AOV2) <- rownames(AOV)
     AOV <- AOV2

@@ -122,42 +122,51 @@ test_that("coef.fit02.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ 1, data = Pupfish, 
-                  print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit03.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS, data = Pupfish, 
-                  print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit04.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit05.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  SS.type = "II", print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  SS.type = "II", 
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit06.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  SS.type = "III", print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  SS.type = "III", 
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit07.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
-                  turbo = TRUE, print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  turbo = TRUE, 
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 
@@ -165,7 +174,8 @@ test_that("coef.fit10.works", {
   library(RRPP)
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
-                  print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 test_that("coef.fit11.works", {
@@ -173,7 +183,8 @@ test_that("coef.fit11.works", {
   data("Pupfish")
   succeed(coef(lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
                   int.first = TRUE,
-                  print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 
@@ -181,7 +192,8 @@ test_that("coef.fit12.works", {
   library(RRPP)
   data("PlethMorph")
   succeed(coef(lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
-                  print.progress = FALSE, iter = 3, verbose = TRUE)))
+                  print.progress = FALSE, 
+                  iter = 3, verbose = TRUE)))
 })
 
 
@@ -447,8 +459,8 @@ test_that("anova.fit12.works", {
 test_that("predict1.works", {
   library(RRPP)
   data("PupfishHeads")
-  fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
-                 data = PupfishHeads, print.progress = FALSE, iter = 3, verbose = TRUE)
+  suppressWarnings(fit <- lm.rrpp(log(headSize) ~ sex + locality/year, SS.type = "III", 
+                 data = PupfishHeads, print.progress = FALSE, iter = 3, verbose = TRUE))
   succeed(predict(fit))
 })
 
@@ -573,3 +585,59 @@ test_that("ordinate6.works", {
                    transform. = FALSE, 
                    Cov = PlethMorph$PhyCov))
 })
+
+test_that("measurement.error1.works", {
+  library(RRPP)
+  data("fishy")
+  succeed(ME1 <- measurement.error(Y = "coords", subjects = "subj",
+                           replicates = "reps", data = fishy, 
+                           iter = 3, Parallel = FALSE,
+                           verbose = TRUE))
+})
+
+test_that("measurement.error2.works", {
+  library(RRPP)
+  data("fishy")
+  succeed(ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                                   replicates = "reps", data = fishy,
+                                   groups = "groups",
+                                   iter = 3, Parallel = FALSE,
+                                   verbose = TRUE))
+})
+
+test_that("ICCstats1.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                                   replicates = "reps", data = fishy,
+                                   groups = "groups",
+                                   iter = 3, Parallel = FALSE,
+                           verbose = TRUE)
+  succeed(ICCstats(ME2, subjects = "Subjects"))
+})
+
+test_that("ICCstats2.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                           replicates = "reps", data = fishy,
+                           groups = "groups",
+                           iter =3, Parallel = FALSE,
+                           verbose = TRUE)
+  succeed(ICCstats(ME2, subjects = "Subjects", 
+                   with_in = "Systematic ME"))
+})
+
+test_that("ICCstats3.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                           replicates = "reps", data = fishy,
+                           groups = "groups",
+                           iter = 3, Parallel = FALSE,
+                           verbose = TRUE)
+  succeed(ICCstats(ME2, subjects = "Subjects", 
+                   with_in = c("Systematic ME", "Systematic ME:Groups")))
+})
+
+

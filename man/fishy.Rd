@@ -10,7 +10,7 @@ Simulated fish data for measurement error analysis
 \details{
 Data as simulated in Collyer and Adams (2024),
 resembling a fish shape, comprising Procrustes coordinates
-for 12 anatomical landmarks.  Data represent 120 
+for 11 anatomical landmarks.  Data represent 120 
 configurations for 60 subjects, each with two replicates of
 measurement.  The 60 subjects represent 20 subjects each 
 from three groups.

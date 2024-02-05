@@ -16,7 +16,7 @@ measurement.error(
   multivariate = FALSE,
   use.PCs = TRUE,
   tol = 0.001,
-  Parallel = TRUE,
+  Parallel = FALSE,
   turbo = TRUE,
   print.progress = FALSE,
   verbose = FALSE
@@ -121,7 +121,43 @@ covariance matrices, as descriptive statistics.  Details are provided in \code{\
 Examples TBD
 }
 \examples{
-# TBD
+# Measurement error analysis on simulated data of fish shapes
+
+data(fishy)
+
+# Example two digitization replicates of the same research subjects
+rep1 <- matrix(fishy$coords[1,], 11, 2, byrow = TRUE)
+rep2 <- matrix(fishy$coords[61,], 11, 2, byrow = TRUE)
+plot(rep1, pch = 16, col = gray(0.5, alpha = 0.5), cex = 2, asp = 1)
+points(rep2, pch = 16, col = gray(0.2, alpha = 0.5), cex = 2, asp = 1)
+
+# Analysis unconcerned with groups 
+
+ME1 <- measurement.error(
+  Y = "coords",
+  subjects = "subj",
+  replicates = "reps",
+  data = fishy)
+
+anova(ME1)
+ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
+plot(ME1)
+
+# Analysis concerned with groups 
+
+ME2 <- measurement.error(
+  Y = "coords",
+  subjects = "subj",
+  replicates = "reps",
+  groups = "groups",
+  data = fishy)
+
+anova(ME2)
+ICCstats(ME2, subjects = "Subjects", 
+  with_in = "Systematic ME", groups = "groups")
+P <- plot(ME2)
+focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+
 }
 \references{
 Collyer, M.L. and D.C. Adams.  2024. Interrogating Random and Systematic Measurement Error 

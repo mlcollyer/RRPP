@@ -13,7 +13,7 @@
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
-#' # See \code{\link{measurement.error}} examples for use.
+#' # See measurement.error help file examples for use.
 #' 
 anova.measurement.error <- function(object, ...) {
   out <- aov.me(object)

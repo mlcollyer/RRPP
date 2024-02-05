@@ -19,7 +19,7 @@ specific to \code{\link{measurement.error}}, and with restrictions on
 how P-values and effect.sizes are calculated.
 }
 \examples{
-# See \code{\link{measurement.error}} examples for use.
+# See measurement.error help file examples for use.
 
 }
 \author{
