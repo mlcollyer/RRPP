@@ -613,7 +613,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' and evolution of foot morphology 
 #' in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
 #' @examples 
-#' 
+#' \dontrun{
 #' # Univariate example
 #' data(PlethMorph)
 #' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
@@ -642,7 +642,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 #'  plot(fitGLSm, resid.type = "n") # use normalized (transformed) residuals
 #'  plot(fitGLSm, resid.type = "n", fitted.type = "t") # use also transformed fitted values
 #'  par(mfrow = c(1, 1))
-#'  
+#'  }
 plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                                       "PC"), 
                          resid.type = c("p", "n"),
@@ -866,7 +866,7 @@ plot_QQ <- function(r){
 #' @keywords utilities
 #' @keywords visualization
 #' @examples 
-#' # See \code{\link{lm.rrpp}} for examples.
+#' # See lm.rrpp help file for examples.
 plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
                                  abscissa = NULL,
                                  label = TRUE, ...){
@@ -2118,7 +2118,7 @@ print.summary.trajectory.analysis <- function(x, ...) {
 #' by high-dimensional data. Heredity. 115:357-365.
 #' 
 #' @examples 
-#' # See \code{\link{trajectory.analysis}} for examples
+#' # See trajectory.analysis help file for examples
 plot.trajectory.analysis <- function(x, ...) {
   
   if(!is.null(x$pca)) {
@@ -2664,7 +2664,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples
-#' 
+#' \dontrun{
 #' 
 #' # Measurement error analysis on simulated data of fish shapes
 #' 
@@ -2696,7 +2696,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
 #'   with_in = "Systematic ME", groups = "groups")
 #' P <- plot(ME2)
 #' focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
-#' 
+#' }
 print.measurement.error <- function(x, ...){
   
   print(anova(x))
@@ -3084,7 +3084,7 @@ focusMEonSubjects <- function(x, subjects = NULL,
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples
-#' 
+#' \dontrun{
 #' data(Pupfish)
 #' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
 #' data = Pupfish, print.progress = FALSE, iter = 999) 
@@ -3099,7 +3099,7 @@ focusMEonSubjects <- function(x, subjects = NULL,
 #' abline(v = Fstats$Fs[3, 1])
 #' hist(Fstats$Fs[4,], breaks = 50, main = "Sex:Pop", xlab = "F")
 #' abline(v = Fstats$Fs[4, 1])
-#' 
+#' }
 getANOVAStats <- function(fit, stat = c("SS", "MS", "Rsq", "F", "cohenf", "all")){
   ANOVA <- fit$ANOVA
   verbose <- fit$verbose

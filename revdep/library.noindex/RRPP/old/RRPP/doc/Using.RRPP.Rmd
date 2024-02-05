@@ -1,0 +1,280 @@
+---
+title: "Using RRPP" 
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using RRPP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# APPENDIX S2
+
+This is a more detailed version of the section, "**Analytical Demonstrations**," within the Methods in Ecology and Evolution article, "**RRPP: An R package for fitting linear models to high-dimensional data using residual randomization**," by Michael L. Collyer and Dean C. Adams.  The purpose of this vignette is to offer an opportunity for people reading that article to see code and results together.  Some changes to code have been made, especially to enhance features that are difficult to introduce in the article, but the overall presentation should be basically the same.  As the package has been updated, this document has also been slightly edited to make sure any functional changes have been illustrated.
+
+(Note parallel processing is available on Unix systems for `lm.rrpp`; see `lm.rrpp` help page for description on its use.  This is helpful for large data sets.)
+
+Three data sets are provided in `RRPP` (with examples also in help pages), and are used here as examples for various analyses: 
+    
+    Pupfish (Collyer et al., 2015)
+    PupfishHeads (Gilbert, 2016)
+    PlethMorph (Adams & Collyer, 2018)
+    
+The first two datasets contain landmark-based geometric morphometric data collected from museum samples of Pecos pupfish (_Cyprinodon pecosensis_), representing body shape and cranial morphology, respectively.  Within both data sets, the `$coords`  objects are matrices of Procrustes residuals obtained from generalized Procrustes analysis (GPA) of configurations of anatomical landmarks. For the purposes of this example, it is sufficient to recognize that Procrustes residuals embody a highly multivariate dataset representing shape (see the R package, geomorph).  The third data set contains averaged linear measurements of 37 species of Plethodontid salamanders, plus a covariance matrix based on a Brownian model of evolution, given the phylogenetic relationship among the species (Adams & Collyer, 2018, for details).
+
+***Example: Pupfish Cranial Morphology and Mixed-Model ANOVA***
+
+In the first example we use a univariate dependent variable (head size, measured as the centroid size of the cranial landmark configuration; Bookstein, 1991) with a mixed-model design.  The following code highlights the analytical steps, with results categorized in Fig. 1:
+	
+```{r}
+library(RRPP)
+data("PupfishHeads")
+PupfishHeads$logHeadSize <- log(PupfishHeads$headSize)
+fit <- lm.rrpp(logHeadSize ~ sex + locality/year, 
+               SS.type = "I", data = PupfishHeads, 
+               print.progress = FALSE,
+               turbo = FALSE, verbose = TRUE)
+summary(fit)
+anova(fit, effect.type = "F") 
+```
+
+Of important note, we choose to log-transform head size and include it as a separate variable in the RRPP data frame, `PupfishHeads`.  We accomplished this via the code above – rather than using `log(headSize)` - because downstream functions like `predict.lm.rrpp` work better without functions in the formula.   ANOVA was performed using random distributions of _F_-statistics to calculate _z_-scores and _P_-values (but one could use alternative distributions - see the `RRPP` help page). The S3 Generic functions (`summary`, `anova`) return summaries that remind the user how random data were generated, the type of _SS_, and how _z_-scores were calculated.  This particular ANOVA summary is a default that fails to consider the year fish were sampled as a random effect.   A mixed-model ANOVA update can be performed by changing the expected mean-square (_MS_) error estimates in each _F_ calculation: 
+    
+```{r}
+anova(fit, effect.type = "F", 
+  error = c("Residuals", "locality:year", "Residuals"))
+```
+
+This adjustment illustrates that the head size variation does not significantly differ between localities, with respect to the variation among sampling events.  The anova function can also be used for multi-model inference.
+
+```{r}
+fit.sex <- lm.rrpp(logHeadSize ~ sex, 
+                   data = PupfishHeads, 
+                   print.progress = FALSE)
+fit.sex.loc<- lm.rrpp(logHeadSize ~ sex + locality, 
+                      data = PupfishHeads, 
+                      print.progress = FALSE)
+fit.sex.loc.year<- lm.rrpp(logHeadSize ~ sex + locality/year, 
+                           data = PupfishHeads, 
+                           print.progress = FALSE)
+anova(fit.sex, fit.sex.loc, fit.sex.loc.year, print.progress= FALSE)
+```
+
+One might wish to also look at individual model coefficients, and ascertain which have the largest effect:
+
+```{r}
+coef(fit, test = TRUE)
+```
+
+This function produces a table much like `summary.lm` output, but with bootstrap-generated confidence intervals of coefficients.  
+
+It might be of interest to visualize model predictions for certain effects, holding constant other effects.  For example, if we want to look at confidence intervals to compare male and female head sizes, holding constant the effects of locality and sampling period, we could do the following:
+
+```{r, fig.height=3, fig.width=5}
+sizeDF <- data.frame(sex = c("Female", "Male"))
+rownames(sizeDF) <- c("Female", "Male")
+sizePreds <- predict(fit, sizeDF)
+plot(sizePreds)
+
+```
+
+The plots are perfectly amenable (e.g., point type and color, line thickness, alternative labels, and additional text can be added or adjusted with typical `par` arguments).  
+```{r, fig.height=3, fig.width=5}
+plot(sizePreds, pch = 21, cex = 3, bg = c(2,4), lwd = 2)
+
+```
+
+Finally, the _SS_ type can be also toggled easily by refitting the model:
+
+```{r}
+fit2 <- lm.rrpp(logHeadSize ~ sex + locality/year, 
+                SS.type = "II", data = PupfishHeads, print.progress = FALSE)
+fit3 <- lm.rrpp(logHeadSize ~ sex + locality/year, 
+                SS.type = "III", data = PupfishHeads, print.progress = FALSE)
+
+anova(fit)
+anova(fit2)
+anova(fit3)
+
+```
+
+***Example: Pupfish Body Shape and High-Dimensional Data***
+
+In the second example, we highlight the `RRPP` ability to efficiently handle large data computations.  For this demonstration, a 54(_n_) × 112 (_p_) matrix of Procrustes residuals are the data.  In every one of the 1,000 random permutations, RRPP shuffles residual vectors the same way for four different null models, estimates coefficients for four different full models, estimates the _SS_ as the difference between residual _SS_ (_RSS_) for four null-full model comparisons, and calculates the total _SS_, before calculating _MS_, _R_^2^, _F_, Cohen's _f_^2^, and Euclidean distances of coefficient vectors across all 1,000 permutations.  This process, plus packaging of results, took approximately 0.5 seconds on a notebook computer, without any parallel processing.
+	In the second example, the initial steps are quite the same as the first example:
+
+```{r}
+data(Pupfish)
+Pupfish$logSize <- log(Pupfish$CS) 
+fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", 
+               data = Pupfish, print.progress = FALSE,
+               turbo = FALSE, verbose = TRUE) 
+summary(fit, formula = FALSE)
+anova(fit) 
+coef(fit, test = TRUE) 
+
+```
+ANOVA results reveal that after accounting for body size allometry, not only are there significant inter-population differences in body shape and sexual dimorphism in body shape, but sexual dimorphism also significantly varies between the two populations.  A fuller evaluation of these results is available in Collyer et al. (2015).  It is worth taking a moment to realize why this analysis is a valuable alternative to a parametric M-ANOVA.  The following code attempts to perform a parametric M-ANOVA:
+
+```{r, error = TRUE}
+fit$LM$data$coords <- Pupfish$coords
+fit.par <- lm(fit$call$f1, data = fit$LM$data)
+identical(fit$LM$coefficients, fit.par$coefficients)
+summary(manova(fit.par))
+```
+Although both functions return the same coefficients, the error summarizing the attempted parametric M-ANOVA clearly indicates the limitation of having residual degrees of freedom (rank) lower than the number of variables.   Returning to the `lm.rrpp` fit, which does not suffer this problem, we can look at the precision of group mean estimation, accounting for allometric shape variation, by doing the following:
+
+```{r, fig.height=5, fig.width=6}
+shapeDF <- expand.grid(Sex = levels(Pupfish$Sex), Pop = levels(Pupfish$Pop))
+rownames(shapeDF) <- paste(shapeDF$Sex, shapeDF$Pop, sep = ".")
+shapePreds <- predict(fit, shapeDF, confidence = 0.95)
+plot(shapePreds, PC = TRUE, ellipse = TRUE) # generic 
+plot(shapePreds, PC = TRUE, ellipse = TRUE, 
+     pch = 19, col = 1:NROW(shapeDF)) # with added par arguments
+
+groups <- interaction(Pupfish$Sex, Pupfish$Pop)
+plot(fit, type = "PC") # generic
+plot(fit, type = "PC", pch = 19, col = groups) # with added par arguments
+
+```
+
+These plots differ as there is a rotational difference between the covariance matrices estimated with 4 predicted and 54 fitted values.  Additionally, the former illustrates prediction precision and the latter sample dispersion.  Both functions allow passing `par` arguments to the plot as well as saving plot data for more advanced plotting.  The following is a regression-type plot:
+
+```{r, fig.height=5, fig.width=6}
+plot(fit, type = "regression", reg.type = "PredLine", 
+    predictor = Pupfish$logSize, pch=19,
+    col = as.numeric(groups))
+```
+
+The function, pairwise, can be used to test pairwise differences between least-squares means with:
+```{r}
+PWT <- pairwise(fit, groups = interaction(Pupfish$Sex, Pupfish$Pop))
+summary(PWT, confidence = 0.95)
+
+```
+Much like the tukeyHSD function in the R stats package, `pairwise` will generate tables with confidence intervals and _P_-values for the pairwise statistic, Euclidean distance between least-squares means.  This function could also be used for pairwise comparison of slopes in analysis of covariance (ANCOVA) designs.
+
+```{r}
+fit2 <- lm.rrpp(coords ~ logSize * Sex * Pop, SS.type = "I", 
+                data = Pupfish, print.progress = FALSE, iter = 999) 
+summary(fit2, formula = FALSE)
+anova(fit, fit2, print.progress = FALSE)
+
+PW2 <- pairwise(fit2, fit.null = fit, groups = groups, 
+                covariate = Pupfish$logSize, print.progress = FALSE) 
+PW2
+summary(PW2, confidence = 0.95, 
+        test.type = "dist") # distances between slope vector lengths
+summary(PW2, confidence = 0.95, 
+        test.type = "dist", stat.table = FALSE)
+summary(PW2, confidence = 0.95, 
+        test.type = "VC",
+        angle.type = "deg") # correlation between slope vectors (and angles)
+
+```
+
+Because the Procrustes residuals are projected into a Euclidean tangent space (see geomorph function, gpagen; Adams et al., 2017), this analysis could be performed with an object of class `dist` (values from lower half of a distance matrix) representing the inter-specimen shape (Euclidean) distances, using the following code:
+
+```{r}
+D <- dist(Pupfish$coords) # inter-observation Euclidean distances
+Pupfish$D <- D
+
+fitD <- lm.rrpp(D ~ logSize + Sex*Pop, SS.type = "I", 
+                data = Pupfish, print.progress = FALSE) 
+
+summary(fitD)
+summary(fit)
+
+anova(fitD)
+anova(fit)
+```
+The ANOVA results with either method are exactly the same.
+
+
+***Example: Plethodontid Morphology, Phylogenetics, and GLS Estimation***
+
+In the third example, we highlight GLS estimation.  The following code creates two `lm.rrpp` fits using OLS and GLS, respectively, and evaluates them as in previous examples:
+
+```{r}
+data(PlethMorph)
+fitOLS <- lm.rrpp(TailLength ~ SVL, 
+                  data = PlethMorph,
+                  print.progress = FALSE,
+                  turbo = FALSE, verbose = TRUE)
+fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                  data = PlethMorph, 
+                  Cov = PlethMorph$PhyCov,
+                  print.progress = FALSE,
+                  turbo = FALSE, verbose = TRUE)
+
+anova(fitOLS)
+anova(fitGLS)
+
+coef(fitOLS, test = TRUE)
+coef(fitGLS, test = TRUE)
+
+```
+
+Although analyses on either model fit indicate a significant relationship between tail length and snout-to-vent length (SVL), the GLS coefficients test and ANOVA show how phylogenetic auto-correlation among species augments the OLS-estimated relationship.  The following is a multivariate example:
+
+```{r, fig.height=4, fig.width=8}
+Y <- as.matrix(cbind(PlethMorph$TailLength,
+PlethMorph$HeadLength,
+PlethMorph$TailLength,
+PlethMorph$Snout.eye,
+PlethMorph$BodyWidth,
+PlethMorph$Forelimb,
+PlethMorph$Hindlimb))
+PlethMorph$Y <- Y
+
+fitOLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph,
+                   print.progress = FALSE,
+                  turbo = FALSE, verbose = TRUE)
+fitGLSm <- lm.rrpp(Y ~ SVL, data = PlethMorph, 
+                   Cov = PlethMorph$PhyCov,
+                   print.progress = FALSE,
+                  turbo = FALSE, verbose = TRUE)
+
+anova(fitOLSm)
+anova(fitGLSm)
+
+sizeDF <- data.frame(SVL = sort(PlethMorph$SVL))
+
+plot(predict(fitOLSm, sizeDF), PC= TRUE) # Correlated error
+plot(predict(fitGLSm, sizeDF), PC= TRUE) # Independent error
+
+```
+
+
+***Analytical Summary***
+
+On the surface, these three examples and their analyses should seem intuitive to any user of R who has used the `lm` function plus its associated S3 generics (`coef, predict, resid, fitted, summary`, and `anova`), all of which can be used on `lm.rrpp` model fits.  The functions, `pairwise` (not an S3 generic) and `anova`, also allow pairwise comparisons of least-squares means or slopes and multi-model inferences, respectively. Advanced users will recognize, however, much more extensive usable results for adaptive programming.  The output from a `lm.rrpp` fit is arranged hierarchically, i.e.:
+
+```{r}
+attributes(fit)
+
+```
+
+Within the `$LM` partition, all attributes of the lm function are found, in addition to coefficients for every random permutation.  Within the `$ANOVA` partition, the SS type, plus `SS`, `MS`, `R`^2^, `F`, and Cohen's `f`^2^ for all permutations, as well as effect sizes estimated for each of these are provided.  Within the `$PermInfo` partition, the number of permutations, type (RRPP or randomization of "full" data values, FRPP), and sampling frame in every permutation (schedule) are provided.  Thus, lm.rrpp is the workhorse that makes all downstream analysis efficient.
+
+*
+
+***References***
+
+Adams, D. C., & Collyer, M. L. (2018). Multivariate phylogenetic comparative methods: Evaluations, comparisons, and recommendations. Systematic Biology, 67, 14–31.
+
+Adams, D. C., Collyer, M. L., Kaliontzopoulou, A., & Sherratt, E. (2017). Geomorph: Software for geometric morphometric analyses. R package version 3.0.6. 
+
+Adams, D. C., Rohlf, F. J., & Slice, D. E. 2013. A field comes of age: Geometric morphometrics in the 21st century. Hystrix, 24, 7–14.
+
+Bookstein, F. L. (1991). Morphometric tools for landmark data: geometry and biology. Cambridge: Cambridge University Press.
+
+Collyer, M. L., Sekora, D. J., & Adams, D. C. (2015). A method for analysis of phenotypic change for phenotypes described by high-dimensional data. Heredity, 115, 357–365.
+
+Gilbert, M. C. (2016). Impacts of habitat fragmentation on the cranial morphology of a threatened desert fish (_Cyprinodon pecosensis_). Masters thesis.  Western Kentucky University, Bowling Green, KY, USA.
+

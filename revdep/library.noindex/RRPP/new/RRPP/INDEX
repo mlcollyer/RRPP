@@ -1,0 +1,116 @@
+ICCstats                Intraclass correlation statistics from an
+                        lm.rrpp model fits
+PlethMorph              Plethodon comparative morphological data
+Pupfish                 Landmarks on pupfish
+PupfishHeads            Landmarks on pupfish heads
+add.trajectories        Plot Function for RRPP
+add.tree                Plot tool to add phylogenetic trees to
+                        ordination plots
+anova.lm.rrpp           ANOVA for lm.rrpp model fits
+anova.measurement.error
+                        ANOVA for lm.rrpp model fits used in
+                        measurement.error
+classify                Deprecated functions in RRPP
+coef.lm.rrpp            coef for lm.rrpp model fits
+convert2ggplot          Convert RRPP plots to ggplot objects
+effect.size             Obtain Effect-size from a vector of values
+fishy                   Simulated fish data for measurement error
+                        analysis
+fitted.lm.rrpp          Extract fitted values
+focusMEonSubjects       Plot Function for RRPP
+getANOVAStats           Utility Function for RRPP
+getModelCov             Utility Function for RRPP
+getModels               Utility Function for RRPP
+getPermInfo             Utility Function for RRPP
+getResCov               Utility Function for RRPP
+getTerms                Utility Function for RRPP
+interSubVar             Reveal the inter-subject variability from a
+                        measurement error analysis
+lm.rrpp                 Linear Model Evaluation with a Randomized
+                        Residual Permutation Procedure
+lm.rrpp.ws              Linear Model Evaluation with RRPP performed
+                        within subjects
+logLik.lm.rrpp          Calculate the log-likelihood of a lm.rrpp fit
+looCV                   Diagnostic cross-validation tool for ordination
+                        based on fitted values
+lr_test                 Likelihood ratio test for a linear model, based
+                        on RRPP
+manova.update           MANOVA update for lm.rrpp model fits
+measurement.error       Evaluation of measurement error for two or more
+                        multivariate measurements, for common research
+                        subjects
+model.comparison        Model Comparisons, in terms of the
+                        log-likelihood, covariance trace, or Z-score.
+model.frame.lm.rrpp     Extract model frame from a lm.rrpp object
+model.matrix.lm.rrpp    Extract the model design matrix from an lm.rrpp
+                        object
+motionpaths             Simulated motion paths
+na.omit.rrpp.data.frame
+                        Handle missing values in rrpp.data.frame
+                        objects
+ordinate                Ordination tool for data aligned to another
+                        matrix
+pairwise                Pairwise comparisons of lm.rrpp fits
+plot.interSubVar        Plot Function for RRPP
+plot.lm.rrpp            Plot Function for RRPP
+plot.looCV              Plot Function for RRPP
+plot.measurement.error
+                        Plot Function for RRPP
+plot.model.comparison   Plot Function for RRPP
+plot.ordinate           Plot Function for RRPP
+plot.predict.lm.rrpp    Plot Function for RRPP
+plot.trajectory.analysis
+                        Plot Function for RRPP
+predict.lm.rrpp         predict for lm.rrpp model fits
+prep.lda                Linear discriminant function for lm.rrpp model
+                        fits
+print.ICCstats          Print/Summary Function for RRPP
+print.anova.lm.rrpp     Print/Summary Function for RRPP
+print.coef.lm.rrpp      Print/Summary Function for RRPP
+print.lm.rrpp           Print/Summary Function for RRPP
+print.looCV             Print/Summary Function for RRPP
+print.lr_test           Print/Summary Function for RRPP
+print.measurement.error
+                        Print/Summary Function for RRPP
+print.model.comparison
+                        Print/Summary Function for RRPP
+print.ordinate          Print/Summary Function for RRPP
+print.pairwise          Print/Summary Function for RRPP
+print.predict.lm.rrpp   Print/Summary Function for RRPP
+print.summary.lm.rrpp   Print/Summary Function for RRPP
+print.summary.manova.lm.rrpp
+                        Print/Summary Function for RRPP
+print.summary.ordinate
+                        Print/Summary Function for RRPP
+print.summary.pairwise
+                        Print/Summary Function for RRPP
+print.summary.trajectory.analysis
+                        Print/Summary Function for RRPP
+print.trajectory.analysis
+                        Print/Summary Function for RRPP
+pval                    Obtain P-value from a vector of values
+residuals.lm.rrpp       Extract residuals
+reveal.model.designs    Reveal model designs used in lm.rrpp fit
+rrpp.data.frame         Create a data frame for lm.rrpp analysis
+scaleCov                Scaling of a Covariance Matrix
+summary.ICCstats        Print/Summary Function for RRPP
+summary.anova.lm.rrpp   Print/Summary Function for RRPP
+summary.coef.lm.rrpp    Print/Summary Function for RRPP
+summary.lm.rrpp         Print/Summary Function for RRPP
+summary.looCV           Print/Summary Function for RRPP
+summary.lr_test         Print/Summary Function for RRPP
+summary.manova.lm.rrpp
+                        Print/Summary Function for RRPP
+summary.measurement.error
+                        Print/Summary Function for RRPP
+summary.model.comparison
+                        Print/Summary Function for RRPP
+summary.ordinate        Print/Summary Function for RRPP
+summary.pairwise        Print/Summary Function for RRPP
+summary.predict.lm.rrpp
+                        Print/Summary Function for RRPP
+summary.trajectory.analysis
+                        Print/Summary Function for RRPP
+terms.lm.rrpp           Extract the terms from an lm.rrpp object
+trajectory.analysis     Quantify and compare shape change trajectories
+vec.cor.matrix          Support function for RRPP

@@ -36,7 +36,7 @@
 #'    
 #' # Body Shape Analysis (Multivariate) ----------------
 #' 
-#' \dontrun
+#' \dontrun{
 #' data(Pupfish)
 #' 
 #' # Although not recommended as a practice, this example will use only

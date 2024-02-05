@@ -34,6 +34,39 @@ This function does one of two things.  It either performs an update using
 Wilks' lambda to likelihood ratio statistics or it uses the results from
 a previously performed update to calculate new statistics.
 }
+\examples{
+   
+# Body Shape Analysis (Multivariate) ----------------
+
+\dontrun{
+data(Pupfish)
+
+# Although not recommended as a practice, this example will use only
+# three principal components of body shape for demonstration.  
+# A larger number of random permutations should also be used.
+
+Pupfish$shape <- ordinate(Pupfish$coords)$x[, 1:3]
+
+
+fit <- lm.rrpp(shape ~ log(CS) + Sex, SS.type = "I", 
+data = Pupfish, print.progress = FALSE, iter = 499) 
+summary(fit, formula = FALSE)
+anova(fit) # ANOVA table
+
+# MANOVA
+
+fit.m <- manova.update(fit, print.progress = FALSE, tol = 0.001)
+summary(fit.m, test = "Roy")
+summary(fit.m, test = "Wilks")
+
+
+# Likelihood Ratio Test
+
+LRT <- lr_test(fit.m)
+summary(LRT)
+
+}
+}
 \references{
 Adams, D. C., and M. L. Collyer. 2024. Extended phylogenetic 
 regression models for comparing within-species patterns across the 

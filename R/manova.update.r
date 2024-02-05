@@ -153,7 +153,7 @@
 #'  used for analysis.}
 #' 
 #' @examples 
-#'    
+#' \dontrun{
 #' # Body Shape Analysis (Multivariate) ----------------
 #' 
 #' data(Pupfish)
@@ -192,7 +192,7 @@
 #'      abline(v = summ.roy$rand.stats[1, i], col = "red")
 #' }
 #' par(mfcol = c(1,1))
-#' 
+#' }
 
 manova.update <- function(fit, error = NULL, 
                               tol = 1e-7, PC.no = NULL,

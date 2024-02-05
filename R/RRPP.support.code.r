@@ -201,7 +201,7 @@ NULL
 #' # df <- data.frame(df, d = d) 
 #' rdf <- rrpp.data.frame(rdf, d = d) # works
 #' 
-#' fit <- lm.rrpp(d ~ x, data = rdf)
+#' fit <- lm.rrpp(d ~ x, data = rdf, iter = 99)
 #' summary(fit)
 
 rrpp.data.frame<- function(...) {

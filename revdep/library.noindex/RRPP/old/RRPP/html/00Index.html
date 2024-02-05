@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Linear Model Evaluation with Randomized Residuals in a
+Permutation Procedure</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+<h1> Linear Model Evaluation with Randomized Residuals in a
+Permutation Procedure
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;RRPP&rsquo; version 1.4.0</h2>
+
+<ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="RRPP-package.html">RRPP-package</a></td>
+<td>Linear Model Evaluation with Randomized Residual Permutation Procedures</td></tr>
+<tr><td style="width: 25%;"><a href="add.trajectories.html">add.trajectories</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="add.tree.html">add.tree</a></td>
+<td>Plot tool to add phylogenetic trees to ordination plots</td></tr>
+<tr><td style="width: 25%;"><a href="anova.lm.rrpp.html">anova.lm.rrpp</a></td>
+<td>ANOVA for lm.rrpp model fits</td></tr>
+<tr><td style="width: 25%;"><a href="classify.html">classify</a></td>
+<td>Deprecated functions in RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="coef.lm.rrpp.html">coef.lm.rrpp</a></td>
+<td>coef for lm.rrpp model fits</td></tr>
+<tr><td style="width: 25%;"><a href="convert2ggplot.html">convert2ggplot</a></td>
+<td>Convert RRPP plots to ggplot objects</td></tr>
+<tr><td style="width: 25%;"><a href="fitted.lm.rrpp.html">fitted.lm.rrpp</a></td>
+<td>Extract fitted values</td></tr>
+<tr><td style="width: 25%;"><a href="focusMEonSubjects.html">focusMEonSubjects</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="getANOVAStats.html">getANOVAStats</a></td>
+<td>Utility Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="getModelCov.html">getModelCov</a></td>
+<td>Utility Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="getModels.html">getModels</a></td>
+<td>Utility Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="getPermInfo.html">getPermInfo</a></td>
+<td>Utility Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="getResCov.html">getResCov</a></td>
+<td>Utility Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="getTerms.html">getTerms</a></td>
+<td>Utility Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="interSubVar.html">interSubVar</a></td>
+<td>Reveal the inter-subject variability from a measurement error analysis</td></tr>
+<tr><td style="width: 25%;"><a href="lm.rrpp.html">lm.rrpp</a></td>
+<td>Linear Model Evaluation with a Randomized Residual Permutation Procedure</td></tr>
+<tr><td style="width: 25%;"><a href="lm.rrpp.ws.html">lm.rrpp.ws</a></td>
+<td>Linear Model Evaluation with RRPP performed within subjects</td></tr>
+<tr><td style="width: 25%;"><a href="logLik.lm.rrpp.html">logLik.lm.rrpp</a></td>
+<td>Calculate the log-likelihood of a lm.rrpp fit</td></tr>
+<tr><td style="width: 25%;"><a href="looCV.html">looCV</a></td>
+<td>Diagnostic cross-validation tool for ordination based on fitted values</td></tr>
+<tr><td style="width: 25%;"><a href="manova.update.html">manova.update</a></td>
+<td>MANOVA update for lm.rrpp model fits</td></tr>
+<tr><td style="width: 25%;"><a href="measurement.error.html">measurement.error</a></td>
+<td>Evaluation of measurement error for two or more multivariate measurements, for common research subjects</td></tr>
+<tr><td style="width: 25%;"><a href="model.comparison.html">model.comparison</a></td>
+<td>Model Comparisons, in terms of the log-likelihood, covariance trace, or Z-score.</td></tr>
+<tr><td style="width: 25%;"><a href="model.frame.lm.rrpp.html">model.frame.lm.rrpp</a></td>
+<td>Extract model frame from a lm.rrpp object</td></tr>
+<tr><td style="width: 25%;"><a href="model.matrix.lm.rrpp.html">model.matrix.lm.rrpp</a></td>
+<td>Extract the model design matrix from an lm.rrpp object</td></tr>
+<tr><td style="width: 25%;"><a href="motionpaths.html">motionpaths</a></td>
+<td>Simulated motion paths</td></tr>
+<tr><td style="width: 25%;"><a href="na.omit.rrpp.data.frame.html">na.omit.rrpp.data.frame</a></td>
+<td>Handle missing values in rrpp.data.frame objects</td></tr>
+<tr><td style="width: 25%;"><a href="ordinate.html">ordinate</a></td>
+<td>Ordination tool for data aligned to another matrix</td></tr>
+<tr><td style="width: 25%;"><a href="pairwise.html">pairwise</a></td>
+<td>Pairwise comparisons of lm.rrpp fits</td></tr>
+<tr><td style="width: 25%;"><a href="PlethMorph.html">PlethMorph</a></td>
+<td>Plethodon comparative morphological data</td></tr>
+<tr><td style="width: 25%;"><a href="plot.interSubVar.html">plot.interSubVar</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.lm.rrpp.html">plot.lm.rrpp</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.looCV.html">plot.looCV</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.measurement.error.html">plot.measurement.error</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.model.comparison.html">plot.model.comparison</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.ordinate.html">plot.ordinate</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.predict.lm.rrpp.html">plot.predict.lm.rrpp</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="plot.trajectory.analysis.html">plot.trajectory.analysis</a></td>
+<td>Plot Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="predict.lm.rrpp.html">predict.lm.rrpp</a></td>
+<td>predict for lm.rrpp model fits</td></tr>
+<tr><td style="width: 25%;"><a href="prep.lda.html">prep.lda</a></td>
+<td>Linear discriminant function for lm.rrpp model fits</td></tr>
+<tr><td style="width: 25%;"><a href="print.anova.lm.rrpp.html">print.anova.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.coef.lm.rrpp.html">print.coef.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.lm.rrpp.html">print.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.looCV.html">print.looCV</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.measurement.error.html">print.measurement.error</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.model.comparison.html">print.model.comparison</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.ordinate.html">print.ordinate</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.pairwise.html">print.pairwise</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.predict.lm.rrpp.html">print.predict.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.summary.lm.rrpp.html">print.summary.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.summary.manova.lm.rrpp.html">print.summary.manova.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.summary.ordinate.html">print.summary.ordinate</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.summary.pairwise.html">print.summary.pairwise</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.summary.trajectory.analysis.html">print.summary.trajectory.analysis</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="print.trajectory.analysis.html">print.trajectory.analysis</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="Pupfish.html">Pupfish</a></td>
+<td>Landmarks on pupfish</td></tr>
+<tr><td style="width: 25%;"><a href="PupfishHeads.html">PupfishHeads</a></td>
+<td>Landmarks on pupfish heads</td></tr>
+<tr><td style="width: 25%;"><a href="residuals.lm.rrpp.html">residuals.lm.rrpp</a></td>
+<td>Extract residuals</td></tr>
+<tr><td style="width: 25%;"><a href="reveal.model.designs.html">reveal.model.designs</a></td>
+<td>Reveal model designs used in lm.rrpp fit</td></tr>
+<tr><td style="width: 25%;"><a href="RRPP-package.html">RRPP</a></td>
+<td>Linear Model Evaluation with Randomized Residual Permutation Procedures</td></tr>
+<tr><td style="width: 25%;"><a href="rrpp.data.frame.html">rrpp.data.frame</a></td>
+<td>Create a data frame for lm.rrpp analysis</td></tr>
+<tr><td style="width: 25%;"><a href="scaleCov.html">scaleCov</a></td>
+<td>Scaling of a Covariance Matrix</td></tr>
+<tr><td style="width: 25%;"><a href="summary.anova.lm.rrpp.html">summary.anova.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.coef.lm.rrpp.html">summary.coef.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.lm.rrpp.html">summary.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.looCV.html">summary.looCV</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.manova.lm.rrpp.html">summary.manova.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.measurement.error.html">summary.measurement.error</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.model.comparison.html">summary.model.comparison</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.ordinate.html">summary.ordinate</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.pairwise.html">summary.pairwise</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.predict.lm.rrpp.html">summary.predict.lm.rrpp</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="summary.trajectory.analysis.html">summary.trajectory.analysis</a></td>
+<td>Print/Summary Function for RRPP</td></tr>
+<tr><td style="width: 25%;"><a href="terms.lm.rrpp.html">terms.lm.rrpp</a></td>
+<td>Extract the terms from an lm.rrpp object</td></tr>
+<tr><td style="width: 25%;"><a href="trajectory.analysis.html">trajectory.analysis</a></td>
+<td>Quantify and compare shape change trajectories</td></tr>
+<tr><td style="width: 25%;"><a href="vec.cor.matrix.html">vec.cor.matrix</a></td>
+<td>Support function for RRPP</td></tr>
+</table>
+</div></body></html>

@@ -15,7 +15,7 @@
 Print/Summary Function for RRPP
 }
 \examples{
-
+\dontrun{
 
 # Measurement error analysis on simulated data of fish shapes
 
@@ -47,7 +47,7 @@ ICCstats(ME2, subjects = "Subjects",
   with_in = "Systematic ME", groups = "groups")
 P <- plot(ME2)
 focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
-
+}
 }
 \author{
 Michael Collyer

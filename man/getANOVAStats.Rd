@@ -17,7 +17,7 @@ A function mostly for internal processing but can be used to extract
 ANOVA statistics for other uses, such as plotting histograms
 }
 \examples{
-
+\dontrun{
 data(Pupfish)
 fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
 data = Pupfish, print.progress = FALSE, iter = 999) 
@@ -32,7 +32,7 @@ hist(Fstats$Fs[3,], breaks = 50, main = "Pop", xlab = "F")
 abline(v = Fstats$Fs[3, 1])
 hist(Fstats$Fs[4,], breaks = 50, main = "Sex:Pop", xlab = "F")
 abline(v = Fstats$Fs[4, 1])
-
+}
 }
 \author{
 Michael Collyer

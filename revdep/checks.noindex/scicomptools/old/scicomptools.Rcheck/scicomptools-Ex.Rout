@@ -1,0 +1,378 @@
+
+R version 4.3.2 (2023-10-31) -- "Eye Holes"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "scicomptools"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('scicomptools')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("drive_toc")
+> ### * drive_toc
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: drive_toc
+> ### Title: Identify all Folders within Specified Google Drive Folder
+> ### Aliases: drive_toc
+> 
+> ### ** Examples
+> 
+>  
+> ## Not run: 
+> ##D # Supply a single Google Drive folder link to identify all its sub-folders 
+> ##D drive_toc(url = googledrive::as_id("https://drive.google.com/drive/u/0/folders/your-folder"))
+> ## End(Not run)
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("read_xl_format")
+> ### * read_xl_format
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: read_xl_format
+> ### Title: Read Formatting of All Sheets in an Excel Workbook
+> ### Aliases: read_xl_format
+> 
+> ### ** Examples
+> 
+> # Identify the formatting of every cell in all sheets of an Excel file
+> read_xl_format(file_name = system.file("extdata", "excel_book.xlsx", package = "scicomptools"))
+          sheet address row col cell_contents                           comment
+1   first_table      A1   1   1         col_1                              <NA>
+2   first_table      B1   1   2         col_2                              <NA>
+3   first_table      A2   2   1           cat                              <NA>
+4   first_table      B2   2   2             2                              <NA>
+5   first_table      A3   3   1           dog                              <NA>
+6   first_table      B3   3   2             1                              <NA>
+7   first_table      A4   4   1          bird                              <NA>
+8   first_table      B4   4   2             3                              <NA>
+9   first_table      A5   5   1          fish                              <NA>
+10  first_table      B5   5   2             5                              <NA>
+11 second_table      A1   1   1          name                              <NA>
+12 second_table      B1   1   2         order                              <NA>
+13 second_table      C1   1   3      quantity Microsoft Office User:comment\r\n
+14 second_table      A2   2   1          Alex                              <NA>
+15 second_table      B2   2   2        item_1                              <NA>
+16 second_table      C2   2   3            65                              <NA>
+17 second_table      A3   3   1          Jane                              <NA>
+18 second_table      B3   3   2        item_2                              <NA>
+19 second_table      C3   3   3            23                              <NA>
+20 second_table      A4   4   1           Max                              <NA>
+21 second_table      B4   4   2        item_3                              <NA>
+22 second_table      C4   4   3            30                              <NA>
+23  third_table      A1   1   1          date                              <NA>
+24  third_table      B1   1   2          site                              <NA>
+25  third_table      C1   1   3          plot                              <NA>
+26  third_table      D1   1   4       species                              <NA>
+27  third_table      A2   2   1    2023-01-04                              <NA>
+28  third_table      B2   2   2        site_1                              <NA>
+29  third_table      C2   2   3             A                              <NA>
+30  third_table      D2   2   4     species_1                              <NA>
+31  third_table      A3   3   1    2023-02-10                              <NA>
+32  third_table      B3   3   2        site_1                              <NA>
+33  third_table      C3   3   3             B                              <NA>
+34  third_table      D3   3   4     species_1                              <NA>
+35  third_table      A4   4   1    2023-03-11                              <NA>
+36  third_table      B4   4   2        site_2                              <NA>
+37  third_table      C4   4   3             A                              <NA>
+38  third_table      D4   4   4     species_1                              <NA>
+39  third_table      A5   5   1    2023-04-28                              <NA>
+40  third_table      B5   5   2        site_2                              <NA>
+41  third_table      C5   5   3             B                              <NA>
+42  third_table      D5   5   4     species_1                              <NA>
+   formula  bold italic underline font_size font_color cell_color
+1     <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+2     <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+3     <NA> FALSE   TRUE      <NA>        12   FF000000       <NA>
+4     <NA> FALSE  FALSE      <NA>        12   FF4472C4       <NA>
+5     <NA> FALSE   TRUE      <NA>        12   FF000000       <NA>
+6     <NA> FALSE  FALSE      <NA>        12   FF4472C4       <NA>
+7     <NA> FALSE   TRUE      <NA>        12   FF000000       <NA>
+8     <NA> FALSE  FALSE      <NA>        12   FF4472C4       <NA>
+9     <NA> FALSE   TRUE      <NA>        12   FF000000       <NA>
+10    <NA> FALSE  FALSE      <NA>        12   FF4472C4       <NA>
+11    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+12    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+13    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+14    <NA> FALSE  FALSE      <NA>        12   FF000000   FFFFFFFF
+15    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+16    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+17    <NA> FALSE  FALSE      <NA>        12   FF000000   FFFFFFFF
+18    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+19    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+20    <NA> FALSE  FALSE      <NA>        12   FF000000   FFFFFFFF
+21    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+22    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+23    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+24    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+25    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+26    <NA>  TRUE  FALSE      <NA>        12   FF000000       <NA>
+27    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+28    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+29    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+30    <NA> FALSE  FALSE    single        12   FF000000       <NA>
+31    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+32    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+33    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+34    <NA> FALSE  FALSE    single        12   FF000000       <NA>
+35    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+36    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+37    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+38    <NA> FALSE  FALSE    single        12   FF000000       <NA>
+39    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+40    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+41    <NA> FALSE  FALSE      <NA>        12   FF000000       <NA>
+42    <NA> FALSE  FALSE    single        12   FF000000       <NA>
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("read_xl_sheets")
+> ### * read_xl_sheets
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: read_xl_sheets
+> ### Title: Read All Sheets from an Excel Workbook
+> ### Aliases: read_xl_sheets
+> 
+> ### ** Examples
+> 
+> # Read in each sheet as an element in a list
+> read_xl_sheets(file_name = system.file("extdata", "excel_book.xlsx", package = "scicomptools"))
+$first_table
+# A tibble: 4 × 2
+  col_1 col_2
+  <chr> <dbl>
+1 cat       2
+2 dog       1
+3 bird      3
+4 fish      5
+
+$second_table
+# A tibble: 3 × 3
+  name  order  quantity
+  <chr> <chr>     <dbl>
+1 Alex  item_1       65
+2 Jane  item_2       23
+3 Max   item_3       30
+
+$third_table
+# A tibble: 4 × 4
+  date                site   plot  species  
+  <dttm>              <chr>  <chr> <chr>    
+1 2023-01-04 00:00:00 site_1 A     species_1
+2 2023-02-10 00:00:00 site_1 B     species_1
+3 2023-03-11 00:00:00 site_2 A     species_1
+4 2023-04-28 00:00:00 site_2 B     species_1
+
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("stat_extract")
+> ### * stat_extract
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: stat_extract
+> ### Title: Extract Summary Statistics from Model Fit Object
+> ### Aliases: stat_extract
+> 
+> ### ** Examples
+> 
+> # Create some example data
+> x <- c(3.5, 2.1, 7.5, 5.6, 3.3, 6.0, 5.6)
+> y <- c(2.3, 4.7, 7.8, 9.1, 4.5, 3.6, 5.1)
+> 
+> # Fit a linear model
+> mod <- lm(y ~ x)
+> 
+> # Extract the relevant information
+> stat_extract(mod_fit = mod)
+         Term  Estimate Std_Error   T_Value   P_Value
+1 (Intercept) 2.0661017 2.4263807 0.8515159 0.4333616
+2           x 0.6737288 0.4751741 1.4178568 0.2154314
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("token_check")
+> ### * token_check
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: token_check
+> ### Title: Check Token Status
+> ### Aliases: token_check
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D # Check whether a GitHub token is attached or not
+> ##D token_check(api = "github", secret = TRUE)
+> ## End(Not run)
+> ## Not run: 
+> ##D # Check whether a Qualtrics token is attached or not
+> ##D token_check(api = "qualtrics", secret = TRUE)
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("wd_loc")
+> ### * wd_loc
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: wd_loc
+> ### Title: Define Local or Remote Working Directories
+> ### Aliases: wd_loc
+> 
+> ### ** Examples
+> 
+> # Set two working directory paths to toggle between
+> 
+> # If you are working in your local computer, set `local` to "TRUE"
+> wd_loc(local = TRUE,
++        local_path = file.path("local path"),
++        remote_path = file.path("path on server"))
+[1] "local path"
+>        
+> # If you are working in a remote server, set `local` to "FALSE"
+> wd_loc(local = FALSE,
++        local_path = file.path("local path"),
++        remote_path = file.path("path on server"))
+[1] "path on server"
+>       
+> 
+> 
+> 
+> cleanEx()
+> nameEx("word_cloud_plot")
+> ### * word_cloud_plot
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: word_cloud_plot
+> ### Title: Text Mine a Given Column and Create a Word Cloud
+> ### Aliases: word_cloud_plot
+> 
+> ### ** Examples
+> 
+> # Create a dataframe containing some example text
+> text <- data.frame(article_num = 1:6,
++                    article_title = c("Why pigeons are the best birds",
++                                      "10 ways to show your pet budgie love",
++                                      "Should you feed ducks at the park?",
++                                      "Locations and tips for birdwatching",
++                                      "How to tell which pet bird is right for you",
++                                      "Do birds make good pets?"))
+>                                      
+> # Prepare the dataframe for word cloud plotting              
+> word_cloud_prep(data = text, text_column = "article_title")
+# A tibble: 11 × 4
+   word             n angle color_groups
+   <chr>        <int> <dbl> <fct>       
+ 1 bird             3     0 3           
+ 2 birdwatching     1     0 1           
+ 3 budgie           1   -45 5           
+ 4 duck             1   -90 5           
+ 5 feed             1     0 10          
+ 6 location         1   -90 6           
+ 7 love             1   -90 10          
+ 8 park             1    45 7           
+ 9 pet              3     0 9           
+10 pigeon           1     0 5           
+11 tip              1     0 5           
+> 
+> # Plot the word cloud
+> word_cloud_plot(data = text, text_column = "article_title")
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("word_cloud_prep")
+> ### * word_cloud_prep
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: word_cloud_prep
+> ### Title: Perform Text Mining of a Given Column
+> ### Aliases: word_cloud_prep
+> 
+> ### ** Examples
+> 
+> # Create a dataframe containing some example text
+> text <- data.frame(article_num = 1:6,
++                    article_title = c("Why pigeons are the best birds",
++                                      "10 ways to show your pet budgie love",
++                                      "Should you feed ducks at the park?",
++                                      "Locations and tips for birdwatching",
++                                      "How to tell which pet bird is right for you",
++                                      "Do birds make good pets?"))
+>                                      
+> # Prepare the dataframe for word cloud plotting              
+> word_cloud_prep(data = text, text_column = "article_title")
+# A tibble: 11 × 4
+   word             n angle color_groups
+   <chr>        <int> <dbl> <fct>       
+ 1 bird             3     0 3           
+ 2 birdwatching     1     0 1           
+ 3 budgie           1   -45 5           
+ 4 duck             1   -90 5           
+ 5 feed             1     0 10          
+ 6 location         1   -90 6           
+ 7 love             1   -90 10          
+ 8 park             1    45 7           
+ 9 pet              3     0 9           
+10 pigeon           1     0 5           
+11 tip              1     0 5           
+> 
+> # Plot the word cloud
+> word_cloud_plot(data = text, text_column = "article_title")
+> 
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  1.319 0.117 1.578 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

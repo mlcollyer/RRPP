@@ -37,7 +37,7 @@ The function calculates and plots principal components of fitted values from
  individualized plots, if \code{\link{add.trajectories}} is not preferred.
 }
 \examples{
-# See \code{\link{trajectory.analysis}} for examples
+# See trajectory.analysis help file for examples
 }
 \references{
 Adams, D. C., and M. M. Cerney. 2007. 

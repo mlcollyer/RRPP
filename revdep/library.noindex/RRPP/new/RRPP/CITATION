@@ -1,0 +1,22 @@
+citHeader("To cite package 'RRPP' in a publication use:")
+
+bibentry(
+  bibtype = "Manual",
+	title = "{RRPP}: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure. R package version 1.4.0.",
+    author = person(c("M. L. Collyer", "D. C. Adams")),
+  	year = 2023,
+  	url = "https://CRAN.R-project.org/package=RRPP")
+
+bibentry(
+  bibtype = "Article",
+	title = "{RRPP}: An R package for fitting linear models to high‐dimensional data using residual randomization.",
+	author = person(c("M. L. Collyer", "D. C. Adams")),
+  	year = 2018,
+  	journal = "Methods in Ecology and Evolution",
+  	volume = "9",
+  	issue = "2",
+  	pages = "1772-1779",
+  	url = "https://doi.org/10.1111/2041-210X.13029")
+	
+
+citFooter("Please cite both references, noting version number for RRPP package (first citation), as the RRPP package will evolve quickly.")
