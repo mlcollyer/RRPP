@@ -78,7 +78,7 @@ on a grouping factor, calculate either least squares (LS) means or
 slopes, and pairwise statistics among
 them.  Pairwise statistics have multiple flavors, related to vector attributes: 
 
-\itemize{
+\describe{
 \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or 
 slopes originate at the origin and point to some location, having both a 
 magnitude

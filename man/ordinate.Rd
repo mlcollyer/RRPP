@@ -147,7 +147,7 @@ are less straightforward.  A summary of
 of such an analysis (performed with \code{\link{summary.ordinate}}) 
 will produce these additional statistics:
 
-\itemize{
+\describe{
 \item{\bold{Singular Value}}{  Rather than eigenvalues, the 
 singular values from singular value decomposition of the 
 cross-product of the scaled alignment matrix and the data.}
