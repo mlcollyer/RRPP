@@ -156,6 +156,10 @@
 #' @param print.progress A logical value to indicate whether a progress 
 #' bar should be printed to the screen.
 #' This is helpful for long-running analyses.
+#' @param verbose A logical value to indicate if all possible output from an analysis 
+#' should be retained. Generally this should be FALSE, unless one wishes to extract, 
+#' e.g., all possible terms, model matrices, QR decomposition, or random permutation 
+#' schemes.
 #' @param Parallel Either a logical value to indicate whether parallel processing 
 #' should be used, a numeric value to indicate the number of cores to use, or a predefined
 #' socket cluster.  This argument defines parallel processing via the \code{parallel} library. 
@@ -206,16 +210,23 @@
 #' \item{Models}{Reduced and full model fits for every possible model 
 #' combination, based on terms
 #' of the entire model, plus the method of SS estimation.}
-#' @seealso \code{\link{lm.rrpp}}; 
+#' @seealso \code{\link{lm.rrpp}}; \code{\link{measurement.error}}
 #' @references Adams, D.C and M.L Collyer. (submitted) Extended phylogenetic regression models for 
-#' comparing within-species patterns across the Tree of Life. Proceedings of the National 
-#' Academy of Science.
+#' comparing within-species patterns across the Tree of Life. 
+#' Methods in Ecology and Evolution
 #' @references ter Braak, C.J.F. 1992. Permutation versus bootstrap significance tests in 
 #' multiple regression and ANOVA. pp .79–86 In Bootstrapping and Related Techniques. eds K-H. Jockel, 
 #' G. Rothe & W. Sendler.Springer-Verlag, Berlin.
 #' \code{\link[stats]{lm}} for more on linear model fits.
 #' @examples 
-#' # TBD
+#' data(fishy)
+#' 
+#' suppressWarnings(fit <- lm.rrpp.ws(coords ~ subj + groups * reps,
+#'   subjects = "subj", 
+#'   data = fishy))
+#' 
+#' anova(fit)
+
 lm.rrpp.ws <- function(f1, subjects, 
                        iter = 999, turbo = FALSE, 
                        seed = NULL, int.first = FALSE,
@@ -223,7 +234,9 @@ lm.rrpp.ws <- function(f1, subjects,
                        data, Cov = NULL,
                        delta = 0.001, 
                        gamma = c("sample", "equal"),
-                       print.progress = FALSE, Parallel = FALSE, ...) {
+                       print.progress = FALSE, 
+                       verbose = FALSE,
+                       Parallel = FALSE, ...) {
   
   L <- c(as.list(environment()), list(...))
   if(is.null(L$data))

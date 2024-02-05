@@ -17,6 +17,7 @@ lm.rrpp.ws(
   delta = 0.001,
   gamma = c("sample", "equal"),
   print.progress = FALSE,
+  verbose = FALSE,
   Parallel = FALSE,
   ...
 )
@@ -72,6 +73,11 @@ scaling or the square-root of the sample size for subject observations ("sample"
 \item{print.progress}{A logical value to indicate whether a progress 
 bar should be printed to the screen.
 This is helpful for long-running analyses.}
+
+\item{verbose}{A logical value to indicate if all possible output from an analysis 
+should be retained. Generally this should be FALSE, unless one wishes to extract, 
+e.g., all possible terms, model matrices, QR decomposition, or random permutation 
+schemes.}
 
 \item{Parallel}{Either a logical value to indicate whether parallel processing 
 should be used, a numeric value to indicate the number of cores to use, or a predefined
@@ -243,12 +249,18 @@ the within-subject blocking for tests, plus the requirement for type II SS
 for within-subject effects.
 }
 \examples{
-# TBD
+data(fishy)
+
+suppressWarnings(fit <- lm.rrpp.ws(coords ~ subj + groups * reps,
+  subjects = "subj", 
+  data = fishy))
+
+anova(fit)
 }
 \references{
 Adams, D.C and M.L Collyer. (submitted) Extended phylogenetic regression models for 
-comparing within-species patterns across the Tree of Life. Proceedings of the National 
-Academy of Science.
+comparing within-species patterns across the Tree of Life. 
+Methods in Ecology and Evolution
 
 ter Braak, C.J.F. 1992. Permutation versus bootstrap significance tests in 
 multiple regression and ANOVA. pp .79–86 In Bootstrapping and Related Techniques. eds K-H. Jockel, 
@@ -256,7 +268,7 @@ G. Rothe & W. Sendler.Springer-Verlag, Berlin.
 \code{\link[stats]{lm}} for more on linear model fits.
 }
 \seealso{
-\code{\link{lm.rrpp}};
+\code{\link{lm.rrpp}}; \code{\link{measurement.error}}
 }
 \author{
 Michael Collyer

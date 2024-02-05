@@ -1833,7 +1833,11 @@ print.lr_test <- function(x, ...){
   x <- if(!is.null(x$tab)) x$tab else as.data.frame(x)
   colnames(x)[4] <- "Pr(>LR)"
   class(x) <- c("anova", class(x))
+  
+  cat("\n\n")
+  
   print(x)
+  cat("\n\n")
 }
 
 #' Print/Summary Function for RRPP

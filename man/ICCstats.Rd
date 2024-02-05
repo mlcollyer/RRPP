@@ -98,7 +98,6 @@ ME1 <- measurement.error(
 
 anova(ME1)
 ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
-plot(ME1)
 
 # Analysis concerned with groups 
 
@@ -112,9 +111,9 @@ ME2 <- measurement.error(
 anova(ME2)
 ICCstats(ME2, subjects = "Subjects", 
   with_in = "Systematic ME", groups = "groups")
-P <- plot(ME2)
-focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
-
+ICCstats(ME2, subjects = "Subjects", 
+  with_in = c("Systematic ME", "Systematic ME:Groups"), 
+  groups = "groups")
 }
 \references{
 Liljequist, D., Elfving, B., & Skavberg Roaldsen, K. (2019). Intraclass correlation–A discussion 

@@ -23,10 +23,10 @@ d28f1c70c8ca9d75c9e67f1cfd555d88 *man/getModelCov.Rd
 88c7bb0028505b5cfb7bd7f3491cd14c *man/getPermInfo.Rd
 371494229bd51915aefd3831fdad2d34 *man/getResCov.Rd
 5fa1cb32075adf22ffdc34740171e2c4 *man/getTerms.Rd
-1e70abd4b47d04d99673c9815688e80c *man/ICCstats.Rd
+a9db12402af8b7ada7dbacc423523e8a *man/ICCstats.Rd
 becb14f6b0f73ac0ccd17e0b71a5f621 *man/interSubVar.Rd
 aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
-5acc802c3e1960d51b8232d7f9b6d434 *man/lm.rrpp.ws.Rd
+8708cc7b9175387cad104df83012eb19 *man/lm.rrpp.ws.Rd
 19a39a42115e81d1d1d7e5acb17a1a03 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 672ecd4c885785f2eea900b7601b0e41 *man/lr_test.Rd
@@ -103,7 +103,7 @@ df081fb62f7538c3ced74ef4f5ce1dc5 *R/convert2ggplot.r
 1af070ae84b61c5c682f1d5244697e83 *R/ICCstats.r
 5d79fc35578ecdcb3127c90da84fcdfb *R/interSubVar.r
 a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
-39ce79feb93d43b36efefc1cb05a14e3 *R/lm.rrpp.ws.r
+6cfb9adf3a59abc641ebe59fa328e8fe *R/lm.rrpp.ws.r
 72fa4b797683791d4a8b2713c7106897 *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 3974445436255b75f59b636ff573f0f3 *R/lr_test.R
@@ -117,7 +117,7 @@ b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 e285195b2f625c4dc6262c0f500429c1 *R/RRPP.support.code.r
-b124964b8fa65ded286d768b940c32f5 *R/RRPP.utils.r
+2429beacb0481d90b09e67903be6e6f6 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f5d0d85ef43f0f4105d69fb43e1fe238 *R/shared.support.code.r
 0cc54f095d74a3b006a4d2b406d3c075 *R/trajectory.analysis.r
