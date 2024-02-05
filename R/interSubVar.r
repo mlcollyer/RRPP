@@ -30,6 +30,8 @@
 #' guarantee consistent sorting across distance matrices.}
 #' \item{var.map}{The variability type (statistic) that was used.}
 #' @examples
+#' 
+#' \dontrun{
 #' # Measurement error analysis on simulated data of fish shapes
 #' 
 #' data(fishy)
@@ -60,6 +62,7 @@
 #'   with_in = "Systematic ME", groups = "groups")
 #' P <- plot(ME2)
 #' focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+#'  }
 #'  
 interSubVar <- function(ME, type = c("range", "sd", "var", "cv")){
   type <- match.arg(type)

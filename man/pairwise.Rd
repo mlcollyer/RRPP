@@ -157,7 +157,7 @@ bound of 0.)
 }
 }
 \examples{
-
+\dontrun{
 # Examples use geometric morphometric data on pupfishes
 # See the package, geomorph, for details about obtaining such data
 
@@ -235,6 +235,7 @@ summary(PW2, confidence = 0.95, test.type = "VC",
    
 # Can also compare the dispersion around group slopes
 summary(PW2, confidence = 0.95, test.type = "var")
+}
 
 }
 \references{

@@ -36,6 +36,7 @@
 #'    
 #' # Body Shape Analysis (Multivariate) ----------------
 #' 
+#' \dontrun
 #' data(Pupfish)
 #' 
 #' # Although not recommended as a practice, this example will use only
@@ -44,9 +45,8 @@
 #' 
 #' Pupfish$shape <- ordinate(Pupfish$coords)$x[, 1:3]
 #' 
-#' Pupfish$logSize <- log(Pupfish$CS) 
 #' 
-#' fit <- lm.rrpp(shape ~ logSize + Sex, SS.type = "I", 
+#' fit <- lm.rrpp(shape ~ log(CS) + Sex, SS.type = "I", 
 #' data = Pupfish, print.progress = FALSE, iter = 499) 
 #' summary(fit, formula = FALSE)
 #' anova(fit) # ANOVA table
@@ -63,7 +63,7 @@
 #' LRT <- lr_test(fit.m)
 #' summary(LRT)
 #' 
-#' 
+#' }
 
 
 lr_test <- function(fit, verbose = FALSE, ...){

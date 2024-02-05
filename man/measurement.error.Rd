@@ -121,6 +121,7 @@ covariance matrices, as descriptive statistics.  Details are provided in \code{\
 Examples TBD
 }
 \examples{
+\dontrun{
 # Measurement error analysis on simulated data of fish shapes
 
 data(fishy)
@@ -157,6 +158,7 @@ ICCstats(ME2, subjects = "Subjects",
   with_in = "Systematic ME", groups = "groups")
 P <- plot(ME2)
 focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+}
 
 }
 \references{

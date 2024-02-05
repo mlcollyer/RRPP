@@ -38,6 +38,8 @@ estimate precision.  The function, \code{\link{plot.interSubVar}} can produce a
 heat map of the inter-subject variability.
 }
 \examples{
+
+\dontrun{
 # Measurement error analysis on simulated data of fish shapes
 
 data(fishy)
@@ -68,6 +70,7 @@ ICCstats(ME2, subjects = "Subjects",
   with_in = "Systematic ME", groups = "groups")
 P <- plot(ME2)
 focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+ }
  
 }
 \author{

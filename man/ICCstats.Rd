@@ -84,6 +84,7 @@ of the model fit, as provoke by ANOVA.  Using anova(fit) will elucidate the row
 names of the ANOVA that could be used.
 }
 \examples{
+\dontrun{
 # Measurement error analysis on simulated data of fish shapes
 
 data(fishy)
@@ -114,6 +115,8 @@ ICCstats(ME2, subjects = "Subjects",
 ICCstats(ME2, subjects = "Subjects", 
   with_in = c("Systematic ME", "Systematic ME:Groups"), 
   groups = "groups")
+  }
+  
 }
 \references{
 Liljequist, D., Elfving, B., & Skavberg Roaldsen, K. (2019). Intraclass correlation–A discussion 

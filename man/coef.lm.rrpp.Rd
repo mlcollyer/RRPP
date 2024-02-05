@@ -62,6 +62,7 @@ from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect 
 would expect from the full model (like when using type III SS).
 }
 \examples{
+\dontrun{
 # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
 # with other functions
 
@@ -76,6 +77,7 @@ coef(fit) # Just coefficients
 coef(fit, SE = TRUE) # Coefficients with SE
 coef(fit, test = TRUE, 
 confidence = 0.99) # Test of coefficients
+}
 }
 \author{
 Michael Collyer

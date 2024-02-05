@@ -146,7 +146,7 @@
 #' challenges, and a refined permutation procedure. Evolution. In press.
 #' @seealso \code{\link{lm.rrpp}}
 #' @examples 
-#' 
+#' \dontrun{
 #' # Examples use geometric morphometric data on pupfishes
 #' # See the package, geomorph, for details about obtaining such data
 #'
@@ -224,6 +224,7 @@
 #'    
 #' # Can also compare the dispersion around group slopes
 #' summary(PW2, confidence = 0.95, test.type = "var")
+#' }
 #' 
 pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL, 
                      print.progress = FALSE) {

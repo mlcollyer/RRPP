@@ -102,6 +102,7 @@ The function quantifies multivariate trajectories from a set
  performed.  See examples below.
 }
 \examples{
+\dontrun{
 ### Analysis of sexual dimorphism vectors (factorial approach)
 data(Pupfish)
 fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 199)
@@ -147,6 +148,7 @@ summary(TA, attribute = "SD")
 TP <- plot(TA, pch = 21, bg = as.numeric(motionpaths$groups),
 cex = 0.7, col = "gray")
 add.trajectories(TP, traj.pch = 21, traj.bg = 1:4)
+}
 }
 \references{
 Adams, D. C., and M. M. Cerney. 2007. Quantifying biomechanical 

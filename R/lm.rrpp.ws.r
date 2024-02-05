@@ -219,6 +219,7 @@
 #' G. Rothe & W. Sendler.Springer-Verlag, Berlin.
 #' \code{\link[stats]{lm}} for more on linear model fits.
 #' @examples 
+#' \dontrun{
 #' data(fishy)
 #' 
 #' suppressWarnings(fit <- lm.rrpp.ws(coords ~ subj + groups * reps,
@@ -226,6 +227,7 @@
 #'   data = fishy))
 #' 
 #' anova(fit)
+#' }
 
 lm.rrpp.ws <- function(f1, subjects, 
                        iter = 999, turbo = FALSE, 

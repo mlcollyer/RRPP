@@ -67,6 +67,7 @@
 #' and demonstration of basic features. PloS one, 14(7), e0219854.
 #' 
 #' @examples
+#' \dontrun{
 #' # Measurement error analysis on simulated data of fish shapes
 #' 
 #' data(fishy)
@@ -97,6 +98,8 @@
 #' ICCstats(ME2, subjects = "Subjects", 
 #'   with_in = c("Systematic ME", "Systematic ME:Groups"), 
 #'   groups = "groups")
+#'   }
+#'   
 
 ICCstats <- function(fit, 
                      subjects = NULL,

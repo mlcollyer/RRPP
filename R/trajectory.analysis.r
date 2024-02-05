@@ -101,6 +101,7 @@
 #' by high-dimensional data. Heredity. 115:357-365.
 #' 
 #' @examples 
+#' \dontrun{
 #' ### Analysis of sexual dimorphism vectors (factorial approach)
 #' data(Pupfish)
 #' fit <- lm.rrpp(coords ~ Pop * Sex, data = Pupfish, iter = 199)
@@ -146,6 +147,7 @@
 #' TP <- plot(TA, pch = 21, bg = as.numeric(motionpaths$groups),
 #' cex = 0.7, col = "gray")
 #' add.trajectories(TP, traj.pch = 21, traj.bg = 1:4)
+#' }
 
 trajectory.analysis <- function(fit, fit.null = NULL, groups, 
                                     traj.pts, pca = TRUE, print.progress = FALSE){

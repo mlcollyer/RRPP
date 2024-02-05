@@ -249,6 +249,7 @@ the within-subject blocking for tests, plus the requirement for type II SS
 for within-subject effects.
 }
 \examples{
+\dontrun{
 data(fishy)
 
 suppressWarnings(fit <- lm.rrpp.ws(coords ~ subj + groups * reps,
@@ -256,6 +257,7 @@ suppressWarnings(fit <- lm.rrpp.ws(coords ~ subj + groups * reps,
   data = fishy))
 
 anova(fit)
+}
 }
 \references{
 Adams, D.C and M.L Collyer. (submitted) Extended phylogenetic regression models for 

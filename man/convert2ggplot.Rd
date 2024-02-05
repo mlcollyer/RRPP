@@ -33,7 +33,7 @@ error bars will generally appear as different widths, without an easy way to con
 changing from one format to the other.
 }
 \examples{
-
+\dontrun{
 ### Linear Model Example
 
 data(Pupfish)
@@ -79,7 +79,7 @@ PCA.gls <- ordinate(R, scale. = TRUE,
                
 P <- plot(PCA.gls)
 convert2ggplot(P)                   
-
+}
 }
 \author{
 Michael Collyer

@@ -52,6 +52,7 @@
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
+#' \dontrun{
 #' # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
 #' # with other functions
 #' 
@@ -66,6 +67,7 @@
 #' coef(fit, SE = TRUE) # Coefficients with SE
 #' coef(fit, test = TRUE, 
 #' confidence = 0.99) # Test of coefficients
+#' }
 coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ...) {
   x <- object
   k <- length(x$LM$term.labels)

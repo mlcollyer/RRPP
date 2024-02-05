@@ -93,6 +93,7 @@
 #' @seealso \code{\link{lm.rrpp.ws}}, \code{\link{manova.update}}
 
 #' @examples
+#' \dontrun{
 #' # Measurement error analysis on simulated data of fish shapes
 #' 
 #' data(fishy)
@@ -129,6 +130,7 @@
 #'   with_in = "Systematic ME", groups = "groups")
 #' P <- plot(ME2)
 #' focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+#' }
 #' 
 measurement.error <- function(Y, 
                               subjects, 
