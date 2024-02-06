@@ -4,10 +4,13 @@
 \alias{coef.lm.rrpp}
 \title{coef for lm.rrpp model fits}
 \usage{
-\method{coef}{lm.rrpp}(object, test = FALSE, confidence = 0.95, ...)
+\method{coef}{lm.rrpp}(object, SE = FALSE, test = FALSE, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}
+
+\item{SE}{Whether to include standard errors of coefficients.  Standard
+errors are muted if test = TRUE.}
 
 \item{test}{Logical argument that if TRUE, performs hypothesis tests 
 (Null hypothesis is vector distance = 0)
@@ -59,6 +62,7 @@ from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect 
 would expect from the full model (like when using type III SS).
 }
 \examples{
+\dontrun{
 # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
 # with other functions
 
@@ -66,10 +70,14 @@ data(Pupfish)
 names(Pupfish)
 Pupfish$logSize <- log(Pupfish$CS)
 
-fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+fit <- lm.rrpp(coords ~ logSize + Sex*Pop, 
+SS.type = "I", data = Pupfish, verbose = TRUE) 
 
-coef(fit)
-coef(fit, test = TRUE, confidence = 0.99)
+coef(fit) # Just coefficients
+coef(fit, SE = TRUE) # Coefficients with SE
+coef(fit, test = TRUE, 
+confidence = 0.99) # Test of coefficients
+}
 }
 \author{
 Michael Collyer

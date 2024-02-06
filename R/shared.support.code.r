@@ -227,11 +227,28 @@ fastLM<- function(U, y){
 # pval
 # P-values form random outcomes
 # any analytical function
-pval = function(s){# s = sampling distribution
-  p = length(s)
-  r = rank(s)[1]-1
-  pv = 1-r/p
-  pv
+
+#' Obtain P-value from a vector of values
+#'
+#' A function to find the probability of values greater or lesser than target,
+#' from a vector of values presumably obtained in random permutations.
+#'
+#' @param s The sampling distribution vector to use.
+#' @param target The value to target in the distribution.  (If null, the first value
+#' in the vector is used.).  If the target exists outside the range of s,
+#' a probability of 0 or 1 is certain.
+#' @param greater Logical value for whether the probability should be "greater than 
+#' or equal to".  Change to greater = FALSE for "less than or equal to".
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+pval <- function(s, target = NULL, greater = TRUE){
+  if(is.null(target)) target <- s[1]
+  p <- length(s)
+  pv <- if(greater) 
+    length(which(s >= target)) else 
+      length(which(s <= target))
+  pv / p
 }
 
 # box.cox
@@ -345,7 +362,23 @@ box.cox <- function(y, eps = 0.001, iterate = FALSE) {
 # Effect sizes (standard deviates) form random outcomes
 # any analytical function
 
-effect.size <- function(x, center = TRUE) {
+#' Obtain Effect-size from a vector of values
+#'
+#' A function to find the effect size (Z-score) of a target,
+#' from a vector of values presumably obtained in random permutations.
+#'
+#' @param x The vector of data to use.
+#' @param center Logical value for whether to center x.
+#' @param target The value to target in the distribution.  (If null, the first value
+#' in the vector is used.).  If the target exists outside the range of x,
+#' very small or very large z-scores are possible.  Additionally, if the target
+#' is excessively outside of the range of x, it could affect the Box-Cox transformation 
+#' used to transform x.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+effect.size <- function(x, center = TRUE, target = NULL) {
+  if(is.null(target)) target <- x[1] else x <- c(target, x)
   if(length(unique(x)) == 1) {
     sdx <- 1
     x <- 0

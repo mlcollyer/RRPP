@@ -78,7 +78,7 @@ on a grouping factor, calculate either least squares (LS) means or
 slopes, and pairwise statistics among
 them.  Pairwise statistics have multiple flavors, related to vector attributes: 
 
-\itemize{
+\describe{
 \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or 
 slopes originate at the origin and point to some location, having both a 
 magnitude
@@ -143,7 +143,7 @@ value of a t-statistic, in which case the distribution has a lower
 bound of 0.)  
 
  \subsection{Notes for RRPP 0.6.2 and subsequent versions}{ 
- In previous versions of pairwise, code{\link{summary.pairwise}} had three 
+ In previous versions of pairwise, \code{\link{summary.pairwise}} had three 
  test types: "dist", "VC", and "var".  When one chose "dist", for LS mean 
  vectors, the statistic was the inner-product of the vector difference.  
  For slope vectors, "dist" returned the absolute value  of the difference 
@@ -157,7 +157,7 @@ bound of 0.)
 }
 }
 \examples{
-
+\dontrun{
 # Examples use geometric morphometric data on pupfishes
 # See the package, geomorph, for details about obtaining such data
 
@@ -235,6 +235,7 @@ summary(PW2, confidence = 0.95, test.type = "VC",
    
 # Can also compare the dispersion around group slopes
 summary(PW2, confidence = 0.95, test.type = "var")
+}
 
 }
 \references{

@@ -26,7 +26,7 @@
 #' @export
 #' @author Michael Collyer
 #' @examples
-#' 
+#' \dontrun{
 #' ### Linear Model Example
 #' 
 #' data(Pupfish)
@@ -72,7 +72,7 @@
 #'                
 #' P <- plot(PCA.gls)
 #' convert2ggplot(P)                   
-#' 
+#' }
 
 convert2ggplot <- function(object){
   x <- y <- NULL

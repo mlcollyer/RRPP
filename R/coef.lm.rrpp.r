@@ -37,6 +37,8 @@
 #' would expect from the full model (like when using type III SS).  
 #'
 #' @param object Object from \code{\link{lm.rrpp}}
+#' @param SE Whether to include standard errors of coefficients.  Standard
+#' errors are muted if test = TRUE.
 #' @param test Logical argument that if TRUE, performs hypothesis tests 
 #' (Null hypothesis is vector distance = 0)
 #' for the observed coefficients.  If FALSE, only the observed coefficients 
@@ -50,6 +52,7 @@
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples 
+#' \dontrun{
 #' # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
 #' # with other functions
 #' 
@@ -57,11 +60,15 @@
 #' names(Pupfish)
 #' Pupfish$logSize <- log(Pupfish$CS)
 #'
-#' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, SS.type = "I", data = Pupfish) 
+#' fit <- lm.rrpp(coords ~ logSize + Sex*Pop, 
+#' SS.type = "I", data = Pupfish, verbose = TRUE) 
 #' 
-#' coef(fit)
-#' coef(fit, test = TRUE, confidence = 0.99)
-coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
+#' coef(fit) # Just coefficients
+#' coef(fit, SE = TRUE) # Coefficients with SE
+#' coef(fit, test = TRUE, 
+#' confidence = 0.99) # Test of coefficients
+#' }
+coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ...) {
   x <- object
   k <- length(x$LM$term.labels)
   rc <- x$LM$random.coef
@@ -70,16 +77,34 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
   n <- x$LM$n; p <- x$LM$p; p.prime = x$LM$p.prime
   model.terms <- x$LM$Terms
   
-  perms <- x$PermInfo$perms
+  PermInfo <- getPermInfo(x, "all")
+  
+  perms <- PermInfo$perms
   SS.type <- x$ANOVA$SS.type
-  RRPP <- x$PermInfo$perm.method
+  RRPP <- PermInfo$perm.method
   gls <- x$LM$gls
+  
+  indb <- boot.index(length(PermInfo$perm.schedule[[1]]), 
+                            PermInfo$perms -1, 
+                     PermInfo$block, 
+                     PermInfo$perm.seed)
+  if(SE) {
+    betas <- beta.boot.iter(x, indb)
+    betas <- sapply(betas, as.vector)
+    bd <- betas - rowMeans(betas)
+    se <- sqrt(rowSums(bd^2) / perms)
+    if(is.matrix(coef.obs)){
+      se <- matrix(se, nrow(coef.obs), ncol(coef.obs))
+      dimnames(se) <- dimnames(coef.obs)
+    } else names(se) <- names(coef.obs)
+  } else se <- NULL
   
   test.ok <- (x$verbose && !x$turbo)
   if(test && !test.ok) {
-    cat("\nCoefficients test not available because you turbo-charged your model fit.\n")
-    cat("Go back to lm.rrpp and choose turbo = FALSE ")
-    cat("if you wish to also test coefficients.\n\n")
+    cat("\nCoefficients test not available because you either turbo-charged\n")
+    cat("your model fit or used verbose = FALSE.\n")
+    cat("Go back to lm.rrpp and choose turbo = FALSE & verbose = TRUE\n")
+    cat("if you wish to test coefficients.\n\n")
     test = FALSE
   }
   if(test){
@@ -92,11 +117,13 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
       stat.tab <- data.frame(d.obs = rd[,1], ucl=ucl, Zd=Z, P=PV)
       colnames(stat.tab)[2] <- paste("UCL (", confidence*100,"%)", sep = "")
       colnames(stat.tab)[4] <- "Pr(>d)"
+
     } else {
       PV <- Z <- ucl <- stat.tab <- NULL
     }
     
     out <- list(coef.obs = coef.obs,
+                coef.se <- se,
                 random.coef = rc,
                 random.distances = rd,
                 n = n, p=p, p.prime=p.prime, k.terms = k, 
@@ -105,7 +132,11 @@ coef.lm.rrpp <- function(object, test = FALSE, confidence = 0.95, ...) {
                 RRPP = RRPP, gls=gls, SS.type = SS.type,
                 stat.table = stat.tab, test = test)
     class(out) <- "coef.lm.rrpp"
-  } else out <- coef.obs
+  } else if(SE){
+    out <- list(coef.obs = coef.obs, coef.se = se)
+    out$test <- FALSE
+    class(out) <- "coef.lm.rrpp"
+    } else out <- coef.obs
   
   out
 }

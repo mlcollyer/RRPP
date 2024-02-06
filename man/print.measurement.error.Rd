@@ -14,6 +14,41 @@
 \description{
 Print/Summary Function for RRPP
 }
+\examples{
+\dontrun{
+
+# Measurement error analysis on simulated data of fish shapes
+
+data(fishy)
+
+# Analysis unconcerned with groups 
+
+ME1 <- measurement.error(
+  Y = "coords",
+  subjects = "subj",
+  replicates = "reps",
+  data = fishy)
+
+anova(ME1)
+ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
+plot(ME1)
+
+# Analysis concerned with groups 
+
+ME2 <- measurement.error(
+  Y = "coords",
+  subjects = "subj",
+  replicates = "reps",
+  groups = "groups",
+  data = fishy)
+
+anova(ME2)
+ICCstats(ME2, subjects = "Subjects", 
+  with_in = "Systematic ME", groups = "groups")
+P <- plot(ME2)
+focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+}
+}
 \author{
 Michael Collyer
 }

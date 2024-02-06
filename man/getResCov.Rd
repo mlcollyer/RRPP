@@ -12,7 +12,7 @@ getResCov(fit, useDf = TRUE, standardize = FALSE)
 \item{useDf}{Logical value for whether the degrees of freedom from the linear model
 fit should be used (if TRUE), as opposed to the number of observations (if FALSE).}
 
-\item{standardize}{Logical value for whether residuals should be standarized.  If TRUE,
+\item{standardize}{Logical value for whether residuals should be standardized.  If TRUE,
 a correlation matrix is produced.}
 }
 \description{

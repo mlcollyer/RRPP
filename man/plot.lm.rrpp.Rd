@@ -50,7 +50,7 @@ different colors or symbols for different groups).  See
 Plot Function for RRPP
 }
 \examples{
-
+\dontrun{
 # Univariate example
 data(PlethMorph)
 fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
@@ -79,7 +79,7 @@ par(mfrow = c(2, 2))
  plot(fitGLSm, resid.type = "n") # use normalized (transformed) residuals
  plot(fitGLSm, resid.type = "n", fitted.type = "t") # use also transformed fitted values
  par(mfrow = c(1, 1))
- 
+ }
 }
 \references{
 Drake, A. G., and C. P. Klingenberg. 2008. 

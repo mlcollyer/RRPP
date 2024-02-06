@@ -1,5 +1,4 @@
 #' @name RRPP-package
-#' @docType package
 #' @aliases RRPP
 #' @title Linear Model Evaluation with Randomized Residual Permutation Procedures
 #' @author Michael Collyer and Dean Adams
@@ -135,6 +134,26 @@ NULL
 #' @keywords datasets
 NULL
 
+#' Simulated fish data for measurement error analysis
+#'
+#' @name fishy
+#' @docType data
+#' @author Michael Collyer
+#' @references Collyer, M.L, and D.C. Adams. 2024. 
+#' Interrogating random and systematic measurement 
+#' error in morphometric data. Evolutionary Biology. 
+#' In press.
+#' @details Data as simulated in Collyer and Adams (2024),
+#' resembling a fish shape, comprising Procrustes coordinates
+#' for 11 anatomical landmarks.  Data represent 120 
+#' configurations for 60 subjects, each with two replicates of
+#' measurement.  The 60 subjects represent 20 subjects each 
+#' from three groups.
+#' @keywords datasets
+NULL
+
+
+
 #####----------------------------------------------------------------------------------------------------
 
 # HELP FUNCTIONs
@@ -182,7 +201,7 @@ NULL
 #' # df <- data.frame(df, d = d) 
 #' rdf <- rrpp.data.frame(rdf, d = d) # works
 #' 
-#' fit <- lm.rrpp(d ~ x, data = rdf)
+#' fit <- lm.rrpp(d ~ x, data = rdf, iter = 99)
 #' summary(fit)
 
 rrpp.data.frame<- function(...) {
@@ -199,7 +218,7 @@ rrpp.data.frame<- function(...) {
         "\nSome geomorph.data.frame objects might not be compatible with RRPP functions.",
         "\nIf any part of the geomorph.data.frame conatins a 3D array,",
         "consider converting it to a matrix before attempting to make an rrpp.data.frame\n",
-        "Use options(warn = -1) to turn off these warnings.\n\n", sep = " "),
+        "Use suppressWarnings() to turn off these warnings.\n\n", sep = " "),
       noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
 
     class(dots) <- "rrpp.data.frame"
@@ -473,8 +492,8 @@ lm.args.from.formula <- function(cl){
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
   
-  if(!is.null(fit) && SS.type == "Within-subject type II") {
-    SS.type <- "II"
+  if(!is.null(fit) && SS.type == "Within-subject II") {
+    SS.type <- "IIws"
     WS <- TRUE
   } else WS <- FALSE
   
@@ -483,7 +502,7 @@ lm.args.from.formula <- function(cl){
       k3 <- mod.k[-1]
       modf <- lapply(as.list(k3), function(.) Terms)
       modr <- lapply(as.list(k3), function(j) Terms[-j])
-    } else if(SS.type == "II"){
+    } else if(SS.type == "II" || SS.type == "IIws"){
       k2 <- mod.k[-1]
       fac <- crossprod(attr(Terms, "factor"))
       modr <- lapply(as.list(k2), function(j){
@@ -496,6 +515,8 @@ lm.args.from.formula <- function(cl){
         ind <- as.logical(ind)
         Terms[ind]
       })
+      
+      
     } else {
       kf <- mod.k[-1]
       kr <- mod.k[-(max(mod.k) + 1)]
@@ -540,17 +561,19 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
        residuals = as.matrix(residuals))
 }
 
-getTerms <- function(Terms, SS.type = "I") {
+getTerms <- function(Terms, SS.type = "I", subjects.term = NULL) {
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
+  if(SS.type == "Within-subject II")
+  SS.type <- "IIws"
   
   if(k > 0) {
     if(SS.type == "III"){
       k3 <- mod.k[-1]
       modf <- lapply(as.list(k3), function(.) Terms)
       modr <- lapply(as.list(k3), function(j) Terms[-j])
-    } else if(SS.type == "II"){
+    } else if(SS.type == "II" || SS.type == "IIws"){
       k2 <- mod.k[-1]
       fac <- crossprod(attr(Terms, "factor"))
       modr <- lapply(as.list(k2), function(j){
@@ -570,33 +593,35 @@ getTerms <- function(Terms, SS.type = "I") {
       modr <- lapply(as.list(kr), function(j) Terms[0:j])
     }
     
+    if(!is.null(subjects.term)) {
+      modf <- Terms
+      modr <- Terms[-subjects.term]
+    }
+    
     names(modf) <- names(modr) <- trms
   } else {
     modr <- modf <- list("Intercept" = Terms)
   }
+  
   list(terms.r = modr, terms.f = modf)
 }
-
 getXs <- function(Terms, Y, SS.type, tol = 1e-7,
-                  model) {
+                  model, subjects.term = NULL) {
   X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
   fit.args <- list(x = X, y = Y, tol = tol, method = "qr", 
                    singular.ok = TRUE)
   fit <- do.call(lm.fit, fit.args)
-  
   X.n.k.obs <- length(X.k.obs)
   QRx <- fit$qr
-  X.n.k <- QRx$rank
-  Xobs <- X
-  X <- X[, QRx$pivot, drop = FALSE]
-  X <- X[, 1:QRx$rank, drop = FALSE]
-  X.k <- X.k[QRx$pivot][1:QRx$rank]
-  attr(X, "assign") <- X.k
-  attr(X, "contrasts") <- attr(Xobs, "contrasts")
+  fit <- NULL
+  X.rank <- QRx$rank
+  pivot <- QRx$pivot
   uk <- unique(c(0, X.k))
-  if(X.n.k < X.n.k.obs) fix <- TRUE else fix <- FALSE
-  
+  term.labels <- attr(Terms, "term.labels")
+  k <- length(term.labels)
+  fix <- (X.rank < X.n.k.obs) 
+  delete <- NULL
   if(fix) {
     Terms <- Terms[uk]
     warning(
@@ -605,70 +630,74 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
         "\nBecause variables in the linear model are redundant,",
         "\nthe linear model design has been truncated (via QR decomposition).",
         "\nOriginal X columns:", X.n.k.obs,
-        "\nFinal X columns (rank):", X.n.k,
+        "\nFinal X columns (rank):", X.rank,
         "\nCheck coefficients or degrees of freedom in ANOVA to see changes.\n",
-        "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+        "\nUse suppressWarnings() to turn off these warnings. \n\n", sep = " "),
       noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
   } 
   
-  term.labels <- attr(Terms, "term.labels")
-  k <- length(term.labels)
-  
-  shrinkX <- function(X, cols) {
-    X <- as.data.frame(X)
-    vars <- colnames(X)[cols]
-    X <- X[vars]
-    as.matrix(X)
-  }
-  
+  if(fix) delete <- pivot[-(1:X.rank)]
   
   if(k > 0){
     if(SS.type == "III"){
-      uk0 <- uk[-1]
-      xk0 <- unique(X.k[-1])
-      
+      fix <- !(length(delete) == 0)
+      Xfs <- lapply(2:length(uk), function(j)  if(fix) X[, -delete] else X)
       Xrs <- lapply(2:length(uk), function(j){
-        vars <- X.k %in% uk[-j]
-        shrinkX(X, vars)
+        rmove <- c(which(X.k == (j - 1)), delete)
+        as.matrix(X[, - rmove])
       })
       
-      Xfs <- lapply(2:length(uk), function(j)  X)
+    } else if(SS.type == "II" || SS.type == "IIws"){
+      fac <- as.matrix(crossprod(attr(Terms, "factor")))
       
-    } else if(SS.type == "II"){
-      uk0 <- uk[-1]
-      xk0 <- unique(X.k[-1])
-      fac <- crossprod(attr(Terms, "factor"))
       Xrs <- lapply(1:NROW(fac), function(j){
-        ind <- ifelse(fac[j,] < fac[j, j], 1, 0)
-        ind <- as.logical(c(1, ind))
-        vars <-  X.k %in% uk[ind]
-        shrinkX(X, vars)
+        index <- fac[, j]
+        m <- max(index)
+        ind <-  as.logical(ifelse(c(0, index) < m, 1, 0))
+        rmove <- which(!X.k %in% uk[ind])
+        rmove <- unique(c(rmove, delete))
+        as.matrix(X[, -rmove])
       })
       
       Xfs <- lapply(1:NROW(fac), function(j){
-        ind <- ifelse(fac[j,] < fac[j, j], 1, 0)
-        ind[j] <- 1
-        ind <- as.logical(c(1, ind))
-        vars <-  X.k %in% uk[ind]
-        shrinkX(X, vars)
+        index <- fac[, j]
+        m <- max(index)
+        ind <-  as.logical(ifelse(c(0, index) < m, 1, 0))
+        ind[j + 1] <- TRUE
+        rmove <- which(!X.k %in% uk[ind])
+        rmove <- unique(c(rmove, delete))
+        fix <- !(length(rmove) == 0)
+        if(fix) as.matrix(X[, -rmove]) else X
       })
       
     } else {
-      Xs <- lapply(1:length(uk), function(j) {
-        vars <-  X.k %in% uk[1:j]
-        shrinkX(X, vars)
+      Xrs <- lapply(2:length(uk), function(j){
+        rmove <- which(!X.k %in% uk[1:(j - 1)])
+        rmove <- unique(c(rmove, delete))
+        as.matrix(X[, -rmove])
       })
       
-      Xrs <- Xs[1:k]
-      Xfs <- Xs[2:(k+1)]
+      Xfs <- lapply(2:length(uk), function(j){
+        rmove <- which(!X.k %in% uk[1:j])
+        rmove <- unique(c(rmove, delete))
+        fix <- !(length(rmove) == 0)
+        if(fix) as.matrix(X[, -rmove]) else X
+      })
     }
     names(Xrs) <- names(Xfs) <- term.labels
   } else {
     Xrs <- Xfs <- list(Intercept = X)
   }
   
+  if(!is.null(subjects.term)) {
+    Xfs[[subjects.term]] <- if(fix) X[, -delete] else X
+    rmove <- c(which(X.k == subjects.term), delete)
+    Xrs[[subjects.term]] <- as.matrix(X[, - rmove])
+  }
+  
   list(Xrs = Xrs, Xfs = Xfs)
 }
+
 
 lm.rrpp.fit <- function(x, y, Pcov = NULL, w = NULL, offset = NULL, tol = 1e-07){
   
@@ -784,6 +813,7 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 # used in lm.rrpp/SS.iter/beta.iter
 getHb <- function(Q) {
   S4 <- !(inherits(Q, "qr"))
+  Qnames <- if(S4) colnames(Q) else colnames(Q$qr)
   k <- getRank(Q)
   R <- suppressWarnings(qr.R(Q))
   U <- qr.Q(Q)
@@ -793,11 +823,13 @@ getHb <- function(Q) {
   } 
   
   res <- as.matrix(tcrossprod(Rs, U))
-  if(is.null(rownames(res))){
-    rownames(res) <- if(S4) Q@R@Dimnames[[2]] else
-      colnames(Q$qr)
-  }
   
+  if(length(Rs) > 1 && !is.null(rownames(res)) &&
+     !identical(rownames(Rs), Qnames))
+    res <- res[Qnames, ]
+  
+  if(is.null(rownames(res))) rownames(res) <- Qnames
+ 
   res
   
 }
@@ -903,7 +935,9 @@ checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE,
 # gets appropriate SS vectors for random permutations in lm.rrpp
 # generates ANOVA stats
 
-SS.iter <- function(checkrs, ind,  print.progress = TRUE, 
+SS.iter <- function(checkrs, ind,  ind_s = NULL,
+                    subTest = FALSE, STerm = NULL,
+                    print.progress = TRUE, 
                     Parallel.args) {
   
   forking <- Parallel.args$forking
@@ -911,7 +945,9 @@ SS.iter <- function(checkrs, ind,  print.progress = TRUE,
   cluster <- Parallel.args$cluster
   no_cores <- Parallel.args$ParCores
   
-    SS.iter.main(checkrs = checkrs, ind = ind, 
+    SS.iter.main(checkrs = checkrs, ind = ind,
+                 ind_s = ind_s, subTest = subTest, 
+                 STerm = STerm,
                  print.progress = print.progress,
                  no_cores = no_cores, usecluster = usecluster,
                  cluster = cluster, forking = forking)
@@ -919,7 +955,8 @@ SS.iter <- function(checkrs, ind,  print.progress = TRUE,
   
 }
 
-SS.iter.main <- function(checkrs, ind, print.progress = TRUE, 
+SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
+                         print.progress = TRUE, 
                          no_cores, cluster = NULL, forking = FALSE,
                          usecluster = FALSE) {
   
@@ -940,11 +977,18 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
   
   perms <- length(ind)
   
-  rrpp.args <- list(FR = FR, ind.i = NULL)
+  rrpp.args <- list(FR = FR, ind.i = NULL,
+                    ind_s.i = NULL, subTest = subTest,
+                    STerm = STerm)
   
-  rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+  rrpp <- function(FR, ind.i, ind_s.i, subTest, STerm) {
+    result <- lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+    if(subTest)
+      result[[STerm]] <- FR[[STerm]]$fitted + 
+        FR[[STerm]]$residuals[ind_s.i,]
+    result
   }
+  
   
   ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
                               sum(y^2) - sum(crossprod(Ufull, y)^2))
@@ -962,6 +1006,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
     result <- mclapply(1:perms, mc.cores = no_cores, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
+      if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
       y <- as.matrix(yh0 + r0[x,])
       yy <- sum(y^2)
@@ -988,6 +1033,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
     result <- parLapply(cluster, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
+      if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
       y <- as.matrix(yh0 + r0[x,])
       yy <- sum(y^2)
@@ -1016,6 +1062,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
       if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
       rrpp.args$ind.i <- x
+      if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
       y <- as.matrix(yh0 + r0[x,])
       yy <- sum(y^2)
@@ -1061,7 +1108,7 @@ SS.iter.main <- function(checkrs, ind, print.progress = TRUE,
 
 
 # anova_parts
-# construct an ANOVA tablefrom random SS output
+# construct an ANOVA table from random SS output
 # used in lm.rrpp
 
 getRank <- function(Q) {
@@ -1211,7 +1258,9 @@ beta.boot.iter <- function(fit, ind) {
 # three functions: main, and two for whether PP is used
 # gets appropriate beta vectors for random permutations in lm.rrpp
 # generates distances as statistics for summary
-beta.iter <- function(checkrs, ind, print.progress = TRUE, 
+beta.iter <- function(checkrs, ind, ind_s = NULL,
+                      subTest = FALSE, STerm = NULL,
+                      print.progress = TRUE, 
                       Parallel.args) {
   
   forking <- Parallel.args$forking
@@ -1219,14 +1268,16 @@ beta.iter <- function(checkrs, ind, print.progress = TRUE,
   usecluster <- Parallel.args$usecluster
   no_cores <- Parallel.args$ParCores
     
-    beta.iter.main(checkrs = checkrs, ind = ind, 
+    beta.iter.main(checkrs = checkrs, ind = ind, ind_s = ind_s, 
+                   subTest = subTest, STerm = STerm,
                    print.progress = print.progress,
                    no_cores = no_cores, usecluster = usecluster,
                    cluster = cluster, forking = forking)
 }
 
 
-beta.iter.main <- function(checkrs, ind, print.progress = TRUE, 
+beta.iter.main <- function(checkrs, ind, ind_s, subTest,
+                           STerm, print.progress = TRUE, 
                            no_cores, cluster = NULL, forking = FALSE,
                            usecluster = FALSE) {
   
@@ -1267,11 +1318,20 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
   n <- dims[1]
   p <- dims[2]
   
-  rrpp.args <- list(FR = FR, ind.i = NULL, offst = offst, o = o)
+  rrpp.args <- list(FR = FR, ind.i = NULL, 
+                    ind_s.i = NULL, subTest = subTest,
+                    STerm = STerm, offst = offst, o = o)
   
-  rrpp <- function(FR, ind.i, offst, o) {
-    if(offst) lapply(FR, function(x) x$fitted + x$residuals[ind.i, ] - o) else 
-      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+  rrpp <- function(FR, ind.i, ind_s.i, subTest, STerm, offst, o) {
+    result <- if(offst)
+      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ] - o) else
+        lapply(FR, function(x) x$fitted + x$residuals[ind.i, ]) 
+    if(subTest) {
+      result[[STerm]] <- FR[[STerm]]$fitted + 
+        FR[[STerm]]$residuals[ind_s.i,]
+      if(offst) result[[STerm]] <- result[[STerm]] - o
+    }
+    result
   }
   
   pbbar <- FALSE
@@ -1297,6 +1357,7 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
     betas <- mclapply(1:perms, mc.cores = no_cores, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
+      if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
       getBetas(Hf, Yi = Yi, pert.rows)
       
@@ -1307,6 +1368,7 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
     betas <- parLapply(cluster, 1:perms, function(j){
       x <-ind[[j]]
       rrpp.args$ind.i <- x
+      if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
       getBetas(Hf, Yi = Yi, pert.rows)
       
@@ -1318,6 +1380,7 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
       if(print.progress) setTxtProgressBar(pb,step)
       x <-ind[[j]]
       rrpp.args$ind.i <- x
+      if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
       getBetas(Hf, Yi = Yi, pert.rows)
       
@@ -1350,8 +1413,9 @@ beta.iter.main <- function(checkrs, ind, print.progress = TRUE,
   })
   
   if(is.list(d.out)) d.out <- do.call(rbind, d.out)
-  
-  dimnames(d.out) <- list(unlist(b.names), names(ind))
+  try(dimnames(d.out) <- list(unlist(b.names), 
+                              names(ind)), 
+      silent = TRUE)
 
   list(random.coef = betas.out, 
        random.coef.distances = d.out)
@@ -1414,7 +1478,7 @@ aov.single.model <- function(object, ...,
         "\nANOVA is missing some terms, likely because",
         "\nsome independent variables were redundant.",
         "\nIf the residual SS is 0, results should not be trusted\n", 
-        "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+        "\nUse suppressWarnings() to turn off these warnings. \n\n", sep = " "),
       noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
   } 
     
@@ -1464,7 +1528,7 @@ aov.single.model <- function(object, ...,
             "\nThis is not an error!  It is a friendly warning.\n",
             "\nCalculating effect size on SS is illogical with GLS.",
             "\nEffect type has been changed to F distributions.\n",
-            "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+            "\nUse suppressWarnings() to turn off these warnings. \n\n", sep = " "),
           noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
         
         effect.type = "F"
@@ -1476,7 +1540,7 @@ aov.single.model <- function(object, ...,
             "\nThis is not an error!  It is a friendly warning.\n",
             "\nCalculating effect size on MS is illogical with GLS.",
             "\nEffect type has been changed to F distributions.\n",
-            "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+            "\nUse suppressWarnings() to turn off these warnings. \n\n", sep = " "),
           noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
         
         effect.type = "F"
@@ -1513,6 +1577,11 @@ aov.single.model <- function(object, ...,
     colnames(tab)[NCOL(tab)] <- paste("Pr(>", effect.type, ")", sep="")
     class(tab) = c("anova", class(tab))
     SS.type <- x$SS.type
+    
+    if(any(tab$Df == 0)){
+      rmove <- which(tab$Df == 0)
+      tab <- tab[-rmove,]
+    }
     
     options(warn = ow)
     
@@ -1706,6 +1775,17 @@ aov.multi.model <- function(object, lm.list,
 class(out) <- "anova.lm.rrpp"
 out
 
+}
+
+aov.me <- function(object){
+  
+  perms <- getPermInfo(object, "perms")
+
+  out <- list(table = object$AOV, perm.method = "RRPP", perm.number = perms,
+              est.method = "OLS", SS.type = "Within-subject II", effect.type = "SNR",
+              call = object$call)
+  class(out) <- "anova.lm.rrpp"
+  out
 }
 
 # getSlopes

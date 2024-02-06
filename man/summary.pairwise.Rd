@@ -41,7 +41,7 @@ See \code{\link{pairwise}} for further description.
 \details{
 The following summarize the test that can be performed: 
 
-#' \itemize{
+#' \describe{
 \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or 
 slopes originate at the origin and point to some location, having both a 
 magnitude
@@ -85,7 +85,7 @@ The argument, \code{test.type} is used to select one of the tests
 above.  See \code{\link{pairwise}} for examples.
 
  \subsection{Notes for RRPP 0.6.2 and subsequent versions}{ 
- In previous versions of pairwise, code{\link{summary.pairwise}} had three 
+ In previous versions of pairwise, \code{\link{summary.pairwise}} had three 
  test types: "dist", "VC", and "var".  When one chose "dist", for LS mean 
  vectors, the statistic was the inner-product of the vector difference.  
  For slope vectors, "dist" returned the absolute value  of the difference 

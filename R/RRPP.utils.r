@@ -418,17 +418,25 @@ model.matrix.lm.rrpp <- function(object, ...) return(object$LM$X)
 #' @author Michael Collyer
 #' @keywords utilities
 print.coef.lm.rrpp <- function(x, ...){
-  cat("\nLinear Model fit with lm.rrpp\n")
-  cat(paste("\nNumber of observations:", x$n))
-  cat(paste("\nNumber of dependent variables:", x$p))
-  cat(paste("\nData space dimensions:", x$p.prime))
-  cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
-  cat(paste("\nNumber of permutations:", x$nperms))
+  
   if(!x$test) {
     cat("\n\nObserved coefficients\n\n")
     print(x$coef.obs)
+    if(!is.null(x$coef.se)) {
+      cat("\n\nCoefficient standard errors\n\n")
+      print(x$coef.se)
+    }
   }
+  
   if(x$test){
+    
+    cat("\nLinear Model fit with lm.rrpp\n")
+    cat(paste("\nNumber of observations:", x$n))
+    cat(paste("\nNumber of dependent variables:", x$p))
+    cat(paste("\nData space dimensions:", x$p.prime))
+    cat(paste("\nSums of Squares and Cross-products: Type", x$SS.type))
+    cat(paste("\nNumber of permutations:", x$nperms))
+    
     if(is.null(x$stat.table)) {
       cat("\n\nTests on coefficients are not possible (only an intercept).")
       cat("\n\nObserved coefficients\n\n")
@@ -605,7 +613,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 #' and evolution of foot morphology 
 #' in European cave salamanders (Family: Plethodontidae). BMC Evol. Biol. 10:1-10.
 #' @examples 
-#' 
+#' \dontrun{
 #' # Univariate example
 #' data(PlethMorph)
 #' fitGLS <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, Cov = PlethMorph$PhyCov, 
@@ -634,7 +642,7 @@ summary.anova.lm.rrpp <- function(object, ...){
 #'  plot(fitGLSm, resid.type = "n") # use normalized (transformed) residuals
 #'  plot(fitGLSm, resid.type = "n", fitted.type = "t") # use also transformed fitted values
 #'  par(mfrow = c(1, 1))
-#'  
+#'  }
 plot.lm.rrpp <- function(x, type = c("diagnostics", "regression",
                                       "PC"), 
                          resid.type = c("p", "n"),
@@ -858,7 +866,7 @@ plot_QQ <- function(r){
 #' @keywords utilities
 #' @keywords visualization
 #' @examples 
-#' # See \code{\link{lm.rrpp}} for examples.
+#' # See lm.rrpp help file for examples.
 plot.predict.lm.rrpp <- function(x, PC = FALSE, ellipse = FALSE,
                                  abscissa = NULL,
                                  label = TRUE, ...){
@@ -1198,7 +1206,7 @@ print.pairwise <- function(x, ...){
 #' 
 #' The following summarize the test that can be performed: 
 #' 
-#' #' \itemize{
+#' #' \describe{
 #' \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or 
 #' slopes originate at the origin and point to some location, having both a 
 #' magnitude
@@ -1242,7 +1250,7 @@ print.pairwise <- function(x, ...){
 #' above.  See \code{\link{pairwise}} for examples.
 #' 
 #'  \subsection{Notes for RRPP 0.6.2 and subsequent versions}{ 
-#'  In previous versions of pairwise, code{\link{summary.pairwise}} had three 
+#'  In previous versions of pairwise, \code{\link{summary.pairwise}} had three 
 #'  test types: "dist", "VC", and "var".  When one chose "dist", for LS mean 
 #'  vectors, the statistic was the inner-product of the vector difference.  
 #'  For slope vectors, "dist" returned the absolute value  of the difference 
@@ -1742,8 +1750,8 @@ summary.manova.lm.rrpp <- function(object, test = c("Roy", "Pillai", "Hotelling-
     })
     
     test.stats <- rand.stats[, 1]
-    Z <- apply(rand.stats, 1, effect.size)
-    P <- apply(rand.stats, 1, pval)
+    Z <- apply(-1 * rand.stats, 1, effect.size)
+    P <- apply(-1 * rand.stats, 1, pval)
     stats$Z[1:(k+1)] <- Z
     stats$Pr[1:(k+1)] <- P
     stats$Wilks[1:(k+1)] <- test.stats
@@ -1808,10 +1816,41 @@ print.summary.manova.lm.rrpp <- function(x, ...){
   cat(paste("\nNumber of permutations:", x$perms), "\n\n")
   
   tab <- as.matrix(x$stats.table)
+  class(tab) <- c("anova", class(tab))
   print.table(tab, na.print = "")
   invisible(x)
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{lr_test}}
+#' @param ... Other arguments passed onto print.lr_test
+#' @method print lr_test
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.lr_test <- function(x, ...){
+  x <- if(!is.null(x$tab)) x$tab else as.data.frame(x)
+  colnames(x)[4] <- "Pr(>LR)"
+  class(x) <- c("anova", class(x))
+  
+  cat("\n\n")
+  
+  print(x)
+  cat("\n\n")
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{lr_test}}
+#' @param ... Other arguments passed onto print.lr_test
+#' @method summary lr_test
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.lr_test <- function(object, ...){
+  print.lr_test(object)
+}
 
 #' Print/Summary Function for RRPP
 #'
@@ -1875,7 +1914,7 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   
   if(attribute == "TC"){
     if(is.null(TC)) stop("Trajectory correlations not available\n", 
-                         call = FALSE)
+                         call. = FALSE)
     L <- r.summary.from.list(TC, confidence = confidence)
     
     if(angle.type == "deg") {
@@ -2079,7 +2118,7 @@ print.summary.trajectory.analysis <- function(x, ...) {
 #' by high-dimensional data. Heredity. 115:357-365.
 #' 
 #' @examples 
-#' # See \code{\link{trajectory.analysis}} for examples
+#' # See trajectory.analysis help file for examples
 plot.trajectory.analysis <- function(x, ...) {
   
   if(!is.null(x$pca)) {
@@ -2624,63 +2663,51 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
+#' @examples
+#' \dontrun{
+#' 
+#' # Measurement error analysis on simulated data of fish shapes
+#' 
+#' data(fishy)
+#' 
+#' # Analysis unconcerned with groups 
+#' 
+#' ME1 <- measurement.error(
+#'   Y = "coords",
+#'   subjects = "subj",
+#'   replicates = "reps",
+#'   data = fishy)
+#' 
+#' anova(ME1)
+#' ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
+#' plot(ME1)
+#' 
+#' # Analysis concerned with groups 
+#' 
+#' ME2 <- measurement.error(
+#'   Y = "coords",
+#'   subjects = "subj",
+#'   replicates = "reps",
+#'   groups = "groups",
+#'   data = fishy)
+#' 
+#' anova(ME2)
+#' ICCstats(ME2, subjects = "Subjects", 
+#'   with_in = "Systematic ME", groups = "groups")
+#' P <- plot(ME2)
+#' focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+#' }
 print.measurement.error <- function(x, ...){
   
-  AOV <- x$AOV
-  mAOV <- x$mAOV
-  icc <- x$icc
-  micc <- x$mult.icc.eigs
+  print(anova(x))
   
-  cat("\nAnalyses for measurement error\n")
-  cat("\nRRPP performed with", x$PermInfo$perms, "permutations,\n")
-  cat("restricted within replicates for subjects and within subjects for measurement error.\n")
-  cat("\nANOVA (based on dispersion of values):\n")
-  print(AOV)
+  ev <- Re(eigen(x$SSCP.ME.product)$values)
+  ev <- ev[zapsmall(ev) > 0]
   
-  if(!is.null(mAOV)) {
-    
-    cat("\n\nMANOVA:\n\n")
-    print(mAOV)
-    
-  }
+  cat("\n\nNumber of SNR components (eigenvectors):", length(ev), "\n\n")
+  cat("Use plot.measurement.error to visualize results\n\n")
+  cat("Use function, ICCstats, to get ICC statistics.\n\n")
   
-  ICC.tab <- data.frame(icc = unlist(icc))
-  
-  rownames(ICC.tab) <- c("Absolute ICC",
-                         "Agreement ICC",
-                         "Consistency ICC",
-                         "Absolute ICC, accounting for group differences",
-                         "Agreement ICC, accounting for group differences",
-                         "Consistency ICC, accounting for group differences"
-                         )[1:NROW(ICC.tab)]
-  
-  cat("\n\nIntraclass correlations (dispersion):\n\n")
-  print(ICC.tab)
-  
-  if(!is.null(micc)) {
-    cat("\nGeneralized ICC values (cumulative eigenvalue products)\n")
-    kmax <- max(sapply(micc, length))
-    eig.fix <- function(x) {
-      if(length(x) < kmax) x <- c(x, rep(NA, kmax - length(x)))
-      x
-    }
-    micc <- lapply(micc, eig.fix)
-    micc <- na.omit(abs(do.call(rbind, micc)))
-    colnames(micc) <- paste("Comp", 1:ncol(micc), sep = "")
-    micc.p <- t(apply(micc, 1, function(x) 
-      round(abs(cumprod(x)),4)))
-    micc.p <- micc.p[, which(colSums(micc.p) > (0.1 * nrow(micc.p)))]
-    cat("Showing values for ", ncol(micc.p), "of", ncol(micc), "vectors\n\n")
-    rownames(micc.p) <- c("Absolute ICC",
-                           "Agreement ICC",
-                           "Consistency ICC",
-                           "Absolute ICC, accounting for group differences",
-                           "Agreement ICC, accounting for group differences",
-                           "Consistency ICC, accounting for group differences"
-    )[1:NROW(micc.p)]
-    
-    print(micc.p)
-  }
 }
 
 #' Print/Summary Function for RRPP
@@ -2737,8 +2764,8 @@ plot.measurement.error <- function(x,
                                    titles = NULL,
                                    add.legend = TRUE, ...){
   
-  subj <- x$LM$data$subj
-  reps <- x$LM$data$reps
+  subj <- x$LM$data$subjects
+  reps <- x$LM$data$replicates
   groups <- if(!is.null(x$LM$data$groups))
     x$LM$data$groups else NULL
   
@@ -3057,7 +3084,7 @@ focusMEonSubjects <- function(x, subjects = NULL,
 #' @author Michael Collyer
 #' @keywords utilities
 #' @examples
-#' 
+#' \dontrun{
 #' data(Pupfish)
 #' fit <- lm.rrpp(coords ~ log(CS) + Sex*Pop, SS.type = "I", 
 #' data = Pupfish, print.progress = FALSE, iter = 999) 
@@ -3072,7 +3099,7 @@ focusMEonSubjects <- function(x, subjects = NULL,
 #' abline(v = Fstats$Fs[3, 1])
 #' hist(Fstats$Fs[4,], breaks = 50, main = "Sex:Pop", xlab = "F")
 #' abline(v = Fstats$Fs[4, 1])
-#' 
+#' }
 getANOVAStats <- function(fit, stat = c("SS", "MS", "Rsq", "F", "cohenf", "all")){
   ANOVA <- fit$ANOVA
   verbose <- fit$verbose
@@ -3209,12 +3236,15 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   w <- if(!is.null(fit$LM$weights)) sqrt(fit$LM$weights) else NULL
 
   Model.Terms <- getTerms(fit)
+  STerm <- if(!is.null(fit$subjects.var))
+    which(fit$LM$term.labels == fit$subjects.var) else NULL
   
   if(create){
-    Xs <- suppressWarnings( getXs(Terms = fit$LM$Terms, 
+    Xs <- suppressWarnings(getXs(Terms = fit$LM$Terms, 
                                   Y = fit$LM$Y, 
                                   SS.type = fit$ANOVA$SS.type,
-                                  model = fit$LM$data) ) 
+                                  model = fit$LM$data,
+                                 subjects.term = STerm)) 
   } else {
     Xs <- lapply(Models, function(x){
       lapply(x, function(y) y$X )
@@ -3328,7 +3358,7 @@ getModelCov <- function(fit, type = c("Cov", "Pcov"),
 #' @param fit Object from \code{\link{lm.rrpp}}
 #' @param useDf Logical value for whether the degrees of freedom from the linear model
 #' fit should be used (if TRUE), as opposed to the number of observations (if FALSE).
-#' @param standardize Logical value for whether residuals should be standarized.  If TRUE,
+#' @param standardize Logical value for whether residuals should be standardized.  If TRUE,
 #' a correlation matrix is produced.
 #' @export
 #' @author Michael Collyer
@@ -3357,4 +3387,36 @@ getResCov <- function(fit, useDf = TRUE, standardize = FALSE) {
     
   S
   
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x print/summary object (from \code{\link{ICCstats}})
+#' @param ... other arguments passed to print/summary
+#' @method print ICCstats
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.ICCstats <-function(x, ...){
+  
+  cat("\nICC stats based on dispersion of values\n\n")
+  print(x$ICC_disp)
+  
+  if(!is.null(x$ICC_mult)) {
+    cat("\nICC stats by Eignevector of multivariate ICC matrix\n\n")
+    print(x$ICC_mult)
+  }
+    
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object print/summary object (from \code{\link{ICCstats}})
+#' @param ... other arguments passed to print/summary
+#' @method summary ICCstats
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.ICCstats <-function(object, ...){
+  print.ICCstats(object, ...)
 }

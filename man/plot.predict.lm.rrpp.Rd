@@ -40,7 +40,7 @@ different colors or symbols for different groups).  See
 Plot Function for RRPP
 }
 \examples{
-# See \code{\link{lm.rrpp}} for examples.
+# See lm.rrpp help file for examples.
 }
 \author{
 Michael Collyer

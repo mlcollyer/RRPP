@@ -60,7 +60,7 @@
 #' of such an analysis (performed with \code{\link{summary.ordinate}}) 
 #' will produce these additional statistics:
 #'
-#' \itemize{
+#' \describe{
 #' \item{\bold{Singular Value}}{  Rather than eigenvalues, the 
 #' singular values from singular value decomposition of the 
 #' cross-product of the scaled alignment matrix and the data.}
@@ -81,7 +81,6 @@
 #' interpretation of the strength of linear association for 
 #' aligned components.  (It is most analogous to proportion of 
 #' variance for principal components.)}
-
 #' }
 #' 
 #' @param Y An n x p data matrix.

@@ -7,15 +7,17 @@ for common research subjects}
 \usage{
 measurement.error(
   Y,
-  subj,
-  reps,
+  subjects,
+  replicates,
   groups = NULL,
+  data,
   iter = 999,
   seed = NULL,
   multivariate = FALSE,
   use.PCs = TRUE,
   tol = 0.001,
-  Parallel = TRUE,
+  Parallel = FALSE,
+  turbo = TRUE,
   print.progress = FALSE,
   verbose = FALSE
 )
@@ -23,10 +25,10 @@ measurement.error(
 \arguments{
 \item{Y}{A matrix (n x p) of data for n observations and p variables.}
 
-\item{subj}{A vector or factor of research subjects (each subject should occur twice or more).
+\item{subjects}{A vector or factor of research subjects (each subject should occur twice or more).
 The length of the vector must equal the number of observations and will be coerced into a factor.}
 
-\item{reps}{A vector or factor for replicate measurements for research subjects.
+\item{replicates}{A vector or factor for replicate measurements for research subjects.
 The length of the vector must equal the number of observations and will be coerced into a factor.}
 
 \item{groups}{An optional vector, coercible to factor, to be included in the linear model
@@ -34,6 +36,9 @@ The length of the vector must equal the number of observations and will be coerc
 This would be of interest if one were concerned with systematic ME occurring perhaps differently among 
 certain strata within the data.  For example, systematic ME because of an observer bias might
 only be observed with females or males.}
+
+\item{data}{An optional data frame, either of class \code{\link{data.frame}} or
+class \code{\link{rrpp.data.frame}}.}
 
 \item{iter}{Number of iterations for significance testing}
 
@@ -63,6 +68,9 @@ standard deviation of the first component.)  See \code{\link{ordinate}} for more
 either a logical vale -- TRUE or FALSE -- or the number of threaded cores to use).  See \code{\link{lm.rrpp}} 
 for additional details.}
 
+\item{turbo}{Logical value for whether to suppress coefficient estimation in RRPP iteration,
+thus turbo-charging RRPP.}
+
 \item{print.progress}{A logical value to indicate whether a progress 
 bar should be printed to the screen.}
 
@@ -71,21 +79,17 @@ bar should be printed to the screen.}
 output for summaries and plotting is retained.}
 }
 \value{
-Objects of class "measurement.error" return a list of the following:
+Objects of class "measurement.error" return the same objects
+as a \code{\link{lm.rrpp}} fit, plus a list of the following:
  \item{AOV}{Analysis of variance to test for systematic error, based on dispersion of values.}
  \item{mAOV}{Multivariate AOV based on product of the inverse of the random component (SSCP) of ME
  times the systematic component of ME.}
- \item{icc}{The intraclass correlation coefficient (ICC) based on the dispersion of values.}
- \item{mult.icc.eigs}{The eigenvalues of ICC matrices, culled to principal dimensions with positive eigenvalues.}
  \item{SSCP}{The sums of squares and cross-products matrices for model effects.}
  \item{SSCP.ME.product}{The products of the inverse of the random ME SSCP and the SSCP matrices
  for systematic ME,.  These are the same matrix products used for eigenanalysis.  
  This is the observed matrix.}
  \item{SSCP.ME.product.std}{A list of the symmetric forms of standardized SSCP.ME.products 
  that yield orthogonal eigenvectors.}
- \item{all.stats}{All SS, MS, eigen values, etc., from the RRPP analyses performed.  This is the same
- as the output found in an \code{\link{lm.rrpp}} object, updated with \code{\link{manova.update}}.
- This object only contains the many RRPP ANOVA and MANOVA statistics if verbose = TRUE.}
 }
 \description{
 Function performs analyses concerned with the repeatability (reliability) of multivariate data 
@@ -94,7 +98,7 @@ requirement for repeated measurements on all research subjects, the analysis ass
 that multiple observations are made.
 }
 \details{
-This function performs analyses as described in Collyer and Adams (in review)
+This function performs analyses as described in Collyer and Adams (in press)
  to assess systematic and random components of 
 measurement error (ME).  It basically performs ANOVA with RRPP,
 but with different restricted randomization strategies.  The reliability of research subject variation 
@@ -110,36 +114,62 @@ eigenanalysis performed on a signal to noise matrix product of SSCP matrices
 including the inverse of the random component of ME and the systematic
 component of ME.  The multivariate test is a form of multivariate ANOVA (MANOVA), using
 RRPP to generate sampling distributions of the major eigenvalue (Roy's maximum root).
-Intraclass correlation coefficients (ICC) are also calculated, both based on dispersion of values and 
-covariance matrices, as descriptive statistics.  Multivariate generalizations of the statistics
-described by Liljequist et al. (2019) are also used, along with eigenanalysis.  
-Three statistics describe the ICC for the population,
-agreement of measurements among subjects, and consistency between measurements.  The last statistic does not 
-necessarily measure the sameness between measurements but the consistency of change between measurements,
-which might be indicative of a systematic measurement error.  If groups are used, these three statistics are 
-repeated, using the SSCP for groups-adjusted data.  This approach accounts for group differences,
-which would avoid large subject variation compared to measurement error inflating ICC values.  If there are 
-inherently disparate groups from which subjects are sampled, this approach can elucidate better agreement and 
-consistency in light of group differences.
+Intraclass correlation coefficients (ICC) can also be calculated (using \code{\link{ICCstats}}), 
+both based on dispersion of values and 
+covariance matrices, as descriptive statistics.  Details are provided in \code{\link{ICCstats}}.
 
-More details will be made and examples provided after publication of articles introducing 
-the novel RRPP approach for measurement error analysis.
+Examples TBD
 }
 \examples{
-# TBD
+\dontrun{
+# Measurement error analysis on simulated data of fish shapes
+
+data(fishy)
+
+# Example two digitization replicates of the same research subjects
+rep1 <- matrix(fishy$coords[1,], 11, 2, byrow = TRUE)
+rep2 <- matrix(fishy$coords[61,], 11, 2, byrow = TRUE)
+plot(rep1, pch = 16, col = gray(0.5, alpha = 0.5), cex = 2, asp = 1)
+points(rep2, pch = 16, col = gray(0.2, alpha = 0.5), cex = 2, asp = 1)
+
+# Analysis unconcerned with groups 
+
+ME1 <- measurement.error(
+  Y = "coords",
+  subjects = "subj",
+  replicates = "reps",
+  data = fishy)
+
+anova(ME1)
+ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
+plot(ME1)
+
+# Analysis concerned with groups 
+
+ME2 <- measurement.error(
+  Y = "coords",
+  subjects = "subj",
+  replicates = "reps",
+  groups = "groups",
+  data = fishy)
+
+anova(ME2)
+ICCstats(ME2, subjects = "Subjects", 
+  with_in = "Systematic ME", groups = "groups")
+P <- plot(ME2)
+focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+}
+
 }
 \references{
-Collyer, M. L., & Adams, D.C. (In review). Interrogating random and 
-systematic measurement error in morphometric sata. Evolutionary Biology.
+Collyer, M.L. and D.C. Adams.  2024. Interrogating Random and Systematic Measurement Error 
+in Morphometric Data. Evolutionary Biology.
 
-Bookstein, F. L., & Mitteroecker, P. (2014). Comparing covariance matrices by relative eigenanalysis, 
+Bookstein, F.L., & Mitteroecker, P. (2014). Comparing covariance matrices by relative eigenanalysis, 
 with applications to organismal biology. Evolutionary biology, 41(2), 336-350.
-
-Liljequist, D., Elfving, B., & Skavberg Roaldsen, K. (2019). Intraclass correlation–A discussion 
-and demonstration of basic features. PloS one, 14(7), e0219854.
 }
 \seealso{
-\code{\link{lm.rrpp}}, \code{\link{manova.update}}
+\code{\link{lm.rrpp.ws}}, \code{\link{manova.update}}
 }
 \author{
 Michael Collyer

@@ -165,7 +165,7 @@ the number of observations).
 }
 }
 \examples{
-   
+\dontrun{
 # Body Shape Analysis (Multivariate) ----------------
 
 data(Pupfish)
@@ -174,7 +174,7 @@ data(Pupfish)
 # three principal components of body shape for demonstration.  
 # A larger number of random permutations should also be used.
 
-Pupfish$shape <- prcomp(Pupfish$coords)$x[, 1:3]
+Pupfish$shape <- ordinate(Pupfish$coords)$x[, 1:3]
 
 Pupfish$logSize <- log(Pupfish$CS) 
 
@@ -204,7 +204,7 @@ for(i in 1:length(dens)) {
      abline(v = summ.roy$rand.stats[1, i], col = "red")
 }
 par(mfcol = c(1,1))
-
+}
 }
 \references{
 Goodall, C.R. 1991. Procrustes methods in the 

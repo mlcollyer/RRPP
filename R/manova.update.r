@@ -153,7 +153,7 @@
 #'  used for analysis.}
 #' 
 #' @examples 
-#'    
+#' \dontrun{
 #' # Body Shape Analysis (Multivariate) ----------------
 #' 
 #' data(Pupfish)
@@ -162,7 +162,7 @@
 #' # three principal components of body shape for demonstration.  
 #' # A larger number of random permutations should also be used.
 #' 
-#' Pupfish$shape <- prcomp(Pupfish$coords)$x[, 1:3]
+#' Pupfish$shape <- ordinate(Pupfish$coords)$x[, 1:3]
 #' 
 #' Pupfish$logSize <- log(Pupfish$CS) 
 #' 
@@ -192,7 +192,7 @@
 #'      abline(v = summ.roy$rand.stats[1, i], col = "red")
 #' }
 #' par(mfcol = c(1,1))
-#' 
+#' }
 
 manova.update <- function(fit, error = NULL, 
                               tol = 1e-7, PC.no = NULL,
@@ -225,7 +225,7 @@ manova.update <- function(fit, error = NULL,
   if(perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
   ind <- PermInfo$perm.schedule
   perms <- length(ind)
-  
+
   Models <- getModels(fit, attribute = "all")
   
   reduced <- Models$reduced
@@ -315,8 +315,27 @@ manova.update <- function(fit, error = NULL,
   yh0 <- fastFit(Unull, Y, n, p.prime)
   r0 <- Y - yh0
   
-  rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) as.matrix(x$fitted) + as.matrix(x$residuals)[ind.i, ])
+  
+  if(inherits(fit, "lm.rrpp.ws")){
+    ind_s <- perm.index(n, iter = (perms - 1), 
+                        block = NULL, seed = PermInfo$perm.seed)
+    STerm <- which(fit$LM$term.labels == fit$subjects.var)
+    use_ind_s <- TRUE
+    
+  } else {
+    use_ind_s <- FALSE
+    STerm <- NULL
+    ind_s <- NULL
+  }
+  
+  rrpp <- function(FR, ind.i,
+                   use_ind_s, 
+                   STerm, ind_s.i) {
+    result <- lapply(FR, function(x) as.matrix(x$fitted) + as.matrix(x$residuals)[ind.i, ])
+    if(use_ind_s)
+      FR[[STerm]] <- as.matrix(FR[[STerm]]$fitted) + 
+        as.matrix(FR[[STerm]]$residuals)[ind_s.i, ]
+    result
   }
   
   fitted <- lapply(Ur, function(u) fastFit(u, Y, n, p.prime))
@@ -330,11 +349,9 @@ manova.update <- function(fit, error = NULL,
 
   FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
                                              residuals = res[[j]]))
-  rrpp.args <- list(FR = FR, ind.i = ind[[1]])
-  
-  rrpp <- function(FR, ind.i) {
-    lapply(FR, function(x) as.matrix(x$fitted) + as.matrix(x$residuals)[ind.i, ])
-  }
+  rrpp.args <- list(FR = FR, ind.i = ind[[1]], 
+                    use_ind_s = use_ind_s, 
+                    STerm = STerm, ind_s.i = NULL)
   
   sscp.args <- list(Uf = Uf, Ur = Ur, 
                     Ufull = Ufull, Unull = Unull,
@@ -342,12 +359,13 @@ manova.update <- function(fit, error = NULL,
                     n = n, p = p.prime,
                     Yt = Y)
   
-  sscp <- function(Uf, Ur, Ufull, Unull, Y, n, p, Yt) {
+  sscp <- function(Uf, Ur, Ufull, Unull, Y, 
+                    n, p, Yt) {
     ss <- Map(function(uf, ur, y) list(SS = crossprod(
       fastFit(uf, y, n, p.prime) - fastFit(ur, y, n, p.prime)),
               Residuals = crossprod(y - fastFit(Ufull, y, n, p.prime))), 
               Uf, Ur, Y)
-    
+      
     names(ss) <- trms
     rss <- crossprod(Yt - fastFit(Ufull, Yt, n, p.prime))
     tss <- crossprod(Yt - fastFit(Unull, Yt, n, p.prime))
@@ -358,6 +376,7 @@ manova.update <- function(fit, error = NULL,
     result
   }
   
+
   invR.H <- function(ss){ # modified from stats::summary.manova version
     tss <- diag(Reduce("+", ss[[length(ss)]]))
     result <- lapply(1:length(ss), function(j){
@@ -388,7 +407,9 @@ manova.update <- function(fit, error = NULL,
     if(print.progress) setTxtProgressBar(pb,step)
     x <- ind[[j]]
     rrpp.args$ind.i <- x
-    sscp.args$Y <- do.call(rrpp, rrpp.args)
+    if(rrpp.args$use_ind_s)
+      rrpp.args$ind_s.i <- ind_s[[j]]
+    sscp.args$Y <- do.call(rrpp, rrpp.args) 
     sscp.args$Yt <- yh0 + r0[x, ]
     ss <- do.call(sscp, sscp.args)
     invRH <- invR.H(ss)

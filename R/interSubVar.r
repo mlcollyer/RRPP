@@ -31,8 +31,39 @@
 #' \item{var.map}{The variability type (statistic) that was used.}
 #' @examples
 #' 
-#' ### TBD
+#' \dontrun{
+#' # Measurement error analysis on simulated data of fish shapes
 #' 
+#' data(fishy)
+#' 
+#' # Analysis unconcerned with groups 
+#' 
+#' ME1 <- measurement.error(
+#'   Y = "coords",
+#'   subjects = "subj",
+#'   replicates = "reps",
+#'   data = fishy)
+#' 
+#' anova(ME1)
+#' ICCstats(ME1, subjects = "Subjects", with_in = "Systematic ME")
+#' plot(ME1)
+#' 
+#' # Analysis concerned with groups 
+#' 
+#' ME2 <- measurement.error(
+#'   Y = "coords",
+#'   subjects = "subj",
+#'   replicates = "reps",
+#'   groups = "groups",
+#'   data = fishy)
+#' 
+#' anova(ME2)
+#' ICCstats(ME2, subjects = "Subjects", 
+#'   with_in = "Systematic ME", groups = "groups")
+#' P <- plot(ME2)
+#' focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
+#'  }
+#'  
 interSubVar <- function(ME, type = c("range", "sd", "var", "cv")){
   type <- match.arg(type)
   if(!type %in% c("range", "sd", "var", "cv")) type <- "range"
@@ -42,15 +73,15 @@ interSubVar <- function(ME, type = c("range", "sd", "var", "cv")){
       var(x) else function(x) {max(x) - min(x)}
   
   Y <- ME$LM$data$Y
-  subj <- ME$LM$data$subj
-  reps <- ME$LM$data$reps
+  subj <- ME$LM$data$subjects
+  reps <- ME$LM$data$replicates
   rep.levels <- levels(reps)
   subj.levels <- levels(subj)
   
   tb <- table(subj, reps)
   if(any(tb == 0))
-    stop(paste("The ME design is not balanced and not all ionter-subject distances",
-               "can be estimate for every replicate.\n", sep = " "), call. = FALSE)
+    stop(paste("The ME design is not balanced and not all inter-subject distances",
+               "can be estimated for every replicate.\n", sep = " "), call. = FALSE)
   
   result <- lapply(1:length(rep.levels), function(j){
     keep <- which(reps == rep.levels[j])
