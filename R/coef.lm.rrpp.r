@@ -97,6 +97,12 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
       se <- matrix(se, nrow(coef.obs), ncol(coef.obs))
       dimnames(se) <- dimnames(coef.obs)
     } else names(se) <- names(coef.obs)
+    
+    if(any(rownames(se) == "(Intercept)")){
+      rmove <- which(rownames(se) == "(Intercept)")
+      se <- se[-rmove, ]
+    }
+    
   } else se <- NULL
   
   test.ok <- (x$verbose && !x$turbo)

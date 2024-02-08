@@ -1346,8 +1346,7 @@ beta.iter.main <- function(checkrs, ind, ind_s, subTest,
   getBetas <- function(Hf, Yi, pert.rows){
     Bf <- Map(function(hf, y, p) {
       B <- as.matrix(hf %*% y)
-      d <- tcrossprod(B)[p, p]
-      if(length(p) > 1) d <- diag(d)
+      d <- rowSums(B^2)[p]
       res = list(B = B, d = sqrt(d))
       res
     }, Hf, Yi, pert.rows) 
@@ -1416,6 +1415,17 @@ beta.iter.main <- function(checkrs, ind, ind_s, subTest,
   try(dimnames(d.out) <- list(unlist(b.names), 
                               names(ind)), 
       silent = TRUE)
+
+  if(is.matrix(d.out) && any(rownames(d.out) == "(Intercept)")){
+    rmove <- which(rownames(d.out) == "(Intercept)")
+    dnames <- rownames(d.out)[-rmove]
+    d.out <- d.out[-rmove, ]
+    if(is.vector(d.out)){
+      d.out <- matrix(d.out, 1, length(d.out))
+      colnames(d.out) <- names(ind)
+      rownames(d.out) <- dnames
+    }
+  }
 
   list(random.coef = betas.out, 
        random.coef.distances = d.out)
