@@ -98,9 +98,26 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
       dimnames(se) <- dimnames(coef.obs)
     } else names(se) <- names(coef.obs)
     
-    if(any(rownames(se) == "(Intercept)")){
+    if(is.matrix(se) && any(rownames(se) == "(Intercept)")){
       rmove <- which(rownames(se) == "(Intercept)")
-      se <- se[-rmove, ]
+      Y <- as.matrix(x$LM$Y)
+      X <- x$LM$X
+      B <- if(x$LM$gls) x$LM$gls.coefficients else x$LM$coefficients
+      result <- sapply(indb, function(x){
+        Xm <- colMeans(as.matrix(X[x, ]))
+        Ym <- colMeans(as.matrix(Y[x, ]))
+        Ym - crossprod(Xm[-rmove], B[-rmove, ])
+      })
+      
+      if(is.vector(result))  {
+        rd <- result - mean(result)
+        seint <- sqrt(sum(rd^2) / perms)
+      } else{
+        rd <- t(result) - rowMeans(result) #### left off here fix this
+        seint <- sqrt(colSums(rd^2)/perms)
+        
+      }
+      se[rmove, ] <- seint
     }
     
   } else se <- NULL

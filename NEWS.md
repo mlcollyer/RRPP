@@ -1,7 +1,7 @@
 # CHANGES IN RRPP 2.0.1
 
 ### BUG FIXES
-+ Fixed issue with tests and standard error for intercepts in `.coef.lm.rrpp` (should not occur), caused by updates to how model matrices are partition in RRPP 2.0.0.
++ Fixed standard error method for intercepts in `.coef.lm.rrpp`.
 
 # CHANGES IN RRPP 2.0.0
 

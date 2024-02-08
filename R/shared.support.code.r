@@ -196,7 +196,7 @@ boot.index <-function(n, iter, block = NULL, seed = NULL){
           out <- array(NA, n)
           r <- unlist(lapply(loc.list, sample, replace = TRUE))
           for(i in indx) out[rindx[i]] <- r[i]
-        } else  out <- sample.int(n, n)
+        } else  out <- sample.int(n, n, replace = TRUE)
         out
       }
       ind <- c(list(1:n), (Map(function(x) get.samp(n), 
