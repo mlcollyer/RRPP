@@ -91,7 +91,11 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
   if(SE) {
     betas <- beta.boot.iter(x, indb)
     betas <- sapply(betas, as.vector)
+    if(is.vector(betas))
+      betas <- matrix(betas, 1, length(betas))
     bd <- betas - rowMeans(betas)
+    if(is.vector(bd))
+      bd <- matrix(bd, 1, length(bd))
     se <- sqrt(rowSums(bd^2) / perms)
     if(is.matrix(coef.obs)){
       se <- matrix(se, nrow(coef.obs), ncol(coef.obs))
