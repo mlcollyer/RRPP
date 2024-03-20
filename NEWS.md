@@ -2,6 +2,7 @@
 
 ### BUG FIXES
 + Fixed standard error method for intercepts in `.coef.lm.rrpp`.
++ Fixed some circularity issues with `.lm.rrpp` associated with covariance matrices (causing non-adjusted matrices).
 
 # CHANGES IN RRPP 2.0.0
 
