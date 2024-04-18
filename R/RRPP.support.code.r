@@ -527,9 +527,11 @@ lm.args.from.formula <- function(cl){
     names(modf) <- names(modr) <- trms
     
     if(WS) {
-      trms.change <- which(trms == fit$subjects.var)
-      modf[[trms.change]] <- Terms
-      modr[[trms.change]] <- Terms[!trms %in% fit$subjects.var]
+      if(fit$subTest){
+        trms.change <- which(trms == fit$subjects.var)
+        modf[[trms.change]] <- Terms
+        modr[[trms.change]] <- Terms[!trms %in% fit$subjects.var]
+      }
     }
     
   } else {
@@ -561,50 +563,7 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
        residuals = as.matrix(residuals))
 }
 
-getTerms <- function(Terms, SS.type = "I", subjects.term = NULL) {
-  trms <- attr(Terms, "term.labels")
-  k <- length(trms)
-  mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
-  if(SS.type == "Within-subject II")
-  SS.type <- "IIws"
-  
-  if(k > 0) {
-    if(SS.type == "III"){
-      k3 <- mod.k[-1]
-      modf <- lapply(as.list(k3), function(.) Terms)
-      modr <- lapply(as.list(k3), function(j) Terms[-j])
-    } else if(SS.type == "II" || SS.type == "IIws"){
-      k2 <- mod.k[-1]
-      fac <- crossprod(attr(Terms, "factor"))
-      modr <- lapply(as.list(k2), function(j){
-        ind <- as.logical(ifelse(fac[j,] < fac[j,j], 1, 0))
-        Terms[ind]
-      })
-      modf <- lapply(as.list(k2), function(j){
-        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
-        ind[j] <- 1
-        ind <- as.logical(ind)
-        Terms[ind]
-      })
-    } else {
-      kf <- mod.k[-1]
-      kr <- mod.k[-(max(mod.k) + 1)]
-      modf <- lapply(as.list(kf), function(j) Terms[1:j])
-      modr <- lapply(as.list(kr), function(j) Terms[0:j])
-    }
-    
-    if(!is.null(subjects.term)) {
-      modf <- Terms
-      modr <- Terms[-subjects.term]
-    }
-    
-    names(modf) <- names(modr) <- trms
-  } else {
-    modr <- modf <- list("Intercept" = Terms)
-  }
-  
-  list(terms.r = modr, terms.f = modf)
-}
+
 getXs <- function(Terms, Y, SS.type, tol = 1e-7,
                   model, subjects.term = NULL) {
   X <- model.matrix(Terms, data = model)
@@ -1346,8 +1305,7 @@ beta.iter.main <- function(checkrs, ind, ind_s, subTest,
   getBetas <- function(Hf, Yi, pert.rows){
     Bf <- Map(function(hf, y, p) {
       B <- as.matrix(hf %*% y)
-      d <- tcrossprod(B)[p, p]
-      if(length(p) > 1) d <- diag(d)
+      d <- rowSums(B^2)[p]
       res = list(B = B, d = sqrt(d))
       res
     }, Hf, Yi, pert.rows) 
@@ -1416,6 +1374,17 @@ beta.iter.main <- function(checkrs, ind, ind_s, subTest,
   try(dimnames(d.out) <- list(unlist(b.names), 
                               names(ind)), 
       silent = TRUE)
+
+  if(is.matrix(d.out) && any(rownames(d.out) == "(Intercept)")){
+    rmove <- which(rownames(d.out) == "(Intercept)")
+    dnames <- rownames(d.out)[-rmove]
+    d.out <- d.out[-rmove, ]
+    if(is.vector(d.out)){
+      d.out <- matrix(d.out, 1, length(d.out))
+      colnames(d.out) <- names(ind)
+      rownames(d.out) <- dnames
+    }
+  }
 
   list(random.coef = betas.out, 
        random.coef.distances = d.out)

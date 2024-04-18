@@ -13,8 +13,22 @@
   
   Parallel.args <- Parallel.setup(Parallel)
   
+  ### List of Covariance options
+  
+  # 0 = No Cov
+  # 1 = Cov, no subjects, must match no. obs.
+  # 2 = Cov matches subjects in name and length
+  # 3 = Cov matches subjects in name, but needs expansion
+  
+  cov.type <- 0
+  if(!is.null(Cov) && is.null(subjects))
+    cov.type <- 1
+  if(!is.null(Cov) && !is.null(subjects))
+    cov.type <- 2
+  
   STerm <- sub.lev <- NULL
-  subTest <- !is.null(subjects)
+  subTest <- useSubjects <- !is.null(subjects)
+  
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
   
@@ -119,29 +133,9 @@
     ols <- FALSE
   }
   
-  if(subTest){
-    STerm <- which(term.labels == sub.var.name)
-    subTest <- !(length(STerm) == 0)
-  }
-
-  if(subTest) {
-    subjects <- as.factor(subjects)
-    sub.lev <- levels(subjects)
-  } 
+  # Resolve cov.type
   
-  if(length(subTest) == 0) {
-    subTest <- FALSE
-    STerm <- sub.lev <- NULL
-  }
-  
-  if(!subTest && !is.null(sub.var.name)) {
-    STerm <- sub.lev <- NULL
-  }
-  
-  Pcov <- CovEx <- NULL
-  
-  if(!is.null(Cov) && !subTest) {
-    
+  if(!is.null(Cov)){
     Cov.name <- deparse(substitute(Cov))
     Cov.match <- match(Cov.name, names(data))
     if(all(is.na(Cov.match))) Cov <- Cov else Cov <- data[[Cov.match]]
@@ -149,19 +143,55 @@
     if(is.null(colnames(Cov))) colnames(Cov) <- 1:n
     if(!inherits(Cov, "Matrix") && !inherits(Cov, "matrix")) 
       stop("The covariance matrix must be a matrix.")
-    if(!is.null(id) && !is.null(rownames(Cov))) {
-      if(length(setdiff(id, rownames(Cov))) > 0)
-        stop("Data names and covariance matrix names do not match.\n", call. = FALSE)
-      Cov <- Cov[id, id]
-      
+  }
+  
+  if(cov.type > 0) {
+    if(cov.type == 1){
+      if(nrow(Cov) != n)
+        stop(paste("\nA covariance matrix is used but has a different",
+        "number of observations than the data.\n", sep = " "), 
+        call. = FALSE)
     }
-    
-    Pcov <- Cov.proj(Cov, id = id)
-    gls <- TRUE
-    ols <- FALSE
+    if(cov.type == 2){
+      if(nrow(Cov) != length(subjects))
+        cov.type <- 3
+    }
+  }
+  
+  if(!is.null(subjects)) {
+    subjects <- as.factor(subjects)
+    sub.lev <- levels(subjects)
   } 
   
-  if(!is.null(Cov) && subTest) {
+  if(useSubjects){
+    STerm <- which(term.labels == sub.var.name)
+    subTest <- !(length(STerm) == 0)
+    if(!sub.var.name %in% names(data))
+      stop("\nVariable for subjects is not found in the RRPP data frame.\n",
+           call. = FALSE)
+    if(!subTest) STerm <- NULL
+  }
+  
+  Pcov <- CovEx <- NULL
+  
+  if(cov.type == 1){
+    cov.lev <- rownames(Cov)
+    if(length(setdiff(id, cov.lev)) > 0)
+      stop("Data names and covariance matrix names do not match.\n", call. = FALSE)
+    
+    Cov <- Cov[id, id]
+  }
+
+  if(cov.type == 2) {
+    if(nrow(Cov) != n){
+      stop(paste("\nThe dimensions of the covariance matrix does not",
+                 "match the number of observations.\n", sep = " "),
+                 call. = FALSE)
+    } else cat("\n It is assumed that the covariance matrix and", 
+               "data are ordered the same...\n")
+  }
+  
+  if(cov.type == 3){
     
     cov.lev <- levels(as.factor(dimnames(Cov)[[1]]))
     if(!all(sub.lev %in% cov.lev) || !all(cov.lev %in% sub.lev))
@@ -169,57 +199,49 @@
          Make sure there is direct correspondence between subjects in the model\n
          and subjects in the covariance matrix.  Check spelling of names.\n", 
            call. = FALSE)
+    
     Xsub <- model.matrix(~subjects + 0)
     colnames(Xsub) <- sub.lev
     Xs <- Matrix(Xsub, sparse = TRUE)
-    nn <- nrow(Cov)
-    if(nn == nrow(Xsub)) cov.type <- 1 else 
-      if(nn == length(sub.lev)) cov.type <- 2 else
-        stop(paste("There is an irreconcilable covariance matrix, in terms of",
-                   "subject number or subject factor levels.  Please make sure that",
-                   "the number of Cov rows or columns match the number of subject levels",
-                   "or the number of observations.", sep = " "), call. = FALSE)
-    if(cov.type == 2) {
-      Cov <- Cov[colnames(Xsub), colnames(Xsub)]
-      Cov.names <- dimnames(Cov)[[1]]
-      Cov <- Matrix(Cov, sparse = TRUE)
-      if(is.vector(delta) && length(delta) > 1 &&
-         length(delta) != length(sub.lev)) {
-        stop(paste("Either a single value or vector equal in length to the number",
-                   "of subject levels is required.\n", sep = " "), call. = FALSE)
-        
-      }
-      if(!is.numeric(delta))
-        stop("delta must be a numeric value or vector.\n", call. = FALSE)
-      
-      delta[which(delta <= 0)] <- 0.001
-      delta[which(delta > 1)] <- 1
-      delta[which(zapsmall(delta) == 0)] <- 0.001
-      
-      n.list <- as.vector(by(subjects, subjects, length))
-      gam <- if(gamma == "equal") 1 else 
-        sqrt(n.list)
-      
-      Xr <- t(t(Xs) * exp(-delta * gam))
-      CovEx <- Xr %*% Cov %*% t(Xr)
-      D <- diag(Cov)
-      D <- unlist(lapply(1:length(D), function(j) 
-        rep(D[j], n.list[j])))
-      diag(CovEx) <- D
-      Xs <- Xr <- NULL
     
-      } else {
-        CovEx <- Cov
-        cat("\nIt is assumed that the Covariance matrix is ordered the same as the data...\n")
-      }
+    Cov <- Cov[colnames(Xsub), colnames(Xsub)]
+    Cov.names <- dimnames(Cov)[[1]]
+    Cov <- Matrix(Cov, sparse = TRUE)
+    if(is.vector(delta) && length(delta) > 1 &&
+       length(delta) != length(sub.lev)) {
+      stop(paste("Either a single value or vector equal in length to the number",
+                 "of subject levels is required.\n", sep = " "), call. = FALSE)
+      
+    }
+    if(!is.numeric(delta))
+      stop("delta must be a numeric value or vector.\n", call. = FALSE)
     
-    Xsub <- NULL
-    Pcov <- Cov.proj(CovEx)
-    gls <- TRUE
-    ols <- FALSE
+    delta[which(delta <= 0)] <- 0.001
+    delta[which(delta > 1)] <- 1
+    delta[which(zapsmall(delta) == 0)] <- 0.001
     
+    n.list <- as.vector(by(subjects, subjects, length))
+    gam <- if(gamma == "equal") 1 else 
+      sqrt(n.list)
+    
+    Xr <- t(t(Xs) * exp(-delta * gam))
+    CovEx <- Xr %*% Cov %*% t(Xr)
+    D <- diag(Cov)
+    D <- unlist(lapply(1:length(D), function(j) 
+      rep(D[j], n.list[j])))
+    diag(CovEx) <- D
+    Xs <- Xr <- NULL
   }
   
+  if(cov.type > 0){
+    Pcov <- if(cov.type == 3) Cov.proj (CovEx) else Cov.proj(Cov)
+    gls <- TRUE
+    ols <- FALSE
+  } else {
+    Pcov <- NULL
+    ols <- TRUE
+    gls <- FALSE
+  }
 
   X.args <- exchange.args[c("Terms", "Y", "SS.type", "tol", "model")]
   X.args$subjects.term <- STerm
