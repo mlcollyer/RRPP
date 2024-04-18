@@ -3236,7 +3236,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   w <- if(!is.null(fit$LM$weights)) sqrt(fit$LM$weights) else NULL
 
   Model.Terms <- getTerms(fit)
-  STerm <- if(!is.null(fit$subjects.var))
+  STerm <- if(fit$subTest)
     which(fit$LM$term.labels == fit$subjects.var) else NULL
   
   if(create){

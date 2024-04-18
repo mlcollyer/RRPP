@@ -319,8 +319,14 @@ manova.update <- function(fit, error = NULL,
   if(inherits(fit, "lm.rrpp.ws")){
     ind_s <- perm.index(n, iter = (perms - 1), 
                         block = NULL, seed = PermInfo$perm.seed)
-    STerm <- which(fit$LM$term.labels == fit$subjects.var)
-    use_ind_s <- TRUE
+    if(fit$subTest){
+      STerm <- 
+        which(fit$LM$term.labels == fit$subjects.var)
+      use_ind_s <- TRUE
+    } else {
+      STerm <- NULL
+      use_ind_s <- FALSE
+      }
     
   } else {
     use_ind_s <- FALSE
