@@ -1589,14 +1589,22 @@ aov.multi.model <- function(object, lm.list,
   perms <- length(ind)
   
   if(refModel$LM$gls) {
-    X <- if(!is.null(refModel$LM$Pcov)) refModel$LM$Pcov %*% refModel$LM$X else
-      refModel$LM$X * sqrt(refModel$LM$weights)
-  } else X <- refModel$LM$X
-  
-  if(refModel$LM$gls) {
-    Y <- if(!is.null(refModel$LM$Pcov)) refModel$LM$Pcov %*% refModel$LM$Y else
-      refModel$LM$Y * sqrt(refModel$LM$weights)
-  } else Y <- refModel$LM$Y
+    X <- refModel$LM$X
+    Y <- refModel$LM$Y
+    Pcov <- refModel$LM$Pcov
+    Cov <- refModel$LM$Cov  
+    if(!is.null(Cov) && is.null(Pcov)) {
+      Pcov <- Cov.proj(Cov)
+    }
+    X <- if(!is.null(Pcov)) Pcov %*% X else
+      X * sqrt(refModel$LM$weights)
+    Y <- if(!is.null(Pcov)) Pcov %*% Y else
+      Y * sqrt(refModel$LM$weights)
+    
+  } else {
+    X <- refModel$LM$X
+    Y <- refModel$LM$Y
+  }
   
   B <- if(refModel$LM$gls) refModel$LM$gls.coefficients else 
     refModel$LM$coefficients
@@ -1614,16 +1622,21 @@ aov.multi.model <- function(object, lm.list,
   
   if(print.progress){
     if(K > 1)
-    cat(paste("\nSums of Squares calculations for", K, "models:", 
-              perms, "permutations.\n")) else
-      cat(paste("\nSums of Squares calculations for", K, "model:", 
-                perms, "permutations.\n"))
+      cat(paste("\nSums of Squares calculations for", K, "models:", 
+                perms, "permutations.\n")) else
+                  cat(paste("\nSums of Squares calculations for", K, "model:", 
+                            perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
-
+  
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
-    int <- if(!is.null(refModel$LM$Pcov))  refModel$LM$Pcov %*% rep(int, n) else
+    Pcov <- refModel$LM$Pcov
+    Cov <- refModel$LM$Cov  
+    if(!is.null(Cov) && is.null(Pcov)) {
+      Pcov <- Cov.proj(Cov)
+    }
+    int <- if(!is.null(Pcov))  Pcov %*% rep(int, n) else
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
@@ -1674,7 +1687,7 @@ aov.multi.model <- function(object, lm.list,
   Rsq <-  SS / RSSy
   
   dfe <- n - c(getRank(object$LM$QR), unlist(lapply(1:K, 
-                     function(j) getRank(lm.list[[j]]$LM$QR))))
+                                                    function(j) getRank(lm.list[[j]]$LM$QR))))
   df <- dfe[1] - dfe
   df[1] <- 1
   
@@ -1741,9 +1754,9 @@ aov.multi.model <- function(object, lm.list,
               SS = SS[-1,], MS = MS[-1,], Rsq = Rsq[-1,], F = Fs[-1,],
               call = object$call)
   
-class(out) <- "anova.lm.rrpp"
-out
-
+  class(out) <- "anova.lm.rrpp"
+  out
+  
 }
 
 aov.me <- function(object){
@@ -2023,6 +2036,10 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   w <- fit$LM$weights
   Pcov <- fit$LM$Pcov
   Cov <- fit$LM$Cov  
+  if(!is.null(Cov) && is.null(Pcov)) {
+    Pcov <- Cov.proj(Cov)
+  }
+
   R <- if(gls) {
     if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
   } else R
