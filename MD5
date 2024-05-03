@@ -5,7 +5,6 @@ cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 dafab7980f11292dc49c066f7971af91 *DESCRIPTION
-c6c6f36457bb4159eb9506f94e630fb6 *gfortran-12.0.1-20220312-is-darwin20-arm64.tar.xz
 bd05b8fcebd10535e87a44fa7a4bb0e9 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -20,7 +19,7 @@ a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 b95e20b5ff5d305dc293892c8a4b0fca *man/focusMEonSubjects.Rd
 0eced9aeadd92bb77be3562f873dd26c *man/getANOVAStats.Rd
 d28f1c70c8ca9d75c9e67f1cfd555d88 *man/getModelCov.Rd
-4be6344afaae7955e5a34cadeb231587 *man/getModels.Rd
+636c98f97ff0ebcb2bbfab2bfc10b4ee *man/getModels.Rd
 88c7bb0028505b5cfb7bd7f3491cd14c *man/getPermInfo.Rd
 7e263c27f5e3b274572a9a9962ded87e *man/getResCov.Rd
 5fa1cb32075adf22ffdc34740171e2c4 *man/getTerms.Rd
@@ -93,7 +92,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 a2021ac25065d13e5522ee33d98f3f64 *NAMESPACE
-08cf6f5570cfee4147ea4ba716ef75b4 *NEWS.md
+050de9d3a8e7f5d13a8d8dcd1bb2f3c8 *NEWS.md
 a1f4f4ad1e9e4bbd4095e7103feece87 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -117,8 +116,8 @@ fdbaae68a6b892be2c38f0e1cff3769c *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
-3009c57b9e74c4600099af6fe12b7d0e *R/RRPP.support.code.r
-f115ffb66b365254ec5a56987540b43a *R/RRPP.utils.r
+899d437ac1b5c16dd94a8eccd6d692d8 *R/RRPP.support.code.r
+782c10a436605d8684ef8e36a6b42dc1 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f7c9794791d7a8c1128920940bf7ccf4 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r

@@ -4,6 +4,7 @@
 + Fixed standard error method for intercepts in `.coef.lm.rrpp`.
 + Fixed some circularity issues with `.lm.rrpp` associated with covariance matrices (causing non-adjusted matrices).
 + Fixed some issues with multiple functions that misused the logical `subTest` output from `lm.rrpp.ws`.
++ Fixed issues with `anova.multi.model` and `logL` related to missing `Pcov` when GLS models are used.
 
 # CHANGES IN RRPP 2.0.0
 
