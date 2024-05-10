@@ -563,19 +563,33 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
        residuals = as.matrix(residuals))
 }
 
+removeRedundant <- function(X){
+  if(NCOL(X) > 1){
+    X <- as.matrix(X[, colSums(X) != 0])
+    Xs <- round(scale(X), 12)
+    X <- X[, !duplicated(Xs, MARGIN = 2L)]
+  }
+  X
+}
+
+getPivot <- function(Xf, Xr){
+  nf <- colnames(Xf)
+  nr <- colnames(Xr)
+  k <- seq(1, NCOL(Xf))
+  p <- match(nr, nf)[1:NCOL(Xr)]
+  k <- which(!k %in% p)
+  c(p, k)
+}
 
 getXs <- function(Terms, Y, SS.type, tol = 1e-7,
                   model, subjects.term = NULL) {
+  
   X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
-  fit.args <- list(x = X, y = Y, tol = tol, method = "qr", 
-                   singular.ok = TRUE)
-  fit <- do.call(lm.fit, fit.args)
   X.n.k.obs <- length(X.k.obs)
-  QRx <- fit$qr
-  fit <- NULL
-  X.rank <- QRx$rank
-  pivot <- QRx$pivot
+  Xred <- removeRedundant(X)
+  X.rank <- NCOL(Xred)
+  pivot <- getPivot(X, Xred)
   uk <- unique(c(0, X.k))
   term.labels <- attr(Terms, "term.labels")
   k <- length(term.labels)
@@ -797,33 +811,32 @@ getHb <- function(Q) {
 # checkers
 # algorithms to facilitate RRPP iteration stats calculations
 # used in lm.rrpp/SS.iter/beta.iter
-checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE, 
+checkers <- function(Y, Qs, Xs, turbo = FALSE, 
                      Terms, Pcov = NULL, w = NULL) {
   k <- length(attr(Terms, "term.labels"))
   Qr <- Qs$reduced
   Qf <- Qs$full
   n <- NROW(Y)
-  Qrs <- Qs.sparse$reduced
-  Qfs <- Qs.sparse$full
   Ur <- lapply(Qr, qr.Q)
+  Ur <-lapply(Ur, function(u){
+    u@x <- round(u@x, 12)
+    u <- Matrix(u, sparse = TRUE)
+    if(prod(u@Dim) == length(u@x))
+      u <- as.matrix(u)
+    u
+  })
   Uf <- lapply(Qf, qr.Q)
+  Uf <-lapply(Uf, function(u){
+    u@x <- round(u@x, 12)
+    u <- Matrix(u, sparse = TRUE)
+    if(prod(u@Dim) == length(u@x))
+      u <- as.matrix(u)
+    u
+  })
   kk <- length(Uf)
   
   if(k > 0 && k != kk) k <- kk
-  
-  getU <- function(Q, Qs) {
-    U <- try(qr.Q(Qs), silent = TRUE)
-    if(inherits(U, "try-error"))
-      U <- qr.Q(Q)
-    U
-  }
-  Urs <- Map(function(q, qs) getU(q, qs), Qr, Qrs)
-  Ufs <- Map(function(q, qs) getU(q, qs), Qf, Qfs)
-  Urs <- lapply(Urs, function(x) 
-    Matrix(round(x, 12), sparse = TRUE))
-  Ufs <- lapply(Ufs, function(x) 
-    Matrix(round(x, 12), sparse = TRUE))
-  
+
   getR <- function(Q) {
     R <- if(inherits(Q, "sparseQR")) qrR(Q) else qr.R(Q)
   }
@@ -843,22 +856,7 @@ checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE,
     
   } else Hbr <- Hbf <- NULL
   
-  # Linear model checkers
-  for(i in 1:max(1, k)) {
-    o.ur <- object.size(Ur[[i]])
-    o.urs <- object.size(Urs[[i]])
-    if(o.urs < o.ur) {
-      Ur[[i]] <- Urs[[i]]
-    }
-    
-    o.uf <- object.size(Uf[[i]])
-    o.ufs <- object.size(Ufs[[i]])
-    if(o.ufs < o.uf) {
-      Uf[[i]] <-  Ufs[[i]]
-    }
-  }
-  
-  Ufull <-Uf[[max(1, k)]]
+  Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
@@ -872,17 +870,8 @@ checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE,
   Hbnull <- if(S4) tcrossprod(fast.solve(qrR(Qint)), Unull) else
     tcrossprod(fast.solve(qr.R(Qint)), Unull)
   
-  Qout <- Qs
-  for(i in 1:2){
-    for(j in 1:max(1, k)){
-      oq <- object.size(Qs[[i]][[max(1, j)]])
-      oqs <- object.size(Qs.sparse[[i]][[max(1, j)]])
-      if(oqs < oq) Qout[[i]][[j]] <- Qs.sparse[[i]][[j]]
-    }
-  }
-  
   out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Unull, Ufull = Ufull,
-              Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qout, k = k,
+              Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qs, k = k,
               realized.trms = names(Xs$Xfs))
   
   out
@@ -933,6 +922,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
   
   k <- checkrs$k
   trms <- checkrs$realized.trms
+  rm(checkrs)
   
   perms <- length(ind)
   
@@ -1072,12 +1062,12 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
 
 getRank <- function(Q) {
   if(inherits(Q, "sparseQR")) {
-    d <- round(svd(Q@R)$d, 15)
-    r <- length(which(d > 0))
+    r <- NCOL(Q@R)
   } else if(inherits(Q, "qr")) {
     r <- Q$rank
-  } else r <- rankMatrix(Q)[1]
-  
+  } else {
+    r <- NCOL(removeRedundant(Q))
+  }
   return(r)
 }
 
