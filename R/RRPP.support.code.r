@@ -547,8 +547,8 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
       x.s <- x
       x <- as.matrix(x.s)
     }
-  osx <- object.size(x)
-  osxs <- object.size(x.s)
+  osx <- length(x)
+  osxs <- length(x.s@x)
   X <- if(osx < osxs) x else x.s
   x <- x.s <- NULL
   Q <- qr(X, tol = tol)
@@ -568,7 +568,9 @@ removeRedundant <- function(X){
   if(NCOL(X) > 1){
     X <- as.matrix(X[, colSums(X) != 0])
     Xs <- round(scale(X), 12)
-    X <- X[, !duplicated(Xs, MARGIN = 2L)]
+    if(anyDuplicated(Xs, MARGIN = 2L) > 0){
+      X <- X[, !duplicated(Xs, MARGIN = 2L)]
+    }
   }
   X
 }
