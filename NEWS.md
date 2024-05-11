@@ -1,5 +1,9 @@
 # CHANGES IN RRPP 2.0.1
 
+### NEW FEATURES
++ Updated all QR decompositions that forced dense-matrix methods when not needed.
++ Added functions to remove design matrix parameter redundancies without using QR decomposition.
+
 ### BUG FIXES
 + Fixed standard error method for intercepts in `.coef.lm.rrpp`.
 + Fixed some circularity issues with `.lm.rrpp` associated with covariance matrices (causing non-adjusted matrices).
