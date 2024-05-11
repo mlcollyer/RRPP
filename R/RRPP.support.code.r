@@ -466,7 +466,7 @@ lm.args.from.formula <- function(cl){
   
   
   model <- try(model.frame(form), data = lm.args$data)
-  Terms <- try(terms(form), data = lm.args$data)
+  Terms <- try(attr(model, "terms"))
   
   if(inherits(model, "try-error") || inherits(Terms, "try-error"))
   stop("Variables or data might be missing from either the data frame or 
