@@ -428,9 +428,6 @@
   if(is.null(rownames(coefficients)))  
     rownames(coefficients) <- rownames(Hb)
   R <- U <- QR <- NULL
-
-  QR <- if(gls && !is.null(Pcov)) qr(Pcov %*% X) else
-    if(gls && !is.null(w)) qr(X * sqrt(w)) else qr(X)
   
   LM <- list(form = formula(Terms), 
              coefficients = coefficients,

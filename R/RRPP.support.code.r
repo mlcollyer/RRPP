@@ -464,18 +464,17 @@ lm.args.from.formula <- function(cl){
   
   lm.args$data$Y <- Y
   
-  dfmat <- try(as.matrix(lm.args$data), silent = TRUE)
-  if(!inherits(dfmat, "try-error"))
-    f <- try(do.call(lm, lm.args), silent = TRUE)
-
-  if(inherits(f, "try-error")) 
-    stop("Variables or data might be missing from either the data frame or 
-           global environment, or a linear model fit just does not work...\n", 
-         call. = FALSE)
   
-  Y <- as.matrix(f$y)
+  model <- try(model.frame(form), data = lm.args$data)
+  Terms <- try(terms(form), data = lm.args$data)
+  
+  if(inherits(model, "try-error") || inherits(Terms, "try-error"))
+  stop("Variables or data might be missing from either the data frame or 
+           global environment, or a linear model fit just does not work...\n", 
+       call. = FALSE)
+  
   Y <- add.names(Y, nmsY)
-  out <- list(Terms = f$terms, model = f$model, Y = Y)
+  out <- list(Terms = Terms, model = model, Y = Y)
   if(!is.null(Dy)) {
     d <- as.matrix(Dy)
     if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
