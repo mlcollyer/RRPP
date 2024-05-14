@@ -108,7 +108,7 @@ afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 d3000311dc72bdf5268aeec858c75c75 *R/manova.update.r
-26593d987ae91b0f4a3e1424ec151dee *R/measurement.error.r
+30f4a6ff67d3ed7732944e24be06b7fd *R/measurement.error.r
 a93d1585c9a0c39055acdd143e794c3b *R/model.comparison.r
 441ea9f5b893e97bf03ca59304582d38 *R/ordinate.r
 7cfaa40e1b38d0d6e2e588d8ce50d95a *R/pairwise.r
@@ -117,7 +117,7 @@ b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 106b6859f6c8d7f6fc7232c1c272e2a3 *R/RRPP.support.code.r
-782c10a436605d8684ef8e36a6b42dc1 *R/RRPP.utils.r
+7377387491f2859013720d432a199255 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f7c9794791d7a8c1128920940bf7ccf4 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r

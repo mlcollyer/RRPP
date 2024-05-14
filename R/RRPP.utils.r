@@ -2767,7 +2767,8 @@ plot.measurement.error <- function(x,
   subj <- x$LM$data$subjects
   reps <- x$LM$data$replicates
   groups <- if(!is.null(x$LM$data$groups))
-    x$LM$data$groups else NULL
+    as.factor(x$LM$data$groups) else NULL
+  
   
   plot_args <- list(...)
   if(!is.null(titles)) titles <- as.list(titles)

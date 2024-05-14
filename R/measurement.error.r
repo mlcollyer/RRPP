@@ -139,7 +139,8 @@
 #' focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
 #' }
 #' 
-measurement.error <- function(data, Y, 
+measurement.error <- function(data, 
+                              Y, 
                               subjects, 
                               replicates, 
                               groups = NULL,
