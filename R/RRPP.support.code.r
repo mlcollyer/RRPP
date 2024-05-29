@@ -56,8 +56,11 @@
 #' @export summary.trajectory.analysis
 #' @export print.summary.trajectory.analysis
 NULL
+
 #' @section RRPP TOC:
+#' @docType package
 #' RRPP-package
+ 
 NULL
 
 #' Landmarks on pupfish
@@ -1159,7 +1162,11 @@ SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 beta.boot.iter <- function(fit, ind) {
 
   gls <- fit$LM$gls
-  id <- colnames(fit$LM$QR$qr)
+  QR <- getModels(fit, "qr")
+  Qf <- QR$full[[length(QR$full)]]
+  rm(QR)
+  S4 <- !inherits(Qf, "qr")
+  id <- if(S4) colnames(Qf) else colnames(Qf$qr)
   
   fitted <- if(gls) fit$LM$gls.fitted else fit$LM$fitted
   res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
@@ -1188,7 +1195,6 @@ beta.boot.iter <- function(fit, ind) {
   
   rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
   
-  Qf <- fit$LM$QR
   Hf <- tcrossprod(fast.solve(qr.R(Qf)), qr.Q(Qf))
   Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
   if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
@@ -2297,7 +2303,9 @@ looPCAll<-function(fit, ...) {
   
   ord.args <- list(...)
   ord.args$Y <- fit$LM$Y
-  ord.args$A <- tcrossprod(qr.Q(fit$LM$QR))
+  QR <- getModels(fit, "qr")
+  QR <- QR$full[[length(QR$full)]]
+  ord.args$A <- tcrossprod(qr.Q(QR))
   if(is.null(ord.args$tol)) ord.args$tol <- 1e-6
   
   ord <- do.call(ordinate, ord.args)

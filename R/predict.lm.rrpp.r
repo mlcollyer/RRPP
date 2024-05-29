@@ -116,9 +116,11 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
     o.names <- all.vars(TT)
     n.names <- names(newdata)
     tm <- match(o.names, n.names)
+    
     if(all(is.na(tm)))
       stop("\nVariables in newdata do not match variables used in lm.rrpp fit",
            call. = FALSE)
+    
     if(any(is.na(tm))) {
       
       warning(
@@ -126,18 +128,41 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
           "\nThis is not an error!  It is a friendly warning.\n",
           "\nNot all variables in model accounted for in newdata.",
           "\nMissing variables will be averaged from observed data for prediction.\n",
-          "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+          "\nUse suppressWarnings to turn off these warnings. \n\n", sep = " "),
         noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
       
     }
     
-    nform <- formula(TT[which(!is.na(tm))])
-    mX <- model.matrix(nform, data = newdata)
-    vars <- colnames(nX)[colnames(nX) %in% colnames(mX)]
-    if(length(vars) == 0)
-      stop("\nVariables in newdata do not match variables used in lm.rrpp fit",
-           call. = FALSE)
-    nX[, vars] <- mX[, vars]
+    mf <- object$LM$data[-1]
+    for(i in 1:length(tm)) if(is.na(tm[i])) mf[[i]] <- rep(mean(mf[[i]]), NROW(mf))
+    
+    keep <- which(o.names %in% n.names)
+    mfr <- as.data.frame(mf[, keep])
+    colnames(mfr) <- colnames(mf)[keep]
+    nd <- newdata
+    
+    mfn <- as.data.frame(matrix(0, 1, NCOL(mf)))
+    names(mfn) <- names(mf)
+    row.names(mfn)[1] <- "temp"
+    if(is.null(rownames(nd)))
+      rownames(nd) <- 1:NROW(nd)
+    
+    for(i in 1:nrow(mfr)) {
+      res <- sapply(1:nrow(nd), function(j) identical(as.vector(mfr[i, ]), as.vector(nd[j, ])))
+      if(any(res)){
+        temp <- mf[i, ]
+        temp.name <- rownames(nd)[which(res)]
+        if(!temp.name %in% rownames(mfn))
+          mfn <- rbind(mfn, temp)
+        rownames(mfn)[NROW(mfn)] <- temp.name
+      }
+    }
+    
+    mfn <- mfn[-1,]
+    mfn <- mfn[rownames(nd), ]
+    attr(mfn, "terms") <- TT
+    nX <- model.matrix(TT, mfn)
+    rm(mfn, mfr, mf, nd)
   }
   
   o <- object$LM$offset
