@@ -35,7 +35,7 @@
 #' @importFrom ape collapse.singles
 #' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
 #' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
-#' resid sd spline var
+#' resid sd spline var model.frame
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @export print.lm.rrpp
@@ -1155,6 +1155,60 @@ anova_parts <- function(checkrs, SS, full.resid = FALSE){
 SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
 
+# getXfromNewData
+# make a new X matrix from new data, for a lm.rrpp fit
+# used in predict.lm.rrpp
+getXfromNewData <- function(fit, newdata){
+  Terms <- fit$LM$Terms
+  o_vars <- all.vars(Terms)
+  Terms <- delete.response(Terms)
+  mf_vars <- all.vars(Terms)
+  mf <- fit$LM$data
+  mf <- mf[o_vars %in% mf_vars]
+  nd_vars <- names(newdata)
+  factors <- attr(Terms, "factors")
+  X <- fit$LM$X
+  if(is.null(attr(X, "assign")))
+     X <- model.matrix(Terms, mf)
+  asn <- attr(X, "assign")
+  m <- colMeans(X)
+  
+  mfn <- as.data.frame(
+    matrix(NA, NROW(newdata), NCOL(mf)))
+  dimnames(mfn) <- list(rownames(newdata), 
+                        mf_vars)
+  mfn[, mf_vars %in% nd_vars] <- newdata[, nd_vars]
+  
+  NA_id <- which(is.na(mfn[1,]))
+  if(length(NA_id) > 0) {
+    for(i in 1:length(NA_id)) mfn[, NA_id[i]] <- mf[1, NA_id[i]]
+  }
+  
+  N <- NROW(mf)
+  mfnn <- rbind(mf, model.frame(Terms, mfn))
+  mfnn[is.na(mfnn)] <- 0
+  attr(mfnn, "terms") <- Terms
+  
+  fix <- which(!mf_vars %in% nd_vars)
+  term_fix <- which(colSums(as.matrix(factors[fix,])) > 0)
+  asn_fix <- which(asn %in% term_fix)
+  
+  b_ind <- rep(1, length(asn))
+  b_ind[asn_fix] <- 0
+  m_ind <- 1 - b_ind
+  
+  nXb <- model.matrix(Terms, mfnn)[-(1:N),]
+  mfnn <- mfnn[-(1:N),]
+  b_mat <- matrix(b_ind, NROW(mfnn), length(asn), byrow = TRUE)
+  m_mat <- matrix(m_ind, NROW(mfnn), length(asn), byrow = TRUE)
+  nXm <- matrix(m, NROW(mfnn), length(asn), byrow = TRUE)
+  nX <- nXb * b_mat + nXm * m_mat
+  rownames(nX) <- rownames(newdata)
+  if(is.null(colnames(nX))) colnames(nX) <- colnames(X)
+  nX
+}
+
+
 # beta.boot.iter
 # gets appropriate beta vectors for coefficients via bootstrap
 # used in predict.lm.rrpp
@@ -1198,6 +1252,9 @@ beta.boot.iter <- function(fit, ind) {
   Hf <- tcrossprod(fast.solve(qr.R(Qf)), qr.Q(Qf))
   Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
   if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
+  b <- if(gls) fit$LM$gls.coefficients else
+    fit$LM$coefficients
+  Hf <- Hf[rownames(b),]
   
   betas <- lapply(1:perms, function(j){
     x <-ind[[j]]
@@ -1607,16 +1664,27 @@ aov.multi.model <- function(object, lm.list,
   
   B <- if(refModel$LM$gls) refModel$LM$gls.coefficients else 
     refModel$LM$coefficients
-  U <- as.matrix(qr.Q(refModel$LM$QR))
+  
+  refQR <- getModels(refModel, "qr")
+  refQR <- refQR$full[[length(refQR$full)]]
+  
+  K <- length(lm.list)
+  QRlist <- lapply(1:K, function(j){
+    m <- lm.list[[j]]
+    mQR <- getModels(m, "qr")
+    mQR <- mQR$full[[length(mQR$full)]]
+    mQR
+  })
+  
+  U <- as.matrix(qr.Q(refQR))
   n <- refModel$LM$n
   p <- refModel$LM$p
   Yh <- as.matrix(fastFit(U, Y, n, p))
   R <- as.matrix(Y) - Yh
   
-  K <- length(lm.list)
+  
   Ulist <- lapply(1:K, function(j){
-    m <- lm.list[[j]]
-    as.matrix(qr.Q(m$LM$QR))
+    qr.Q(QRlist[[j]])
   })
   
   if(print.progress){
@@ -1685,8 +1753,8 @@ aov.multi.model <- function(object, lm.list,
   
   Rsq <-  SS / RSSy
   
-  dfe <- n - c(getRank(object$LM$QR), unlist(lapply(1:K, 
-                     function(j) getRank(lm.list[[j]]$LM$QR))))
+  dfe <- n - c(getRank(refQR), unlist(lapply(1:K, 
+                     function(j) getRank(QRlist[[j]]))))
   df <- dfe[1] - dfe
   df[1] <- 1
   

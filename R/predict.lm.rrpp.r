@@ -16,7 +16,7 @@
 #' they are ignored for estimating coefficients over iterations.  
 #' Offsets are subtracted from data in \code{\link[stats]{lm}} and 
 #' added to predicted values in \code{\link[stats]{predict.lm}}, 
-#' effectively adjusted the intercept and then un-adjusting
+#' effectively adjusting the intercept and then un-adjusting
 #' it for predictions.  This causes problems if the newdata have a 
 #' different number of observations than the original
 #' model fit.
@@ -108,10 +108,6 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
   if(missing(newdata) || is.null(newdata)) {
     nX <- object$LM$X
   } else {
-    nX <- matrix(colMeans(object$LM$X), NROW(newdata), NCOL(object$LM$X), 
-                 byrow = TRUE)
-    colnames(nX) <- colnames(object$LM$X)
-    rownames(nX) <- rownames(newdata)
     
     o.names <- all.vars(TT)
     n.names <- names(newdata)
@@ -133,36 +129,8 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
       
     }
     
-    mf <- object$LM$data[-1]
-    for(i in 1:length(tm)) if(is.na(tm[i])) mf[[i]] <- rep(mean(mf[[i]]), NROW(mf))
+    nX <- getXfromNewData(object, newdata)
     
-    keep <- which(o.names %in% n.names)
-    mfr <- as.data.frame(mf[, keep])
-    colnames(mfr) <- colnames(mf)[keep]
-    nd <- newdata
-    
-    mfn <- as.data.frame(matrix(0, 1, NCOL(mf)))
-    names(mfn) <- names(mf)
-    row.names(mfn)[1] <- "temp"
-    if(is.null(rownames(nd)))
-      rownames(nd) <- 1:NROW(nd)
-    
-    for(i in 1:nrow(mfr)) {
-      res <- sapply(1:nrow(nd), function(j) identical(as.vector(mfr[i, ]), as.vector(nd[j, ])))
-      if(any(res)){
-        temp <- mf[i, ]
-        temp.name <- rownames(nd)[which(res)]
-        if(!temp.name %in% rownames(mfn))
-          mfn <- rbind(mfn, temp)
-        rownames(mfn)[NROW(mfn)] <- temp.name
-      }
-    }
-    
-    mfn <- mfn[-1,]
-    mfn <- mfn[rownames(nd), ]
-    attr(mfn, "terms") <- TT
-    nX <- model.matrix(TT, mfn)
-    rm(mfn, mfr, mf, nd)
   }
   
   o <- object$LM$offset
