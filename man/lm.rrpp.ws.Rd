@@ -60,8 +60,8 @@ should be used for significance testing}
 \item{Cov}{An optional argument for including a covariance matrix 
 to address the non-independence
 of error in the estimation of coefficients (via GLS).  If included, 
-any weights are ignored.  This matrix must math in dimensions either
-the number of subjects or the number of observations.}
+any weights are ignored.  This matrix must match in dimensions either
+the number of subject levels or the number of observations.}
 
 \item{delta}{A within-subject scaling parameter for covariances, ranging from 
 0 to 1.  If delta = 0, a sight value (0.001) is added to assure variances of the 

@@ -16,7 +16,7 @@
 #' they are ignored for estimating coefficients over iterations.  
 #' Offsets are subtracted from data in \code{\link[stats]{lm}} and 
 #' added to predicted values in \code{\link[stats]{predict.lm}}, 
-#' effectively adjusted the intercept and then un-adjusting
+#' effectively adjusting the intercept and then un-adjusting
 #' it for predictions.  This causes problems if the newdata have a 
 #' different number of observations than the original
 #' model fit.
@@ -108,17 +108,15 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
   if(missing(newdata) || is.null(newdata)) {
     nX <- object$LM$X
   } else {
-    nX <- matrix(colMeans(object$LM$X), NROW(newdata), NCOL(object$LM$X), 
-                 byrow = TRUE)
-    colnames(nX) <- colnames(object$LM$X)
-    rownames(nX) <- rownames(newdata)
     
     o.names <- all.vars(TT)
     n.names <- names(newdata)
     tm <- match(o.names, n.names)
+    
     if(all(is.na(tm)))
       stop("\nVariables in newdata do not match variables used in lm.rrpp fit",
            call. = FALSE)
+    
     if(any(is.na(tm))) {
       
       warning(
@@ -126,18 +124,13 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
           "\nThis is not an error!  It is a friendly warning.\n",
           "\nNot all variables in model accounted for in newdata.",
           "\nMissing variables will be averaged from observed data for prediction.\n",
-          "\nUse options(warn = -1) to turn off these warnings. \n\n", sep = " "),
+          "\nUse suppressWarnings to turn off these warnings. \n\n", sep = " "),
         noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
       
     }
     
-    nform <- formula(TT[which(!is.na(tm))])
-    mX <- model.matrix(nform, data = newdata)
-    vars <- colnames(nX)[colnames(nX) %in% colnames(mX)]
-    if(length(vars) == 0)
-      stop("\nVariables in newdata do not match variables used in lm.rrpp fit",
-           call. = FALSE)
-    nX[, vars] <- mX[, vars]
+    nX <- getXfromNewData(object, newdata)
+    
   }
   
   o <- object$LM$offset

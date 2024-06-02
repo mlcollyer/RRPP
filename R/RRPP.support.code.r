@@ -35,7 +35,7 @@
 #' @importFrom ape collapse.singles
 #' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
 #' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
-#' resid sd spline var
+#' resid sd spline var model.frame
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @export print.lm.rrpp
@@ -56,8 +56,11 @@
 #' @export summary.trajectory.analysis
 #' @export print.summary.trajectory.analysis
 NULL
+
 #' @section RRPP TOC:
+#' @docType package
 #' RRPP-package
+ 
 NULL
 
 #' Landmarks on pupfish
@@ -464,18 +467,19 @@ lm.args.from.formula <- function(cl){
   
   lm.args$data$Y <- Y
   
-  dfmat <- try(as.matrix(lm.args$data), silent = TRUE)
-  if(!inherits(dfmat, "try-error"))
-    f <- try(do.call(lm, lm.args), silent = TRUE)
-
-  if(inherits(f, "try-error")) 
-    stop("Variables or data might be missing from either the data frame or 
-           global environment, or a linear model fit just does not work...\n", 
-         call. = FALSE)
   
-  Y <- as.matrix(f$y)
+  model <- try(model.frame(form, data = lm.args$data),
+               silent = TRUE)
+  Terms <- try(attr(model, "terms"),
+               silent = TRUE)
+  
+  if(inherits(model, "try-error") || inherits(Terms, "try-error"))
+  stop("Variables or data might be missing from either the data frame or 
+           global environment, or a linear model fit just does not work...\n", 
+       call. = FALSE)
+  
   Y <- add.names(Y, nmsY)
-  out <- list(Terms = f$terms, model = f$model, Y = Y)
+  out <- list(Terms = Terms, model = model, Y = Y)
   if(!is.null(Dy)) {
     d <- as.matrix(Dy)
     if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
@@ -546,8 +550,8 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
       x.s <- x
       x <- as.matrix(x.s)
     }
-  osx <- object.size(x)
-  osxs <- object.size(x.s)
+  osx <- length(x)
+  osxs <- length(x.s@x)
   X <- if(osx < osxs) x else x.s
   x <- x.s <- NULL
   Q <- qr(X, tol = tol)
@@ -563,19 +567,35 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
        residuals = as.matrix(residuals))
 }
 
+removeRedundant <- function(X){
+  if(NCOL(X) > 1){
+    X <- as.matrix(X[, colSums(X) != 0])
+    Xs <- round(scale(X), 12)
+    if(anyDuplicated(Xs, MARGIN = 2L) > 0){
+      X <- X[, !duplicated(Xs, MARGIN = 2L)]
+    }
+  }
+  X
+}
+
+getPivot <- function(Xf, Xr){
+  nf <- colnames(Xf)
+  nr <- colnames(Xr)
+  k <- seq(1, NCOL(Xf))
+  p <- match(nr, nf)[1:NCOL(Xr)]
+  k <- which(!k %in% p)
+  c(p, k)
+}
 
 getXs <- function(Terms, Y, SS.type, tol = 1e-7,
                   model, subjects.term = NULL) {
+  
   X <- model.matrix(Terms, data = model)
   X.k <- X.k.obs <- attr(X, "assign")
-  fit.args <- list(x = X, y = Y, tol = tol, method = "qr", 
-                   singular.ok = TRUE)
-  fit <- do.call(lm.fit, fit.args)
   X.n.k.obs <- length(X.k.obs)
-  QRx <- fit$qr
-  fit <- NULL
-  X.rank <- QRx$rank
-  pivot <- QRx$pivot
+  Xred <- removeRedundant(X)
+  X.rank <- NCOL(Xred)
+  pivot <- getPivot(X, Xred)
   uk <- unique(c(0, X.k))
   term.labels <- attr(Terms, "term.labels")
   k <- length(term.labels)
@@ -797,33 +817,32 @@ getHb <- function(Q) {
 # checkers
 # algorithms to facilitate RRPP iteration stats calculations
 # used in lm.rrpp/SS.iter/beta.iter
-checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE, 
+checkers <- function(Y, Qs, Xs, turbo = FALSE, 
                      Terms, Pcov = NULL, w = NULL) {
   k <- length(attr(Terms, "term.labels"))
   Qr <- Qs$reduced
   Qf <- Qs$full
   n <- NROW(Y)
-  Qrs <- Qs.sparse$reduced
-  Qfs <- Qs.sparse$full
   Ur <- lapply(Qr, qr.Q)
+  Ur <-lapply(Ur, function(u){
+    u@x <- round(u@x, 12)
+    u <- Matrix(u, sparse = TRUE)
+    if(prod(u@Dim) == length(u@x))
+      u <- as.matrix(u)
+    u
+  })
   Uf <- lapply(Qf, qr.Q)
+  Uf <-lapply(Uf, function(u){
+    u@x <- round(u@x, 12)
+    u <- Matrix(u, sparse = TRUE)
+    if(prod(u@Dim) == length(u@x))
+      u <- as.matrix(u)
+    u
+  })
   kk <- length(Uf)
   
   if(k > 0 && k != kk) k <- kk
-  
-  getU <- function(Q, Qs) {
-    U <- try(qr.Q(Qs), silent = TRUE)
-    if(inherits(U, "try-error"))
-      U <- qr.Q(Q)
-    U
-  }
-  Urs <- Map(function(q, qs) getU(q, qs), Qr, Qrs)
-  Ufs <- Map(function(q, qs) getU(q, qs), Qf, Qfs)
-  Urs <- lapply(Urs, function(x) 
-    Matrix(round(x, 12), sparse = TRUE))
-  Ufs <- lapply(Ufs, function(x) 
-    Matrix(round(x, 12), sparse = TRUE))
-  
+
   getR <- function(Q) {
     R <- if(inherits(Q, "sparseQR")) qrR(Q) else qr.R(Q)
   }
@@ -843,22 +862,7 @@ checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE,
     
   } else Hbr <- Hbf <- NULL
   
-  # Linear model checkers
-  for(i in 1:max(1, k)) {
-    o.ur <- object.size(Ur[[i]])
-    o.urs <- object.size(Urs[[i]])
-    if(o.urs < o.ur) {
-      Ur[[i]] <- Urs[[i]]
-    }
-    
-    o.uf <- object.size(Uf[[i]])
-    o.ufs <- object.size(Ufs[[i]])
-    if(o.ufs < o.uf) {
-      Uf[[i]] <-  Ufs[[i]]
-    }
-  }
-  
-  Ufull <-Uf[[max(1, k)]]
+  Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
@@ -872,17 +876,8 @@ checkers <- function(Y, Qs, Qs.sparse, Xs, turbo = FALSE,
   Hbnull <- if(S4) tcrossprod(fast.solve(qrR(Qint)), Unull) else
     tcrossprod(fast.solve(qr.R(Qint)), Unull)
   
-  Qout <- Qs
-  for(i in 1:2){
-    for(j in 1:max(1, k)){
-      oq <- object.size(Qs[[i]][[max(1, j)]])
-      oqs <- object.size(Qs.sparse[[i]][[max(1, j)]])
-      if(oqs < oq) Qout[[i]][[j]] <- Qs.sparse[[i]][[j]]
-    }
-  }
-  
   out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Unull, Ufull = Ufull,
-              Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qout, k = k,
+              Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qs, k = k,
               realized.trms = names(Xs$Xfs))
   
   out
@@ -933,6 +928,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
   
   k <- checkrs$k
   trms <- checkrs$realized.trms
+  rm(checkrs)
   
   perms <- length(ind)
   
@@ -1072,12 +1068,12 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
 
 getRank <- function(Q) {
   if(inherits(Q, "sparseQR")) {
-    d <- round(svd(Q@R)$d, 15)
-    r <- length(which(d > 0))
+    r <- NCOL(Q@R)
   } else if(inherits(Q, "qr")) {
     r <- Q$rank
-  } else r <- rankMatrix(Q)[1]
-  
+  } else {
+    r <- NCOL(removeRedundant(Q))
+  }
   return(r)
 }
 
@@ -1159,6 +1155,60 @@ anova_parts <- function(checkrs, SS, full.resid = FALSE){
 SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 
 
+# getXfromNewData
+# make a new X matrix from new data, for a lm.rrpp fit
+# used in predict.lm.rrpp
+getXfromNewData <- function(fit, newdata){
+  Terms <- fit$LM$Terms
+  o_vars <- all.vars(Terms)
+  Terms <- delete.response(Terms)
+  mf_vars <- all.vars(Terms)
+  mf <- fit$LM$data
+  mf <- mf[o_vars %in% mf_vars]
+  nd_vars <- names(newdata)
+  factors <- attr(Terms, "factors")
+  X <- fit$LM$X
+  if(is.null(attr(X, "assign")))
+     X <- model.matrix(Terms, mf)
+  asn <- attr(X, "assign")
+  m <- colMeans(X)
+  
+  mfn <- as.data.frame(
+    matrix(NA, NROW(newdata), NCOL(mf)))
+  dimnames(mfn) <- list(rownames(newdata), 
+                        mf_vars)
+  mfn[, mf_vars %in% nd_vars] <- newdata[, nd_vars]
+  
+  NA_id <- which(is.na(mfn[1,]))
+  if(length(NA_id) > 0) {
+    for(i in 1:length(NA_id)) mfn[, NA_id[i]] <- mf[1, NA_id[i]]
+  }
+  
+  N <- NROW(mf)
+  mfnn <- rbind(mf, model.frame(Terms, mfn))
+  mfnn[is.na(mfnn)] <- 0
+  attr(mfnn, "terms") <- Terms
+  
+  fix <- which(!mf_vars %in% nd_vars)
+  term_fix <- which(colSums(as.matrix(factors[fix,])) > 0)
+  asn_fix <- which(asn %in% term_fix)
+  
+  b_ind <- rep(1, length(asn))
+  b_ind[asn_fix] <- 0
+  m_ind <- 1 - b_ind
+  
+  nXb <- model.matrix(Terms, mfnn)[-(1:N),]
+  mfnn <- mfnn[-(1:N),]
+  b_mat <- matrix(b_ind, NROW(mfnn), length(asn), byrow = TRUE)
+  m_mat <- matrix(m_ind, NROW(mfnn), length(asn), byrow = TRUE)
+  nXm <- matrix(m, NROW(mfnn), length(asn), byrow = TRUE)
+  nX <- nXb * b_mat + nXm * m_mat
+  rownames(nX) <- rownames(newdata)
+  if(is.null(colnames(nX))) colnames(nX) <- colnames(X)
+  nX
+}
+
+
 # beta.boot.iter
 # gets appropriate beta vectors for coefficients via bootstrap
 # used in predict.lm.rrpp
@@ -1166,7 +1216,11 @@ SS.mean <- function(x, n) if(is.vector(x)) sum(x)^2/n else sum(colSums(x)^2)/n
 beta.boot.iter <- function(fit, ind) {
 
   gls <- fit$LM$gls
-  id <- colnames(fit$LM$QR$qr)
+  QR <- getModels(fit, "qr")
+  Qf <- QR$full[[length(QR$full)]]
+  rm(QR)
+  S4 <- !inherits(Qf, "qr")
+  id <- if(S4) colnames(Qf) else colnames(Qf$qr)
   
   fitted <- if(gls) fit$LM$gls.fitted else fit$LM$fitted
   res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
@@ -1195,10 +1249,12 @@ beta.boot.iter <- function(fit, ind) {
   
   rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
   
-  Qf <- fit$LM$QR
   Hf <- tcrossprod(fast.solve(qr.R(Qf)), qr.Q(Qf))
   Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
   if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
+  b <- if(gls) fit$LM$gls.coefficients else
+    fit$LM$coefficients
+  Hf <- Hf[rownames(b),]
   
   betas <- lapply(1:perms, function(j){
     x <-ind[[j]]
@@ -1608,27 +1664,38 @@ aov.multi.model <- function(object, lm.list,
   
   B <- if(refModel$LM$gls) refModel$LM$gls.coefficients else 
     refModel$LM$coefficients
-  U <- as.matrix(qr.Q(refModel$LM$QR))
+  
+  refQR <- getModels(refModel, "qr")
+  refQR <- refQR$full[[length(refQR$full)]]
+  
+  K <- length(lm.list)
+  QRlist <- lapply(1:K, function(j){
+    m <- lm.list[[j]]
+    mQR <- getModels(m, "qr")
+    mQR <- mQR$full[[length(mQR$full)]]
+    mQR
+  })
+  
+  U <- as.matrix(qr.Q(refQR))
   n <- refModel$LM$n
   p <- refModel$LM$p
   Yh <- as.matrix(fastFit(U, Y, n, p))
   R <- as.matrix(Y) - Yh
   
-  K <- length(lm.list)
+  
   Ulist <- lapply(1:K, function(j){
-    m <- lm.list[[j]]
-    as.matrix(qr.Q(m$LM$QR))
+    qr.Q(QRlist[[j]])
   })
   
   if(print.progress){
     if(K > 1)
-      cat(paste("\nSums of Squares calculations for", K, "models:", 
-                perms, "permutations.\n")) else
-                  cat(paste("\nSums of Squares calculations for", K, "model:", 
-                            perms, "permutations.\n"))
+    cat(paste("\nSums of Squares calculations for", K, "models:", 
+              perms, "permutations.\n")) else
+      cat(paste("\nSums of Squares calculations for", K, "model:", 
+                perms, "permutations.\n"))
     pb <- txtProgressBar(min = 0, max = perms+5, initial = 0, style=3)
   }
-  
+
   int <- attr(refModel$LM$Terms, "intercept")
   if(refModel$LM$gls) {
     Pcov <- refModel$LM$Pcov
@@ -1686,8 +1753,8 @@ aov.multi.model <- function(object, lm.list,
   
   Rsq <-  SS / RSSy
   
-  dfe <- n - c(getRank(object$LM$QR), unlist(lapply(1:K, 
-                                                    function(j) getRank(lm.list[[j]]$LM$QR))))
+  dfe <- n - c(getRank(refQR), unlist(lapply(1:K, 
+                     function(j) getRank(QRlist[[j]]))))
   df <- dfe[1] - dfe
   df[1] <- 1
   
@@ -1754,9 +1821,9 @@ aov.multi.model <- function(object, lm.list,
               SS = SS[-1,], MS = MS[-1,], Rsq = Rsq[-1,], F = Fs[-1,],
               call = object$call)
   
-  class(out) <- "anova.lm.rrpp"
-  out
-  
+class(out) <- "anova.lm.rrpp"
+out
+
 }
 
 aov.me <- function(object){
@@ -2039,7 +2106,7 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   if(!is.null(Cov) && is.null(Pcov)) {
     Pcov <- Cov.proj(Cov)
   }
-
+  
   R <- if(gls) {
     if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
   } else R
@@ -2304,7 +2371,9 @@ looPCAll<-function(fit, ...) {
   
   ord.args <- list(...)
   ord.args$Y <- fit$LM$Y
-  ord.args$A <- tcrossprod(qr.Q(fit$LM$QR))
+  QR <- getModels(fit, "qr")
+  QR <- QR$full[[length(QR$full)]]
+  ord.args$A <- tcrossprod(qr.Q(QR))
   if(is.null(ord.args$tol)) ord.args$tol <- 1e-6
   
   ord <- do.call(ordinate, ord.args)

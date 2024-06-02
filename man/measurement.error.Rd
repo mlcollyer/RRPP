@@ -6,11 +6,11 @@
 for common research subjects}
 \usage{
 measurement.error(
+  data,
   Y,
   subjects,
   replicates,
   groups = NULL,
-  data,
   iter = 999,
   seed = NULL,
   multivariate = FALSE,
@@ -23,22 +23,26 @@ measurement.error(
 )
 }
 \arguments{
-\item{Y}{A matrix (n x p) of data for n observations and p variables.}
+\item{data}{A required data frame, either of class \code{\link{data.frame}} or
+class \code{\link{rrpp.data.frame}}.  This function cannot be used without a
+data frame.  All arguments for data and variables are names that must exist in the data frame.}
 
-\item{subjects}{A vector or factor of research subjects (each subject should occur twice or more).
-The length of the vector must equal the number of observations and will be coerced into a factor.}
+\item{Y}{A name for a matrix (n x p) of data for n observations and p variables that can be found
+in the data frame.  For example, Y = "morphData".}
 
-\item{replicates}{A vector or factor for replicate measurements for research subjects.
-The length of the vector must equal the number of observations and will be coerced into a factor.}
+\item{subjects}{A name for a vector or factor of research subjects, found within the data frame
+(each subject should occur twice or more).  The length of the vector in the data frame must equal the 
+number of observations and will be coerced into a factor.  For example, subjects = "ID".}
 
-\item{groups}{An optional vector, coercible to factor, to be included in the linear model
-(as an interaction with replicates)..
-This would be of interest if one were concerned with systematic ME occurring perhaps differently among 
-certain strata within the data.  For example, systematic ME because of an observer bias might
-only be observed with females or males.}
+\item{replicates}{A name for a vector or factor for replicate measurements for research subjects, found
+within the data frame.  The length of the vector  in the data frame must equal the number of observations and will 
+be coerced into a factor.  For example, replicates = "Rep".}
 
-\item{data}{An optional data frame, either of class \code{\link{data.frame}} or
-class \code{\link{rrpp.data.frame}}.}
+\item{groups}{An optional name for a vector in the data frame, coercible to factor, to be included 
+in the linear model (as an interaction with replicates).  This would be of interest if one 
+were concerned with systematic ME occurring perhaps differently among certain strata within the data.  
+For example, systematic ME because of an observer bias might only be observed with females or males,
+in which case the argument might be: groups = "Sex".}
 
 \item{iter}{Number of iterations for significance testing}
 
@@ -60,12 +64,12 @@ This might be helpful for relative eigenanalysis, and if p > n,
 in which case inverting singular covariance matrices would not be possible.}
 
 \item{tol}{A value indicating the magnitude below which 
-components should be omitted., if use.PCs is TRUE. (Components are omitted if their 
+components should be omitted, if use.PCs is TRUE. (Components are omitted if their 
 standard deviations are less than or equal to tol times the 
 standard deviation of the first component.)  See \code{\link{ordinate}} for more details.}
 
 \item{Parallel}{The same argument as in \code{\link{lm.rrpp}} to govern parallel processing (
-either a logical vale -- TRUE or FALSE -- or the number of threaded cores to use).  See \code{\link{lm.rrpp}} 
+either a logical value -- TRUE or FALSE -- or the number of threaded cores to use).  See \code{\link{lm.rrpp}} 
 for additional details.}
 
 \item{turbo}{Logical value for whether to suppress coefficient estimation in RRPP iteration,
@@ -98,7 +102,7 @@ requirement for repeated measurements on all research subjects, the analysis ass
 that multiple observations are made.
 }
 \details{
-This function performs analyses as described in Collyer and Adams (in press)
+This function performs analyses as described in Collyer and Adams (2024)
  to assess systematic and random components of 
 measurement error (ME).  It basically performs ANOVA with RRPP,
 but with different restricted randomization strategies.  The reliability of research subject variation 
@@ -114,11 +118,13 @@ eigenanalysis performed on a signal to noise matrix product of SSCP matrices
 including the inverse of the random component of ME and the systematic
 component of ME.  The multivariate test is a form of multivariate ANOVA (MANOVA), using
 RRPP to generate sampling distributions of the major eigenvalue (Roy's maximum root).
-Intraclass correlation coefficients (ICC) can also be calculated (using \code{\link{ICCstats}}), 
-both based on dispersion of values and 
-covariance matrices, as descriptive statistics.  Details are provided in \code{\link{ICCstats}}.
+Likelihood-ratio tests can also be performed using \code{\link{lr_test}}.
 
-Examples TBD
+Intraclass correlation coefficients (ICC) can also be 
+calculated (using \code{\link{ICCstats}}), 
+both based on dispersion of values and 
+covariance matrices, as descriptive statistics.  
+Details are provided in \code{\link{ICCstats}}.
 }
 \examples{
 \dontrun{
@@ -163,13 +169,14 @@ focusMEonSubjects(P, subjects = 18:20, shadow = TRUE)
 }
 \references{
 Collyer, M.L. and D.C. Adams.  2024. Interrogating Random and Systematic Measurement Error 
-in Morphometric Data. Evolutionary Biology.
+in Morphometric Data. Evolutionary Biology, 51, 179–20.
 
 Bookstein, F.L., & Mitteroecker, P. (2014). Comparing covariance matrices by relative eigenanalysis, 
-with applications to organismal biology. Evolutionary biology, 41(2), 336-350.
+with applications to organismal biology. Evolutionary Biology, 41(2), 336-350.
 }
 \seealso{
-\code{\link{lm.rrpp.ws}}, \code{\link{manova.update}}
+\code{\link{lm.rrpp.ws}}, \code{\link{manova.update}}, 
+\code{\link{lr_test}}
 }
 \author{
 Michael Collyer

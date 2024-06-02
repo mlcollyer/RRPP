@@ -50,7 +50,7 @@ where $\mathbf{S}_{random}$ is typically the $\mathbf{S}$ matrix for residuals. 
 ## Example of ANOVA and MANOVA in RRPP
 
 When fitting a linear model in *RRPP* over many permutations, some ANOVA statistics are calculated automatically in every permutation.  Others
-can be obtained from those statsistics.
+can be obtained from those statistics.
 
 ```{r}
 library(RRPP)

@@ -2767,7 +2767,8 @@ plot.measurement.error <- function(x,
   subj <- x$LM$data$subjects
   reps <- x$LM$data$replicates
   groups <- if(!is.null(x$LM$data$groups))
-    x$LM$data$groups else NULL
+    as.factor(x$LM$data$groups) else NULL
+  
   
   plot_args <- list(...)
   if(!is.null(titles)) titles <- as.list(titles)
@@ -3218,9 +3219,8 @@ getTerms <- function(fit){
 #'
 #' @param fit Object from \code{\link{lm.rrpp}}
 #' @param attribute The various attributes that are used to extract RRPP
-#'  permutation schedules.  If there are n observations, each iteration has
-#'  some randomization of 1:n, restricted by the arguments that match attributes
-#'  provided by this function.
+#'  Model information, including "terms", "X" (design matrices), "qr" (QR
+#'  decompositions), or "all".
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities

@@ -252,28 +252,18 @@
     X.j <- Xs[[j]]
     kk <- length(X.j)
     res <- lapply(1:kk, function(jj){
-      x <- X.j[[jj]]
+      x <- Matrix(round(X.j[[jj]], 12), sparse = TRUE)
       if(!is.null(Pcov)) x <- Pcov %*% x
       if(!is.null(w)) x <- x * sqrt(w)
-      qr(x)
+      q <- try(qr(x))
+      if(inherits(q, "try-error"))
+        q <- qr(as.matrix(x))
+      q
     })
     res
   })
   
-  Qs.sparse <- lapply(1:2, function(j){
-    X.j <- Xs[[j]]
-    kk <- length(X.j)
-    res <- lapply(1:kk, function(jj){
-      x <- X.j[[jj]]
-      if(!is.null(Pcov)) x <- Pcov %*% x
-      if(!is.null(w)) x <- x * sqrt(w)
-      x.sparse <- Matrix(round(as.matrix(x), 15), sparse = TRUE)
-      qr(x.sparse)
-    })
-    res
-  })
-  
-  names(Qs) <- names(Qs.sparse) <- c("reduced", "full")
+  names(Qs) <- c("reduced", "full")
   
   ind <- perm.index(n, iter = iter, block = block, seed = seed)
   perms <- iter + 1
@@ -283,11 +273,11 @@
     ind_s <- perm.index(n, iter = iter, block = block, seed = seed)
   } else ind_s <- NULL
 
-  checkers.args <- list(Y = Y, Qs = Qs, Qs.sparse = Qs.sparse, Xs = Xs,
+  checkers.args <- list(Y = Y, Qs = Qs, Xs = Xs,
                         turbo = turbo, Terms = Terms, Pcov = Pcov, w = w)
   cks <- do.call(checkers, checkers.args)
 
-  Qs <- Qs.sparse <- checkers.args <- NULL
+  Qs <- checkers.args <- NULL
   
   TY <- if(!is.null(Pcov)) Pcov %*% Y else if(!is.null(w)) Y * sqrt(w) else Y
   
@@ -438,9 +428,6 @@
   if(is.null(rownames(coefficients)))  
     rownames(coefficients) <- rownames(Hb)
   R <- U <- QR <- NULL
-
-  QR <- if(gls && !is.null(Pcov)) qr(Pcov %*% X) else
-    if(gls && !is.null(w)) qr(X * sqrt(w)) else qr(X)
   
   LM <- list(form = formula(Terms), 
              coefficients = coefficients,
