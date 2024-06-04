@@ -2,9 +2,9 @@ citHeader("To cite package 'RRPP' in a publication use:")
 
 bibentry(
   bibtype = "Manual",
-	title = "{RRPP}: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure. R package version 1.4.0.",
+	title = "{RRPP}: Linear Model Evaluation with Randomized Residuals in a Permutation Procedure. R package version 2.1.0.",
     author = person(c("M. L. Collyer", "D. C. Adams")),
-  	year = 2023,
+  	year = 2024,
   	url = "https://CRAN.R-project.org/package=RRPP")
 
 bibentry(
