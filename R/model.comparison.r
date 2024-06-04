@@ -258,7 +258,10 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
   
   par.pen <- function(f){
     p <- f$LM$p.prime
-    k <- f$LM$QR$rank
+    QR <- getModels(f, "qr")$full
+    QR <- QR[[length(QR)]]
+    k <- getRank(QR)
+    rm(QR)
     2 * (p * k + 0.5 * p* (p + 1))
   }
   pp <- sapply(dots, par.pen)

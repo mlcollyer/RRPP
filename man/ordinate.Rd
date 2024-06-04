@@ -245,11 +245,11 @@ Cov = PlethMorph$PhyCov)
  P1 <- plot(PaCA.gls, main = "PaCA GLS", include.axes = TRUE)
  
  P2 <- plot(PaCA.gls, main = "PaCA GLS", include.axes = TRUE, 
- frame.plot = FALSE, col = 4, pch = 21, bg = PlethMorph$group)
+ col = 4, pch = 21, bg = PlethMorph$group)
  add.tree(P2, PlethMorph$tree, edge.col = 4)
 
  P3 <- plot(PaCA.gls, main = "PaCA GLS", include.axes = TRUE, 
- frame.plot = FALSE, col = 4, pch = 21, bg = PlethMorph$group,
+ col = 4, pch = 21, bg = PlethMorph$group,
  flip = 1)
  add.tree(P3, PlethMorph$tree, edge.col = 4)
  

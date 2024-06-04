@@ -37,7 +37,7 @@ ac41f844d49f9a57835e1db148646c4c *man/manova.update.Rd
 7e9ba29071c4cee40bdeb5bc861ffe51 *man/model.matrix.lm.rrpp.Rd
 0e726f552fbf03e943ad5cebcc3fc09d *man/motionpaths.Rd
 2d4e482f72e3883ab05852e215e58acd *man/na.omit.rrpp.data.frame.Rd
-3d3a4e164776e50581b77b44e94593d3 *man/ordinate.Rd
+77eab8dcaa0e96a14c6b52dd396c1b18 *man/ordinate.Rd
 f249c380f75d6a35777484704124088d *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
 cbb0d2f1418836cfcecfced099801257 *man/plot.interSubVar.Rd
@@ -109,14 +109,14 @@ afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 d3000311dc72bdf5268aeec858c75c75 *R/manova.update.r
 30f4a6ff67d3ed7732944e24be06b7fd *R/measurement.error.r
-a93d1585c9a0c39055acdd143e794c3b *R/model.comparison.r
-441ea9f5b893e97bf03ca59304582d38 *R/ordinate.r
+de4367e48d6e748f5ac9f4bab0c7feb9 *R/model.comparison.r
+588c4ed6e4aca670f72ef33826db77cb *R/ordinate.r
 7cfaa40e1b38d0d6e2e588d8ce50d95a *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
-53520733a551e708fffb3c759e5725e8 *R/RRPP.support.code.r
+e9abac7797b22b30a2c4af09bc77a258 *R/RRPP.support.code.r
 7377387491f2859013720d432a199255 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f7c9794791d7a8c1128920940bf7ccf4 *R/shared.support.code.r
