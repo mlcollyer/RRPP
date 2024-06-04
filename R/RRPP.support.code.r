@@ -2103,6 +2103,7 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
   rnk <- length(PCA$d)
   w <- fit$LM$weights
+  Cov <- fit$LM$Cov
   Pcov <- NULL
   if(gls) {
     Pcov <- try(getModelCov(fit, "Pcov"), 
