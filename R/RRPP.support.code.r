@@ -492,6 +492,8 @@ lm.args.from.formula <- function(cl){
 .getTerms <- function(fit = NULL, Terms = NULL, SS.type = NULL) {
   if(is.null(Terms)) Terms <-  fit$LM$Terms
   if(is.null(SS.type)) SS.type <- fit$ANOVA$SS.type
+  if(length(attr(Terms, "factors")) == 0)
+    SS.type <- "I"
   trms <- attr(Terms, "term.labels")
   k <- length(trms)
   mod.k <- if(k > 0) c(0, seq(1, k, 1)) else 0
@@ -2101,10 +2103,11 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
   rnk <- length(PCA$d)
   w <- fit$LM$weights
-  Pcov <- fit$LM$Pcov
-  Cov <- fit$LM$Cov  
-  if(!is.null(Cov) && is.null(Pcov)) {
-    Pcov <- Cov.proj(Cov)
+  Pcov <- NULL
+  if(gls) {
+    Pcov <- try(getModelCov(fit, "Pcov"), 
+                silent = TRUE)
+    if(inherits(Pcov, "try-error")) Pcov <- NULL
   }
   
   R <- if(gls) {
@@ -2136,9 +2139,13 @@ cov.trace <- function(fit) {
   n <- fit$LM$n
   p <- fit$LM$p.prime
   if(fit$LM$gls){
-    if(!is.null(fit$LM$Pcov)) Sig <- crossprod(fit$LM$Pcov %*% 
-                                                 fit$LM$gls.residuals)/n else
-      Sig <- crossprod(fit$LM$gls.residuals * sqrt(fit$LM$weights))/n
+    Pcov <- try(getModelCov(fit, "Pcov"), 
+               silent = TRUE)
+    if(inherits(Pcov, "try-error"))
+      Pcov <- NULL
+    
+    Sig <- if(!is.null(Pcov))  crossprod(Pcov %*% fit$LM$gls.residuals)/n else
+      crossprod(fit$LM$gls.residuals * sqrt(fit$LM$weights))/n
     
   }  else {
     
