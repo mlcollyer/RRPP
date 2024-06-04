@@ -9,19 +9,4 @@ The package, `geomorph`, is developed by the same authors as `RRPP`.  The revers
 * R-hub (all platforms)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. There were three notes that could not be resolved.  These notes have appeared on previous submissions, as well.
-
-Two on the R-hub Builder for the Windows Server:
-
-* checking for non-standard things in the check directory ... NOTE
-Found the following files/directories:
-  ''NULL''
-
-* checking for detritus in the temp directory ... NOTE
-Found the following files/directories:
-  'lastMiKTeXException'
-
-One on both the Fedora Linux and Ubuntu Linux servers:
-
-Skipping checking HTML validation: no command 'tidy' found
-
+There were no ERRORs, WARNINGs, or NOTEs.
