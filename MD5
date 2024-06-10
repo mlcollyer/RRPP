@@ -1,11 +1,10 @@
-15fe3b1116c4567dbec8d4d4a53ad499 *cran-comments.md
-9508915ee0a852c4401188e0a0b15c87 *CRAN-SUBMISSION
+a738a0902f072c28f688ecbc929214b6 *cran-comments.md
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-08cf6e34938aa25f2414dce23285c8f6 *DESCRIPTION
+22b806326ecd3e0aea8e46bd4d500a59 *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -93,7 +92,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 8ee6aec0b02614c5d0c58d59bcc248bd *NAMESPACE
-6458003472cd3f5bf49109a2499d1b13 *NEWS.md
+d529ea7854cd1c797e34a95eab7b138c *NEWS.md
 a1f4f4ad1e9e4bbd4095e7103feece87 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
