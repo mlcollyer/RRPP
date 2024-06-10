@@ -4,7 +4,7 @@ bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-b93610f4c2c3bbd87f10de22b5261865 *DESCRIPTION
+4741fc3bf18df3ed38b808a364b79a30 *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -116,7 +116,7 @@ de4367e48d6e748f5ac9f4bab0c7feb9 *R/model.comparison.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
-db46fcbca470b281350fee5face35044 *R/RRPP.support.code.r
+65980e67348f4b73a04521853a52d565 *R/RRPP.support.code.r
 7377387491f2859013720d432a199255 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f7c9794791d7a8c1128920940bf7ccf4 *R/shared.support.code.r
