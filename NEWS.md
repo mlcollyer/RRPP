@@ -1,3 +1,8 @@
+# CHANGES IN RRPP 2.0.2
+
+### BUG FIXES
++ Fixed an important issue with `checkers` function that assumed sparse-matrix (`Matrix`) format of an object without coercing this format.
+
 # CHANGES IN RRPP 2.0.1
 
 ### NEW FEATURES

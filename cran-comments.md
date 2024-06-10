@@ -1,5 +1,5 @@
 ## Resubmission
-This is a patch release, 2.0.1, which fixes some bugs and updates some code for efficiency. 
+This is a patch release, 2.0.2, which fixes one important bug in version 2.0.1.  This bug eluded tests but is detrimental to proper functioning.
 
 The package, `geomorph`, is developed by the same authors as `RRPP`.  The reverse dependency has been addressed during development of this release and any necessary changes will be concomitantly submitted. 
 
