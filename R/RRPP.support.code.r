@@ -827,6 +827,7 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   n <- NROW(Y)
   Ur <- lapply(Qr, qr.Q)
   Ur <-lapply(Ur, function(u){
+    u <- Matrix(u, sparse = TRUE)
     u@x <- round(u@x, 12)
     u <- Matrix(u, sparse = TRUE)
     if(prod(u@Dim) == length(u@x))
@@ -835,6 +836,7 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   })
   Uf <- lapply(Qf, qr.Q)
   Uf <-lapply(Uf, function(u){
+    u <- Matrix(u, sparse = TRUE)
     u@x <- round(u@x, 12)
     u <- Matrix(u, sparse = TRUE)
     if(prod(u@Dim) == length(u@x))
