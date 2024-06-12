@@ -4,7 +4,7 @@ bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-22b806326ecd3e0aea8e46bd4d500a59 *DESCRIPTION
+77e67825d006cdfabaf2081230ba52b3 *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -126,4 +126,4 @@ e51cd504651b739a78b01db7d8c790e0 *README.md
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
 c99589eeb1879a23893e15e7abc5f054 *tests/testthat/test-RRPP.R
 08146d2cb565e247772bc96add8ee56f *vignettes/ANOVA.vs.MANOVA.Rmd
-7ecbf1880a3df2a70e696e9e36d0a447 *vignettes/Using.RRPP.Rmd
+f0bdb779d5d738d5e8fca5d9cb8fbbfc *vignettes/Using.RRPP.Rmd
