@@ -124,7 +124,7 @@ ANOVA results reveal that after accounting for body size allometry, not only are
 ```{r, error = TRUE}
 fit$LM$data$coords <- Pupfish$coords
 fit.par <- lm(fit$call$f1, data = fit$LM$data)
-identical(fit$LM$coefficients, fit.par$coefficients)
+all.equal(fit$LM$coefficients, fit.par$coefficients)
 summary(manova(fit.par))
 ```
 Although both functions return the same coefficients, the error summarizing the attempted parametric M-ANOVA clearly indicates the limitation of having residual degrees of freedom (rank) lower than the number of variables.   Returning to the `lm.rrpp` fit, which does not suffer this problem, we can look at the precision of group mean estimation, accounting for allometric shape variation, by doing the following:
