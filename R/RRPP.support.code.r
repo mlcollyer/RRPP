@@ -571,19 +571,17 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 
 removeRedundant <- function(X){
   if(NCOL(X) > 1){
-    Xs <- as(X, "dgCMatrix")
+    Xs <- Matrix(X, sparse = TRUE)
     Xs@x <- round(Xs@x, 12)
-    Xs <- as(Xs, "dgCMatrix")
+    Xs <- Matrix(Xs, sparse = TRUE)
     if(length(Xs@x < length(X))) X <- Xs
     rm(Xs)
     Q <- qr(X)
     if(inherits(Q, "sparseQR")) {
-      R <- Q@R
-      p <- ncol(R)
-      R <- R[p, p]
+      R <- qrR(Q)
       Q <- qr(as.matrix(R))
     }
-    X <- X[, with(Q, pivot[1:rank])]
+    X <- as.matrix(X)[, with(Q, pivot[1:rank])]
   }
   X
 }
@@ -1080,9 +1078,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
 
 getRank <- function(Q) {
   if(inherits(Q, "sparseQR")){
-    R <- Q@R
-    p <- ncol(R)
-    R <- R[p, p]
+    R <- qrR(Q)
     d <- svd(R)$d
     d <- round(d, 12)
     r <- length(which(d > 0))
