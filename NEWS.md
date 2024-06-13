@@ -1,3 +1,8 @@
+# CHANGES IN RRPP 2.0.2.999
+
+### BUG FIXES
++ Fixed an important issue with `removeRedundant` and `getRank` to properly remove axes based on a `base::qr` pivot strategy, but still avoiding the making of large, dense matrices before using `base::qr`.
+
 # CHANGES IN RRPP 2.0.2
 
 ### BUG FIXES

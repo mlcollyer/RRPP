@@ -255,7 +255,7 @@
       x <- Matrix(round(X.j[[jj]], 12), sparse = TRUE)
       if(!is.null(Pcov)) x <- Pcov %*% x
       if(!is.null(w)) x <- x * sqrt(w)
-      q <- try(qr(x))
+      q <- try(qr(removeRedundant(x)))
       if(inherits(q, "try-error"))
         q <- qr(as.matrix(x))
       q
