@@ -3252,6 +3252,9 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
   }
   names(Xs) <- c("reduced", "full")
   k <- length(Xs[[1]])
+  Xs <- lapply(Xs, function(x){
+    lapply(x, removeRedundant)
+  })
   
   if(attribute == "all" || attribute == "qr") {
     
@@ -3259,6 +3262,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
       Models <-lapply(1:2, function(j){
         res <- lapply(1:max(1, k), function(jj){
           X <- Xs[[j]][[jj]]
+          X <- removeRedundant(X)
           TX <- if(!is.null(Pcov)) Pcov %*% X else if(!is.null(w)) X*w else X
           qr <- qr(TX)
           out <- list(X = X, qr = qr)

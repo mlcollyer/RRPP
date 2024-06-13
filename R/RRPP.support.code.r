@@ -571,11 +571,19 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 
 removeRedundant <- function(X){
   if(NCOL(X) > 1){
-    X <- as.matrix(X[, colSums(X) != 0])
-    Xs <- round(scale(X), 12)
-    if(anyDuplicated(Xs, MARGIN = 2L) > 0){
-      X <- X[, !duplicated(Xs, MARGIN = 2L)]
+    Xs <- as(X, "dgCMatrix")
+    Xs@x <- round(Xs@x, 12)
+    Xs <- as(Xs, "dgCMatrix")
+    if(length(Xs@x < length(X))) X <- Xs
+    rm(Xs)
+    Q <- qr(X)
+    if(inherits(Q, "sparseQR")) {
+      R <- Q@R
+      p <- ncol(R)
+      R <- R[p, p]
+      Q <- qr(as.matrix(R))
     }
+    X <- X[, with(Q, pivot[1:rank])]
   }
   X
 }
@@ -1071,9 +1079,14 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
 # used in lm.rrpp
 
 getRank <- function(Q) {
-  if(inherits(Q, "sparseQR")) {
-    r <- NCOL(Q@R)
-  } else if(inherits(Q, "qr")) {
+  if(inherits(Q, "sparseQR")){
+    R <- Q@R
+    p <- ncol(R)
+    R <- R[p, p]
+    d <- svd(R)$d
+    d <- round(d, 12)
+    r <- length(which(d > 0))
+  } else if(inherits(Q, "qr")){
     r <- Q$rank
   } else {
     r <- NCOL(removeRedundant(Q))
