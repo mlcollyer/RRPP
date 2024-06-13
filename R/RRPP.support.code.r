@@ -578,12 +578,10 @@ removeRedundant <- function(X){
     rm(Xs)
     Q <- qr(X)
     if(inherits(Q, "sparseQR")) {
-      R <- Q@R
-      p <- ncol(R)
-      R <- R[p, p]
+      R <- qrR(Q)
       Q <- qr(as.matrix(R))
     }
-    X <- X[, with(Q, pivot[1:rank])]
+    X <- as.matrix(X)[, with(Q, pivot[1:rank])]
   }
   X
 }
@@ -1080,9 +1078,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
 
 getRank <- function(Q) {
   if(inherits(Q, "sparseQR")){
-    R <- Q@R
-    p <- ncol(R)
-    R <- R[p, p]
+    R <- qrR(Q)
     d <- svd(R)$d
     d <- round(d, 12)
     r <- length(which(d > 0))
