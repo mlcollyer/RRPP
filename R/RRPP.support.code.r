@@ -574,7 +574,7 @@ removeRedundant <- function(X){
     Xs <- as(X, "dgCMatrix")
     Xs@x <- round(Xs@x, 12)
     Xs <- as(Xs, "dgCMatrix")
-    if(length(Xs@x < length(X))) X <- Xs
+    if(length(Xs@x) < length(X)) X <- Xs
     rm(Xs)
     Q <- qr(X)
     if(inherits(Q, "sparseQR")) {
