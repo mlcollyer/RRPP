@@ -576,7 +576,7 @@ removeRedundant <- function(X){
     Xs <- Matrix(Xs, sparse = TRUE)
     if(length(Xs@x) < length(X)) X <- Xs
     rm(Xs)
-    Q <- qr(X)
+    Q <-suppressWarnings(qr(X))
     if(inherits(Q, "sparseQR")) {
       R <- qrR(Q)
       Q <- qr(as.matrix(R))
