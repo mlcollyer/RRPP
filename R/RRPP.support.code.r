@@ -574,7 +574,7 @@ removeRedundant <- function(X){
     Xs <- Matrix(X, sparse = TRUE)
     Xs@x <- round(Xs@x, 12)
     Xs <- Matrix(Xs, sparse = TRUE)
-    if(length(Xs@x < length(X))) X <- Xs
+    if(length(Xs@x) < length(X)) X <- Xs
     rm(Xs)
     Q <- qr(X)
     if(inherits(Q, "sparseQR")) {
