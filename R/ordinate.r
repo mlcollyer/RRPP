@@ -262,12 +262,21 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
       "principal"
   if(length(alignment) != 1) alignment <- "A"
 
-  I <- diag(n)
+  I <- Matrix(diag(n), sparse = TRUE)
   
   if(is.null(A)) A <- I
-  if(!is.matrix(A))
-    stop("A must be a matrix with the same number of rows as Y\n", 
-         call. = FALSE)
+  if(!inherits(A, "matrix") || !inherits(A, "Matrix")){
+    A <- try(as.matrix(A), silent = TRUE)
+    if(inherits(A, "try-error"))
+      stop("\nUnable to coerce A into a matrix.\n", call. = FALSE)
+    As <- Matrix(A, sparse = TRUE)
+    As@x <- round(As@x, 12)
+    As <- Matrix(A, sparse = TRUE)
+    if(length(As@x) < length(A))
+      A <- As
+    rm(As)
+  }
+    
   if(NROW(A) != n)
     stop("A must be a matrix with the same number of rows as data\n", 
          call. = FALSE)

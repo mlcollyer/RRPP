@@ -556,13 +556,12 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
   osxs <- length(x.s@x)
   X <- if(osx < osxs) x else x.s
   x <- x.s <- NULL
-  Q <- qr(X, tol = tol)
+  Q <- QRforX(X, tol = tol)
   if(!is.null(offset)) y <- y - offset
   dims <- dim(y)
   n <- dims[1]
   p <- dims[2]
-  U <- qr.Q(Q)
-  fitted.values <- fastFit (U, y, n, p)
+  fitted.values <- fastFit (Q$Q, y, n, p)
   residuals <- y - fitted.values
   if(!is.null(offset)) fitted.values <- fitted.values + offset
   list(qr = Q, fitted.values = as.matrix(fitted.values),
@@ -571,19 +570,10 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 
 removeRedundant <- function(X){
   if(NCOL(X) > 1){
-    Xs <- Matrix(X, sparse = TRUE)
-    Xs@x <- round(Xs@x, 12)
-    Xs <- Matrix(Xs, sparse = TRUE)
-    if(length(Xs@x) < length(X)) X <- Xs
-    rm(Xs)
-    Q <-suppressWarnings(qr(X))
-    if(inherits(Q, "sparseQR")) {
-      R <- qrR(Q)
-      Q <- qr(as.matrix(R))
-    }
-    X <- as.matrix(X)[, with(Q, pivot[1:rank])]
+    QR <- QRforX(X)
+    X <- QR$X
   }
-  X
+  as.matrix(X)
 }
 
 getPivot <- function(Xf, Xr){
@@ -799,16 +789,15 @@ droplevels.rrpp.data.frame <- function (x, except = NULL, ...) {
 # function to find "hat" matrix for coefficients
 # used in lm.rrpp/SS.iter/beta.iter
 getHb <- function(Q) {
-  S4 <- !(inherits(Q, "qr"))
-  Qnames <- if(S4) colnames(Q) else colnames(Q$qr)
-  k <- getRank(Q)
-  R <- suppressWarnings(qr.R(Q))
-  U <- qr.Q(Q)
+  Qnames <- Q$dimnames[[2]]
+  k <- Q$rank
+  R <- Q$R
+  U <- Q$Q
   Rs <- try(fast.solve(R), silent = TRUE)
   if(inherits(Rs, "try-error")){
     Rs <- 1
   } 
-  
+
   res <- as.matrix(tcrossprod(Rs, U))
   
   if(length(Rs) > 1 && !is.null(rownames(res)) &&
@@ -831,31 +820,11 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   Qr <- Qs$reduced
   Qf <- Qs$full
   n <- NROW(Y)
-  Ur <- lapply(Qr, qr.Q)
-  Ur <-lapply(Ur, function(u){
-    u <- Matrix(u, sparse = TRUE)
-    u@x <- round(u@x, 12)
-    u <- Matrix(u, sparse = TRUE)
-    if(prod(u@Dim) == length(u@x))
-      u <- as.matrix(u)
-    u
-  })
-  Uf <- lapply(Qf, qr.Q)
-  Uf <-lapply(Uf, function(u){
-    u <- Matrix(u, sparse = TRUE)
-    u@x <- round(u@x, 12)
-    u <- Matrix(u, sparse = TRUE)
-    if(prod(u@Dim) == length(u@x))
-      u <- as.matrix(u)
-    u
-  })
+  Ur <- lapply(Qr, function(q) q$Q)
+  Uf <- lapply(Qf, function(q) q$Q)
   kk <- length(Uf)
   
   if(k > 0 && k != kk) k <- kk
-
-  getR <- function(Q) {
-    R <- if(inherits(Q, "sparseQR")) qrR(Q) else qr.R(Q)
-  }
 
   if(!turbo) {
     Hbf <- lapply(Qf, getHb)
@@ -877,16 +846,13 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
   Qint <- if(!is.null(Pcov))
-    qr(Pcov %*% intercept) else if(!is.null(w))
-      qr(intercept * sqrt(w)) else
-        qr(intercept)
+    QRforX(Pcov %*% intercept) else if(!is.null(w))
+      QRforX(intercept * sqrt(w)) else
+        QRforX(intercept)
+
+  Hbnull <- tcrossprod(fast.solve(Qint$R), Qint$Q) 
   
-  Unull <- qr.Q(Qint)
-  S4 <- !inherits(Qint, "qr")
-  Hbnull <- if(S4) tcrossprod(fast.solve(qrR(Qint)), Unull) else
-    tcrossprod(fast.solve(qr.R(Qint)), Unull)
-  
-  out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Unull, Ufull = Ufull,
+  out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Qint$Q, Ufull = Ufull,
               Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qs, k = k,
               realized.trms = names(Xs$Xfs))
   
@@ -1077,12 +1043,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
 # used in lm.rrpp
 
 getRank <- function(Q) {
-  if(inherits(Q, "sparseQR")){
-    R <- qrR(Q)
-    d <- svd(R)$d
-    d <- round(d, 12)
-    r <- length(which(d > 0))
-  } else if(inherits(Q, "qr")){
+  if(inherits(Q, "QR")){
     r <- Q$rank
   } else {
     r <- NCOL(removeRedundant(Q))
@@ -1232,8 +1193,7 @@ beta.boot.iter <- function(fit, ind) {
   QR <- getModels(fit, "qr")
   Qf <- QR$full[[length(QR$full)]]
   rm(QR)
-  S4 <- !inherits(Qf, "qr")
-  id <- if(S4) colnames(Qf) else colnames(Qf$qr)
+  id <- Qf$dimnames[[2]]
   
   fitted <- if(gls) fit$LM$gls.fitted else fit$LM$fitted
   res <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
@@ -1262,7 +1222,7 @@ beta.boot.iter <- function(fit, ind) {
   
   rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
   
-  Hf <- tcrossprod(fast.solve(qr.R(Qf)), qr.Q(Qf))
+  Hf <- tcrossprod(fast.solve(Qf$R), Qf$Q)
   Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
   if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
   b <- if(gls) fit$LM$gls.coefficients else
@@ -1689,7 +1649,7 @@ aov.multi.model <- function(object, lm.list,
     mQR
   })
   
-  U <- as.matrix(qr.Q(refQR))
+  U <- as.matrix(refQR$Q)
   n <- refModel$LM$n
   p <- refModel$LM$p
   Yh <- as.matrix(fastFit(U, Y, n, p))
@@ -1697,7 +1657,7 @@ aov.multi.model <- function(object, lm.list,
   
   
   Ulist <- lapply(1:K, function(j){
-    qr.Q(QRlist[[j]])
+    QRlist[[j]]$Q
   })
   
   if(print.progress){
@@ -1720,7 +1680,8 @@ aov.multi.model <- function(object, lm.list,
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
-  U0 <- as.matrix(qr.Q(qr(int)))
+  Qint <- QRforX(int)
+  U0 <- Qint$Q
   yh0 <- as.matrix(fastFit(U0, Y, n, p))
   r0 <- as.matrix(Y) - yh0
   
@@ -1865,12 +1826,12 @@ getSlopes <- function(fit, x, g){
   getFitted <- function(b) X %*% b
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g * x + 0)
-  Q <- qr(Xn)
-  H <- tcrossprod(fast.solve(qr.R(Q)), qr.Q(Q))
+  Q <- QRforX(Xn)
+  H <- tcrossprod(fast.solve(Q$R), Q$Q)
   getCoef <- function(f) H %*% f
   Coef <- lapply(fitted, getCoef)
   group.slopes <- function(B){ # B of form ~ group * x + 0
-    gp <- qr(model.matrix(~g))$rank
+    gp <- QRforX(model.matrix(~g))$rank
     gnames <- rownames(B)[1:gp]
     B <- as.matrix(B[-(1:gp),])
     B[2:gp, ] <- B[2:gp, ] + matrix(rep(B[1,], each = gp -1), gp -1, p)
@@ -1907,8 +1868,8 @@ getLSmeans <- function(fit, g){
   } 
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g + 0)
-  Q <- qr(Xn)
-  H <- tcrossprod(fast.solve(qr.R(Q)), qr.Q(Q))
+  Q <- QRforX(Xn)
+  H <- tcrossprod(fast.solve(Q$R), Q$Q)
   getCoef <- function(f) H %*% f
   means <- lapply(fitted, getCoef)
   rename <- function(x) {
@@ -2068,11 +2029,8 @@ makePWCorTable <- function(L){
 # used in classify
 leaveOneOut <- function(X, Y, n.ind) {
   x <- X[-n.ind,]
-  QR <- qr(x)
-  S4 <- !inherits(QR, "qr")
-  Q <- qr.Q(QR)
-  R <- if(S4) qrR(QR) else qr.R(QR)
-  H <- tcrossprod(fast.solve(R), Q)
+  QR <- QRforX(x)
+  H <- tcrossprod(fast.solve(QR$R), QR$Q)
   y <- Y[-n.ind,]
   H %*% y
 }
@@ -2370,11 +2328,8 @@ looPCOne <-function(fit, n.ind) {
   Y <- Y[-n.ind,]
   gls <- fit$LM$gls
   Pcov <- if(gls) fit$LM$Pcov[-n.ind, -n.ind] else NULL
-  QR <- if(gls) qr(Pcov %*% X) else qr(X)
-  S4 <- !inherits(QR, "qr")
-  Q <- qr.Q(QR)
-  R <- if(S4) qrR(QR) else qr.R(QR)
-  H <- tcrossprod(fast.solve(R), Q)
+  QR <- if(gls) QRforX(Pcov %*% X) else QRforX(X)
+  H <- tcrossprod(fast.solve(QR$R), QR$Q)
   B <- if(gls)  H %*% (Pcov %*% Y) else
     H %*% Y
   S <- svd(X %*% B)
@@ -2392,7 +2347,7 @@ looPCAll<-function(fit, ...) {
   ord.args$Y <- fit$LM$Y
   QR <- getModels(fit, "qr")
   QR <- QR$full[[length(QR$full)]]
-  ord.args$A <- tcrossprod(qr.Q(QR))
+  ord.args$A <- tcrossprod(QR$Q)
   if(is.null(ord.args$tol)) ord.args$tol <- 1e-6
   
   ord <- do.call(ordinate, ord.args)

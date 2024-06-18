@@ -260,7 +260,7 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
     p <- f$LM$p.prime
     QR <- getModels(f, "qr")$full
     QR <- QR[[length(QR)]]
-    k <- getRank(QR)
+    k <- QR$rank
     rm(QR)
     2 * (p * k + 0.5 * p* (p + 1))
   }

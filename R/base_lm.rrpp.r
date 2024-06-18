@@ -255,10 +255,8 @@
       x <- Matrix(round(X.j[[jj]], 12), sparse = TRUE)
       if(!is.null(Pcov)) x <- Pcov %*% x
       if(!is.null(w)) x <- x * sqrt(w)
-      q <- try(qr(removeRedundant(x)))
-      if(inherits(q, "try-error"))
-        q <- qr(as.matrix(x))
-      q
+      QRforX(x)
+      
     })
     res
   })
@@ -419,10 +417,8 @@
                          tol = exchange.args$tol)
   
   QR <- obs.fit$qr
-  U <- qr.Q(QR)
-  R <- suppressWarnings(qr.R(QR))
-  Hb <- as.matrix(tcrossprod(fast.solve(R), U))
-  if(!identical(colnames(X), colnames(R)))
+  Hb <- as.matrix(tcrossprod(fast.solve(QR$R), QR$Q))
+  if(!identical(colnames(X), colnames(QR$R)))
     Hb <- Hb[colnames(X),]
   coefficients <- as.matrix(Hb %*% TY)
   if(is.null(rownames(coefficients)))  
@@ -493,7 +489,7 @@
     cat("\nNo terms for ANOVA; only RSS calculated in each permutation\n")
   
   if(!is.null(exchange.args$D)) {
-    qrf <- LM$QR
+    qrf <- qr(as.matrix(LM$QR$X))
     D.coef <- qr.coef(qrf, D)
     out$LM$dist.coefficients <- D.coef
   }

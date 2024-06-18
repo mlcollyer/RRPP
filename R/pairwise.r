@@ -307,13 +307,13 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   if(gls) {
     if(!is.null(fitf$LM$Cov) && is.null(fitf$LM$PCov)){
       Pcov <- Cov.proj(fitf$LM$Cov)
-      Qf <- qr(Pcov %*% fitf$LM$X)
+      Qf <- QRforX(Pcov %*% fitf$LM$X)
     } else {
-      Qf <- qr(fitf$LM$X * sqrt(fit$LM$weights))
+      Qf <- QRforX(fitf$LM$X * sqrt(fit$LM$weights))
     }
-  } else Qf <- qr(fitf$LM$X)
+  } else Qf <- QRforX(fitf$LM$X)
 
-  H <- tcrossprod(solve(qr.R(Qf)), qr.Q(Qf))
+  H <- tcrossprod(solve(Qf$R), Qf$Q)
   getCoef <- function(y) H %*% y
   
   if(is.null(fitf$LM$random.coef)) {

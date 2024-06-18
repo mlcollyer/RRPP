@@ -74,6 +74,106 @@ na.omit.rrpp.data.frame <- function(object, ...) {
   
 }
 
+## QRforX
+
+#' QR decomposition of linear model design matrices
+#' 
+#' This function performs a QR decomposition (factorization) on a linear 
+#' model design matrix (X) and returns useful results for subsequent analysis.
+#' This is intended as an internal function but can be used externally.  Because
+#' base::qr and Matrix::qr have different options for QR algorithms, this
+#' function assures that results are consistent for other RRPP function use, 
+#' whether X is a dense or sparse matrix.
+#'
+#' @param X A linear model design matrix, but can be any object coercible to matrix.
+#' @param ... Further arguments passed to base::qr.
+#' @return An object of class \code{QR} is a list containing the 
+#' following:
+#' \item{Q}{The Q matrix.}
+#' \item{R}{The R matrix.}
+#' \item{X}{The X matrix, which could be changes from dense to sparse,
+#' or vice versa, and redundant columns removed.}
+#' \item{rank}{The rank of the X matrix.}
+#' \item{fix}{Logical value for whether redundant columns were removed
+#' form X.  TRUE means columns were removed.}
+#' \item{S4}{Logical value for whether Q, R, and X are S4 class objects.}
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @examples
+#' data(Pupfish)
+#' fit <- lm.rrpp(coords ~ Pop, data = Pupfish, print.progress = FALSE)
+#' QR <- QRforX(model.matrix(fit))
+#' QR$Q
+#' QR$R
+#' QR$rank
+#' QR$S4
+#' 
+#' ## Not run, but one could get base::qr and Matrix::qr results as
+#' 
+#' # base::qr(as.matrix(QR$X))
+#' # Matrix::qr(QR$X)
+
+QRforX <- function(X, ...){
+  fix <- FALSE
+  S4 <- FALSE
+  X <- as.matrix(X)
+  p <- NCOL(X)
+  if(is.null(colnames(X))) 
+    colnames(X) <- paste("V", 1:p, sep = "")
+  if(p> 1) {
+    Xs <- Matrix(X, sparse = TRUE)
+    Xs@x <- round(Xs@x, 12)
+    Xs <- Matrix(Xs, sparse = TRUE)
+    if(length(Xs@x) < length(X)) X <- Xs
+    rm(Xs)
+    S4 <- inherits(X, "Matrix")
+    QR <- if(S4) suppressWarnings(qr(X, order = 0L)) else 
+      suppressWarnings(qr(X, ...))
+    if(inherits(QR, "qr")) S4 <- FALSE
+    if(S4){
+      R <- suppressWarnings(qrR(QR))
+      d <- abs(round(diag(R), 12))
+      pivot <- which(d > 0)
+      rank <- length(pivot)
+      if(rank < NCOL(X)) {
+        fix <- TRUE
+        nms <- dimnames(R)[[2]][pivot]
+        X <- X[, nms]
+        QR <- suppressWarnings(qr(X, order = 0L))
+        R <- suppressWarnings(qrR(QR))
+      }
+    } else {
+      R <- suppressWarnings(qr.R(QR))
+      pivot <- with(QR, pivot[1:rank])
+      rank <- QR$rank
+      if(rank < NCOL(X)) {
+        fix <- TRUE
+        nms <- dimnames(R)[[2]][pivot]
+        X <- X[, nms]
+        QR <- suppressWarnings(qr(as.matrix(X)))
+        R <- suppressWarnings(qr.R(QR))
+      }
+    }
+  } else {
+    QR <- qr(X)
+    rank <- 1
+    pivot <- 1
+    R <- qr.R(QR)
+  }
+  
+  Q <- qr.Q(QR)
+  
+  out <- list(Q = Q, R = R, X = X,
+              rank = rank, fixed = fix, S4 = S4)
+  
+  out$dimnames <- list(dimnames(Q)[[1]], dimnames(R)[[2]])
+  
+  class(out) <- "QR"
+  out
+  
+}
+
 ## lm.rrpp
 
 #' Print/Summary Function for RRPP
@@ -285,8 +385,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
           sqrt(LM$weights)
       } else TY <- LM$Y
       
-      Ur <- lapply(reduced, function(x) qr.Q(x$qr))
-      Uf <- lapply(full, function(x) qr.Q(x$qr))
+      Ur <- lapply(reduced, function(x) x$qr$Q)
+      Uf <- lapply(full, function(x) x$qr$Q)
       
       RR <- Map(function(u) TY - fastFit(u, TY, n, p), Ur)
       RF <- Map(function(u) TY - fastFit(u, TY, n, p), Uf)
@@ -3264,7 +3364,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
           X <- Xs[[j]][[jj]]
           X <- removeRedundant(X)
           TX <- if(!is.null(Pcov)) Pcov %*% X else if(!is.null(w)) X*w else X
-          qr <- qr(TX)
+          qr <- QRforX(TX)
           out <- list(X = X, qr = qr)
         })
         
