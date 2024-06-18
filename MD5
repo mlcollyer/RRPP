@@ -70,7 +70,7 @@ a2c3a95f8bb4ccaea49707237ed41bee *man/print.trajectory.analysis.Rd
 8dc1d16560450c0cfd709bed8c735f0d *man/Pupfish.Rd
 d764e38c7e273adb4a6a884f2a8d6f1d *man/PupfishHeads.Rd
 f1d2b1710a92ae4fe0e74570d9d667ea *man/pval.Rd
-035ccc8d6c9ae1d58b10185fe597e5ab *man/QRforX.Rd
+41c43fe57b954ed3ceb7d36a7714407f *man/QRforX.Rd
 e2f4d3ded41cac1f1baf52d5709ac5fc *man/residuals.lm.rrpp.Rd
 f6985949fae79d175333feb4a95b4396 *man/reveal.model.designs.Rd
 2fc2ecd72fef7d84d10eb631ec40902d *man/RRPP-package.Rd
@@ -115,10 +115,11 @@ aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
 27cabd8f9025f05559f6941565278373 *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
+8b11bf316be15676fbf0981511e6c31d *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 678d6a96914e7710652dc360d56023e6 *R/RRPP.support.code.r
-b199a8ab7b270cf456cee213afbd165b *R/RRPP.utils.r
+4d8e15c83e90bf49e81eeedba3ed0f4b *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f7c9794791d7a8c1128920940bf7ccf4 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
