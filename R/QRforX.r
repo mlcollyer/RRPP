@@ -110,8 +110,11 @@ QRforX <- function(X, ...){
     
   Xnms <- colnames(X)
   Q <- qr.Q(QR)
-  Q@x <- round(Q@x, 12)
-  Q <- Matrix(Q, sparse = TRUE)
+  Qs <- Matrix(Q, sparse = TRUE)
+  Qs@x <- round(Qs@x, 12)
+  Qs <- Matrix(Qs, sparse = TRUE)
+  if(length(Qs@x) <- length(Q)) Q <- Qs
+  rm(Qs)
   
   if(!all.equal(dimnames(R)[[2]], Xnms)){
     nnms <- match(dimnames(R)[[2]], Xnms)
