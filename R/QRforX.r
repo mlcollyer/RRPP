@@ -101,8 +101,24 @@ QRforX <- function(X, ...){
     R <- qr.R(QR)
   }
   
-  Q <- qr.Q(QR)
+  Xnms <- colnames(X)
   
+  if(S4) {
+    QR <- qr(X)
+    R <- qrR(QR)
+  }
+    
+  Xnms <- colnames(X)
+  Q <- qr.Q(QR)
+  Q@x <- round(Q@x, 12)
+  Q <- Matrix(Q, sparse = TRUE)
+  
+  if(!all.equal(dimnames(R)[[2]], Xnms)){
+    nnms <- match(dimnames(R)[[2]], Xnms)
+    R <- R[nnms, nnms]
+    Q <- Q[, nnms]
+  }
+
   out <- list(Q = Q, R = R, X = X,
               rank = rank, fixed = fix, S4 = S4)
   
