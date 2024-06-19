@@ -60,7 +60,7 @@ QRforX <- function(X, ...){
   p <- NCOL(X)
   if(is.null(colnames(X))) 
     colnames(X) <- paste("V", 1:p, sep = "")
-  if(p> 1) {
+  if(p > 1) {
     Xs <- Matrix(X, sparse = TRUE)
     Xs@x <- round(Xs@x, 12)
     Xs <- Matrix(Xs, sparse = TRUE)
@@ -70,6 +70,7 @@ QRforX <- function(X, ...){
     QR <- if(S4) suppressWarnings(qr(X, order = 0L)) else 
       suppressWarnings(qr(X, ...))
     if(inherits(QR, "qr")) S4 <- FALSE
+    
     if(S4){
       R <- suppressWarnings(qrR(QR))
       d <- abs(round(diag(R), 12))
@@ -79,8 +80,6 @@ QRforX <- function(X, ...){
         fix <- TRUE
         nms <- dimnames(R)[[2]][pivot]
         X <- X[, nms]
-        QR <- suppressWarnings(qr(X, order = 0L))
-        R <- suppressWarnings(qrR(QR))
       }
     } else {
       R <- suppressWarnings(qr.R(QR))
@@ -90,31 +89,39 @@ QRforX <- function(X, ...){
         fix <- TRUE
         nms <- dimnames(R)[[2]][pivot]
         X <- X[, nms]
-        QR <- suppressWarnings(qr(as.matrix(X)))
-        R <- suppressWarnings(qr.R(QR))
       }
     }
   } else {
     QR <- qr(X)
     rank <- 1
     pivot <- 1
-    R <- qr.R(QR)
   }
   
   Xnms <- colnames(X)
   
-  if(S4) {
-    QR <- qr(X)
-    R <- qrR(QR)
+  if(p > 1){
+    Xs <- Matrix(X, sparse = TRUE)
+    Xs@x <- round(Xs@x, 12)
+    Xs <- Matrix(Xs, sparse = TRUE)
+    if(length(Xs@x) < length(X)) X <- Xs
+    rm(Xs)
+    S4 <- inherits(X, "Matrix")
   }
-    
-  Xnms <- colnames(X)
+  
+  QR <- qr(X)
   Q <- qr.Q(QR)
   Qs <- Matrix(Q, sparse = TRUE)
   Qs@x <- round(Qs@x, 12)
   Qs <- Matrix(Qs, sparse = TRUE)
   if(length(Qs@x) <- length(Q)) Q <- Qs
   rm(Qs)
+  
+  R <- if(S4) qrR(QR) else qr.R(QR)
+  Rs <- Matrix(R, sparse = TRUE)
+  Rs@x <- round(Rs@x, 12)
+  Rs <- Matrix(Rs, sparse = TRUE)
+  if(length(Rs@x) <- length(R)) R <- Rs
+  rm(Rs)
   
   if(!all.equal(dimnames(R)[[2]], Xnms)){
     nnms <- match(dimnames(R)[[2]], Xnms)
