@@ -109,18 +109,16 @@ QRforX <- function(X, ...){
   }
   
   QR <- qr(X)
-  Q <- qr.Q(QR)
-  Qs <- Matrix(Q, sparse = TRUE)
-  Qs@x <- round(Qs@x, 12)
-  Qs <- Matrix(Qs, sparse = TRUE)
-  if(length(Qs@x) <- length(Q)) Q <- Qs
-  rm(Qs)
+  Q <- Matrix(qr.Q(QR), sparse = TRUE)
+  Q@x <- round(Q@x, 12)
+  Q <- Matrix(Q, sparse = TRUE)
+  if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
   
   R <- if(S4) qrR(QR) else qr.R(QR)
   Rs <- Matrix(R, sparse = TRUE)
   Rs@x <- round(Rs@x, 12)
   Rs <- Matrix(Rs, sparse = TRUE)
-  if(length(Rs@x) <- length(R)) R <- Rs
+  if(length(Rs@x) < length(R)) R <- Rs
   rm(Rs)
   
   if(!all.equal(dimnames(R)[[2]], Xnms)){
