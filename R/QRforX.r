@@ -144,7 +144,7 @@ QRforX <- function(X, returnQ = TRUE,
       if(!all.equal(dimnames(R)[[2]], Xnms)){
         nnms <- match(dimnames(R)[[2]], Xnms)
         R <- R[nnms, nnms]
-        if(retrunQ) Q <- Q[, nnms]
+        if(returnQ) Q <- Q[, nnms]
       }
     }
   }
