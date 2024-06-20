@@ -108,6 +108,7 @@ QRforX <- function(X, reduce = TRUE, reQR = TRUE,
           X <- X[, nms]
         }
       }
+      Q <- qr.Q(QR)
     }
     
     Xnms <- colnames(X)
@@ -118,25 +119,28 @@ QRforX <- function(X, reduce = TRUE, reQR = TRUE,
     rm(Xs)
     S4 <- inherits(X, "Matrix")
     
-    QR <- qr(X)
-    Q <- Matrix(qr.Q(QR), sparse = TRUE)
-    Q@x <- round(Q@x, 12)
-    Q <- Matrix(Q, sparse = TRUE)
-    if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
+    if(!reduce) reQR <- TRUE
     
-    R <- if(S4) qrR(QR) else qr.R(QR)
-    Rs <- Matrix(R, sparse = TRUE)
-    Rs@x <- round(Rs@x, 12)
-    Rs <- Matrix(Rs, sparse = TRUE)
-    if(length(Rs@x) < length(R)) R <- Rs
-    rm(Rs)
-    
-    if(!all.equal(dimnames(R)[[2]], Xnms)){
-      nnms <- match(dimnames(R)[[2]], Xnms)
-      R <- R[nnms, nnms]
-      Q <- Q[, nnms]
+    if(reQR) {
+      QR <- qr(X)
+      Q <- Matrix(qr.Q(QR), sparse = TRUE)
+      Q@x <- round(Q@x, 12)
+      Q <- Matrix(Q, sparse = TRUE)
+      if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
+      
+      R <- if(S4) qrR(QR) else qr.R(QR)
+      Rs <- Matrix(R, sparse = TRUE)
+      Rs@x <- round(Rs@x, 12)
+      Rs <- Matrix(Rs, sparse = TRUE)
+      if(length(Rs@x) < length(R)) R <- Rs
+      rm(Rs)
+      
+      if(!all.equal(dimnames(R)[[2]], Xnms)){
+        nnms <- match(dimnames(R)[[2]], Xnms)
+        R <- R[nnms, nnms]
+        Q <- Q[, nnms]
+      }
     }
-    
   }
   
   if(is.null(rank)) rank <- NCOL(X)

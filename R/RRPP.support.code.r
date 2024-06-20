@@ -570,7 +570,7 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 
 removeRedundant <- function(X){
   if(NCOL(X) > 1){
-    QR <- QRforX(X, reQR = FALSE)
+    QR <- QRforX(X, reduce = TRUE, reQR = FALSE)
     X <- QR$X
   }
   as.matrix(X)
