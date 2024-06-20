@@ -4,10 +4,14 @@
 \alias{QRforX}
 \title{QR decomposition of linear model design matrices}
 \usage{
-QRforX(X, reduce = TRUE, reQR = TRUE, ...)
+QRforX(X, returnQ = TRUE, reduce = TRUE, reQR = TRUE, ...)
 }
 \arguments{
 \item{X}{A linear model design matrix, but can be any object coercible to matrix.}
+
+\item{returnQ}{A logical value whether to return the Q matrix.  Generating a
+Q matrix can be computationally intense for large matrices.  If it is not
+explicitly needed, this argument can be FALSE.}
 
 \item{reduce}{A logical value for whether redundant parameters in X should be 
 removed.  This should be TRUE (default) for most cases.}
@@ -20,7 +24,7 @@ and X has been reduced.}
 \value{
 An object of class \code{QR} is a list containing the 
 following:
-\item{Q}{The Q matrix.}
+\item{Q}{The Q matrix, if requested.}
 \item{R}{The R matrix.}
 \item{X}{The X matrix, which could be changes from dense to sparse,
 or vice versa, and redundant columns removed.}
