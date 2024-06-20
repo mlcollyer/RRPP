@@ -8,6 +8,9 @@
 #' whether X is a dense or sparse matrix.
 #'
 #' @param X A linear model design matrix, but can be any object coercible to matrix.
+#' @param returnQ A logical value whether to return the Q matrix.  Generating a
+#' Q matrix can be computationally intense for large matrices.  If it is not
+#' explicitly needed, this argument can be FALSE.
 #' @param reduce A logical value for whether redundant parameters in X should be 
 #' removed.  This should be TRUE (default) for most cases.
 #' @param reQR A logical value for whether to re-perform QR if reduce = TRUE,
@@ -15,7 +18,7 @@
 #' @param ... Further arguments passed to base::qr.
 #' @return An object of class \code{QR} is a list containing the 
 #' following:
-#' \item{Q}{The Q matrix.}
+#' \item{Q}{The Q matrix, if requested.}
 #' \item{R}{The R matrix.}
 #' \item{X}{The X matrix, which could be changes from dense to sparse,
 #' or vice versa, and redundant columns removed.}
@@ -57,7 +60,8 @@
 #' dim(QR$X) # Reduced again
 #' colnames(QR$X)
 #' 
-QRforX <- function(X, reduce = TRUE, reQR = TRUE,
+QRforX <- function(X, returnQ = TRUE,
+                   reduce = TRUE, reQR = TRUE,
                    ...){
   fix <- FALSE
   S4 <- FALSE
@@ -72,7 +76,7 @@ QRforX <- function(X, reduce = TRUE, reQR = TRUE,
     QR <- qr(X)
     rank <- 1
     pivot <- 1
-    Q <- qr.Q(QR)
+    Q <- if(returnQ) qr.Q(QR) else NULL
     R <- qr.R(QR)
   }
   
@@ -108,7 +112,7 @@ QRforX <- function(X, reduce = TRUE, reQR = TRUE,
           X <- X[, nms]
         }
       }
-      Q <- qr.Q(QR)
+      Q <- if(returnQ) qr.Q(QR) else NULL
     }
     
     Xnms <- colnames(X)
@@ -123,10 +127,12 @@ QRforX <- function(X, reduce = TRUE, reQR = TRUE,
     
     if(reQR) {
       QR <- qr(X)
-      Q <- Matrix(qr.Q(QR), sparse = TRUE)
-      Q@x <- round(Q@x, 12)
-      Q <- Matrix(Q, sparse = TRUE)
-      if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
+      if(returnQ){
+        Q <- Matrix(qr.Q(QR), sparse = TRUE)
+        Q@x <- round(Q@x, 12)
+        Q <- Matrix(Q, sparse = TRUE)
+        if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
+      } else Q <- NULL
       
       R <- if(S4) qrR(QR) else qr.R(QR)
       Rs <- Matrix(R, sparse = TRUE)
@@ -138,7 +144,7 @@ QRforX <- function(X, reduce = TRUE, reQR = TRUE,
       if(!all.equal(dimnames(R)[[2]], Xnms)){
         nnms <- match(dimnames(R)[[2]], Xnms)
         R <- R[nnms, nnms]
-        Q <- Q[, nnms]
+        if(retrunQ) Q <- Q[, nnms]
       }
     }
   }

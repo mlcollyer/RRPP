@@ -115,10 +115,10 @@ aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
 dc6e9eaf37bc4ffb7f194deb2ca281bb *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
-975b499622276bb895d4e31e7ba2e7c4 *R/QRforX.r
+242a04f441d59a72be2a248fe29801bf *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
-cb4c477d5f096d497dd169a5d524ee60 *R/RRPP.support.code.r
+eeade364c9f8a85ba010cea35c941ace *R/RRPP.support.code.r
 41c8e575868ea4d28c9ef9b6f8ee2426 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 f7c9794791d7a8c1128920940bf7ccf4 *R/shared.support.code.r
