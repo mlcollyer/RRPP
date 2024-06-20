@@ -4,10 +4,16 @@
 \alias{QRforX}
 \title{QR decomposition of linear model design matrices}
 \usage{
-QRforX(X, ...)
+QRforX(X, reduce = TRUE, reQR = TRUE, ...)
 }
 \arguments{
 \item{X}{A linear model design matrix, but can be any object coercible to matrix.}
+
+\item{reduce}{A logical value for whether redundant parameters in X should be 
+removed.  This should be TRUE (default) for most cases.}
+
+\item{reQR}{A logical value for whether to re-perform QR if reduce = TRUE,
+and X has been reduced.}
 
 \item{...}{Further arguments passed to base::qr.}
 }

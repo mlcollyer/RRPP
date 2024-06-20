@@ -570,7 +570,7 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 
 removeRedundant <- function(X){
   if(NCOL(X) > 1){
-    QR <- QRforX(X)
+    QR <- QRforX(X, reQR = FALSE)
     X <- QR$X
   }
   as.matrix(X)
@@ -846,9 +846,9 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
   Qint <- if(!is.null(Pcov))
-    QRforX(Pcov %*% intercept) else if(!is.null(w))
-      QRforX(intercept * sqrt(w)) else
-        QRforX(intercept)
+    QRforX(Pcov %*% intercept, reduce = FALSE) else if(!is.null(w))
+      QRforX(intercept * sqrt(w), reduce = FALSE) else
+        QRforX(intercept, reduce = FALSE)
 
   Hbnull <- tcrossprod(fast.solve(Qint$R), Qint$Q) 
   
@@ -1680,7 +1680,7 @@ aov.multi.model <- function(object, lm.list,
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
-  Qint <- QRforX(int)
+  Qint <- QRforX(int, reduce = FALSE)
   U0 <- Qint$Q
   yh0 <- as.matrix(fastFit(U0, Y, n, p))
   r0 <- as.matrix(Y) - yh0
@@ -1868,7 +1868,7 @@ getLSmeans <- function(fit, g){
   } 
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g + 0)
-  Q <- QRforX(Xn)
+  Q <- QRforX(Xn, reduce = FALSE)
   H <- tcrossprod(fast.solve(Q$R), Q$Q)
   getCoef <- function(f) H %*% f
   means <- lapply(fitted, getCoef)

@@ -255,7 +255,7 @@
       x <- Matrix(round(X.j[[jj]], 12), sparse = TRUE)
       if(!is.null(Pcov)) x <- Pcov %*% x
       if(!is.null(w)) x <- x * sqrt(w)
-      QRforX(x)
+      QRforX(x, reduce = FALSE)
       
     })
     res

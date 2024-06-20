@@ -304,9 +304,9 @@ manova.update <- function(fit, error = NULL,
   
   int <- attr(Terms, "intercept")
   Qint <- if(!is.null(Pcov)) 
-    QRforX(Pcov %*% rep(int, n)) else if(!is.null(w)) 
-      QRforX(rep(int, n) * sqrt(w)) else
-        QRforX(rep(int, n))
+    QRforX(Pcov %*% rep(int, n), reduce = FALSE) else if(!is.null(w)) 
+      QRforX(rep(int, n) * sqrt(w), reduce = FALSE) else
+        QRforX(rep(int, n), reduce = FALSE)
   Unull <- Qint$Q
   
   if(!is.null(Pcov)) Y <- Pcov %*% Y

@@ -8,6 +8,10 @@
 #' whether X is a dense or sparse matrix.
 #'
 #' @param X A linear model design matrix, but can be any object coercible to matrix.
+#' @param reduce A logical value for whether redundant parameters in X should be 
+#' removed.  This should be TRUE (default) for most cases.
+#' @param reQR A logical value for whether to re-perform QR if reduce = TRUE,
+#' and X has been reduced.
 #' @param ... Further arguments passed to base::qr.
 #' @return An object of class \code{QR} is a list containing the 
 #' following:
@@ -53,80 +57,91 @@
 #' dim(QR$X) # Reduced again
 #' colnames(QR$X)
 #' 
-QRforX <- function(X, ...){
+QRforX <- function(X, reduce = TRUE, reQR = TRUE,
+                   ...){
   fix <- FALSE
   S4 <- FALSE
+  rank <- NULL
+  pivot <- NULL
   X <- as.matrix(X)
   p <- NCOL(X)
   if(is.null(colnames(X))) 
     colnames(X) <- paste("V", 1:p, sep = "")
-  if(p > 1) {
-    Xs <- Matrix(X, sparse = TRUE)
-    Xs@x <- round(Xs@x, 12)
-    Xs <- Matrix(Xs, sparse = TRUE)
-    if(length(Xs@x) < length(X)) X <- Xs
-    rm(Xs)
-    S4 <- inherits(X, "Matrix")
-    QR <- if(S4) suppressWarnings(qr(X, order = 0L)) else 
-      suppressWarnings(qr(X, ...))
-    if(inherits(QR, "qr")) S4 <- FALSE
-    
-    if(S4){
-      R <- suppressWarnings(qrR(QR))
-      d <- abs(round(diag(R), 12))
-      pivot <- which(d > 0)
-      rank <- length(pivot)
-      if(rank < NCOL(X)) {
-        fix <- TRUE
-        nms <- dimnames(R)[[2]][pivot]
-        X <- X[, nms]
-      }
-    } else {
-      R <- suppressWarnings(qr.R(QR))
-      pivot <- with(QR, pivot[1:rank])
-      rank <- QR$rank
-      if(rank < NCOL(X)) {
-        fix <- TRUE
-        nms <- dimnames(R)[[2]][pivot]
-        X <- X[, nms]
-      }
-    }
-  } else {
+  
+  if(p == 1){
     QR <- qr(X)
     rank <- 1
     pivot <- 1
+    Q <- qr.Q(QR)
+    R <- qr.R(QR)
   }
   
-  Xnms <- colnames(X)
-  
-  if(p > 1){
+  if(p > 1) {
+    if(reduce){
+      Xs <- Matrix(X, sparse = TRUE)
+      Xs@x <- round(Xs@x, 12)
+      Xs <- Matrix(Xs, sparse = TRUE)
+      if(length(Xs@x) < length(X)) X <- Xs
+      rm(Xs)
+      S4 <- inherits(X, "Matrix")
+      QR <- if(S4) suppressWarnings(qr(X, order = 0L)) else 
+        suppressWarnings(qr(X, ...))
+      if(inherits(QR, "qr")) S4 <- FALSE
+      
+      if(S4){
+        R <- suppressWarnings(qrR(QR))
+        d <- abs(round(diag(R), 12))
+        pivot <- which(d > 0)
+        rank <- length(pivot)
+        if(rank < NCOL(X)) {
+          fix <- TRUE
+          nms <- dimnames(R)[[2]][pivot]
+          X <- X[, nms]
+        }
+      } else {
+        R <- suppressWarnings(qr.R(QR))
+        pivot <- with(QR, pivot[1:rank])
+        rank <- QR$rank
+        if(rank < NCOL(X)) {
+          fix <- TRUE
+          nms <- dimnames(R)[[2]][pivot]
+          X <- X[, nms]
+        }
+      }
+    }
+    
+    Xnms <- colnames(X)
     Xs <- Matrix(X, sparse = TRUE)
     Xs@x <- round(Xs@x, 12)
     Xs <- Matrix(Xs, sparse = TRUE)
     if(length(Xs@x) < length(X)) X <- Xs
     rm(Xs)
     S4 <- inherits(X, "Matrix")
+    
+    QR <- qr(X)
+    Q <- Matrix(qr.Q(QR), sparse = TRUE)
+    Q@x <- round(Q@x, 12)
+    Q <- Matrix(Q, sparse = TRUE)
+    if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
+    
+    R <- if(S4) qrR(QR) else qr.R(QR)
+    Rs <- Matrix(R, sparse = TRUE)
+    Rs@x <- round(Rs@x, 12)
+    Rs <- Matrix(Rs, sparse = TRUE)
+    if(length(Rs@x) < length(R)) R <- Rs
+    rm(Rs)
+    
+    if(!all.equal(dimnames(R)[[2]], Xnms)){
+      nnms <- match(dimnames(R)[[2]], Xnms)
+      R <- R[nnms, nnms]
+      Q <- Q[, nnms]
+    }
+    
   }
   
-  QR <- qr(X)
-  Q <- Matrix(qr.Q(QR), sparse = TRUE)
-  Q@x <- round(Q@x, 12)
-  Q <- Matrix(Q, sparse = TRUE)
-  if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
+  if(is.null(rank)) rank <- NCOL(X)
+  if(is.null(pivot)) pivot <- 1:rank
   
-  R <- if(S4) qrR(QR) else qr.R(QR)
-  Rs <- Matrix(R, sparse = TRUE)
-  Rs@x <- round(Rs@x, 12)
-  Rs <- Matrix(Rs, sparse = TRUE)
-  if(length(Rs@x) < length(R)) R <- Rs
-  rm(Rs)
-  
-  if(!all.equal(dimnames(R)[[2]], Xnms)){
-    nnms <- match(dimnames(R)[[2]], Xnms)
-    R <- R[nnms, nnms]
-    Q <- Q[, nnms]
-  }
-
   out <- list(Q = Q, R = R, X = X,
               rank = rank, fixed = fix, S4 = S4)
   

@@ -3265,7 +3265,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
           X <- Xs[[j]][[jj]]
           X <- removeRedundant(X)
           TX <- if(!is.null(Pcov)) Pcov %*% X else if(!is.null(w)) X*w else X
-          qr <- QRforX(TX)
+          qr <- QRforX(TX, reduce = FALSE)
           out <- list(X = X, qr = qr)
         })
         
