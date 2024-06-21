@@ -1,10 +1,14 @@
-# CHANGES IN RRPP 2.0.2.999
+# CHANGES IN RRPP 2.0.3
 
 ### NEW FEATURES
 + New function, `QRforX`, which produces consistent QR decomposition results despite differences between`base::qr` and `Matrix::qr` functions.
 
 ### BUG FIXES
 + Fixed an important issue with `removeRedundant` and `getRank` to properly remove axes based on a `base::qr` pivot strategy, but still avoiding the making of large, dense matrices before using `base::qr`.
+
+### OTHER CHANGES
++ Expanded function tests for CRAN checks.
++ Updated `R`-dependency to >= 4.4.0
 
 # CHANGES IN RRPP 2.0.2
 
