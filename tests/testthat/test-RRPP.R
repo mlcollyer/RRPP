@@ -109,6 +109,24 @@ test_that("fit15.works", {
                   iter = 3, verbose = TRUE))
 })
 
+test_that("fit16.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(TailLength ~ SVL + 0, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE))
+})
+
+test_that("fit17.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL + 0, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE))
+})
+
 ### coef.lm.rrpp ----------------------------------------------------------
 
 test_that("coef.fit01.works", {
