@@ -69,13 +69,13 @@ QRforX <- function(X, returnQ = TRUE,
   pivot <- NULL
   X <- as.matrix(X)
   p <- NCOL(X)
-  if(is.null(colnames(X))) 
+  if(is.null(colnames(X)) && p >= 1) 
     colnames(X) <- paste("V", 1:p, sep = "")
   
-  if(p == 1){
+  if(p <= 1){
     QR <- qr(X)
-    rank <- 1
-    pivot <- 1
+    rank <- QR$rank
+    pivot <- QR$pivot
     Q <- if(returnQ) qr.Q(QR) else NULL
     R <- qr.R(QR)
   }
