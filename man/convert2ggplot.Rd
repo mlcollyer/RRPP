@@ -20,11 +20,11 @@ amenable ggplot object.
 This function will attempt to use the plot arguments from an RRPP plot object 
 to make a ggplot that can be additionally updated, as desired.  Not all plot 
 characteristics can be converted.  For example, text arguments are not currently
-passed to \code{\link{ggplot}}, as the \code{\link{text}} function and geom_text
+passed to \code{\link[ggplot2]{ggplot}}, as the \code{\link{text}} function and geom_text
 arguments do not easily align.  However, one can use text arguments produced by
 a RRPP plot object and geom_text to augment a ggplot object the way they like.
 
-This function assumes no responsibility for arguments made by \code{\link{ggplot}}.
+This function assumes no responsibility for arguments made by \code{\link[ggplot2]{ggplot}}.
 It merely produces a ggplot object that should resemble an RRPP plot default.  Any 
 augmentation of ggplot objects can be done either by direct intervention of the ggplot 
 produced or reformatting the initial RRPP plot produced.  One should not expect direct

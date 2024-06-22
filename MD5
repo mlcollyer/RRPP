@@ -1,4 +1,4 @@
-c1b47924df849f6d03ab4f0e96a606db *cran-comments.md
+5a74157aed3f723c0de1c061a8228bc4 *cran-comments.md
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
@@ -12,7 +12,7 @@ f60d5ee65a57bdb6ce5e220a9ca1136a *DESCRIPTION
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
 331148e043e0fb079ebc35a09aaf7963 *man/coef.lm.rrpp.Rd
-edb5026ac1e731f7aa9c3cad4a8bdd6a *man/convert2ggplot.Rd
+df91d0b264a0632eec7e808f709481ce *man/convert2ggplot.Rd
 deb20fcd8f3f46106885ba90fd5eaa8f *man/effect.size.Rd
 0561712843e52a531123acd006d408a2 *man/fishy.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
@@ -99,7 +99,7 @@ a1f4f4ad1e9e4bbd4095e7103feece87 *R/add.tree.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 c9dd72775b33ea6a49562632f57334c4 *R/base_lm.rrpp.r
 aa707afb8b2942ba421323e38a44e5de *R/coef.lm.rrpp.r
-41fbdb0c2313bbfc284427be4e21c915 *R/convert2ggplot.r
+c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 6b98781ccf0892dd070f3d3116ccdaef *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
