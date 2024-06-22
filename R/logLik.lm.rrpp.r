@@ -56,7 +56,8 @@ logLik.lm.rrpp <- function(object, tol = NULL,
     if(!is.null(Pcov)) Pcov %*% X else X * sqrt(w)
   } else NULL
     
-  U <- if(gls) qr.Q(qr(PX)) else qr.Q(qr(X))
+  U <- if(gls) QRforX(PX, reduce = FALSE)$Q else 
+    QRforX(X, reduce = FALSE)$Q
   
   TY <- if(gls.null) PY else Y
   

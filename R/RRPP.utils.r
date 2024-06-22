@@ -74,6 +74,7 @@ na.omit.rrpp.data.frame <- function(object, ...) {
   
 }
 
+
 ## lm.rrpp
 
 #' Print/Summary Function for RRPP
@@ -285,8 +286,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
           sqrt(LM$weights)
       } else TY <- LM$Y
       
-      Ur <- lapply(reduced, function(x) qr.Q(x$qr))
-      Uf <- lapply(full, function(x) qr.Q(x$qr))
+      Ur <- lapply(reduced, function(x) x$qr$Q)
+      Uf <- lapply(full, function(x) x$qr$Q)
       
       RR <- Map(function(u) TY - fastFit(u, TY, n, p), Ur)
       RF <- Map(function(u) TY - fastFit(u, TY, n, p), Uf)
@@ -3264,7 +3265,7 @@ getModels <- function(fit, attribute = c("terms", "X", "qr", "all")) {
           X <- Xs[[j]][[jj]]
           X <- removeRedundant(X)
           TX <- if(!is.null(Pcov)) Pcov %*% X else if(!is.null(w)) X*w else X
-          qr <- qr(TX)
+          qr <- QRforX(TX, reduce = FALSE)
           out <- list(X = X, qr = qr)
         })
         

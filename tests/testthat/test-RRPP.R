@@ -109,6 +109,24 @@ test_that("fit15.works", {
                   iter = 3, verbose = TRUE))
 })
 
+test_that("fit16.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(TailLength ~ SVL + 0, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE))
+})
+
+test_that("fit17.works", {
+  library(RRPP)
+  data("PlethMorph")
+  succeed(lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL + 0, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE))
+})
+
 ### coef.lm.rrpp ----------------------------------------------------------
 
 test_that("coef.fit01.works", {
@@ -586,6 +604,9 @@ test_that("ordinate6.works", {
                    Cov = PlethMorph$PhyCov))
 })
 
+### measurement.error ----------------------------------------------------
+
+
 test_that("measurement.error1.works", {
   library(RRPP)
   data("fishy")
@@ -603,6 +624,17 @@ test_that("measurement.error2.works", {
                                    groups = "groups",
                                    iter = 3, Parallel = FALSE,
                                    verbose = TRUE))
+})
+
+test_that("measurement.error3.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                                   replicates = "reps", data = fishy,
+                                   groups = "groups",
+                                   iter = 3, Parallel = FALSE,
+                                   verbose = TRUE)
+  succeed(anova(ME2))
 })
 
 test_that("ICCstats1.works", {
@@ -640,4 +672,113 @@ test_that("ICCstats3.works", {
                    with_in = c("Systematic ME", "Systematic ME:Groups")))
 })
 
+### getModels---------------------------------------------------------------
 
+test_that("getModels.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                           replicates = "reps", data = fishy,
+                           groups = "groups",
+                           iter = 3, Parallel = FALSE,
+                           verbose = TRUE)
+  succeed(getModels(ME2, "all"))
+})
+
+### getANOVAstats ------------------------------------------------------------
+
+test_that("getANOVAStats.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                           replicates = "reps", data = fishy,
+                           groups = "groups",
+                           iter = 3, Parallel = FALSE,
+                           verbose = TRUE)
+  succeed(getANOVAStats(ME2, "all"))
+})
+
+### getPermInfo ----------------------------------------------------------
+
+test_that("getANOVAStats.works", {
+  library(RRPP)
+  data("fishy")
+  ME2 <- measurement.error(Y = "coords", subjects = "subj",
+                           replicates = "reps", data = fishy,
+                           groups = "groups",
+                           iter = 3, Parallel = FALSE,
+                           verbose = TRUE)
+  succeed(getPermInfo(ME2, "all"))
+})
+
+
+### getModelCov---------------------------------------------------------------
+
+test_that("getModelCov1.works", {
+  library(RRPP)
+  data("PlethMorph")
+  fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                    data = PlethMorph, 
+                    Cov = PlethMorph$PhyCov, 
+                    print.progress = FALSE, iter = 3)
+  
+  succeed(getModelCov(fitGLS, "Cov"))
+})
+
+test_that("getModelCov2.works", {
+  library(RRPP)
+  data("PlethMorph")
+  fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                    data = PlethMorph, 
+                    Cov = PlethMorph$PhyCov, 
+                    print.progress = FALSE, iter = 3)
+  
+  succeed(getModelCov(fitGLS, "Pcov"))
+})
+
+
+### getResCov ---------------------------------------------------------------
+
+test_that("getResCov1.works", {
+  library(RRPP)
+  data("PlethMorph")
+  fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                    data = PlethMorph, 
+                    Cov = PlethMorph$PhyCov, 
+                    print.progress = FALSE, iter = 3)
+  
+  succeed(getResCov(fitGLS, useDf = TRUE, standardize = FALSE))
+})
+
+test_that("getResCov2.works", {
+  library(RRPP)
+  data("PlethMorph")
+  fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                    data = PlethMorph, 
+                    Cov = PlethMorph$PhyCov, 
+                    print.progress = FALSE, iter = 3)
+  
+  succeed(getResCov(fitGLS, useDf = TRUE, standardize = TRUE))
+})
+
+test_that("getResCov3.works", {
+  library(RRPP)
+  data("PlethMorph")
+  fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                    data = PlethMorph, 
+                    Cov = PlethMorph$PhyCov, 
+                    print.progress = FALSE, iter = 3)
+  
+  succeed(getResCov(fitGLS, useDf = FALSE, standardize = FALSE))
+})
+
+test_that("getResCov4.works", {
+  library(RRPP)
+  data("PlethMorph")
+  fitGLS <- lm.rrpp(TailLength ~ SVL, 
+                    data = PlethMorph, 
+                    Cov = PlethMorph$PhyCov, 
+                    print.progress = FALSE, iter = 3)
+  
+  succeed(getResCov(fitGLS, useDf = FALSE, standardize = TRUE))
+})

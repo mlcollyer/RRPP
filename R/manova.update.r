@@ -243,7 +243,7 @@ manova.update <- function(fit, error = NULL,
                   call. = FALSE)
   int <- attr(Terms, "intercept")
   
-  E.rank <- getRank(qr(var(as.matrix(resid(fit)))))
+  E.rank <- QRforX(var(as.matrix(resid(fit))))$rank
   
   PCA <- ordinate(Y, tol = tol, rank. = PC.no)
   d <- PCA$sdev
@@ -298,15 +298,16 @@ manova.update <- function(fit, error = NULL,
   Qr <- lapply(reduced, function(q) q$qr)
   Qf <- lapply(full, function(q) q$qr)
   
-  Ur <- lapply(Qr, qr.Q)
-  Uf <- lapply(Qf, qr.Q)
+  Ur <- lapply(Qr, function(q) q$Q)
+  Uf <- lapply(Qf, function(q) q$Q)
   Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
-  Unull <- if(!is.null(Pcov)) 
-    qr.Q(qr(Pcov %*% rep(int, n))) else if(!is.null(w)) 
-      qr.Q(qr(rep(int, n) * sqrt(w))) else
-        qr.Q(qr(rep(int, n)))
+  Qint <- if(!is.null(Pcov)) 
+    QRforX(Pcov %*% rep(int, n), reduce = FALSE) else if(!is.null(w)) 
+      QRforX(rep(int, n) * sqrt(w), reduce = FALSE) else
+        QRforX(rep(int, n), reduce = FALSE)
+  Unull <- Qint$Q
   
   if(!is.null(Pcov)) Y <- Pcov %*% Y
   if(!is.null(w)) Y <- Y * sqrt(w)
