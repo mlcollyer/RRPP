@@ -1,3 +1,8 @@
+# CHANGES IN RRPP 2.0.3.999
+
+### BUG FIXES
++ Fixed the missing re-order of data for `anc.BM`.
+
 # CHANGES IN RRPP 2.0.3
 
 ### NEW FEATURES
