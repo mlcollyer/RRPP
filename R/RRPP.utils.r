@@ -1207,7 +1207,7 @@ print.pairwise <- function(x, ...){
 #' 
 #' The following summarize the test that can be performed: 
 #' 
-#' #' \describe{
+#' \describe{
 #' \item{\bold{Distance between vectors, "dist"}}{ Vectors for LS means or 
 #' slopes originate at the origin and point to some location, having both a 
 #' magnitude
@@ -1215,8 +1215,19 @@ print.pairwise <- function(x, ...){
 #' the vector difference, i.e., the distance between their endpoints.  For
 #' LS means, this distance is the difference between means.  For multivariate 
 #' slope vectors, this is the difference in location between estimated change 
-#' for the dependent variables, per one-unit change of the covariate considered.  
+#' for the dependent variables, per one-unit change of the covariate considered.
 #' For univariate slopes, this is the absolute difference between slopes.}
+#' \item{\bold{Standardized distance between vectors, "stdist"}}{Same as the 
+#' distance between vectors, but distances are divided by the model standard error 
+#' (square-root of the trace of the residual covariance matrix). Pairwise tests
+#' with this statistic should be consistent with ANOVA results.}
+#' \item{\bold{Mahalanobis distance between vectors, "mdist"}}{Similar to the
+#' standardized distance between vectors but the inverse of the 
+#' residual covariance matrix is used in calculation of the distance, rather than
+#' dividing the Euclidean distance between means and dividing by the standard error. 
+#' If the residual covariance matrix is singular, Mahalanobis distances will not be 
+#' calculated.  Pairwise tests with this statistic should be consistent with 
+#' MANOVA results.}
 #' \item{\bold{Vector correlation, "VC"}}{ If LS mean or slope vectors are 
 #' scaled to unit size, the vector correlation is the inner-product of the 
 #' scaled vectors.
@@ -1264,6 +1275,24 @@ print.pairwise <- function(x, ...){
 #'  and subsequent versions.
 #' }
 #' 
+#'  \subsection{Notes for RRPP 2.0.4 and subsequent versions}{ 
+#'  The test types, standardized distance between vectors, "stdist", and Mahalanobis distances
+#'  between vectors were added.  The former
+#'  simply divides the distance between vectors by model standard error (square-root 
+#'  of the trace of the residual covariance matrix).  This is a multivariate generalization
+#'  of a t-statistic for the difference between means.  It is not the same as Hotelling 
+#'  squared-T-statistic, which requires incorporating the inverse of the residual covariance 
+#'  matrix in the calculation of the distance, a calculation that also requires a non-singular
+#'  covariance matrix.  However, the Mahalanobis distances are similar (and proportional) 
+#'  to the Hotelling squared-T-statistic. Pairwise tests using Mahalanobis distances represent
+#'  a non-parametric analog to the parametric Hotelling squared-T test.  Both tests should be 
+#'  better for GLS model fits compared
+#'  to Euclidean distances between means, as the total sums of squares are more likely to vary
+#'  across random permutations. In general, if ANOVA is 
+#'  performed a pairwise test with "stdist" is a good association; if MANOVA is performed,
+#'  a pairwise test with "mdist" is a good association.
+#' }
+#' 
 #' @param object Object from \code{\link{pairwise}}
 #' @param stat.table Logical argument for whether results should be 
 #' returned in one table 
@@ -1282,7 +1311,7 @@ print.pairwise <- function(x, ...){
 #' @author Michael Collyer
 #' @keywords utilities
 summary.pairwise <- function(object, stat.table = TRUE, 
-                             test.type = c("dist", "VC", "DL", "var"),
+                             test.type = c("dist", "stdist", "mdist", "VC", "DL", "var"),
                              angle.type = c("rad", "deg"),
                              confidence = 0.95, show.vectors = FALSE, ...){
   test.type <- match.arg(test.type)
@@ -1309,6 +1338,14 @@ summary.pairwise <- function(object, stat.table = TRUE,
   if(type == "means") {
     if(test.type == "dist") {
       L <- d.summary.from.list(x$means.dist, confidence = confidence)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    if(test.type == "stdist") {
+      L <- d.summary.from.list(x$std.means.dist, confidence = confidence)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    if(test.type == "mdist") {
+      L <- d.summary.from.list(x$mah.means.dist, confidence = confidence)
       if(stat.table) tab <- makePWDTable(L)
     }
     
@@ -1429,6 +1466,40 @@ print.summary.pairwise <- function(x, ...) {
         print(tab)
       } else {
         cat("\nPairwise distances between means\n")
+        print(L$D)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), 
+            "Upper confidence limits between means\n")
+        print(L$CL)
+        cat("\nPairwise effect sizes (Z) between means\n")
+        print(L$Z)
+        cat("\nPairwise P-values between means\n")
+        print(L$P)
+      }
+    }
+    
+    if(test.type == "stdist") {
+      if(stat.table) {
+        cat("\nPairwise standardized distances between means, plus statistics\n")
+        print(tab)
+      } else {
+        cat("\nPairwise standardized distances between means\n")
+        print(L$D)
+        cat("\nPairwise", paste(L$confidence*100, "%", sep=""), 
+            "Upper confidence limits between means\n")
+        print(L$CL)
+        cat("\nPairwise effect sizes (Z) between means\n")
+        print(L$Z)
+        cat("\nPairwise P-values between means\n")
+        print(L$P)
+      }
+    }
+    
+    if(test.type == "mdist") {
+      if(stat.table) {
+        cat("\nPairwise Mahalanobis distances between means, plus statistics\n")
+        print(tab)
+      } else {
+        cat("\nPairwise Mahalanobis distances between means\n")
         print(L$D)
         cat("\nPairwise", paste(L$confidence*100, "%", sep=""), 
             "Upper confidence limits between means\n")

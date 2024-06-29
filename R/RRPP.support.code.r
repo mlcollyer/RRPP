@@ -1952,7 +1952,7 @@ d.summary.from.list <- function(M, confidence = 0.95){
   list(D=M[[1]], P=P, Z=Z, CL=CL, confidence = confidence)
 }
 
-# d.summary.from.list
+# r.summary.from.list
 # find vec correlation statistics from a list
 # used in pairwise
 r.summary.from.list <- function(M, confidence = 0.95){
