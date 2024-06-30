@@ -366,7 +366,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   H <- tcrossprod(solve(Qf$R), Qf$Q)
   getCoef <- function(y) H %*% y
   
-  if(is.null(fitf$LM$random.coef)) {
+  if(is.null(fitf$LM$random.coef) || !is.null(fit.null)) {
     
     coef.n <- lapply(1:perms, function(j){
       step <- j
