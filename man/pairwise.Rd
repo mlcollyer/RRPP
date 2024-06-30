@@ -217,7 +217,7 @@ Pupfish$logSize <- log(Pupfish$CS)
 
 Pupfish$Y <- ordinate(Pupfish$coords)$x[, 1:3]
 
-## Pairwise comparisons of LS means
+## Pairwise comparisons among LS means
 
 # Note: one should increase RRPP iterations but a 
 # smaller number is used here for demonstration 
@@ -234,9 +234,15 @@ pup.group
 PW1 <- pairwise(fit1, groups = pup.group)
 PW1
 
-# distances between means
+# distances among means
 summary(PW1, confidence = 0.95, test.type = "dist") 
 summary(PW1, confidence = 0.95, test.type = "dist", stat.table = FALSE)
+
+# standardized distances among means
+summary(PW1, confidence = 0.95, test.type = "stdist") 
+
+# Mahalanobis (generalized) distances among means
+summary(PW1, confidence = 0.95, test.type = "mdist") 
 
 # absolute difference between mean vector lengths
 summary(PW1, confidence = 0.95, test.type = "DL") 

@@ -39,7 +39,7 @@ ac41f844d49f9a57835e1db148646c4c *man/manova.update.Rd
 0e726f552fbf03e943ad5cebcc3fc09d *man/motionpaths.Rd
 2d4e482f72e3883ab05852e215e58acd *man/na.omit.rrpp.data.frame.Rd
 77eab8dcaa0e96a14c6b52dd396c1b18 *man/ordinate.Rd
-8190ec85ca206856ff251dfcec129f3e *man/pairwise.Rd
+1603534011784a2e17b19823cc4abeeb *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
 cbb0d2f1418836cfcecfced099801257 *man/plot.interSubVar.Rd
 1502c94b178c6349d037188149aa1c8a *man/plot.lm.rrpp.Rd
@@ -114,7 +114,7 @@ f1e91db58ee36fe1c439407aef4c15a2 *R/manova.update.r
 30f4a6ff67d3ed7732944e24be06b7fd *R/measurement.error.r
 9b27cdaf25c22f11d47568662409eed7 *R/model.comparison.r
 aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
-062020967d2c659b1c2aa2fff33ed77d *R/pairwise.r
+c32fb304897539996b7da8ae7be9439b *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 95f0864b3bdf38fa3195e4b5984671ec *R/QRforX.r
