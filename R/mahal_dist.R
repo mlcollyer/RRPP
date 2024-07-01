@@ -8,7 +8,10 @@
 #' No tests are performed on distances but could be performed with the 
 #' \code{\link{pairwise}} function.  Distances are only calculated if
 #' the covariance matrix is not singular.
-#'  
+#'
+#' @param x A numeric matrix of data frame.
+#' @param Cov A covariance matrix with the same number of variables as the data.
+#' @param ... Other arguments passed to \code{\link[stats]{dist}}.
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer

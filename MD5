@@ -30,7 +30,7 @@ aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
 19a39a42115e81d1d1d7e5acb17a1a03 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 af82b850a553db8eaab3a0951b854d2b *man/lr_test.Rd
-686a4f20a83344eee778e63fa4d17d54 *man/mahal_dist.Rd
+c19f9aea7d11fe0c4386f29cdff24af4 *man/mahal_dist.Rd
 ac41f844d49f9a57835e1db148646c4c *man/manova.update.Rd
 27b9793f2a09f3bbb54e7c941c341c64 *man/measurement.error.Rd
 01d84c69b3cb0e9f2f33ea527fc44f61 *man/model.comparison.Rd
@@ -109,7 +109,7 @@ afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 7f5a048095984a5087a5e1abc3f2776e *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
-d14f92395304602444cee9070e4517cc *R/mahal_dist.R
+60dfe54f13024f96c6b1acb369ce5911 *R/mahal_dist.R
 f1e91db58ee36fe1c439407aef4c15a2 *R/manova.update.r
 30f4a6ff67d3ed7732944e24be06b7fd *R/measurement.error.r
 9b27cdaf25c22f11d47568662409eed7 *R/model.comparison.r

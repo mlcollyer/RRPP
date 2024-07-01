@@ -6,6 +6,13 @@
 \usage{
 mahal_dist(x, Cov, ...)
 }
+\arguments{
+\item{x}{A numeric matrix of data frame.}
+
+\item{Cov}{A covariance matrix with the same number of variables as the data.}
+
+\item{...}{Other arguments passed to \code{\link[stats]{dist}}.}
+}
 \value{
 An object of class "dist".
 }
