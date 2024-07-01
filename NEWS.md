@@ -1,5 +1,9 @@
 # CHANGES IN RRPP 2.0.3.999
 
+### NEW FEATURES
++ New function, `mahal_dist`, which emulates the `dist` function but allows a covariance matrix to be used for generalized distances.
++ Added two tests to the `pairwise` suite of functions: `stdist` and `mdist`, for standardized and Malahanobis distances, respectively.
+
 ### BUG FIXES
 + Fixed the missing re-order of data for `anc.BM`.
 
