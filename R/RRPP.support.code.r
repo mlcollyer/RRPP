@@ -2100,7 +2100,7 @@ logL <- function(fit, tol = NULL, pc.no = NULL){
   logdetSig <- determinant(Sig, logarithm = TRUE)$modulus
   
   ll <- -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
-                  n * logdetSig + n) 
+                  n * logdetSig + n * rnk) 
   
   list(logL = ll, rank = rnk)
   
