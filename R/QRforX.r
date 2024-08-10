@@ -88,8 +88,10 @@ QRforX <- function(X, returnQ = TRUE,
       if(length(Xs@x) < length(X)) X <- Xs
       rm(Xs)
       S4 <- inherits(X, "Matrix")
-      QR <- if(S4) suppressWarnings(qr(X, order = 0L)) else 
+      QR <- if(S4) try(suppressWarnings(qr(X, order = 0L)), 
+                       silent = TRUE) else 
         suppressWarnings(qr(X, ...))
+      if(inherits(QR, "try-error")) QR <- qr(as.matrix(X), ...)
       if(inherits(QR, "qr")) S4 <- FALSE
       
       if(S4){
