@@ -117,7 +117,7 @@ aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
 c32fb304897539996b7da8ae7be9439b *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
-95f0864b3bdf38fa3195e4b5984671ec *R/QRforX.r
+1637e1d6b1aefe51fb964894bc65870d *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 8288e657f776d82e73c01e5784914a98 *R/RRPP.support.code.r
@@ -126,7 +126,7 @@ b730e78115fa98c1631cb63157044925 *R/RRPP.utils.r
 e4806298e1195e350a6126392d450dca *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
 e51cd504651b739a78b01db7d8c790e0 *README.md
-7db72b7e01004751c5cf9d9eb2c9122c *RRPP.Rproj
+7db72b7e01004751c5cf9d9eb2c9122c *RRPP_develop.Rproj
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
 85c0b5fe5db74c85a5b703c4058d2114 *tests/testthat/test-RRPP.R
 08146d2cb565e247772bc96add8ee56f *vignettes/ANOVA.vs.MANOVA.Rmd
