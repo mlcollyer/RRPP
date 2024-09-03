@@ -229,6 +229,7 @@ measurement.error <- function(data,
     print.progress = print.progress,
     verbose = verbose,
     subjects = "subjects",
+    iter = iter,
     Cov = NULL
   )
   
