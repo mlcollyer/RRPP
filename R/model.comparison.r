@@ -257,7 +257,8 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
   }
   
   par.pen <- function(f){
-    p <- f$LM$p.prime
+    pcn <- if(!is.null(pc.no)) pc.no else f$LM$p
+    p <- min(f$LM$p.prime, pcn)
     QR <- getModels(f, "qr")$full
     QR <- QR[[length(QR)]]
     k <- QR$rank
