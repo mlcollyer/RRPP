@@ -114,14 +114,14 @@ f1e91db58ee36fe1c439407aef4c15a2 *R/manova.update.r
 8fcd88cc5f756df1886a370f0ddbb5a4 *R/measurement.error.r
 b199459188ac4ac9122c934ef082937b *R/model.comparison.r
 aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
-c32fb304897539996b7da8ae7be9439b *R/pairwise.r
+49714e617686f047171cb5be942f0a27 *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 1637e1d6b1aefe51fb964894bc65870d *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 8288e657f776d82e73c01e5784914a98 *R/RRPP.support.code.r
-b730e78115fa98c1631cb63157044925 *R/RRPP.utils.r
+5f5cc601ef9f08aa80590520d8a39cca *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 e4806298e1195e350a6126392d450dca *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r

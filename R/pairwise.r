@@ -477,6 +477,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     
     slopes.length <- NULL
     slopes.dist <- NULL
+    std.slopes.dist <- NULL
     slopes.diff.length <- NULL
     slopes.vec.cor <- NULL
     
@@ -493,7 +494,17 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     
     slopes.length <- lapply(slopes, function(x) sqrt(rowSums(x^2)))
     slopes.dist <- lapply(slopes, function(x) as.matrix(dist(as.matrix(x))))
-    slopes.diff.length <- lapply(slopes.length, function(x) as.matrix(dist(as.matrix(x))))
+    pw_matches <- combn(n_groups, 2, simplify = FALSE)
+    pw.sample.adjust <- lapply(pw_matches, function(x) 1/x[1] + 1/x[2])
+    ng <- length(n_groups)
+    pw_correct <- as.dist(matrix(0, ng, ng))
+    pw_correct[1:length(pw.sample.adjust)] <- sqrt(unlist(pw.sample.adjust))
+    pw_correct <- as.matrix(pw_correct)
+    diag(pw_correct) <- 1
+    std.slopes.dist <- Map(function(m, s) m/(s * pw_correct), 
+                           slopes.dist, as.list(SE))
+    slopes.diff.length <- lapply(slopes.length, 
+                                 function(x) as.matrix(dist(as.matrix(x))))
     slopes.vec.cor <- lapply(slopes, vec.cor.matrix)
   }
   
@@ -521,7 +532,9 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
               means.vec.cor = means.vec.cor, 
               means.length = means.length, 
               means.diff.length = means.diff.length,
-              slopes.dist = slopes.dist, slopes.vec.cor = slopes.vec.cor,
+              slopes.dist = slopes.dist, 
+              std.slopes.dist = std.slopes.dist,
+              slopes.vec.cor = slopes.vec.cor,
               slopes.length = slopes.length, 
               slopes.diff.length = slopes.diff.length,
               vars = vars, SE = SE, n = n, p = p, PermInfo = fitf$PermInfo)
