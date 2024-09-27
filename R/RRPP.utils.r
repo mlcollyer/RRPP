@@ -1374,6 +1374,11 @@ summary.pairwise <- function(object, stat.table = TRUE,
       if(stat.table) tab <- makePWDTable(L)
     }
     
+    if(test.type == "stdist") {
+      L <- d.summary.from.list(x$std.slopes.dist)
+      if(stat.table) tab <- makePWDTable(L)
+    }
+    
     if(test.type == "VC") {
       L <- r.summary.from.list(x$slopes.vec.cor) 
       if(angle.type == "deg") {
@@ -1573,6 +1578,24 @@ print.summary.pairwise <- function(x, ...) {
         print(L$P)
       }
     }
+      
+      if(test.type == "stdist") {
+        if(stat.table) {
+          cat("\nStandardized pairwise distances between slope vector 
+            (end-points), plus statistics\n")
+          print(tab)
+        } else {
+          cat("\nStandardized pairwise distances between slope vector (end-points\n")
+          print(L$D)
+          cat("\nPairwise", paste(L$confidence*100, "%", sep=""), 
+              "Upper confidence limits between slopes\n")
+          print(L$CL)
+          cat("\nPairwise effect sizes (Z) between slopes\n")
+          print(L$Z)
+          cat("\nPairwise P-values between slopes\n")
+          print(L$P)
+        }
+      }
     
     if(test.type == "VC") {
       cat("\nPairwise statistics based on slopes vector correlations (r) 
