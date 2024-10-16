@@ -6,6 +6,7 @@
 
 ### BUG FIXES
 + Fixed the missing re-order of data for `anc.BM`.
++ Added factor coercion to `measurement.error`.
 
 # CHANGES IN RRPP 2.0.3
 

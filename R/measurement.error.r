@@ -215,10 +215,10 @@ measurement.error <- function(data,
   
   dat <- rrpp.data.frame(
     Y = Y,
-    subjects = subjects,
-    replicates = replicates
+    subjects = as.factor(subjects),
+    replicates = as.factor(replicates)
   )
-  if(useGroups) dat$groups <- groups
+  if(useGroups) dat$groups <- as.factor(groups)
   
   lm.rrpp.args <- list(
     f1 = form,
