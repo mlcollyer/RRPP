@@ -223,7 +223,7 @@ measurement.error <- function(data,
   lm.rrpp.args <- list(
     f1 = form,
     data = dat,
-    seed = seed,
+    seed = seed, 
     Parallel = Parallel,
     turbo = turbo,
     print.progress = print.progress,
