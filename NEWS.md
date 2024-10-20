@@ -7,6 +7,7 @@
 ### BUG FIXES
 + Fixed the missing re-order of data for `anc.BM`.
 + Added factor coercion to `measurement.error`.
++ Forced coercion of matrices for `getLSmeans`.
 
 # CHANGES IN RRPP 2.0.3
 

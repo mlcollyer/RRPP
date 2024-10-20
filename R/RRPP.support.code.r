@@ -1871,7 +1871,7 @@ getLSmeans <- function(fit, g){
   Xn <- model.matrix(~ g + 0)
   Q <- QRforX(Xn, reduce = FALSE)
   H <- tcrossprod(fast.solve(Q$R), Q$Q)
-  getCoef <- function(f) H %*% f
+  getCoef <- function(f) as.matrix(H %*% f)
   means <- lapply(fitted, getCoef)
   rename <- function(x) {
     dimnames(x)[[1]] <- levels(g)
