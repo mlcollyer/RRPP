@@ -2,7 +2,7 @@
 #' for common research subjects
 #'
 #' Function performs analyses concerned with the repeatability (reliability) of multivariate data 
-#' (measurements) collected from the same research subjects.  Although there is no
+#' (measurements) collected from the same research subjects.  Although there is no 
 #' requirement for repeated measurements on all research subjects, the analysis assumes
 #' that multiple observations are made. 
 #' 
