@@ -4,15 +4,7 @@
 \alias{logLik.lm.rrpp}
 \title{Calculate the log-likelihood of a lm.rrpp fit}
 \usage{
-\method{logLik}{lm.rrpp}(
-  object,
-  tol = NULL,
-  pc.no = NULL,
-  Z = TRUE,
-  verbose = FALSE,
-  gls.null = FALSE,
-  ...
-)
+\method{logLik}{lm.rrpp}(object, tol = NULL, pc.no = NULL, Z = TRUE, gls.null = FALSE, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lm.rrpp}}}
@@ -25,9 +17,6 @@ for details.}
 principal components, passed onto \code{\link{ordinate}}, as argument, rank.}
 
 \item{Z}{A logical value for whether to calculate Z scores based on RRPP.}
-
-\item{verbose}{A logical value for whether to return random log-likelihood values,
-if Z-scores are calculated.}
 
 \item{gls.null}{A logical value for if a fit has a GLS estimation, should
 the null model (intercept) also have a GLS estimation, for estimating Z.  

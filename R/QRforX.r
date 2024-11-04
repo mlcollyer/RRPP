@@ -82,14 +82,12 @@ QRforX <- function(X, returnQ = TRUE,
   
   if(p > 1) {
     if(reduce){
-      Xs <- Matrix(X, sparse = TRUE)
-      Xs@x <- round(Xs@x, 8)
-      Xs <- Matrix(Xs, sparse = TRUE)
+      Xs <- drop0(Matrix(X, sparse = TRUE), tol = 1e-7)
       if(length(Xs@x) < length(X)) X <- Xs
       rm(Xs)
       S4 <- inherits(X, "Matrix")
       QR <- if(S4) try(suppressWarnings(qr(X, order = 0L)), 
-                       silent = TRUE) else
+                       silent = TRUE) else 
         suppressWarnings(qr(X, ...))
       if(inherits(QR, "try-error")) QR <- qr(as.matrix(X), ...)
       if(inherits(QR, "qr")) S4 <- FALSE
@@ -118,9 +116,7 @@ QRforX <- function(X, returnQ = TRUE,
     }
     
     Xnms <- colnames(X)
-    Xs <- Matrix(X, sparse = TRUE)
-    Xs@x <- round(Xs@x, 8)
-    Xs <- Matrix(Xs, sparse = TRUE)
+    Xs <- drop0(Matrix(X, sparse = TRUE), tol = 1e-7)
     if(length(Xs@x) < length(X)) X <- Xs
     rm(Xs)
     S4 <- inherits(X, "Matrix")
@@ -130,16 +126,12 @@ QRforX <- function(X, returnQ = TRUE,
     if(reQR) {
       QR <- qr(X)
       if(returnQ){
-        Q <- Matrix(qr.Q(QR), sparse = TRUE)
-        Q@x <- round(Q@x, 8)
-        Q <- Matrix(Q, sparse = TRUE)
+        Q <- drop0(Matrix(qr.Q(QR), sparse = TRUE), tol = 1e-7)
         if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
       } else Q <- NULL
       
       R <- if(S4) qrR(QR) else qr.R(QR)
-      Rs <- Matrix(R, sparse = TRUE)
-      Rs@x <- round(Rs@x, 8)
-      Rs <- Matrix(Rs, sparse = TRUE)
+      Rs <- drop0(Matrix(R, sparse = TRUE), tol = 1e-7)
       if(length(Rs@x) < length(R)) R <- Rs
       rm(Rs)
       

@@ -11,8 +11,7 @@ model.comparison(
   predictor = NULL,
   tol = NULL,
   pc.no = NULL,
-  gls.null = FALSE,
-  verbose = FALSE
+  gls.null = FALSE
 )
 }
 \arguments{
@@ -44,16 +43,12 @@ used with the null (intercept) model, for calculating Z scores via RRPP of
 log-likelihoods.  This should be FALSE if comparing different GLS estimations
 of covariance matrices.  It should be TRUE if comparing different model fits
 with the same GLS-estimated covariance matrix.}
-
-\item{verbose}{A logical value for whether to include distributions of
-random log-likelihoods, if applicable.}
 }
 \value{
 An object of class \code{model.comparison} is a data 
 frame with either log-likelihoods
-covariance traces, or, Z-scores, plus parameter penalties.  AIC scores 
-might be included, if applicable. If verbose results are returned,
-random log-likelihoods are also included.
+or covariance traces, plus parameter penalties.  AIC scores 
+might be include, if applicable
 }
 \description{
 Function calculates either log-likelihoods or traces of covariance 

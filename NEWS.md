@@ -3,11 +3,13 @@
 ### NEW FEATURES
 + New function, `mahal_dist`, which emulates the `dist` function but allows a covariance matrix to be used for generalized distances.
 + Added two tests to the `pairwise` suite of functions: `stdist` and `mdist`, for standardized and Malahanobis distances, respectively.
++ Added argument, `groups.first`, to `measurement.error` for ordering terms having subjects and groups in ANOVA.
 
 ### BUG FIXES
 + Fixed the missing re-order of data for `anc.BM`.
 + Added factor coercion to `measurement.error`.
 + Forced coercion of matrices for `getLSmeans`.
++ Adjusted sensitivity for `QRforX` for determining 0 values.
 
 # CHANGES IN RRPP 2.0.3
 

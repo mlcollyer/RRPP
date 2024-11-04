@@ -2,7 +2,7 @@
 #' for common research subjects
 #'
 #' Function performs analyses concerned with the repeatability (reliability) of multivariate data 
-#' (measurements) collected from the same research subjects.  Although there is no
+#' (measurements) collected from the same research subjects.  Although there is no 
 #' requirement for repeated measurements on all research subjects, the analysis assumes
 #' that multiple observations are made. 
 #' 
@@ -47,6 +47,9 @@
 #' were concerned with systematic ME occurring perhaps differently among certain strata within the data.  
 #' For example, systematic ME because of an observer bias might only be observed with females or males,
 #' in which case the argument might be: groups = "Sex".
+#' @param groups.first A logical value for whether to use groups as a term before subjects, so that it can be included
+#' in an ANOVA table (if TRUE).  Otherwise, a group effect is likely subsumed by a subject effect, since subjects are 
+#' unique to groups.
 #' @param iter Number of iterations for significance testing
 #' @param seed An optional argument for setting the seed for random 
 #' permutations of the resampling procedure.
@@ -144,6 +147,7 @@ measurement.error <- function(data,
                               subjects, 
                               replicates, 
                               groups = NULL,
+                              groups.first = FALSE,
                               iter = 999, 
                               seed = NULL,
                               multivariate = FALSE,
@@ -213,6 +217,9 @@ measurement.error <- function(data,
   form <- if(useGroups) Y ~ subjects + groups * replicates else
     Y ~ subjects + replicates
   
+  if(useGroups && groups.first)
+    form <- update(form, ~ groups + .)
+  
   dat <- rrpp.data.frame(
     Y = Y,
     subjects = as.factor(subjects),
@@ -223,7 +230,7 @@ measurement.error <- function(data,
   lm.rrpp.args <- list(
     f1 = form,
     data = dat,
-    seed = seed, 
+    seed = seed,
     Parallel = Parallel,
     turbo = turbo,
     print.progress = print.progress,
