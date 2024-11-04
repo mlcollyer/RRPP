@@ -11,7 +11,7 @@ measurement.error(
   subjects,
   replicates,
   groups = NULL,
-  groups.first = NULL,
+  groups.first = FALSE,
   iter = 999,
   seed = NULL,
   multivariate = FALSE,
