@@ -82,9 +82,7 @@ QRforX <- function(X, returnQ = TRUE,
   
   if(p > 1) {
     if(reduce){
-      Xs <- Matrix(X, sparse = TRUE)
-      Xs@x <- round(Xs@x, 12)
-      Xs <- Matrix(Xs, sparse = TRUE)
+      Xs <- drop0(Matrix(X, sparse = TRUE), tol = 1e-7)
       if(length(Xs@x) < length(X)) X <- Xs
       rm(Xs)
       S4 <- inherits(X, "Matrix")
@@ -96,7 +94,7 @@ QRforX <- function(X, returnQ = TRUE,
       
       if(S4){
         R <- suppressWarnings(qrR(QR))
-        d <- abs(round(diag(R), 12))
+        d <- abs(round(diag(R), 8))
         pivot <- which(d > 0)
         rank <- length(pivot)
         if(rank < NCOL(X)) {
@@ -118,9 +116,7 @@ QRforX <- function(X, returnQ = TRUE,
     }
     
     Xnms <- colnames(X)
-    Xs <- Matrix(X, sparse = TRUE)
-    Xs@x <- round(Xs@x, 12)
-    Xs <- Matrix(Xs, sparse = TRUE)
+    Xs <- drop0(Matrix(X, sparse = TRUE), tol = 1e-7)
     if(length(Xs@x) < length(X)) X <- Xs
     rm(Xs)
     S4 <- inherits(X, "Matrix")
@@ -130,16 +126,12 @@ QRforX <- function(X, returnQ = TRUE,
     if(reQR) {
       QR <- qr(X)
       if(returnQ){
-        Q <- Matrix(qr.Q(QR), sparse = TRUE)
-        Q@x <- round(Q@x, 12)
-        Q <- Matrix(Q, sparse = TRUE)
+        Q <- drop0(Matrix(qr.Q(QR), sparse = TRUE), tol = 1e-7)
         if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
       } else Q <- NULL
       
       R <- if(S4) qrR(QR) else qr.R(QR)
-      Rs <- Matrix(R, sparse = TRUE)
-      Rs@x <- round(Rs@x, 12)
-      Rs <- Matrix(Rs, sparse = TRUE)
+      Rs <- drop0(Matrix(R, sparse = TRUE), tol = 1e-7)
       if(length(Rs@x) < length(R)) R <- Rs
       rm(Rs)
       
