@@ -195,16 +195,16 @@
 #' }
 
 manova.update <- function(fit, error = NULL, 
-                              tol = 1e-7, PC.no = NULL,
-                              print.progress = TRUE,
+                          tol = 1e-7, PC.no = NULL,
+                          print.progress = TRUE,
                           verbose = NULL) {
   
   if(inherits(fit, "manova.lm.rrpp")) 
     stop("\nlm.rrpp object has already been updated for MANOVA.\n", 
-                                           call. = FALSE)
+         call. = FALSE)
   if(!inherits(fit, "lm.rrpp")) 
     stop("\nOnly an lm.rrpp object can be updated for MANOVA.\n", 
-                                     call. = FALSE)
+         call. = FALSE)
   if(is.null(verbose)) verbose <- fit$verbose else
     verbose <- as.logical(verbose)
   
@@ -216,6 +216,8 @@ manova.update <- function(fit, error = NULL,
   n <- fit$LM$n
   gls <- fit$LM$gls
   w <- if(!is.null(fit$LM$weights)) fit$LM$weights else NULL
+  if(gls && is.null(fit$LM$weights) && is.null(fit$LM$Pcov))
+    fit$LM$Pcov <- Cov.proj(fit$LM$Cov)
   Pcov <- if(!is.null(fit$LM$Pcov)) fit$LM$Pcov else NULL
   Y <- fit$LM$Y
   
@@ -225,7 +227,7 @@ manova.update <- function(fit, error = NULL,
   if(perm.method == "RRPP") RRPP = TRUE else RRPP = FALSE
   ind <- PermInfo$perm.schedule
   perms <- length(ind)
-
+  
   Models <- getModels(fit, attribute = "all")
   
   reduced <- Models$reduced
@@ -252,7 +254,7 @@ manova.update <- function(fit, error = NULL,
     d <- PCA$sdev <- PCA$sdev[ld]
     PCA$x <- PCA$x[, ld]
   }
-
+  
   if(length(d) > min(n - 1, p)) {
     mnp <- seq_len(min(n - 1, p))
     d <- PCA$sdev <- PCA$sdev[mnp]
@@ -274,22 +276,23 @@ manova.update <- function(fit, error = NULL,
     }
   }
   
+  SS.tot <- sum(diag(crossprod(center(Y))))
   if(NCOL(Y) > NCOL(PCA$x)) Y <- PCA$x
   
   if(!is.null(error)) {
     if(!inherits(error, "character")) 
       stop("The error description is illogical.  
            It should be a string of character values matching ANOVA terms.",
-                                           call. = FALSE)
+           call. = FALSE)
     kk <- length(error)
     if(kk != k) 
       stop("The error description should match in length the number of ANOVA terms 
            (not including Residuals)",
-                     call. = FALSE)
+           call. = FALSE)
     Ematch <- match(error, c(trms, "Residuals"))
     if(any(is.na(Ematch))) 
       stop("At least one of the error terms is not an ANOVA term",
-                                call. = FALSE)
+           call. = FALSE)
   } else Ematch <- NULL
   
   # Until a better solution is found, this must be forced
@@ -312,7 +315,6 @@ manova.update <- function(fit, error = NULL,
   if(!is.null(Pcov)) Y <- Pcov %*% Y
   if(!is.null(w)) Y <- Y * sqrt(w)
   
-  SS.tot <- sum(diag(crossprod(center(Y))))
   yh0 <- fastFit(Unull, Y, n, p.prime)
   r0 <- Y - yh0
   
@@ -327,7 +329,7 @@ manova.update <- function(fit, error = NULL,
     } else {
       STerm <- NULL
       use_ind_s <- FALSE
-      }
+    }
     
   } else {
     use_ind_s <- FALSE
@@ -347,13 +349,13 @@ manova.update <- function(fit, error = NULL,
   
   fitted <- lapply(Ur, function(u) fastFit(u, Y, n, p.prime))
   res <- lapply(fitted, function(f) Y - f)
-
+  
   if(!RRPP) {
     fitted <- lapply(fitted, function(.) matrix(0, n, p.prime))
     res <- lapply(res, function(.) as.matrix(Y))
   } 
   
-
+  
   FR <- lapply(1:max(1, k), function(j) list(fitted = fitted[[j]], 
                                              residuals = res[[j]]))
   rrpp.args <- list(FR = FR, ind.i = ind[[1]], 
@@ -367,23 +369,23 @@ manova.update <- function(fit, error = NULL,
                     Yt = Y)
   
   sscp <- function(Uf, Ur, Ufull, Unull, Y, 
-                    n, p, Yt) {
+                   n, p, Yt) {
     ss <- Map(function(uf, ur, y) list(SS = crossprod(
       fastFit(uf, y, n, p.prime) - fastFit(ur, y, n, p.prime)),
-              Residuals = crossprod(y - fastFit(Ufull, y, n, p.prime))), 
-              Uf, Ur, Y)
-      
+      Residuals = crossprod(y - fastFit(Ufull, y, n, p.prime))), 
+      Uf, Ur, Y)
+    
     names(ss) <- trms
     rss <- crossprod(Yt - fastFit(Ufull, Yt, n, p.prime))
     tss <- crossprod(Yt - fastFit(Unull, Yt, n, p.prime))
     
     result <- c(ss, list(Full.Model = list(SS = tss - rss, 
                                            Residuals = rss)))
-
+    
     result
   }
   
-
+  
   invR.H <- function(ss){ # modified from stats::summary.manova version
     tss <- diag(Reduce("+", ss[[length(ss)]]))
     result <- lapply(1:length(ss), function(j){
@@ -396,7 +398,7 @@ manova.update <- function(fit, error = NULL,
     
     result
   }
-
+  
   getEigs <- function(x) Re(eigen(x, symmetric = FALSE, 
                                   only.values = TRUE)$values)
   

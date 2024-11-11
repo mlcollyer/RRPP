@@ -1899,8 +1899,7 @@ print.summary.manova.lm.rrpp <- function(x, ...){
   if(pc.max < x$e.rank) {
     cat("\n   Data reduced to", pc.max, "PCs, as required or prescribed.")
     PCA <- x$PCA
-    d2 <- PCA$sdev^2
-    d.p <- sum(d2[1:pc.max])/x$SS.tot
+    d.p <- sum((PCA$x[, 1:pc.max])^2) / x$SS.tot
     cat("\n  ", round(d.p*100, 1), 
         "% of overall variation explained by these PCs.")
     cat("\n   See $MANOVA$PCA from manova.lm.rrpp object for more information.")

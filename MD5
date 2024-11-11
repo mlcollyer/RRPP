@@ -4,7 +4,7 @@ bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-7ec8801ff24c7c0a416cb4162700abe6 *DESCRIPTION
+800894eb672a7b400947d0bb8af5c34f *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -94,7 +94,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 1c2541d2bd1e6ea9c65013829c9f1d3e *NAMESPACE
-a7af5f7bcd8cfc18db53e2329781ab63 *NEWS.md
+70b8a0124608f56088ed364a565e2019 *NEWS.md
 a1f4f4ad1e9e4bbd4095e7103feece87 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -110,7 +110,7 @@ afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 60dfe54f13024f96c6b1acb369ce5911 *R/mahal_dist.R
-f1e91db58ee36fe1c439407aef4c15a2 *R/manova.update.r
+a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
 0389c8c68da9daf433c052b23e9678ca *R/measurement.error.r
 f3c2a8a1a445f3a342f78b35324d6f4c *R/model.comparison.r
 aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
@@ -121,7 +121,7 @@ d5abbf23bb78c88bc6761b59934cd501 *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 efd6fc08cbdbb1b2b32ac064bd2c4e15 *R/RRPP.support.code.r
-5f5cc601ef9f08aa80590520d8a39cca *R/RRPP.utils.r
+75981a9a7bf61ec9632a6548d0d4d9da *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 e4806298e1195e350a6126392d450dca *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r

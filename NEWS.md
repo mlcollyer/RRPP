@@ -10,6 +10,7 @@
 + Added factor coercion to `measurement.error`.
 + Forced coercion of matrices for `getLSmeans`.
 + Adjusted sensitivity for `QRforX` for determining 0 values.
++ Fixed missing `Pcov` issue in `manova.update`.
 
 # CHANGES IN RRPP 2.0.3
 
