@@ -1,10 +1,11 @@
 ## Submission
-This is a patch release, 2.0.4, which fixes several bugs.
+This is a patch release, 2.0.4, which fixes several bugs and adds a few arguments to existing functions,
+and adds one new function, `mahal_dist`.
 
 The package, `geomorph`, is developed by the same authors as `RRPP`.  The reverse dependency has been addressed during development of this release and any necessary changes will be concomitantly submitted. 
 
 ## Test environments
-* local OS X install, R 4.4.0
+* local OS X install, R 4.4.1
 * win-builder (devel and release)
 * R-hub (all platforms)
 

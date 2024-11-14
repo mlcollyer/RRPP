@@ -1,4 +1,4 @@
-# CHANGES IN RRPP 2.0.3.999
+# CHANGES IN RRPP 2.0.4
 
 ### NEW FEATURES
 + New function, `mahal_dist`, which emulates the `dist` function but allows a covariance matrix to be used for generalized distances.

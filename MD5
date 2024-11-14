@@ -1,4 +1,4 @@
-9e51d981d307766969641308f4074161 *cran-comments.md
+c9105e8080e6a016c381a345fd7f3e02 *cran-comments.md
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
@@ -94,7 +94,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 1c2541d2bd1e6ea9c65013829c9f1d3e *NAMESPACE
-70b8a0124608f56088ed364a565e2019 *NEWS.md
+056cc7f82cf9f6e30af4a5c59b786863 *NEWS.md
 a1f4f4ad1e9e4bbd4095e7103feece87 *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
