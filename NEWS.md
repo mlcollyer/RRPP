@@ -1,3 +1,8 @@
+# CHANGES IN RRPP 2.0.4.999
+
+### NEW FEATURES
++ New function, `kcomp`, which performs a K-component analysis.
+
 # CHANGES IN RRPP 2.0.4
 
 ### NEW FEATURES

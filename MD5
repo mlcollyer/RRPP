@@ -1,5 +1,5 @@
 acc1cf7445f7e2f5ccaf34c20b36bccf *cran-comments.md
-6a90d22ab186b070e658ac02992d6e41 *CRAN-SUBMISSION
+a4d49002283c02d3ffab714b15ae68f3 *CRAN-SUBMISSION
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
@@ -26,7 +26,8 @@ d28f1c70c8ca9d75c9e67f1cfd555d88 *man/getModelCov.Rd
 5fa1cb32075adf22ffdc34740171e2c4 *man/getTerms.Rd
 b1dbd8c164859bb9e117d1a5f3c643cc *man/ICCstats.Rd
 d6ddec777fca3bb4f087a347e629f513 *man/interSubVar.Rd
-aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
+387d4269315962cabc5094e088074a7d *man/kcomp.Rd
+50e847251a0f96422a490be6d89cb6dd *man/lm.rrpp.Rd
 555f907037cac3c887621c48e90832c0 *man/lm.rrpp.ws.Rd
 19a39a42115e81d1d1d7e5acb17a1a03 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
@@ -43,6 +44,7 @@ bba84312844dd3237eb4ff0bed8ca6c1 *man/measurement.error.Rd
 1603534011784a2e17b19823cc4abeeb *man/pairwise.Rd
 be7cd478ec8f194ca3bfb4ea80dc9aa4 *man/PlethMorph.Rd
 cbb0d2f1418836cfcecfced099801257 *man/plot.interSubVar.Rd
+b8bbae6db82626671c25ea863ea75bb6 *man/plot.kcomp.Rd
 1502c94b178c6349d037188149aa1c8a *man/plot.lm.rrpp.Rd
 33c3529beda41e33f92cb446d4567764 *man/plot.looCV.Rd
 59d090624ee285470baff6476c8df62e *man/plot.measurement.error.Rd
@@ -94,9 +96,9 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 63a84cde4ccd20f033b499e87bc6ee71 *man/terms.lm.rrpp.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
-1c2541d2bd1e6ea9c65013829c9f1d3e *NAMESPACE
-056cc7f82cf9f6e30af4a5c59b786863 *NEWS.md
-a1f4f4ad1e9e4bbd4095e7103feece87 *R/add.tree.r
+75fba875d64d7b2c13c0c598b86e5f36 *NAMESPACE
+0a9f3de2fb7e2fc25f7509e355f379bf *NEWS.md
+e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 c9dd72775b33ea6a49562632f57334c4 *R/base_lm.rrpp.r
@@ -105,7 +107,8 @@ c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 6b98781ccf0892dd070f3d3116ccdaef *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
-a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
+03eba4944da4b752ecba6ac3a7a0a85f *R/kcomp.r
+90fbb982ed260b06ee671a3c67ddaa00 *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 7f5a048095984a5087a5e1abc3f2776e *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
@@ -122,7 +125,7 @@ d5abbf23bb78c88bc6761b59934cd501 *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 efd6fc08cbdbb1b2b32ac064bd2c4e15 *R/RRPP.support.code.r
-75981a9a7bf61ec9632a6548d0d4d9da *R/RRPP.utils.r
+a03bb38cf0466e56e0aa20d53d777ab7 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 e4806298e1195e350a6126392d450dca *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
