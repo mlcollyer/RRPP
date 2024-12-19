@@ -2644,7 +2644,7 @@ plot.kcomp <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
   kcdata <- x$scores[, c(axis1, axis2)]
   if(!is.null(flip)) {
     if(length(flip) > 2) flip <- flip[1:2]
-    flip <- flip[(flip %in% 1:ncol(pcdata))]
+    flip <- flip[(flip %in% 1:ncol(kcdata))]
     if(length(flip > 0)) kcdata[, flip] <- kcdata[, flip] * -1
   }
   

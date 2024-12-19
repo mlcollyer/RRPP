@@ -55,6 +55,8 @@
 #' @export print.trajectory.analysis
 #' @export summary.trajectory.analysis
 #' @export print.summary.trajectory.analysis
+#' @export plot.ordinate
+#' @export plot.kcomp
 NULL
 
 #' @section RRPP TOC:
