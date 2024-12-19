@@ -1,4 +1,9 @@
-# CHANGES IN RRPP 2.0.3.999
+# CHANGES IN RRPP 2.0.4.999
+
+### NEW FEATURES
++ New function, `kcomp`, which performs a K-component analysis.
+
+# CHANGES IN RRPP 2.0.4
 
 ### NEW FEATURES
 + New function, `mahal_dist`, which emulates the `dist` function but allows a covariance matrix to be used for generalized distances.

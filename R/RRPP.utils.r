@@ -2604,6 +2604,84 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
 }
 
 
+#' Plot Function for RRPP
+#' 
+#' @param x An object of class \code{\link{kcomp}}
+#' @param axis1 A value indicating which component should be 
+#' displayed as the X-axis (default = K1)
+#' @param axis2 A value indicating which component should be 
+#' displayed as the Y-axis (default = K2)
+#' @param flip An argument that if not NULL can be used to flip 
+#' components in the plot.  
+#' The values need to match axis1 or axis2.  For example, if axis1 = 3 
+#' and axis2 = 4, flip = 1 will not
+#' change either axis; flip = 3 will flip only the horizontal axis; 
+#' flip = c(3, 4) will flip both axes.
+#' @param include.axes A logical argument for whether axes should be shown at x = 0 and y = 0.  
+#' This is different than the axes argument in the generic \code{\link{plot.default}} function, which
+#' controls the edges of the plot (providing a box effect or not).  Using include.axes = TRUE does not 
+#' allow aesthetic control of the axes.  If desired, it is better to use include.axes = FALSE and augment
+#' the plot object with \code{\link{abline}} (choosing h = 0 and v = 0 in separate applications).
+#' @param ... other arguments passed to plot (helpful to employ
+#' different colors or symbols for different groups).  See
+#' @return An object of class "plot.kcomp" is a list with components
+#'  that can be used in other plot functions, such as the type of plot, points, 
+#'  a group factor, and other information depending on the plot parameters used.
+#' @method plot kcomp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' @keywords visualization
+plot.kcomp <- function(x, axis1 = 1, axis2 = 2, flip = NULL, 
+                          include.axes = TRUE, ...) {
+  wrn <- options()$warn
+  options(warn = -1)
+  if(NCOL(x$scores) == 1) 
+    stop("Only one component.  No plotting capability with this function.\n", 
+         call. = FALSE)
+  v <- x$values/sum(x$values)
+  
+  kcdata <- x$scores[, c(axis1, axis2)]
+  if(!is.null(flip)) {
+    if(length(flip) > 2) flip <- flip[1:2]
+    flip <- flip[(flip %in% 1:ncol(kcdata))]
+    if(length(flip > 0)) kcdata[, flip] <- kcdata[, flip] * -1
+  }
+  
+  plot_args <- list(...)
+  plot_args$x = kcdata[,1]
+  plot_args$y = kcdata[,2]
+  
+  xlabel <- paste("KC ", axis1, ": ", 
+                  round(v[axis1] * 100, 2), "%", sep = "")
+  ylabel <- paste("KC ", axis2, ": ", 
+                  round(v[axis2] * 100, 2), "%", sep = "")
+  
+ 
+
+  if(is.null(plot_args$xlab)) plot_args$xlab <- xlabel
+  if(is.null(plot_args$ylab)) plot_args$ylab <- ylabel
+  if(is.null(plot_args$xlim)) plot_args$xlim <- 1.05*range(plot_args$x)
+  if(is.null(plot_args$ylim)) plot_args$ylim <- 1.05*range(plot_args$y)
+  if(is.null(plot_args$asp)) plot_args$asp <- 1
+  
+  do.call(plot.default, plot_args)
+  
+  if(include.axes){
+    abline(h = 0, lty=2, ...)
+    abline(v = 0, lty=2, ...)
+  }
+  
+  out <- list(points = kcdata,   
+              call = match.call())
+  
+  out$plot_args <- plot_args
+  class(out) <- "plot.kcomp"
+  options(warn = wrn)
+  invisible(out)
+  
+}
+
 # looCV
 
 #' Print/Summary Function for RRPP

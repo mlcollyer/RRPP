@@ -50,8 +50,8 @@ add.tree <- function(OP, tree,
                      edge.col = 1, edge.lty = 1, edge.lwd = 1,
                      anc.pts = FALSE, return.ancs = FALSE, ...) {
   
-  if(!inherits(OP, c("plot.ordinate")))
-    stop("\nThe plot must be an object with class ordinate.\n",
+  if(!inherits(OP, c("plot.ordinate", "plot.kcomp")))
+    stop("\nThe plot must be a plot object obtained from ordinate or kcomp.\n",
          call. = FALSE)
   
   if(!inherits(tree, c("phylo")))
