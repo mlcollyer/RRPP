@@ -3608,6 +3608,9 @@ summary.ICCstats <-function(object, ...){
 #' @keywords utilities
 print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
   
+  tab1 <- data.frame(Terms = names(x$sample.z),
+                     Z = x$sample.z)
+  
   nms <- paste("Mod", 1:length(x$sample.z), sep = "")
   nam.com <- combn(length(nms), 2)
   name.list <- list()
@@ -3619,9 +3622,7 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
   print(tab1)
   
   if(stats.table){
-    tab1 <- data.frame(Terms = names(x$sample.z),
-                       Z = x$sample.z)
-    
+
     Dz <- as.dist(x$pairwise.z)
     Dp <- as.dist(x$pairwise.P)
     tab2 <- data.frame(Z = as.vector(Dz), P = as.vector(Dp))
