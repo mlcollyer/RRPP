@@ -77,7 +77,7 @@ pairwise.model.Z <- function(...,
   }
   rm(dots)
   if(is.null(MC$random.logL))
-    stop("\nThe model.comparsion analysis requires type = 'Z' and verose = TRUE.\n",
+    stop("\nThe model.comparsion analysis requires type = 'Z' and verbose = TRUE.\n",
          call. = FALSE)
   
   dists <- MC$random.logL
