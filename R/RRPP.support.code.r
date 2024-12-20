@@ -38,6 +38,7 @@
 #' resid sd spline var model.frame
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
+#' @importFrom stats pnorm
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp
@@ -55,6 +56,12 @@
 #' @export print.trajectory.analysis
 #' @export summary.trajectory.analysis
 #' @export print.summary.trajectory.analysis
+#' @export print.model.comparison
+#' @export summary.model.comparison
+#' @export print.ICCstats
+#' @export summary.ICCstats
+#' @export print.pairwise.model.Z
+#' @export summary.pairwise.model.Z
 #' @export plot.ordinate
 #' @export plot.kcomp
 NULL

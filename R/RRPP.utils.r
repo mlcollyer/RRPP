@@ -444,11 +444,10 @@ print.coef.lm.rrpp <- function(x, ...){
       print(x$coef.obs)
     } else {
       rrpp.type <- x$RRPP
-      cat("\n\nStatistics (distances) of coefficients with ")
-      cat(x$confidence*100, "percent confidence intervals,") 
-      cat("\neffect sizes, and probabilities of exceeding observed values 
-          based on\n") 
-      cat(x$nperms, "random permutations using", rrpp.type, "\n\n")
+      cat("\n\nStatistics (distances) of coefficients with \n")
+      cat(x$confidence*100, "percent confidence intervals, effect sizes,") 
+      cat("\nand probabilities of exceeding observed values,")
+      cat("\nbased on", x$nperms, "random permutations, using", rrpp.type, "\n\n") 
       print(x$stat.tab)
       cat("\n\n")
     }
@@ -3595,4 +3594,66 @@ print.ICCstats <-function(x, ...){
 #' @keywords utilities
 summary.ICCstats <-function(object, ...){
   print.ICCstats(object, ...)
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x print/summary object (from \code{\link{pairwise.model.Z}})
+#' @param stats.table A logical value for whether to condense results into
+#' a single table of multiple statistics.
+#' @param ... other arguments passed to print/summary
+#' @method print pairwise.model.Z
+#' @export
+#' @author Dean Adams and Michael Collyer
+#' @keywords utilities
+print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
+  
+  nms <- paste("Mod", 1:length(x$sample.z), sep = "")
+  nam.com <- combn(length(nms), 2)
+  name.list <- list()
+  for(i in 1:NCOL(nam.com)) 
+    name.list[[i]]  <- paste(nms[nam.com[1,i]], nms[nam.com[2,i]], sep =":")
+  
+  rownames(tab1) <- nms
+  cat("\nModels:\n\n")
+  print(tab1)
+  
+  if(stats.table){
+    tab1 <- data.frame(Terms = names(x$sample.z),
+                       Z = x$sample.z)
+    
+    Dz <- as.dist(x$pairwise.z)
+    Dp <- as.dist(x$pairwise.P)
+    tab2 <- data.frame(Z = as.vector(Dz), P = as.vector(Dp))
+    colnames(tab2)[2] <- if(x$tails == 2) "Pr(>|Z|)" else "Pr(>Z)"
+    rownames(tab2) <- unlist(name.list)
+    
+    cat("\nPairwise Statistics:\n\n")
+    print(tab2)
+    cat("\n\n")
+    
+  } else {
+   
+    cat("\nPairwise Z:\n")
+    tb <- as.table(x$pairwise.z)
+    dimnames(tb) <- list(nms, nms)
+    print(tb)
+    cat("\nPairwise P:\n")
+    tb <- as.table(x$pairwise.P)
+    dimnames(tb) <- list(nms, nms)
+    print(tb)
+    cat("\n\n")
+  }
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object print/summary object (from \code{\link{pairwise.model.Z}})
+#' @param ... other arguments passed to print/summary
+#' @method summary pairwise.model.Z
+#' @export
+#' @author Dean Adams and Michael Collyer
+#' @keywords utilities
+summary.pairwise.model.Z <-function(object, ...){
+  print.pairwise.model.Z(object, ...)
 }

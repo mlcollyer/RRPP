@@ -20,6 +20,8 @@
 #' the null model (intercept) also have a GLS estimation, for estimating Z.  
 #' Should be FALSE if the log-likelihood is measured to compare different GLS
 #' estimations for a covariance matrices
+#' @param verbose A logical value for whether to return random log-likelihood values,
+#' if Z-scores are calculated.
 #' @param ...	further arguments passed to or from other methods
 #' @export
 #' @author Michael Collyer
@@ -27,6 +29,7 @@
 
 logLik.lm.rrpp <- function(object, tol = NULL, 
                            pc.no = NULL, Z = TRUE,
+                           verbose = FALSE,
                            gls.null = FALSE, ...){
   
   if(is.null(tol)) tol = 0
@@ -86,11 +89,13 @@ logLik.lm.rrpp <- function(object, tol = NULL,
       if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, r)
       logdetSig <- determinant(Sig, logarithm = TRUE)$modulus
       -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
-                n * logdetSig + n) 
+                n * logdetSig + n * rnk) 
     })
      
     z <- effect.size(ll.list)
     ll <- c(ll, Z = z)
+    if(verbose) ll <- list(ll = ll, Z = z, 
+                           random.logL = ll.list)
   }
   
   return(ll)
