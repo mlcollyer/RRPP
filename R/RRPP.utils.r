@@ -3658,3 +3658,50 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
 summary.pairwise.model.Z <-function(object, ...){
   print.pairwise.model.Z(object, ...)
 }
+
+## betaTest
+
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{betaTest}}
+#' @param confidence The desired confidence limit to print with a table of 
+#' summary statistics.  Because distances are directionless, confidence limits 
+#' are one-tailed.
+#' @param ... Other arguments passed onto betaTest
+#' @method print betaTest
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+print.betaTest <- function(x, 
+                           confidence = 0.95,
+                           ...){
+  
+  cat("Test of coefficients:", rownames(x$obs.B.mat)[x$coef.no])
+  cat("\n equal to Beta = ")
+  cat(as.vector(x$Beta))
+  
+  cat("\n Test performed with", length(x$random.md), 
+      "permutations of residuals from the null model.\n\n")
+  
+  UCL = quantile(x$random.md, confidence)
+  
+  df = data.frame(d = x$obs.d, md = x$obs.md,
+                  UCL = UCL, Zmd = x$Z, P = x$P)
+  colnames(df)[3] <- paste("UCL (", names(UCL), ")", sep = "")
+  rownames(df) <- rownames(x$obs.B.mat)[x$coef.no]
+  
+  print(df)
+  
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{betaTest}}
+#' @param ... Other arguments passed onto betaTest
+#' @method summary betaTest
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.betaTest <- function(object, ...){
+  print.betaTest(object, ...)
+}
