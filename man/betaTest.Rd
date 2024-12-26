@@ -108,8 +108,8 @@ summary(T4)
 coef(fit2, test = TRUE)
 
 ## isometries
-T5 <- betaTest(fit2, coef.no = 2, Beta = 1)
-T6 <- betaTest(fit2, coef.no = 3, Beta = 1)
+T5 <- betaTest(fit2, fit.null2, coef.no = 2, Beta = 1)
+T6 <- betaTest(fit2, fit.null1, coef.no = 3, Beta = 1)
 summary(T5)
 summary(T6) 
 
