@@ -93,6 +93,18 @@ T5 <- betaTest(fit2, coef.no = 2, Beta = 1)
 T6 <- betaTest(fit2, coef.no = 3, Beta = 1)
 summary(T5)
 summary(T6) 
+
+PlethMorph$Y <- cbind(PlethMorph$HeadLength, PlethMorph$TailLength)
+fit3 <- lm.rrpp(Y ~ SVL, 
+data = PlethMorph,
+verbose = TRUE)
+
+T7 <- betaTest(fit3, coef.no = 2, Beta = c(0, 0))
+T8 <- betaTest(fit3, coef.no = 2, Beta = c(1, 1))
+
+summary(T7)
+summary(T8)
+
 }
 }
 \author{

@@ -10,7 +10,7 @@ b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
 78396282d43399ec6e9c78890c0f89e4 *man/anova.lm.rrpp.Rd
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
-fe3d73151f28a79e9db72690b7aefc6d *man/betaTest.Rd
+ac6922ff692a2c8f62d974f8a7d0251a *man/betaTest.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
 331148e043e0fb079ebc35a09aaf7963 *man/coef.lm.rrpp.Rd
 df91d0b264a0632eec7e808f709481ce *man/convert2ggplot.Rd
@@ -107,7 +107,7 @@ e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 c9dd72775b33ea6a49562632f57334c4 *R/base_lm.rrpp.r
-b414d9b1c0d9de82e62500648212061d *R/betaTest.r
+d400cf6bd65f5fd60c13f3830ec52ba6 *R/betaTest.r
 aa707afb8b2942ba421323e38a44e5de *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
