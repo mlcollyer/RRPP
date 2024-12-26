@@ -189,8 +189,5 @@ betaTest <- function(fit, fit.null = NULL,
                 Z = effect.size(Result),
                 P = pval(Result))
     attr(out, "class") <- "betaTest"
-    if(confidence <= 0 || confidence > 1)
-      confidence = 0.95
-    out$confidence = confidence
     out
 }
