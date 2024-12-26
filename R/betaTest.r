@@ -16,7 +16,17 @@
 #' hypothesizing the beta values for many variables should be challenging.  However,
 #' this test will work well with one or few variables.
 #' 
-#'
+#'  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
+#'  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
+#'  test statistic and only tests the null hypothesis that the length of the vector is 0.  
+#'  The significance of the test is based on random values produced by RRPP, based on the
+#'  matrices of coefficients that are produced in all permutations.  The betaTest analysis
+#'  allows different null hypotheses to be used (vector length is not necessarily 0) and also
+#'  calculates Mahalanobis distance, rather than Euclidean distance.  This statistic is probably 
+#'  better for more types of models (like generalized least squares fits) but requires performing
+#'  tests for specific vectors of coefficients, based on the null model described.
+#' }
+#' 
 #' @param fit Object from \code{\link{lm.rrpp}}
 #' @param fit.null Optional object from \code{\link{lm.rrpp}} to use as a null model.
 #' @param coef.no. The row of a matrix of coefficients for which to perform the test.  
@@ -37,6 +47,7 @@
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
+#' @seealso \code{\link{coef.lm.rrpp}}
 #' @examples 
 #' \dontrun{
 #' data(PlethMorph)
@@ -64,9 +75,17 @@
 #' SS.type = "II",
 #' verbose = TRUE)
 #' 
-#' ## allometries
-#' T3 <- betaTest(fit2, coef.no = 2, Beta = 0)
-#' T4 <- betaTest(fit2, coef.no = 3, Beta = 0)
+#' fit.null1 <- lm.rrpp(HeadLength ~ SVL, 
+#' data = PlethMorph,
+#' verbose = TRUE)
+#' 
+#' fit.null2 <- lm.rrpp(HeadLength ~ TailLength, 
+#' data = PlethMorph,
+#' verbose = TRUE)
+#' 
+#' #' ## allometries
+#' T3 <- betaTest(fit2, fit.null2, coef.no = 2, Beta = 0)
+#' T4 <- betaTest(fit2, fit.null1, coef.no = 3, Beta = 0)
 #' summary(T3)
 #' summary(T4)
 #' 

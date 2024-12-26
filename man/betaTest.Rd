@@ -51,6 +51,17 @@ This function is not recommended for high-dimensional data, as it will invoke
 use of a generalized inverse of the residual covariance matrix.  Additionally, 
 hypothesizing the beta values for many variables should be challenging.  However,
 this test will work well with one or few variables.
+
+ \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
+ The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
+ test statistic and only tests the null hypothesis that the length of the vector is 0.  
+ The significance of the test is based on random values produced by RRPP, based on the
+ matrices of coefficients that are produced in all permutations.  The betaTest analysis
+ allows different null hypotheses to be used (vector length is not necessarily 0) and also
+ calculates Mahalanobis distance, rather than Euclidean distance.  This statistic is probably 
+ better for more types of models (like generalized least squares fits) but requires performing
+ tests for specific vectors of coefficients, based on the null model described.
+}
 }
 \examples{
 \dontrun{
@@ -79,9 +90,17 @@ data = PlethMorph,
 SS.type = "II",
 verbose = TRUE)
 
-## allometries
-T3 <- betaTest(fit2, coef.no = 2, Beta = 0)
-T4 <- betaTest(fit2, coef.no = 3, Beta = 0)
+fit.null1 <- lm.rrpp(HeadLength ~ SVL, 
+data = PlethMorph,
+verbose = TRUE)
+
+fit.null2 <- lm.rrpp(HeadLength ~ TailLength, 
+data = PlethMorph,
+verbose = TRUE)
+
+#' ## allometries
+T3 <- betaTest(fit2, fit.null2, coef.no = 2, Beta = 0)
+T4 <- betaTest(fit2, fit.null1, coef.no = 3, Beta = 0)
 summary(T3)
 summary(T4)
 
@@ -106,6 +125,9 @@ summary(T7)
 summary(T8)
 
 }
+}
+\seealso{
+\code{\link{coef.lm.rrpp}}
 }
 \author{
 Michael Collyer

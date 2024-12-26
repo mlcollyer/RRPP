@@ -35,7 +35,17 @@
 #' y ~ b1 + b2.  The estimate for b2 might not be the same in the test as when estimated 
 #' from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect what one
 #' would expect from the full model (like when using type III SS).  
-#'
+#'  
+#'  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
+#'  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
+#'  test statistic and only tests the null hypothesis that the length of the vector is 0.  
+#'  The significance of the test is based on random values produced by RRPP, based on the
+#'  matrices of coefficients that are produced in all permutations.  The betaTest analysis
+#'  allows different null hypotheses to be used (vector length is not necessarily 0) and also
+#'  calculates Mahalanobis distance, rather than Euclidean distance.  This statistic is probably 
+#'  better for more types of models (like generalized least squares fits) but requires performing
+#'  tests for specific vectors of coefficients, based on the null model described.
+#' }
 #' @param object Object from \code{\link{lm.rrpp}}
 #' @param SE Whether to include standard errors of coefficients.  Standard
 #' errors are muted if test = TRUE.
@@ -51,6 +61,7 @@
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
+#' @seealso \code{\link{betaTest}}
 #' @examples 
 #' \dontrun{
 #' # See examples for lm.rrpp to see how anova.lm.rrpp works in conjunction
