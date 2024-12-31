@@ -1234,14 +1234,18 @@ print.pairwise <- function(x, ...){
 #' can be expressed in radians or degrees.  Vector correlation indicates 
 #' the similarity of 
 #' vector orientation, independent of vector length.}
-#' \item{\bold{Difference in vector lengths, "DL"}}{  If the length of a 
-#' vector is an important attribute -- e.g., the amount of multivariate 
-#' change per one-unit
+#' \item{\bold{Difference between vector lengths, "DL"}}{  If the length of a vector 
+#' is an important attribute -- e.g., the amount of multivariate change per 
+#' one-unit
 #' change in a covariate -- then the absolute value of the difference in 
-#' vector lengths is a practical statistic to compare vector lengths.  
-#' Let d1 and
+#' vector lengths is a practical statistic to compare vector lengths, rather
+#' than the estimates the vectors make.  Let 
+#' d1 and
 #' d2 be the distances (length) of vectors.  Then |d1 - d2| is a statistic 
-#' that compares their lengths.}
+#' that compares their lengths.  For slope vectors, this is a comparison of rates.
+#' For comparison, if vectors are rates, "dist" finds the difference between estimates per unit
+#' change of, e.g., time, size, etc., which could be large, even for small rates of change, if 
+#' vectors point in dissimilar directions.  "DL" is a comparison of rates, irrespective of direction.
 #' \item{\bold{Variance, "var"}}{  Vectors of residuals from a linear 
 #' model indicate can express the distances of observed values from 
 #' fitted values.  Mean
@@ -3680,17 +3684,31 @@ print.betaTest <- function(x,
   cat("\n equal to Beta = ")
   cat(as.vector(x$Beta))
   
-  cat("\n Test performed with", length(x$random.md), 
-      "permutations of residuals from the null model.\n\n")
+  cat("\n Test performed with", NCOL(x$random.stats[[1]]), 
+      "permutations of residuals from specified null models.\n\n")
   
-  UCL = quantile(x$random.md, confidence)
+  Result <- lapply(x$random.stats, function(y){
+    d <- y[1,]
+    md <- y[2,]
+    dUCL = quantile(d, confidence)
+    mdUCL = quantile(md, confidence)
+    df = data.frame(d = d[1], UCLd = dUCL, 
+                    Zd = effect.size(d),
+                    Pd = pval(d), 
+                    md = md[1], UCLmd = mdUCL, 
+                    Zmd = effect.size(md),
+                    Pmd = pval(md))
+    colnames(df)[2] <- paste("UCLd (", names(dUCL), ")", sep = "")
+    colnames(df)[6] <- paste("UCLmd (", names(mdUCL), ")", sep = "")
+    colnames(df)[4] <- "Pr(>d)"
+    colnames(df)[8] <- "Pr(>md)"
+    df
+  })
   
-  df = data.frame(d = x$obs.d, md = x$obs.md,
-                  UCL = UCL, Zmd = x$Z, P = x$P)
-  colnames(df)[3] <- paste("UCL (", names(UCL), ")", sep = "")
-  rownames(df) <- rownames(x$obs.B.mat)[x$coef.no]
+  names(Result) <- rownames(x$obs.B.mat)[x$coef.no]
   
-  print(df)
+  tab <- do.call(rbind, Result)
+  print(tab)
   
 }
 

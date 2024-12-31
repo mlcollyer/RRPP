@@ -40,11 +40,19 @@
 #'  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
 #'  test statistic and only tests the null hypothesis that the length of the vector is 0.  
 #'  The significance of the test is based on random values produced by RRPP, based on the
-#'  matrices of coefficients that are produced in all permutations.  The betaTest analysis
-#'  allows different null hypotheses to be used (vector length is not necessarily 0) and also
-#'  calculates Mahalanobis distance, rather than Euclidean distance.  This statistic is probably 
-#'  better for more types of models (like generalized least squares fits) but requires performing
-#'  tests for specific vectors of coefficients, based on the null model described.
+#'  matrices of coefficients that are produced in all permutations.  The null models for generating
+#'  RRPP distributions are consistent with those used for ANOVA, as specified in the 
+#'  \code{\link{lm.rrpp}} fit by choice of SS type.  Therefore, the random coefficients are
+#'  consistent with those produced by RRPP for generating random estimates used in ANOVA.
+#'  
+#'  The betaTest analysis allows different null hypotheses to be used (vector length is not necessarily 0) 
+#'  and unless otherwise specified, uses a null model that lacks one vector of parameters and a full
+#'  model that contains all vectors of parameters, for the parameter for which coefficients are estimated.
+#'  This is closest to a type III SS method of estimation, but each parameter is dropped from the model,
+#'  rather than terms potentially comprising several parameters.  Additionally, betaTest calculates
+#'  Mahalanobis distance, in addition to Euclidean distance, for vectors of coefficients.  
+#'  This statistic is probably 
+#'  better for more types of models (like generalized least squares fits).
 #' }
 #' @param object Object from \code{\link{lm.rrpp}}
 #' @param SE Whether to include standard errors of coefficients.  Standard
