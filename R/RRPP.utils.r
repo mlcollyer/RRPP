@@ -431,6 +431,10 @@ print.coef.lm.rrpp <- function(x, ...){
   
   if(x$test){
     
+    cat("\nPlease be aware that the test of coefficients will be deprecated.")
+    cat("\nUse betaTest, which is more flexible;")
+    cat("\ne.g., betaTest(fit, null.method = 'terms')\n")
+    
     cat("\nLinear Model fit with lm.rrpp\n")
     cat(paste("\nNumber of observations:", x$n))
     cat(paste("\nNumber of dependent variables:", x$p))

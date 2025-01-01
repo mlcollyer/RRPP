@@ -7,6 +7,7 @@
 betaTest(
   fit,
   X.null = NULL,
+  null.method = c("parameters", "terms"),
   coef.no = NULL,
   Beta = NULL,
   print.progress = FALSE
@@ -21,12 +22,26 @@ that if any transformation of a design matrix is required (GLS estimation),
 it is assumed that the matrix was transformed prior to analysis.  If X.null is a \code{\link{lm.rrpp}}
 object, transformation is inherent.}
 
-\item{Beta}{A single value (for univariate data) or a numeric vector with length equal to
-the number of variables used in the fit object.  If left NULL, 0 is used for each parameter.}
+\item{null.method}{If X.null is not used, this argument directs whether to use null models based on 
+model terms (like would be done in ANOVA, based on SS type) or whether to drop single parameters 
+from the linear model
+design matrix to create null models.  The default should be "parameters", 
+unless there is an explicit reason 
+to use null models based on SS type in ANOVA or alternatively, X.null is defined.}
 
-\item{coef.no.}{The row or rows of a matrix of coefficients for which to perform the test.
+\item{coef.no}{The row or rows of a matrix of coefficients for which to perform the test.
 This can be learned by performing coef(fit), prior to the test.  If left NULL, 
 the analysis will cycle through every possible vector of coefficients (rows of a coefficients matrix).}
+
+\item{Beta}{A single value (for univariate data) or a numeric vector with length equal to
+the number of variables used in the fit object.  If left NULL, 0 is used for each parameter.  
+This should not be a matrix.  If one wishes to use different Beta vectors for different coefficients,
+then multiple tests should be performed.  (Because tests are performed sequentially, multiple tests
+using the same Beta vector produces results that are the same as for multiple rows of coefficients,
+using the same Beta vector.)}
+
+\item{print.progress}{A logical value for whether to print test progress to the screen.  This might
+be useful if a large number of coefficient vectors are tested, so that one can track completion.}
 }
 \value{
 Function returns a list with the following components: 
@@ -35,10 +50,8 @@ Function returns a list with the following components:
   residual covariance matrix; the Mahalanobis distance}
   \item{Beta}{Hypothesized beta values in the Beta vector.}
   \item{obs.B.mat}{The observed matrix of coefficients (before subtracting Beta).}
-  \item{coef.no}{The row of the observed matrix of coefficients, for which to subtract Beta.}
-  \item{random.md}{Random Mahalanobis distances produced with RRPP.}
-  \item{Z}{The effect size of the observed Mahalanbois distance, based on RRPP.}
-  \item{P}{The P-value of the observed Mahalanobis distance, based on RRPP.}
+  \item{coef.no}{The rows of the observed matrix of coefficients, for which to subtract Beta.}
+  \item{random.stats}{Random distances produced with RRPP.}
 }
 \description{
 For any \code{\link{lm.rrpp}} object, a vector of coefficients
@@ -53,7 +66,8 @@ This function can use either the square-root of the inner-product of vectors of 
 or generalized inner-product based on the inverse of the residual covariance matrix 
 (Mahalanobis distance, md) as statistics.  In most cases, either will likely yield similar (or same) 
 P-values.  However, Mahalanobis distance might be preferred for generalized least squares fits, which 
-do not have consistent residual covariance matrices for null (intercept only) models (the distances are
+do not have consistent residual covariance matrices for null (intercept only) models over
+RRPP permutations (the distances are thus
 standarized by the residual covariances).  If high-dimensional data are analyzed, a generalized inverse 
 of the residual covariance matrix will be used because of singular covariance matrices.  Results are less 
 trustworthy with Mahalanbois distances, in these cases.
@@ -62,16 +76,23 @@ The coefficient number should be provided for specific tests.  One can determine
 coef(fit).  If it is not provided (NULL), tests will be performed on all possible vectors of coefficients
 (rows of coefficients matrix).  These tests will be performed sequentially.  If a null model is not specified,
 then for each vector of coefficients, the corresponding parameter is dropped from the linear model
-design matrix to make a null model.  This process is analogous in some ways to a leave-one-out 
+design matrix to make a null model (null.method = "parameters") 
+or the null model that would correspond to a term in the linear model could
+be used (null.method = "terms"), if results are intended to be consistent with ANOVA 
+performed on the linear model.  
+This null.method = "parameters" process is analogous in some ways to a leave-one-out 
 cross-validation (LOOCV) analysis, testing each coefficient against models containing parameters for all other
 coefficients.  For example, for a linear model fit, y ~ x1 + x2 + 1, where x1 and x2 are single-parameter 
 covariates,
 the analysis would first drop the intercept, then x1, then x2, performing three sequential analyses.  This 
 option could require large amounts of computation time for large models, high-dimensional data, many RRPP
 permutations, or any combination of these.  It is important to realize that if x1 and x2 are multi-parameter 
-factors, betaTest will treat each parameter as unique, unless a specific null model is provided.
-This is different than coef.lm.rrpp, which uses terms of the model based on SS type, and is, therefore, more
-complex yet less flexible.
+factors, null.method = "parameters" will treat each parameter as unique, 
+unless either a specific null model is provided of null.method = "terms".
+The test results previously reported via coef.lm.rrpp can be found using null.method = "terms".
+This option uses terms based on SS type, so statistics for any vector of coefficients are based on
+coefficients estimated to calculate SS in ANOVA, and might not make much sense, independent of
+other coefficients for the same terms.
 
  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
@@ -106,14 +127,20 @@ summary(T1)
 # compare to
 coef(fit, test = TRUE)
 
-# Note that is Beta is not provided
+# Note that if Beta is not provided
 
 T1 <- betaTest(fit, coef.no = 2)
 summary(T1)
 
-# Note that is coef.no is not provided
+# Note that if coef.no is not provided
 
 T1 <- betaTest(fit)
+summary(T1)
+
+# Note that if X.null is provided
+
+T1 <- betaTest(fit, X.null = model.matrix(fit)[, 1],
+coef.no = 2)
 summary(T1)
 
 
@@ -156,8 +183,9 @@ T6 <- betaTest(fit2, fit.null1, coef.no = 3, Beta = 1)
 summary(T5)
 summary(T6) 
 
-# General test of slopes = 0 for all coefficients
-T7 <- betaTest(fit)
+# General test of slopes = 0 for all coefficients, using terms
+# rather than parameters as the null method
+T7 <- betaTest(fit2, null.method = "terms")
 summary(T7)
 
 # Compare to
