@@ -1249,7 +1249,7 @@ print.pairwise <- function(x, ...){
 #' that compares their lengths.  For slope vectors, this is a comparison of rates.
 #' For comparison, if vectors are rates, "dist" finds the difference between estimates per unit
 #' change of, e.g., time, size, etc., which could be large, even for small rates of change, if 
-#' vectors point in dissimilar directions.  "DL" is a comparison of rates, irrespective of direction.
+#' vectors point in dissimilar directions.  "DL" is a comparison of rates, irrespective of direction.}
 #' \item{\bold{Variance, "var"}}{  Vectors of residuals from a linear 
 #' model indicate can express the distances of observed values from 
 #' fitted values.  Mean
