@@ -8,6 +8,7 @@ betaTest(
   fit,
   X.null = NULL,
   null.method = c("parameters", "terms"),
+  include.md = FALSE,
   coef.no = NULL,
   Beta = NULL,
   print.progress = FALSE
@@ -28,6 +29,9 @@ from the linear model
 design matrix to create null models.  The default should be "parameters", 
 unless there is an explicit reason 
 to use null models based on SS type in ANOVA or alternatively, X.null is defined.}
+
+\item{include.md}{A logical vector for whether to include Mahalanobis distances in the results.
+For highly multivariate data, this will slow down computations, significantly.}
 
 \item{coef.no}{The row or rows of a matrix of coefficients for which to perform the test.
 This can be learned by performing coef(fit), prior to the test.  If left NULL, 
@@ -112,6 +116,26 @@ other coefficients for the same terms.
  This statistic is probably 
  better for more types of models (like generalized least squares fits).
 }
+
+ \subsection{High-dimensional data}{ 
+ If data are high-dimensional (more variables than observations), or even highly multivariate,
+ using Malahanbois distance can require significant computation time and will require
+ using a generalized inverse.  One might wish to consider first whether using principal component 
+ scores or other ordinate scores could achieve the same goal.  (See \code{\link{ordinate}}.)
+ For example, one could use the first few principal components as a surrogate for a high-dimensional
+ trait, and test whether the surrogate trait is different than Beta.  This would require that
+ the PC scores make sense compared to the original variables, but it would be more
+ computationally tractable.
+} 
+
+ \subsection{Generalized Least Squares}{ 
+ To the extent that is possible, tests for GLS estimated coefficients should use 
+ Mahalanobis distance.  The reason is that the covariance matrix for the data 
+ (not to be confused with the residual covariance matrix of a linear model)
+ might not be consistent across RRPP permutations.  To assure that random distances are 
+ comparable in terms of scale, a generalized (Mahalanobis) distance is safer.  However,
+ this can impose a computational burden for high-dimensional data (see above).
+}
 }
 \examples{
 \dontrun{
@@ -121,8 +145,16 @@ data = PlethMorph,
 verbose = TRUE)
 
 ## Allometry test (Beta = 0)
+
 T1 <- betaTest(fit, coef.no = 2, Beta = 0)
 summary(T1)
+
+# Including Mahalanobis distance
+
+T1 <- betaTest(fit, coef.no = 2, 
+Beta = 0, include.md = TRUE)
+summary(T1)
+
 
 # compare to
 coef(fit, test = TRUE)
@@ -203,6 +235,22 @@ T9 <- betaTest(fit3, coef.no = 2, Beta = c(1, 1))
 
 summary(T8)
 summary(T9)
+
+## GLS example
+
+fit4 <- lm.rrpp(TailLength ~ SVL, 
+data = PlethMorph,
+Cov = PlethMorph$PhyCov,
+verbose = TRUE)
+
+T10 <- betaTest(fit4, include.md = TRUE)
+
+summary(T10)
+
+# compare to
+coef(fit4, test = TRUE)
+
+anova(fit4)
 
 }
 }

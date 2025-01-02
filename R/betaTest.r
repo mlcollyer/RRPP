@@ -59,6 +59,26 @@
 #'  better for more types of models (like generalized least squares fits).
 #' }
 #' 
+#'  \subsection{High-dimensional data}{ 
+#'  If data are high-dimensional (more variables than observations), or even highly multivariate,
+#'  using Malahanbois distance can require significant computation time and will require
+#'  using a generalized inverse.  One might wish to consider first whether using principal component 
+#'  scores or other ordinate scores could achieve the same goal.  (See \code{\link{ordinate}}.)
+#'  For example, one could use the first few principal components as a surrogate for a high-dimensional
+#'  trait, and test whether the surrogate trait is different than Beta.  This would require that
+#'  the PC scores make sense compared to the original variables, but it would be more
+#'  computationally tractable.
+#' } 
+#' 
+#'  \subsection{Generalized Least Squares}{ 
+#'  To the extent that is possible, tests for GLS estimated coefficients should use 
+#'  Mahalanobis distance.  The reason is that the covariance matrix for the data 
+#'  (not to be confused with the residual covariance matrix of a linear model)
+#'  might not be consistent across RRPP permutations.  To assure that random distances are 
+#'  comparable in terms of scale, a generalized (Mahalanobis) distance is safer.  However,
+#'  this can impose a computational burden for high-dimensional data (see above).
+#' } 
+#' 
 #' @param fit Object from \code{\link{lm.rrpp}}
 #' @param X.null Optional object that is either a linear model design matrix or a model
 #' fit from \code{\link{lm.rrpp}}, from which a linear model design matrix can be extracted. Note
@@ -71,6 +91,8 @@
 #' design matrix to create null models.  The default should be "parameters", 
 #' unless there is an explicit reason 
 #' to use null models based on SS type in ANOVA or alternatively, X.null is defined. 
+#' @param include.md A logical vector for whether to include Mahalanobis distances in the results.  
+#' For highly multivariate data, this will slow down computations, significantly.
 #' @param coef.no The row or rows of a matrix of coefficients for which to perform the test.  
 #' This can be learned by performing coef(fit), prior to the test.  If left NULL, 
 #' the analysis will cycle through every possible vector of coefficients (rows of a coefficients matrix).
@@ -106,8 +128,16 @@
 #' verbose = TRUE)
 #' 
 #' ## Allometry test (Beta = 0)
+#' 
 #' T1 <- betaTest(fit, coef.no = 2, Beta = 0)
 #' summary(T1)
+#' 
+#' # Including Mahalanobis distance
+#' 
+#' T1 <- betaTest(fit, coef.no = 2, 
+#' Beta = 0, include.md = TRUE)
+#' summary(T1)
+#' 
 #' 
 #' # compare to
 #' coef(fit, test = TRUE)
@@ -189,10 +219,27 @@
 #' summary(T8)
 #' summary(T9)
 #' 
+#' ## GLS example
+#' 
+#' fit4 <- lm.rrpp(TailLength ~ SVL, 
+#' data = PlethMorph,
+#' Cov = PlethMorph$PhyCov,
+#' verbose = TRUE)
+#' 
+#' T10 <- betaTest(fit4, include.md = TRUE)
+#' 
+#' summary(T10)
+#' 
+#' # compare to
+#' coef(fit4, test = TRUE)
+#' 
+#' anova(fit4)
+#' 
 #' }
 
 betaTest <- function(fit, X.null = NULL,
                      null.method = c("parameters", "terms"),
+                     include.md = FALSE,
                      coef.no = NULL,
                      Beta = NULL,
                      print.progress = FALSE
@@ -248,7 +295,7 @@ betaTest <- function(fit, X.null = NULL,
   Qf <- qr.Q((QRf))
   Rf <- qr.R(QRf)
   Hb <- as.matrix(tcrossprod(fast.solve(Rf), Qf))
-  Hbs <- drop0(Matrix(Hb, sparse = TRUE), 1e-7)
+  Hbs <- drop0(Matrix(Hb, sparse = TRUE), 1e-12)
   if(length(Hbs@x) < length(Hb)) Hb <- Hbs
   rm(Hbs)
   
@@ -265,50 +312,60 @@ betaTest <- function(fit, X.null = NULL,
     }
     userNULL <- TRUE
     Qr <- QRr$Q
-    Q.list <- lapply(1:kk, function(.) Q = Qr)
+    Qr.list <- lapply(1:kk, function(.) Q = Qr)
   }
+  
+  useHbf.list <- FALSE
   
   if(!userNULL){
     if(null.method == "parameters")
-      Q.list <- lapply(1:kk, function(j) Q = Qf[, -(coef.no[j])])
+      Qr.list <- lapply(1:kk, function(j) Q = Qf[, -(coef.no[j])])
     
     if(null.method == "terms") {
-      
+      useHbf.list <- TRUE
       assgn <- attr(Xf, "assign")
-      Xrs <- getModels(fit, "X")$reduced
-      QRrs.Qs <- lapply(Xrs, function(x) qr.Q(qr(x)))
-      Q.list <- lapply(1:kk, function(j){
+      QRs <- getModels(fit, "qr")
+      QRrs.Qs <- lapply(QRs$reduced, function(x) x$Q)
+      Qr.list <- lapply(1:kk, function(j){
         as.j <- assgn[j]
         if(as.j == 0)
-          q <- qr.Q(qr(Xf[, -j])) else 
+          q <- Qf[, -j] else 
             q <- QRrs.Qs[[as.j]]
           q
       })
+      Hbf.list <- lapply(1:kk, function(j){
+        as.j <- assgn[j]
+        if(as.j == 0)
+          h <- Hb else 
+            h <- getHb(QRs$full[[j]])
+        hs <- drop0(Matrix(h, sparse = TRUE), 1e-12)
+        if(length(hs@x) < length(h)) h <- hs
+        rm(hs)
+        h
+      })
     }
   }
-  
-  getBstats <- function(coef.no, Beta, Hb, Qr, Y, n, p, ind){
+
+  getBstats <- function(coef.no, Beta, Hb, Qr, Y, n, p, 
+                        include.md, ind){
     k <- ncol(Qf)
     Fitted <- fastFit(Qr, Y, n, p)
     Resid <- Y - Fitted
-    Result <- sapply(ind, function(x) {
+    Result <- sapply(1:length(ind), function(j) {
+      x <- ind[[j]]
       yp <- Fitted + Resid[x,]
       B <- as.matrix(Hb %*% yp)
       R <- yp - fastFit(Qf, yp, n, p)
-      S <- fast.solve(crossprod(R) / (n - k))
       b <- B[coef.no,]
+      if(j == 1) b <- b - Beta
       d <- sqrt(sum(b^2))
-      md <- sqrt(crossprod(b, S) %*% b)
+      if(include.md){
+        S <- fast.solve(crossprod(R) / (n - k))
+        md <- if(include.md) sqrt(crossprod(b, S) %*% b)
+      } else md <- NULL
       c(d = d, md = md)
       })
-    B <- as.matrix(Hb %*% Y)
-    R <- Y - fastFit(Qf, Y, n, p)
-    S <- fast.solve(crossprod(R) / (n - k))
-    b <- B[coef.no,] - Beta
-    d <- sqrt(sum(b^2))
-    md <- sqrt(crossprod(b, S) %*% b)
-    Result[, 1] <- c(d = d, md = md)
-    colnames(Result) <- names(ind)
+    
     Result
   }
   
@@ -323,14 +380,17 @@ betaTest <- function(fit, X.null = NULL,
           perms, "permutations...")
     }
     cn <- coef.no[j]
-    q <- Q.list[[j]]
-    getBstats(cn, Beta, Hb, q, TY, n, p, ind)
+    q <- Qr.list[[j]]
+    h <- if(useHbf.list) Hbf.list[[j]] else Hb
+    getBstats(cn, Beta, h, q, TY, n, p, include.md, ind)
   })
   
   names(Result) <- coef.nms
   
-  obs.d <- sapply(Result, function(x) x[, 1][1])
-  obs.md <- sapply(Result, function(x) x[, 2][2])
+  obs.d <- if(include.md) sapply(Result, function(x) x[, 1][1]) else
+    sapply(Result, function(x) x[1]) 
+  obs.md <- if(include.md) sapply(Result, function(x) x[, 2][2]) else
+    NULL
   
   out <- list(
     obs.d = obs.d,

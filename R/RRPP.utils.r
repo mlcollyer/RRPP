@@ -3688,24 +3688,38 @@ print.betaTest <- function(x,
   cat("\n equal to Beta = ")
   cat(as.vector(x$Beta))
   
-  cat("\n Test performed with", NCOL(x$random.stats[[1]]), 
+  include.md <- !is.null(x$obs.md)
+  perms <- if(include.md) NCOL(x$random.stats[[1]]) else 
+    length(x$random.stats[[1]])
+  
+  cat("\n Test performed with", perms, 
       "permutations of residuals from specified null models.\n\n")
   
   Result <- lapply(x$random.stats, function(y){
-    d <- y[1,]
-    md <- y[2,]
+    d <- if(include.md) y[1,] else y
     dUCL = quantile(d, confidence)
-    mdUCL = quantile(md, confidence)
+    if(include.md){
+      md <- y[2,]
+      mdUCL = quantile(md, confidence)
+    }
+    
     df = data.frame(d = d[1], UCLd = dUCL, 
                     Zd = effect.size(d),
-                    Pd = pval(d), 
-                    md = md[1], UCLmd = mdUCL, 
-                    Zmd = effect.size(md),
-                    Pmd = pval(md))
+                    Pd = pval(d))
+    if(include.md){
+      df$md = md[1] 
+      df$UCLmd = mdUCL 
+      df$Zmd = effect.size(md)
+      df$Pmd = pval(md)
+    }
+  
     colnames(df)[2] <- paste("UCLd (", names(dUCL), ")", sep = "")
-    colnames(df)[6] <- paste("UCLmd (", names(mdUCL), ")", sep = "")
     colnames(df)[4] <- "Pr(>d)"
-    colnames(df)[8] <- "Pr(>md)"
+    if(include.md){
+      colnames(df)[6] <- paste("UCLmd (", names(mdUCL), ")", sep = "")
+      colnames(df)[8] <- "Pr(>md)"
+    }
+    
     df
   })
   
