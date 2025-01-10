@@ -13,6 +13,10 @@
 #' by the 
 #' \code{\link{lm.rrpp}} model fit.  
 #' 
+#'  \subsection{The test argument will be deprecated}{ 
+#'  
+#' The following details will also be removed:
+#'  
 #' This function can be used to test the specific coefficients of an 
 #' lm.rrpp fit.  The test
 #' statistics are the distances (d), which are also standardized (Z-scores).  
@@ -35,7 +39,9 @@
 #' y ~ b1 + b2.  The estimate for b2 might not be the same in the test as when estimated 
 #' from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect what one
 #' would expect from the full model (like when using type III SS).  
-#'  
+#'  }
+#' 
+  
 #'  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
 #'  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
 #'  test statistic and only tests the null hypothesis that the length of the vector is 0.  
@@ -92,8 +98,11 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
   k <- length(x$LM$term.labels)
   rc <- x$LM$random.coef
   rd <- x$LM$random.coef.distances
-  coef.obs <- if(x$LM$gls) x$LM$gls.coefficients else x$LM$coefficients
-  n <- x$LM$n; p <- x$LM$p; p.prime = x$LM$p.prime
+  gls <- x$LM$gls
+  coef.obs <- if(gls) x$LM$gls.coefficients else x$LM$coefficients
+  n <- x$LM$n
+  p <- x$LM$p
+  p.prime = x$LM$p.prime
   model.terms <- x$LM$Terms
   
   PermInfo <- getPermInfo(x, "all")
@@ -101,7 +110,6 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
   perms <- PermInfo$perms
   SS.type <- x$ANOVA$SS.type
   RRPP <- PermInfo$perm.method
-  gls <- x$LM$gls
   
   indb <- boot.index(length(PermInfo$perm.schedule[[1]]), 
                             PermInfo$perms -1, 
@@ -125,22 +133,32 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
       rmove <- which(rownames(se) == "(Intercept)")
       Y <- as.matrix(x$LM$Y)
       X <- x$LM$X
-      B <- if(x$LM$gls) x$LM$gls.coefficients else x$LM$coefficients
-      result <- sapply(indb, function(x){
-        Xm <- colMeans(as.matrix(X[x, ]))
-        Ym <- colMeans(as.matrix(Y[x, ]))
-        Ym - crossprod(Xm[-rmove], B[-rmove, ])
-      })
-      
-      if(is.vector(result))  {
-        rd <- result - mean(result)
-        seint <- sqrt(sum(rd^2) / perms)
-      } else{
-        rd <- t(result) - rowMeans(result) #### left off here fix this
-        seint <- sqrt(colSums(rd^2)/perms)
-        
+      if(gls) {
+        Pcov <- x$LM$Pcov
+        if(is.null(Pcov) && !is.null(x$LM$Cov))
+          Pcov <- Cov.proj(x$LM$Cov)
+        if(is.null(Pcov)){
+          w <- sqrt(x$LM$weights)
+          Y <- Y * w
+          X <- X * w
+        } else {
+          Y <- Pcov %*% Y
+          X <- Pcov %*% X
+        }
       }
-      se[rmove, ] <- seint
+      
+      X0 <- X[, -rmove]
+      Q0 <- QRforX(X0)$Q
+      Hb <- as.matrix(getHb(QRforX(X)))
+      Ft <- fastFit(Q0, Y, n, p)
+      Re <- as.matrix(Y - Ft)
+
+      result <- sapply(indb, function(x)
+        as.matrix(Hb %*% (Ft + Re[x,]))[rmove,])
+      
+      if(is.vector(result)) result <- matrix(result, 1, perms)
+      ri <- as.matrix(result - rowMeans(result))
+      se[rmove, ] <- sqrt(rowSums(ri^2) / perms)
     }
     
   } else se <- NULL

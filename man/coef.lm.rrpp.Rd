@@ -38,6 +38,10 @@ described.  Random coefficients are based on either RRPP or FRPP, as defined
 by the 
 \code{\link{lm.rrpp}} model fit.  
 
+ \subsection{The test argument will be deprecated}{ 
+ 
+ The following is details will also be removed:
+ 
 This function can be used to test the specific coefficients of an 
 lm.rrpp fit.  The test
 statistics are the distances (d), which are also standardized (Z-scores).  
@@ -60,7 +64,8 @@ b2 will be estimated and tested, using a null model, y ~ b1 and a full model,
 y ~ b1 + b2.  The estimate for b2 might not be the same in the test as when estimated 
 from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect what one
 would expect from the full model (like when using type III SS).  
- 
+ }
+
  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
  test statistic and only tests the null hypothesis that the length of the vector is 0.  

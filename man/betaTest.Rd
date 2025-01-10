@@ -7,7 +7,6 @@
 betaTest(
   fit,
   X.null = NULL,
-  null.method = c("parameters", "terms"),
   include.md = FALSE,
   coef.no = NULL,
   Beta = NULL,
@@ -22,13 +21,6 @@ fit from \code{\link{lm.rrpp}}, from which a linear model design matrix can be e
 that if any transformation of a design matrix is required (GLS estimation), 
 it is assumed that the matrix was transformed prior to analysis.  If X.null is a \code{\link{lm.rrpp}}
 object, transformation is inherent.}
-
-\item{null.method}{If X.null is not used, this argument directs whether to use null models based on 
-model terms (like would be done in ANOVA, based on SS type) or whether to drop single parameters 
-from the linear model
-design matrix to create null models.  The default should be "parameters", 
-unless there is an explicit reason 
-to use null models based on SS type in ANOVA or alternatively, X.null is defined.}
 
 \item{include.md}{A logical vector for whether to include Mahalanobis distances in the results.
 For highly multivariate data, this will slow down computations, significantly.}
@@ -80,23 +72,19 @@ The coefficient number should be provided for specific tests.  One can determine
 coef(fit).  If it is not provided (NULL), tests will be performed on all possible vectors of coefficients
 (rows of coefficients matrix).  These tests will be performed sequentially.  If a null model is not specified,
 then for each vector of coefficients, the corresponding parameter is dropped from the linear model
-design matrix to make a null model (null.method = "parameters") 
-or the null model that would correspond to a term in the linear model could
-be used (null.method = "terms"), if results are intended to be consistent with ANOVA 
-performed on the linear model.  
-This null.method = "parameters" process is analogous in some ways to a leave-one-out 
+design matrix to make a null model.  
+This process is analogous in some ways to a leave-one-out 
 cross-validation (LOOCV) analysis, testing each coefficient against models containing parameters for all other
 coefficients.  For example, for a linear model fit, y ~ x1 + x2 + 1, where x1 and x2 are single-parameter 
 covariates,
 the analysis would first drop the intercept, then x1, then x2, performing three sequential analyses.  This 
 option could require large amounts of computation time for large models, high-dimensional data, many RRPP
-permutations, or any combination of these.  It is important to realize that if x1 and x2 are multi-parameter 
-factors, null.method = "parameters" will treat each parameter as unique, 
-unless either a specific null model is provided of null.method = "terms".
-The test results previously reported via coef.lm.rrpp can be found using null.method = "terms".
-This option uses terms based on SS type, so statistics for any vector of coefficients are based on
-coefficients estimated to calculate SS in ANOVA, and might not make much sense, independent of
-other coefficients for the same terms.
+permutations, or any combination of these.  
+The test results previously reported via coef.lm.rrpp can be found using X.null.
+One would have to be cognizant of the null model used for each coefficient, based on
+which term it represents.  The function, \code{\link{reveal.model.designs}} could help determine
+terms to include in a null model.  Regardless, such tests have to be performed iteratively now,
+and, but do not require verbose results for initial lm.rrpp fits.
 
  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
@@ -212,16 +200,13 @@ coef(fit2, test = TRUE)
 ## isometries
 T5 <- betaTest(fit2, fit.null2, coef.no = 2, Beta = 1)
 T6 <- betaTest(fit2, fit.null1, coef.no = 3, Beta = 1)
+
 summary(T5)
 summary(T6) 
 
-# General test of slopes = 0 for all coefficients, using terms
-# rather than parameters as the null method
-T7 <- betaTest(fit2, null.method = "terms")
+# Intercept test
+T7 <- betaTest(fit2, fit.null1, coef.no = 1)
 summary(T7)
-
-# Compare to
-coef(fit2, test = TRUE)
 
 # multivariate data
 

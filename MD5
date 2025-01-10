@@ -10,9 +10,9 @@ b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
 78396282d43399ec6e9c78890c0f89e4 *man/anova.lm.rrpp.Rd
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
-e70499d9214f0c1e44c0096b54e0eb02 *man/betaTest.Rd
+bd07bb249194eb2afe8044235d540244 *man/betaTest.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
-d5a983d264d542d001795fdc55e06ae1 *man/coef.lm.rrpp.Rd
+aed8d5dfae4f1fce6acd4615e118b9e8 *man/coef.lm.rrpp.Rd
 df91d0b264a0632eec7e808f709481ce *man/convert2ggplot.Rd
 deb20fcd8f3f46106885ba90fd5eaa8f *man/effect.size.Rd
 0561712843e52a531123acd006d408a2 *man/fishy.Rd
@@ -107,8 +107,8 @@ e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 c9dd72775b33ea6a49562632f57334c4 *R/base_lm.rrpp.r
-cc47827d687d3bd2b94bb0716c59ab97 *R/betaTest.r
-0edafc1e89a4d1addda3707c7773d33d *R/coef.lm.rrpp.r
+5ad82cb6e9f410a83418da6a0ad69d75 *R/betaTest.r
+e8f80d7394450558ead1da9eceec8ace *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
 6b98781ccf0892dd070f3d3116ccdaef *R/ICCstats.r
@@ -137,7 +137,7 @@ f8bf1d7578620935159fd9e9c6ee4d03 *R/RRPP.utils.r
 e4806298e1195e350a6126392d450dca *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
 e51cd504651b739a78b01db7d8c790e0 *README.md
-7db72b7e01004751c5cf9d9eb2c9122c *RRPP_develop.Rproj
+21df84a3216e52395ea69fd9347d51dc *RRPP_develop.Rproj
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
 85c0b5fe5db74c85a5b703c4058d2114 *tests/testthat/test-RRPP.R
 08146d2cb565e247772bc96add8ee56f *vignettes/ANOVA.vs.MANOVA.Rmd
