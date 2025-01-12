@@ -40,7 +40,7 @@ by the
 
  \subsection{The test argument will be deprecated}{ 
  
- The following is details will also be removed:
+The following details will also be removed:
  
 This function can be used to test the specific coefficients of an 
 lm.rrpp fit.  The test

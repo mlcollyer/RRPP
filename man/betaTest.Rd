@@ -84,7 +84,7 @@ The test results previously reported via coef.lm.rrpp can be found using X.null.
 One would have to be cognizant of the null model used for each coefficient, based on
 which term it represents.  The function, \code{\link{reveal.model.designs}} could help determine
 terms to include in a null model.  Regardless, such tests have to be performed iteratively now,
-and, but do not require verbose results for initial lm.rrpp fits.
+but do not require verbose results for initial lm.rrpp fits.
 
  \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
  The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
