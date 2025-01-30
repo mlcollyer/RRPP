@@ -94,14 +94,17 @@
 #' log-likelihoods.  This should be FALSE if comparing different GLS estimations
 #' of covariance matrices.  It should be TRUE if comparing different model fits
 #' with the same GLS-estimated covariance matrix.
+#' @param verbose A logical value for whether to include distributions of
+#' random log-likelihoods, if applicable. 
 #' 
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
 #' @return An object of class \code{model.comparison} is a data 
-#' frame with either log-likelihoods
-#' or covariance traces, plus parameter penalties.  AIC scores 
-#' might be include, if applicable
+#' frame with either log-likelihoods,
+#' covariance traces, or, Z-scores, plus parameter penalties.  AIC scores 
+#' might be included, if applicable. If verbose results are returned,
+#' random log-likelihoods are also included.
 #' @references Bedrick, E.J., and C.L. Tsai. 1994. Model selection 
 #' for multivariate regression in small samples. 
 #' Biometrics, 226-231.
@@ -197,7 +200,7 @@
 
 model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"), 
                             predictor = NULL, tol = NULL, pc.no = NULL,
-                            gls.null = FALSE) {
+                            gls.null = FALSE, verbose = FALSE) {
   
   dots <- list(...)
   check <- unlist(lapply(dots, inherits, "lm.rrpp"))
@@ -247,13 +250,22 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
   } else res <- sapply(dots, cov.trace) 
   
   if(type == "Z") {
-    res <- sapply(1:length(dots), function(j){
+    res <- lapply(1:length(dots), function(j){
       f <- dots[[j]]
-      z <- logLik(f, Z = TRUE, tol = tol, 
-                  pc.no = pc.no, gls.null = gls.null)$Z
+      LL <- logLik(f, Z = TRUE, tol = tol, 
+                   pc.no = pc.no, gls.null = gls.null,
+                   verbose = verbose)
+      z <- LL$Z
       if(is.na(z)) z <- 0
-      z      
+      if(verbose) {
+        random.logL <- LL$random.logL
+      } else random.logL <- NULL
+      list(z = z, random.logL = random.logL)   
     })
+    if(verbose) random.logL <- 
+        lapply(res, function (x) x$random.logL) else
+          NULL
+    res <- sapply(res, function (x) x$z)
   }
   
   par.pen <- function(f){
@@ -284,7 +296,12 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
    
   rownames(out) <- unlist(dot.names)
   out <- list(table = out, names = dot.names)
-  attr(out, "class") = "model.comparison"
+  if(verbose) {
+    out$random.logL <- random.logL
+    names(out$random.logL) <- dot.names
+  }
+  
+  attr(out, "class") <- "model.comparison"
   out
   
 }

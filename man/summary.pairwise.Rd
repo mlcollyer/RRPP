@@ -69,14 +69,18 @@ The arccosine (acos) of this value is the angle between vectors, which
 can be expressed in radians or degrees.  Vector correlation indicates 
 the similarity of 
 vector orientation, independent of vector length.}
-\item{\bold{Difference in vector lengths, "DL"}}{  If the length of a 
-vector is an important attribute -- e.g., the amount of multivariate 
-change per one-unit
+\item{\bold{Difference between vector lengths, "DL"}}{  If the length of a vector 
+is an important attribute -- e.g., the amount of multivariate change per 
+one-unit
 change in a covariate -- then the absolute value of the difference in 
-vector lengths is a practical statistic to compare vector lengths.  
-Let d1 and
+vector lengths is a practical statistic to compare vector lengths, rather
+than the estimates the vectors make.  Let 
+d1 and
 d2 be the distances (length) of vectors.  Then |d1 - d2| is a statistic 
-that compares their lengths.}
+that compares their lengths.  For slope vectors, this is a comparison of rates.
+For comparison, if vectors are rates, "dist" finds the difference between estimates per unit
+change of, e.g., time, size, etc., which could be large, even for small rates of change, if 
+vectors point in dissimilar directions.  "DL" is a comparison of rates, irrespective of direction.}
 \item{\bold{Variance, "var"}}{  Vectors of residuals from a linear 
 model indicate can express the distances of observed values from 
 fitted values.  Mean

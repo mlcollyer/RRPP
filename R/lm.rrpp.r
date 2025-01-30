@@ -1,6 +1,6 @@
 #' Linear Model Evaluation with a Randomized Residual Permutation Procedure
 #'
-#' Function performs many random linear model fits using different permutations of 
+#' Function performs a linear model fit over many random permutations of 
 #' data, using a randomized residual permutation procedure.
 #'
 #' The function fits a linear model using ordinary least squares (OLS) or 

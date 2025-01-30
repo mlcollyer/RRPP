@@ -38,6 +38,10 @@ described.  Random coefficients are based on either RRPP or FRPP, as defined
 by the 
 \code{\link{lm.rrpp}} model fit.  
 
+ \subsection{The test argument will be deprecated}{ 
+ 
+The following details will also be removed:
+ 
 This function can be used to test the specific coefficients of an 
 lm.rrpp fit.  The test
 statistics are the distances (d), which are also standardized (Z-scores).  
@@ -59,7 +63,27 @@ given a null model.  For example, for a model, y ~ b1 + b2 + b3, with type I SS,
 b2 will be estimated and tested, using a null model, y ~ b1 and a full model, 
 y ~ b1 + b2.  The estimate for b2 might not be the same in the test as when estimated 
 from the model, y ~ b1 + b2 + b3.  Therefore, the d statistic might not reflect what one
-would expect from the full model (like when using type III SS).
+would expect from the full model (like when using type III SS).  
+ }
+
+ \subsection{Difference between coef.lm.rrpp test and betaTest}{ 
+ The test for coef.lm.rrpp uses the square-root of inner-products of vectors (d) as a 
+ test statistic and only tests the null hypothesis that the length of the vector is 0.  
+ The significance of the test is based on random values produced by RRPP, based on the
+ matrices of coefficients that are produced in all permutations.  The null models for generating
+ RRPP distributions are consistent with those used for ANOVA, as specified in the 
+ \code{\link{lm.rrpp}} fit by choice of SS type.  Therefore, the random coefficients are
+ consistent with those produced by RRPP for generating random estimates used in ANOVA.
+ 
+ The betaTest analysis allows different null hypotheses to be used (vector length is not necessarily 0) 
+ and unless otherwise specified, uses a null model that lacks one vector of parameters and a full
+ model that contains all vectors of parameters, for the parameter for which coefficients are estimated.
+ This is closest to a type III SS method of estimation, but each parameter is dropped from the model,
+ rather than terms potentially comprising several parameters.  Additionally, betaTest calculates
+ Mahalanobis distance, in addition to Euclidean distance, for vectors of coefficients.  
+ This statistic is probably 
+ better for more types of models (like generalized least squares fits).
+}
 }
 \examples{
 \dontrun{
@@ -78,6 +102,9 @@ coef(fit, SE = TRUE) # Coefficients with SE
 coef(fit, test = TRUE, 
 confidence = 0.99) # Test of coefficients
 }
+}
+\seealso{
+\code{\link{betaTest}}
 }
 \author{
 Michael Collyer

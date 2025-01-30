@@ -37,15 +37,19 @@
 #' be expressed in radians or degrees.  Vector correlation indicates the 
 #' similarity of 
 #' vector orientation, independent of vector length.}
-#' \item{\bold{Difference in vector lengths, "DL"}}{  If the length of a vector 
+#' \item{\bold{Difference between vector lengths, "DL"}}{  If the length of a vector 
 #' is an important attribute -- e.g., the amount of multivariate change per 
 #' one-unit
 #' change in a covariate -- then the absolute value of the difference in 
-#' vector lengths is a practical statistic to compare vector lengths.  Let 
+#' vector lengths is a practical statistic to compare vector lengths, rather
+#' than the estimates the vectors make.  Let 
 #' d1 and
 #' d2 be the distances (length) of vectors.  Then |d1 - d2| is a statistic 
-#' that compares their lengths.  For slope vectors, this is a comparison of rates.}
-#' \item{\bold{Variance, "var}}{  Vectors of residuals from a linear model 
+#' that compares their lengths.  For slope vectors, this is a comparison of rates.
+#' For comparison, if vectors are rates, "dist" finds the difference between estimates per unit
+#' change of, e.g., time, size, etc., which could be large, even for small rates of change, if 
+#' vectors point in dissimilar directions.  "DL" is a comparison of rates, irrespective of direction.}
+#' \item{\bold{Variance, "var"}}{  Vectors of residuals from a linear model 
 #' indicate can express the distances of observed values from fitted values.  
 #' Mean
 #' squared distances of values (variance), by group, can be used to measure 
@@ -89,7 +93,7 @@
 #'  In previous versions of pairwise, \code{\link{summary.pairwise}} had three 
 #'  test types: "dist", "VC", and "var".  When one chose "dist", for LS mean 
 #'  vectors, the statistic was the inner-product of the vector difference.  
-#'  For slope vectors, "dist" returned the absolute value  of the difference 
+#'  For slope vectors, "dist" returned the absolute value of the difference 
 #'  between vector lengths, which is "DL" in 0.6.2 and subsequent versions.  This
 #'  update uses the same calculation, irrespective of vector types.  Generally,
 #'  "DL" is the same as a contrast in rates for slope vectors, but might not have

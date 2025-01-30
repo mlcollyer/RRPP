@@ -129,7 +129,7 @@ combination, based on terms
 of the entire model, plus the method of SS estimation.}
 }
 \description{
-Function performs many random linear model fits using different permutations of 
+Function performs a linear model fit over many random permutations of 
 data, using a randomized residual permutation procedure.
 }
 \details{
