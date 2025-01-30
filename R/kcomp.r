@@ -63,7 +63,12 @@
 #' @seealso \code{\link{plot.kcomp}}, \code{\link{ordinate}}, 
 #' \code{\link{plot.default}}, \code{\link{rrpp.data.frame}}
 #' @examples
-#'  # TBD
+#'  data(PlethMorph)
+#'  PCA <- ordinate(as.data.frame(PlethMorph[c("TailLength",
+#'  "HeadLength", "Snout.eye", "BodyWidth","Forelimb", "Hindlimb")],
+#'  scale. = TRUE))
+#'  Y <- PCA$x
+#'  KCA <- kcomp(Y, Cov = PlethMorph$PhyCov, tol = 0.001)
 #'  
 kcomp <- function(Y, Cov, 
                   transform. = TRUE,
@@ -88,6 +93,8 @@ kcomp <- function(Y, Cov,
   
   K <- fast.solve(SSCPg) %*% SSCPo
   eig <- eigen(K)
+  colnames(eig$vectors) <- paste("KC", 1:NCOL(eig$vectors), 
+                                 sep = "")
   scores <- z %*% eig$vectors
   out <- list(values = eig$values, 
               vectors = eig$vectors, 
@@ -97,3 +104,4 @@ kcomp <- function(Y, Cov,
   out
   
 }
+

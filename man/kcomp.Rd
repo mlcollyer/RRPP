@@ -63,7 +63,12 @@ performed, and the number of real eigenvectors that can be computed are retained
 aligned components are used for projection of data onto relative eigenvectors (the K components).
 }
 \examples{
- # TBD
+ data(PlethMorph)
+ PCA <- ordinate(as.data.frame(PlethMorph[c("TailLength",
+ "HeadLength", "Snout.eye", "BodyWidth","Forelimb", "Hindlimb")],
+ scale. = TRUE))
+ Y <- PCA$x
+ KCA <- kcomp(Y, Cov = PlethMorph$PhyCov, tol = 0.001)
  
 }
 \references{

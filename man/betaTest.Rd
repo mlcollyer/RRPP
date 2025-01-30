@@ -64,9 +64,9 @@ or generalized inner-product based on the inverse of the residual covariance mat
 P-values.  However, Mahalanobis distance might be preferred for generalized least squares fits, which 
 do not have consistent residual covariance matrices for null (intercept only) models over
 RRPP permutations (the distances are thus
-standarized by the residual covariances).  If high-dimensional data are analyzed, a generalized inverse 
+standardized by the residual covariances).  If high-dimensional data are analyzed, a generalized inverse 
 of the residual covariance matrix will be used because of singular covariance matrices.  Results are less 
-trustworthy with Mahalanbois distances, in these cases.
+trustworthy with Mahalanobis distances, in these cases.
 
 The coefficient number should be provided for specific tests.  One can determine this with, e.g., 
 coef(fit).  If it is not provided (NULL), tests will be performed on all possible vectors of coefficients
@@ -107,7 +107,7 @@ but do not require verbose results for initial lm.rrpp fits.
 
  \subsection{High-dimensional data}{ 
  If data are high-dimensional (more variables than observations), or even highly multivariate,
- using Malahanbois distance can require significant computation time and will require
+ using Mahalanobis distance can require significant computation time and will require
  using a generalized inverse.  One might wish to consider first whether using principal component 
  scores or other ordinate scores could achieve the same goal.  (See \code{\link{ordinate}}.)
  For example, one could use the first few principal components as a surrogate for a high-dimensional

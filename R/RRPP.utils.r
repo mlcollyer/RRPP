@@ -2610,6 +2610,48 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
   
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{kcomp}}
+#' @param ... Other arguments passed onto print.kcomp
+#' @method print kcomp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.kcomp <- function(x, ...){
+  cat("\nK-component analysis\n")
+  cat("Components = ", length(x$values))
+} 
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{kcomp}}
+#' @param ... Other arguments passed onto print.kcomp
+#' @method summary kcomp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+summary.kcomp <- function(object, ...){
+  x <- object
+  print.kcomp(x, ...)
+  d <- x$values
+  p <- d/sum(d)
+  cp <- cumsum(d)/sum(d)
+  r <- as.data.frame(rbind(d, p, cp))
+  r <- r[, 1:min(length(d), NCOL(x$vectors), NCOL(r))]
+  r <- as.matrix(r)
+  colnames(r) <- colnames(x$vectors)[1:NCOL(r)]
+
+  rownames(r) <- c("Eigenvalues", "Proportion of Eigenvalue Sum",
+                        "Cumulative Proportion")
+  cat("\n\nImportance of Components:\n")
+  print(r)
+  out <- r
+  invisible(out)
+}
+
 
 #' Plot Function for RRPP
 #' 
