@@ -1,11 +1,10 @@
 8ec900b2e3204788266aaa1684b76ad3 *cran-comments.md
-a4d49002283c02d3ffab714b15ae68f3 *CRAN-SUBMISSION
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 0033a37910a893b33a05c44e405022e0 *data/motionpaths.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-d496465048c4375e303a5cdc6569d364 *DESCRIPTION
+276135e30bf4961b82ef3cfc6aa8e718 *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
