@@ -4,7 +4,7 @@ bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 cc73a1467ca5f48d52a03686d50ca8d7 *data/PlethMorph.rda
 4b4ee52bfcac42caf2b6b3c506af6db0 *data/Pupfish.rda
 b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
-9fd6607a509944d941195b6a44bb33e4 *DESCRIPTION
+276135e30bf4961b82ef3cfc6aa8e718 *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -139,7 +139,7 @@ df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 e4806298e1195e350a6126392d450dca *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
 e51cd504651b739a78b01db7d8c790e0 *README.md
-21df84a3216e52395ea69fd9347d51dc *RRPP_develop.Rproj
+dcfdee610649703c6d9f19d43a746d44 *RRPP_master.Rproj
 d631691a132b8995618e408c3c67a193 *tests/testthat.R
 31268cf35cce5af5f7db3004dfa99bdf *tests/testthat/test-RRPP.R
 08146d2cb565e247772bc96add8ee56f *vignettes/ANOVA.vs.MANOVA.Rmd
