@@ -1,3 +1,11 @@
+# CHANGES IN RRPP 2.1.1
++ New function, `print.summary.betaTest`, to complement `summary.betaTest`.
+
+### BUG FIXES
++ Updated, `summary.betaTest`, to provide invisible output, so that the summary 
+table could be extracted without screen printing.
++ Added error catch for `.lm.rrpp` for mismatched numbers of subjects and data.
+
 # CHANGES IN RRPP 2.1.0
 
 ### NEW FEATURES

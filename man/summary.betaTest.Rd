@@ -4,10 +4,14 @@
 \alias{summary.betaTest}
 \title{Print/Summary Function for RRPP}
 \usage{
-\method{summary}{betaTest}(object, ...)
+\method{summary}{betaTest}(object, confidence = 0.95, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{betaTest}}}
+
+\item{confidence}{The desired confidence limit to print with a table of 
+summary statistics.  Because distances are directionless, confidence limits 
+are one-tailed.}
 
 \item{...}{Other arguments passed onto betaTest}
 }
