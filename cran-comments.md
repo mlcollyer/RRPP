@@ -1,8 +1,8 @@
 ## Resubmission
 
-This is a patch release, 2.1.1, which adds the function, 
-`print.summary.betaTest` and updates `summary.betaTest` to not automatically
-print to the screen, plus fixes a small bug.  The package, `geomorph`, is developed by the same 
+This is a patch release, 2.1.2, which merely fixes a bug with
+`print.summary.betaTest`, that caused failure to print some results.  
+The package, `geomorph`, is developed by the same 
 authors as `RRPP`.  The reverse dependency has been addressed during 
 development of this release and any necessary changes would be 
 concomitantly submitted. 

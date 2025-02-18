@@ -1,3 +1,9 @@
+# CHANGES IN RRPP 2.1.2
+
+### BUG FIXES
++ Updated, `summary.betaTest` and `print.summary.betaTest`, to correct screen printing 
+for one of the objects returned by `summary.betaTest`.
+
 # CHANGES IN RRPP 2.1.1
 + New function, `print.summary.betaTest`, to complement `summary.betaTest`.
 
