@@ -3789,7 +3789,7 @@ summary.betaTest <- function(object,
   out <- list(table = tab,
               confidence = confidence,
               perms = perms,
-              Beta <- as.vector(x$Beta))
+              Beta = as.vector(x$Beta))
   class(out) <- "summary.betaTest"
   out
 }
