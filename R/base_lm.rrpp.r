@@ -291,8 +291,12 @@
   PCA <- p > (n - 1) 
   
   if(PCA) {
-    TYp <- ordinate(TY, tol = 1e-10)$x
-    p.prime <- ncol(TYp)
+    Yp <- ordinate(Y, tol = 1e-7)$x
+    p.prime <- ncol(Yp)
+    TYp <- if(!is.null(Pcov)) 
+      Pcov %*% Yp else if(!is.null(w)) 
+        Yp * sqrt(w) else Yp
+    Yp <- NULL
   } else {
     TYp <- TY
     p.prime <- p
