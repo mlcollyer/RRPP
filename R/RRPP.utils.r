@@ -2610,6 +2610,48 @@ plot.ordinate <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
   
 }
 
+#' Print/Summary Function for RRPP
+#'
+#' @param x Object from \code{\link{kcomp}}
+#' @param ... Other arguments passed onto print.kcomp
+#' @method print kcomp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+print.kcomp <- function(x, ...){
+  cat("\nK-component analysis\n")
+  cat("Components = ", length(x$values))
+} 
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{kcomp}}
+#' @param ... Other arguments passed onto print.kcomp
+#' @method summary kcomp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+#' 
+summary.kcomp <- function(object, ...){
+  x <- object
+  print.kcomp(x, ...)
+  d <- x$values
+  p <- d/sum(d)
+  cp <- cumsum(d)/sum(d)
+  r <- as.data.frame(rbind(d, p, cp))
+  r <- r[, 1:min(length(d), NCOL(x$vectors), NCOL(r))]
+  r <- as.matrix(r)
+  colnames(r) <- colnames(x$vectors)[1:NCOL(r)]
+
+  rownames(r) <- c("Eigenvalues", "Proportion of Eigenvalue Sum",
+                        "Cumulative Proportion")
+  cat("\n\nImportance of Components:\n")
+  print(r)
+  out <- r
+  invisible(out)
+}
+
 
 #' Plot Function for RRPP
 #' 
@@ -3672,16 +3714,12 @@ summary.pairwise.model.Z <-function(object, ...){
 #' Print/Summary Function for RRPP
 #'
 #' @param x Object from \code{\link{betaTest}}
-#' @param confidence The desired confidence limit to print with a table of 
-#' summary statistics.  Because distances are directionless, confidence limits 
-#' are one-tailed.
 #' @param ... Other arguments passed onto betaTest
 #' @method print betaTest
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
 print.betaTest <- function(x, 
-                           confidence = 0.95,
                            ...){
   
   cat("Test of coefficients:", rownames(x$obs.B.mat)[x$coef.no])
@@ -3695,6 +3733,28 @@ print.betaTest <- function(x,
   cat("\n Test performed with", perms, 
       "permutations of residuals from specified null models.\n\n")
   
+}
+
+#' Print/Summary Function for RRPP
+#'
+#' @param object Object from \code{\link{betaTest}}
+#' @param ... Other arguments passed onto betaTest
+#' @param confidence The desired confidence limit to print with a table of 
+#' summary statistics.  Because distances are directionless, confidence limits 
+#' are one-tailed.
+#' @method summary betaTest
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+summary.betaTest <- function(object, 
+                             confidence = 0.95,
+                             ...){
+  
+  x <- object
+  include.md <- !is.null(x$obs.md)
+  perms <- if(include.md) NCOL(x$random.stats[[1]]) else 
+    length(x$random.stats[[1]])
+
   Result <- lapply(x$random.stats, function(y){
     d <- if(include.md) y[1,] else y
     dUCL = quantile(d, confidence)
@@ -3712,7 +3772,7 @@ print.betaTest <- function(x,
       df$Zmd = effect.size(md)
       df$Pmd = pval(md)
     }
-  
+    
     colnames(df)[2] <- paste("UCLd (", names(dUCL), ")", sep = "")
     colnames(df)[4] <- "Pr(>d)"
     if(include.md){
@@ -3726,18 +3786,32 @@ print.betaTest <- function(x,
   names(Result) <- rownames(x$obs.B.mat)[x$coef.no]
   
   tab <- do.call(rbind, Result)
-  print(tab)
-  
+  out <- list(table = tab,
+              confidence = confidence,
+              perms = perms,
+              Beta = as.vector(x$Beta))
+  class(out) <- "summary.betaTest"
+  out
 }
+
 
 #' Print/Summary Function for RRPP
 #'
-#' @param object Object from \code{\link{betaTest}}
+#' @param x Object from \code{\link{betaTest}}
 #' @param ... Other arguments passed onto betaTest
-#' @method summary betaTest
+#' @method print summary.betaTest
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
-summary.betaTest <- function(object, ...){
-  print.betaTest(object, ...)
+#' 
+print.summary.betaTest <- function(x,
+                           ...){
+  
+  cat("Test of coefficients:", rownames(x$table))
+  cat("\n equal to Beta = ")
+  cat(as.vector(x$Beta))
+  cat("\n Test performed with", x$perms, 
+      "permutations of residuals from specified null models.\n\n")
+  print(x$table)
+  cat("\n\n")
 }

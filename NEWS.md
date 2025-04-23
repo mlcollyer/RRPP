@@ -1,7 +1,31 @@
-# CHANGES IN RRPP 2.0.4.999
+# CHANGES IN RRPP 2.1.2.999
+
+### NEW FEATURES
++ Added argument to `model.comparison` to allow flexibility for table row names.
+
+### OTHER CHANGES
++ Updated `logLik.lm.rrpp` to work with `stats::AIC`.
+
+# CHANGES IN RRPP 2.1.2
+
+### BUG FIXES
++ Updated, `summary.betaTest` and `print.summary.betaTest`, to correct screen printing 
+for one of the objects returned by `summary.betaTest`.
+
+# CHANGES IN RRPP 2.1.1
++ New function, `print.summary.betaTest`, to complement `summary.betaTest`.
+
+### BUG FIXES
++ Updated, `summary.betaTest`, to provide invisible output, so that the summary 
+table could be extracted without screen printing.
++ Added error catch for `.lm.rrpp` for mismatched numbers of subjects and data.
+
+# CHANGES IN RRPP 2.1.0
 
 ### NEW FEATURES
 + New function, `kcomp`, which performs a K-component analysis.
++ New function, `betaTest`, which performs tests of coefficients vectors,
+with enhanced flexibility compared to `coef.lm.rrpp`.
 
 # CHANGES IN RRPP 2.0.4
 

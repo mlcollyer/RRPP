@@ -495,6 +495,8 @@ lm.args.from.formula <- function(cl){
     out$D <- as.dist(d)
   }
   
+  
+  
   out
 }
 

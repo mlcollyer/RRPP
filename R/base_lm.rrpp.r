@@ -164,6 +164,15 @@
   } 
   
   if(useSubjects){
+    if(length(subjects) != NROW(exchange.args$model)){
+      msg <- paste("\nThere appears to be missing data in the data frame ",
+                   "\nor the number of subjects and the number of observations ",
+                   "\nin the independent variables do not match.  There ",
+                   "\nis no current option for removing subjects that correspond to ",
+                   "\nNA values.  You will have to do this before attempting a ",
+                   "\nlinear model fit by reconstructing your data frame.\n\n", sep = "")
+      stop(msg, call. = FALSE)
+    }
     STerm <- which(term.labels == sub.var.name)
     subTest <- !(length(STerm) == 0)
     if(!sub.var.name %in% names(data))

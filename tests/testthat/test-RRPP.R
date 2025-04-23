@@ -358,6 +358,171 @@ test_that("coef.t.fit15.works", {
 
 # needed: Cov application
 
+### betaTest---------------------------------------------------------------
+
+test_that("beta01.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords[,1] ~ 1, data = Pupfish, 
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta02.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ 1, data = Pupfish, 
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+})
+
+test_that("beta03.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS, data = Pupfish, 
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta04.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta05.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
+                  SS.type = "II", print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta06.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
+                  SS.type = "III", print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta07.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS + Pop, data = Pupfish, 
+                  turbo = TRUE, print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+
+test_that("beta10.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta11.works", {
+  library(RRPP)
+  data("Pupfish")
+  mod <- lm.rrpp(coords ~ CS * Pop * Sex, data = Pupfish, 
+                  int.first = TRUE,
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta12.works", {
+  library(RRPP)
+  data("PlethMorph")
+  mod <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+
+test_that("beta13.works", {
+  library(RRPP)
+  data("PlethMorph")
+  mod <- lm.rrpp(TailLength ~ 1, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+
+})
+
+test_that("beta14.works", {
+  library(RRPP)
+  data("PlethMorph")
+  mod <- lm.rrpp(TailLength ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta15.works", {
+  library(RRPP)
+  data("PlethMorph")
+  mod <- lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta16.works", {
+  library(RRPP)
+  data("PlethMorph")
+  mod <- lm.rrpp(TailLength ~ SVL + 0, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE)
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
+test_that("beta17.works", {
+  library(RRPP)
+  data("PlethMorph")
+  mod <- lm.rrpp(cbind(TailLength, BodyWidth) ~ SVL + 0, data = PlethMorph, 
+                  print.progress = FALSE, 
+                  Cov = PlethMorph$PhyCov,
+                  iter = 3, verbose = TRUE)
+  
+  succeed(betaTest(mod))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p)))
+  succeed(betaTest(mod, Beta = rep(1, mod$LM$p), include.md = TRUE))
+})
+
 ### anova.lm.rrpp ----------------------------------------------------------
 
 
