@@ -64,6 +64,11 @@
 #' @export summary.pairwise.model.Z
 #' @export plot.ordinate
 #' @export plot.kcomp
+#' @export print.ICCstats
+#' @export summary.ICCstats
+#' @export print.betaTest
+#' @export summary.betaTest
+#' @export print.summary.betaTest
 NULL
 
 #' @section RRPP TOC:
@@ -71,100 +76,6 @@ NULL
 #' RRPP-package
  
 NULL
-
-#' Landmarks on pupfish
-#'
-#' @name Pupfish
-#' @docType data
-#' @author Michael Collyer
-#' @keywords datasets
-#' @description Landmark data from Cyprinodon pecosensis body shapes, with 
-#' indication of Sex and
-#' Population from which fish were sampled (Marsh or Sinkhole).
-#' @details These data were previously aligned with GPA.  Centroid size (CS) 
-#' is also provided.  
-#' See the \pkg{geomorph} package for details.
-#' 
-#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for 
-#' analysis of phenotypic
-#' change for phenotypes described by high-dimensional data. Heredity. 113: 
-#' doi:10.1038/hdy.2014.75.
-NULL
-
-#' Landmarks on pupfish heads
-#'
-#' @name PupfishHeads
-#' @docType data
-#' @author Michael Collyer
-#' @description Landmark data from Cyprinodon pecosensis head shapes, with 
-#' variables for 
-#' sex, month and year sampled, locality, head size, and coordinates of 
-#' landmarks for head shape,
-#' per specimen.  These data are a subset of a larger data set.
-#' @details The variable, "coords", are data that were previously aligned
-#' with GPA.  The variable, "headSize", is the Centroid size of each vector 
-#' of coordinates.
-#' See the \pkg{geomorph} package for details.
-#' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the 
-#' cranial morphology of a 
-#' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, 
-#' Western Kentucky University.
-NULL
-
-#' Plethodon comparative morphological data 
-#'
-#' @name PlethMorph
-#' @docType data
-#' @author Michael Collyer and Dean Adams
-#' @keywords datasets
-#' @description Data for 37 species of plethodontid salamanders.  
-#' Variables include snout to vent length
-#' (SVL) as species size, tail length, head length, snout to eye length, 
-#' body width, forelimb length,
-#' and hind limb length, all measured in mm.  A grouping variable is also 
-#' included for functional guild size.  A variable for species names is also 
-#' included.
-#' The data set also includes a phylogenetic covariance matrix based on a 
-#' Brownian model of evolution, to assist in 
-#' generalized least squares (GLS) estimation.
-#' @details The covariance matrix was estimated with the vcv.phylo function 
-#' of the R package, ape, based on the tree
-#' described in Adams and Collyer (2018).
-#' @references Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic 
-#' anova: group-clade aggregation, biological 
-#' challenges, and a refined permutation procedure. Evolution, 72: 1204-1215.
-NULL
-
-#' Simulated motion paths
-#'
-#' @name motionpaths
-#' @docType data
-#' @author Dean Adams
-#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for 
-#' the analysis of phenotypic
-#'   trajectories in evolutionary studies. Evolution 63:1143-1154.
-#' @keywords datasets
-NULL
-
-#' Simulated fish data for measurement error analysis
-#'
-#' @name fishy
-#' @docType data
-#' @author Michael Collyer
-#' @references Collyer, M.L, and D.C. Adams. 2024. 
-#' Interrogating random and systematic measurement 
-#' error in morphometric data. Evolutionary Biology. 
-#' In press.
-#' @details Data as simulated in Collyer and Adams (2024),
-#' resembling a fish shape, comprising Procrustes coordinates
-#' for 11 anatomical landmarks.  Data represent 120 
-#' configurations for 60 subjects, each with two replicates of
-#' measurement.  The 60 subjects represent 20 subjects each 
-#' from three groups.
-#' @keywords datasets
-NULL
-
-
 
 #####----------------------------------------------------------------------------------------------------
 
