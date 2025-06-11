@@ -123,7 +123,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 9cb4633d90fdf98e925d005951c054fb *NAMESPACE
-7449033e7e534a4e69a150bfd61c3c60 *NEWS.md
+7c6bb04646d316d97df10377e638f09b *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -153,7 +153,7 @@ d5abbf23bb78c88bc6761b59934cd501 *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
-241b1d9b848949aaf86d487bea28cf93 *R/RRPP.support.code.r
+790cbdfc522f39cee5d5114ea0e97a92 *R/RRPP.support.code.r
 42ba94af04b55b84086adfe13ded6ae6 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 986fa536ea6f0420a0e35790bed0bb36 *R/shared.support.code.r

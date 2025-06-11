@@ -1,7 +1,11 @@
 # CHANGES IN RRPP 2.1.2.999
 
 ### BUG FIXES
-+ Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation,
++ Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation.
+
+### OTHER CHANGES
++ Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
+change means SS can often be calculated with one U matrix instead of two.
 
 # CHANGES IN RRPP 2.1.2
 

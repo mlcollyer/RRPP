@@ -733,6 +733,54 @@ getHb <- function(Q) {
   
 }
 
+# checkDD
+# helper function to determine if double decomposition should
+# be used in checkers
+checkDD <- function(Uf, Ur){
+  
+  DD <- matdiff(Ur, Uf)
+  lf <- if(isS4(Uf)) length(Uf@x) else length(Uf)
+  lr <- if(isS4(Ur)) length(Ur@x) else length(Ur)
+  ld <- if(isS4(DD)) length(DD@x) else length(DD)
+  ld <- length(DD)
+  
+  extend <- ((lf + lr) < ld)
+  
+  res <- if(extend) 
+    list(Uf = Uf, Ur = Ur) else
+      list(Uf = DD, Ur = NA)
+  res
+  
+}
+  
+# matdff
+# helper function to find U difference between Ur and Uf
+# used in checkers/CheckDD 
+matdiff <- function(U1, U2){
+  dims1 <- dim(U1)
+  dims2 <- dim(U2)
+  if(dims1[1] != dims2[1])
+    stop("Different numbers of rows in each matrix\n",
+         call. = FALSE)
+  ps <- c(dims1[2], dims2[2])
+  if(ps[2] > ps[1]) {
+    Uf <- U2
+    Ur <- U1
+  } else {
+    Uf <- U1
+    Ur <- U2
+    ps <- ps[c(2,1)]
+  }
+  
+  checkS <- colSums(round(as.matrix(crossprod(Ur, Uf)), 7))
+  keep <- which(checkS == 0)
+  
+  res <- if(length(keep) > 0) 
+    as.matrix(Uf[, keep]) else NA
+  res
+
+}
+
 
 # checkers
 # algorithms to facilitate RRPP iteration stats calculations
@@ -775,7 +823,18 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
 
   Hbnull <- tcrossprod(fast.solve(Qint$R), Qint$Q) 
   
-  out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Qint$Q, Ufull = Ufull,
+  # criteria SS U matrices
+  
+  Uss <- list()
+  for(i in 1:max(1,k)) {
+    us <- checkDD(Uf[[i]], Ur[[i]])
+    if(all(is.na(us[[1]])))
+      us <- list(Uf = Uf[[i]], Ur = Ur[[i]])
+    Uss[[i]] <- us
+  }
+  names(Uss) <- attr(Terms, "term.labels")
+  
+  out <- list(Y = Y, Uss = Uss, Ur = Ur, Uf = Uf, Unull = Qint$Q, Ufull = Ufull,
               Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qs, k = k,
               realized.trms = names(Xs$Xfs))
   
@@ -815,6 +874,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
   
   Ur <- checkrs$Ur
   Uf <- checkrs$Uf
+  Uss <- checkrs$Uss
   Unull <- checkrs$Unull
   Ufull <- checkrs$Ufull
   FR <- checkrs$FR
@@ -844,8 +904,13 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
   }
   
   
-  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
-                              sum(y^2) - sum(crossprod(Ufull, y)^2))
+  ss <- function(u, y) {
+    useUr <- !all(is.na(u[[2]]))
+    ssu <- if(useUr) sum(crossprod(u[[2]], y)^2) else 0
+    ssf <- sum(crossprod(u[[1]], y)^2)
+    ssm <- sum(y^2) - sum(crossprod(Ufull, y)^2)
+    c(ssu, ssf, ssm)
+  } 
   
   pbbar <- FALSE
   if(print.progress && no_cores > 1){
@@ -866,7 +931,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       yy <- sum(y^2)
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+          ss(Uss[[j]], Yi[[j]])
         }, numeric(3))
         
         SSr <- res[1, ]
@@ -893,7 +958,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       yy <- sum(y^2)
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+          ss(Uss[[j]], Yi[[j]])
         }, numeric(3))
         
         SSr <- res[1, ]
@@ -923,7 +988,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+          ss(Uss[[j]], Yi[[j]])
         }, numeric(3))
         
         SSr <- res[1, ]
