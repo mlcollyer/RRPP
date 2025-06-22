@@ -430,6 +430,7 @@
                          tol = exchange.args$tol)
   
   QR <- obs.fit$qr
+  X <- QR$X
   Hb <- as.matrix(tcrossprod(fast.solve(QR$R), QR$Q))
   if(!identical(colnames(X), colnames(QR$R)))
     Hb <- Hb[colnames(X),]
