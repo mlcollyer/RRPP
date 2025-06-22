@@ -127,7 +127,7 @@ e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
-e66dbe9e4c8757326d2d59d197567ce4 *R/base_lm.rrpp.r
+5748c683538052d447473702c4dbdd2f *R/base_lm.rrpp.r
 888dbb4d9405035f9b646eebb90239b5 *R/betaTest.r
 e8f80d7394450558ead1da9eceec8ace *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
@@ -149,7 +149,7 @@ aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
 2dcef7d8c04ecc4adf7678b406657044 *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
-d5abbf23bb78c88bc6761b59934cd501 *R/QRforX.r
+0723317a927984695e23ee0374df9304 *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
