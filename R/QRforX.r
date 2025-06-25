@@ -68,6 +68,8 @@ QRforX <- function(X, returnQ = TRUE,
   rank <- NULL
   pivot <- NULL
   X <- as.matrix(X)
+  X <- as.matrix(X[, colSums(X) != 0])
+  
   if(ncol(X) > nrow(X)){
     q <- qr(X)
     X <- X[, q$pivot[1:q$rank]]
