@@ -35,7 +35,8 @@ data(Pupfish)
 Pupfish$Y <- ordinate(Pupfish$coords)$x[, 1:3]
 fit <- lm.rrpp(Y ~ Sex * Pop, SS.type = "I", 
 data = Pupfish, print.progress = FALSE, iter = 0)
-means <- unique(model.matrix(fit)) \%*\% coef(fit)
+X <- unique(as.matrix(model.matrix(fit)))
+means <- X \%*\% coef(fit)
 rownames(means) <- unique(interaction(Pupfish$Sex, Pupfish$Pop))
 means
 S <- getResCov(fit)
