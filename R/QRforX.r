@@ -108,29 +108,14 @@ QRforX <- function(X, returnQ = TRUE,
   QR <- try(if(use1) QR1(as.matrix(X)) else QR2(X),
             silent = TRUE)
   if(inherits(QR, "try-error")) {
-    
-    if(k > n) {
-      XM <- Matrix(rbind(as.matrix(X), 
-                         matrix(0, k - n, k)), 
-                   sparse = TRUE)
-      R <- as.matrix(suppressWarnings(
-        qrR(suppressWarnings(qr(XM)))
-      ))
-      qrt <- qr(R)
-      X <- X[, qrt$pivot[1:qrt$rank]]
-      if(NCOL(X) > 1 && isS4(X)) use1 <- FALSE
-    }
-     
-    QR <- try(if(use1) QR1(as.matrix(X)) else QR2(X),
-              silent = TRUE)
-    if(inherits(QR, "try-error")) { 
-      qrt <- qr(as.matrix(X))
-      X <- X[, qrt$pivot[1:qrt$rank]]
-      if(length(which(X != 0)) <= 0.9 * length(X))
-        X <- Matrix(X, sparse = TRUE)
-      if(NCOL(X) > 1 && isS4(X)) use1 <- FALSE
-      QR <- if(use1) QR1(as.matrix(X)) else QR2(X)
-    }
+  
+    qrt <- qr(as.matrix(X))
+    X <- X[, qrt$pivot[1:qrt$rank]]
+    if(length(which(X != 0)) <= 0.9 * length(X))
+      X <- Matrix(X, sparse = TRUE)
+    if(NCOL(X) > 1 && isS4(X)) use1 <- FALSE
+    QR <- if(use1) QR1(as.matrix(X)) else QR2(X)
+  
   }
     
   QR$rank <- NCOL(QR$X)
