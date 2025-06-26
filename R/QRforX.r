@@ -18,6 +18,7 @@
 #' \item{R}{The R matrix.}
 #' \item{X}{The X matrix, which could be changed from dense to sparse,
 #' or vice versa, and redundant columns removed.}
+#' \item{dimnames}{The dimnames associated with Q, R, or X}
 #' \item{rank}{The rank of the X matrix.}
 #' \item{S4}{Logical value for whether Q, R, and X are S4 class objects.}
 #' @export
@@ -95,7 +96,7 @@ QRforX <- function(X, returnQ = TRUE,
     QR <- suppressWarnings(qr(as.matrix(R)))
     X <- X[,QR$pivot[1:QR$rank]]
     QR <- suppressWarnings(qr(X))
-    R <- suppressWarnings(qr.R(QR))
+    R <- suppressWarnings(qrR(QR))
     Q <- suppressWarnings(qr.Q(QR))
     Q <- drop0(Q, tol = 1e-10)
     R <- drop0(R, tol = 1e-10)
@@ -109,6 +110,7 @@ QRforX <- function(X, returnQ = TRUE,
   QR$rank <- NCOL(QR$X)
   if(sum(QR$R) == 0) QR$rank <- 0
   QR$S4 <- isS4(QR$X)
+  QR$dimnames <- dimnames(QR$X)
   
   if(!returnQ)
     QR$Q <- NULL

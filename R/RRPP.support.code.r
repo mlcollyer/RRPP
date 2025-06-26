@@ -491,38 +491,7 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 }
 
 removeRedundant <- function(X){
-  
-  cs <- colSums(as.matrix(X))
-  if(any(cs == 0))
-    X <- X[, cs != 0]
-  
-  if(!isS4(X)){
-    Xs <- Matrix(X, sparse = TRUE)
-    if(length(Xs@x) <- 0.9 * length(X))
-      X <- Xs
-    rm(Xs)
-  }
-  
-  RR1 <- function(X){
-    QR <- qr(X)
-    QR$pivot[1:QR$rank]
-  }
-  
-  RR2 <- function(X){
-    QR <- suppressWarnings(qr(X))
-    R <- suppressWarnings(qrR(QR))
-    QR <- suppressWarnings(qr(as.matrix(R)))
-    QR$pivot[1:QR$rank]
-  }
-  keep <- if(isS4(X)) RR2(X) else RR1(X)
-  out <- try(X[, keep], silent = TRUE)
-  if(inherits(out, "try-error")) {
-    out <- as.matrix(X)[, keep]
-    if(length(which(out != 0)) <= 0.9 * length(out))
-      out <- Matrix(out, sparse = TRUE)
-  }
-    
-  out
+  QRforX(X)$X
 
 }
 

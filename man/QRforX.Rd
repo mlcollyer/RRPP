@@ -22,6 +22,7 @@ following:
 \item{R}{The R matrix.}
 \item{X}{The X matrix, which could be changed from dense to sparse,
 or vice versa, and redundant columns removed.}
+\item{dimnames}{The dimnames associated with Q, R, or X}
 \item{rank}{The rank of the X matrix.}
 \item{S4}{Logical value for whether Q, R, and X are S4 class objects.}
 }
