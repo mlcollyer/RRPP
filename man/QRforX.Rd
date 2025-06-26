@@ -4,7 +4,7 @@
 \alias{QRforX}
 \title{QR decomposition of linear model design matrices}
 \usage{
-QRforX(X, returnQ = TRUE, reduce = TRUE, reQR = TRUE, ...)
+QRforX(X, returnQ = TRUE, ...)
 }
 \arguments{
 \item{X}{A linear model design matrix, but can be any object coercible to matrix.}
@@ -13,12 +13,6 @@ QRforX(X, returnQ = TRUE, reduce = TRUE, reQR = TRUE, ...)
 Q matrix can be computationally intense for large matrices.  If it is not
 explicitly needed, this argument can be FALSE.}
 
-\item{reduce}{A logical value for whether redundant parameters in X should be 
-removed.  This should be TRUE (default) for most cases.}
-
-\item{reQR}{A logical value for whether to re-perform QR if reduce = TRUE,
-and X has been reduced.}
-
 \item{...}{Further arguments passed to base::qr.}
 }
 \value{
@@ -26,11 +20,9 @@ An object of class \code{QR} is a list containing the
 following:
 \item{Q}{The Q matrix, if requested.}
 \item{R}{The R matrix.}
-\item{X}{The X matrix, which could be changes from dense to sparse,
+\item{X}{The X matrix, which could be changed from dense to sparse,
 or vice versa, and redundant columns removed.}
 \item{rank}{The rank of the X matrix.}
-\item{fix}{Logical value for whether redundant columns were removed
-form X.  TRUE means columns were removed.}
 \item{S4}{Logical value for whether Q, R, and X are S4 class objects.}
 }
 \description{
@@ -68,9 +60,10 @@ X <- model.matrix(terms(fit), fit$LM$data)
 dim(X) # Retains redundant parameters
 colnames(X)
 QR <- QRforX(X)
-QR$fixed
-dim(QR$X) # Reduced again
-colnames(QR$X)
+dim(QR$X)
+dim(QR$Q)
+dim(QR$R)
+QR$rank
 
 }
 \author{

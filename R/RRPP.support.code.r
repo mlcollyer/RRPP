@@ -491,12 +491,39 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 }
 
 removeRedundant <- function(X){
-  if(NCOL(X) > 1){
-    QR <- QRforX(X, returnQ = FALSE,
-                 reduce = TRUE, reQR = FALSE)
-    X <- QR$X
+  
+  cs <- colSums(as.matrix(X))
+  if(any(cs == 0))
+    X <- X[, cs != 0]
+  
+  if(!isS4(X)){
+    Xs <- Matrix(X, sparse = TRUE)
+    if(length(Xs@x) <- 0.9 * length(X))
+      X <- Xs
+    rm(Xs)
   }
-  as.matrix(X)
+  
+  RR1 <- function(X){
+    QR <- qr(X)
+    QR$pivot[1:QR$rank]
+  }
+  
+  RR2 <- function(X){
+    QR <- suppressWarnings(qr(X))
+    R <- suppressWarnings(qrR(QR))
+    QR <- suppressWarnings(qr(as.matrix(R)))
+    QR$pivot[1:QR$rank]
+  }
+  keep <- if(isS4(X)) RR2(X) else RR1(X)
+  out <- try(X[, keep], silent = TRUE)
+  if(inherits(out, "try-error")) {
+    out <- as.matrix(X)[, keep]
+    if(length(which(out != 0)) <= 0.9 * length(out))
+      out <- Matrix(out, sparse = TRUE)
+  }
+    
+  out
+
 }
 
 getPivot <- function(Xf, Xr){
@@ -817,9 +844,9 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
   Qint <- if(!is.null(Pcov))
-    QRforX(Pcov %*% intercept, reduce = FALSE) else if(!is.null(w))
-      QRforX(intercept * sqrt(w), reduce = FALSE) else
-        QRforX(intercept, reduce = FALSE)
+    QRforX(Pcov %*% intercept) else if(!is.null(w))
+      QRforX(intercept * sqrt(w)) else
+        QRforX(intercept)
 
   Hbnull <- tcrossprod(fast.solve(Qint$R), Qint$Q) 
   
@@ -1668,7 +1695,7 @@ aov.multi.model <- function(object, lm.list,
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
-  Qint <- QRforX(int, reduce = FALSE)
+  Qint <- QRforX(int)
   U0 <- Qint$Q
   yh0 <- as.matrix(fastFit(U0, Y, n, p))
   r0 <- as.matrix(Y) - yh0
@@ -1856,7 +1883,7 @@ getLSmeans <- function(fit, g){
   } 
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g + 0)
-  Q <- QRforX(Xn, reduce = FALSE)
+  Q <- QRforX(Xn)
   H <- tcrossprod(fast.solve(Q$R), Q$Q)
   getCoef <- function(f) as.matrix(H %*% f)
   means <- lapply(fitted, getCoef)

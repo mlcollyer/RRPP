@@ -6,6 +6,7 @@
 ### OTHER CHANGES
 + Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
 change means SS can often be calculated with one U matrix instead of two.
++ Updated `QRforX` to be more efficient.
 
 # CHANGES IN RRPP 2.1.2
 

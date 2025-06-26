@@ -11,20 +11,14 @@
 #' @param returnQ A logical value whether to return the Q matrix.  Generating a
 #' Q matrix can be computationally intense for large matrices.  If it is not
 #' explicitly needed, this argument can be FALSE.
-#' @param reduce A logical value for whether redundant parameters in X should be 
-#' removed.  This should be TRUE (default) for most cases.
-#' @param reQR A logical value for whether to re-perform QR if reduce = TRUE,
-#' and X has been reduced.
 #' @param ... Further arguments passed to base::qr.
 #' @return An object of class \code{QR} is a list containing the 
 #' following:
 #' \item{Q}{The Q matrix, if requested.}
 #' \item{R}{The R matrix.}
-#' \item{X}{The X matrix, which could be changes from dense to sparse,
+#' \item{X}{The X matrix, which could be changed from dense to sparse,
 #' or vice versa, and redundant columns removed.}
 #' \item{rank}{The rank of the X matrix.}
-#' \item{fix}{Logical value for whether redundant columns were removed
-#' form X.  TRUE means columns were removed.}
 #' \item{S4}{Logical value for whether Q, R, and X are S4 class objects.}
 #' @export
 #' @author Michael Collyer
@@ -56,107 +50,69 @@
 #' dim(X) # Retains redundant parameters
 #' colnames(X)
 #' QR <- QRforX(X)
-#' QR$fixed
-#' dim(QR$X) # Reduced again
-#' colnames(QR$X)
+#' dim(QR$X)
+#' dim(QR$Q)
+#' dim(QR$R)
+#' QR$rank
 #' 
 QRforX <- function(X, returnQ = TRUE,
-                   reduce = TRUE, reQR = TRUE,
                    ...){
-  fix <- FALSE
-  S4 <- FALSE
-  rank <- NULL
-  pivot <- NULL
-  X <- as.matrix(X)
-  if(ncol(X) > nrow(X)){
-    q <- qr(X)
-    X <- X[, q$pivot[1:q$rank]]
-  }
-  p <- NCOL(X)
-  if(is.null(colnames(X)) && p >= 1) 
-    colnames(X) <- paste("V", 1:p, sep = "")
   
-  if(p <= 1){
+  cs <- colSums(as.matrix(X))
+  
+  if(NCOL(X) > 1 && any(cs == 0))
+    X <- X[, cs != 0]
+  
+  if(!isS4(X) && NCOL(X) > 1){
+    if(length(which(X != 0)) <= 0.9 * length(X))
+      X <- Matrix(X, sparse = TRUE)
+  }
+  
+  if(isS4(X)){
+    if(length(which(X != 0)) > 0.9 * length(X))
+      X <- as.matrix(X)
+  }
+  
+  dims <- dim(X)
+  n <- dims[1]
+  k <- dims[2]
+  
+  use1 <- TRUE
+  if(NCOL(X) > 1 && isS4(X)) use1 <- FALSE
+  
+  QR1 <- function(X){
     QR <- qr(X)
-    rank <- QR$rank
-    pivot <- QR$pivot
-    Q <- if(returnQ) qr.Q(QR) else NULL
+    Q <- qr.Q(QR)
     R <- qr.R(QR)
+    X <- X[, QR$pivot[1:QR$rank]]
+    out <- list(Q = Q, R = R, X = X)
+    out
   }
   
-  if(p > 1) {
-    if(reduce){
-      Xs <- drop0(Matrix(X, sparse = TRUE), tol = 1e-10)
-      if(length(Xs@x) < length(X)) X <- Xs
-      rm(Xs)
-      S4 <- inherits(X, "Matrix")
-      QR <- if(S4) try(suppressWarnings(qr(X, order = 0L)), 
-                       silent = TRUE) else 
-        suppressWarnings(qr(X, ...))
-      if(inherits(QR, "try-error")) QR <- qr(as.matrix(X), ...)
-      if(inherits(QR, "qr")) S4 <- FALSE
-      
-      if(S4){
-        R <- suppressWarnings(qrR(QR))
-        d <- abs(round(diag(R), 8))
-        pivot <- which(d > 0)
-        rank <- length(pivot)
-        if(rank < NCOL(X)) {
-          fix <- TRUE
-          nms <- dimnames(R)[[2]][pivot]
-          X <- X[, nms]
-        }
-      } else {
-        R <- suppressWarnings(qr.R(QR))
-        pivot <- with(QR, pivot[1:rank])
-        rank <- QR$rank
-        if(rank < NCOL(X)) {
-          fix <- TRUE
-          nms <- dimnames(R)[[2]][pivot]
-          X <- X[, nms]
-        }
-      }
-      Q <- if(returnQ) suppressWarnings(qr.Q(QR)) else NULL
-    }
-    
-    Xnms <- colnames(X)
-    Xs <- drop0(Matrix(X, sparse = TRUE), tol = 1e-10)
-    if(length(Xs@x) < length(X)) X <- Xs
-    rm(Xs)
-    S4 <- inherits(X, "Matrix")
-    
-    if(!reduce) reQR <- TRUE
-    
-    if(reQR) {
-      QR <- suppressWarnings(qr(X))
-      if(returnQ){
-        Q <- drop0(Matrix(suppressWarnings(qr.Q(QR)), 
-                          sparse = TRUE), tol = 1e-10)
-        if(length(Q@x) == length(Q)) Q <- as.matrix(Q)
-      } else Q <- NULL
-      
-      R <- if(S4) suppressWarnings(qrR(QR)) else qr.R(QR)
-      Rs <- drop0(Matrix(R, sparse = TRUE), tol = 1e-10)
-      if(length(Rs@x) < length(R)) R <- Rs
-      rm(Rs)
-      
-      if(!all.equal(dimnames(R)[[2]], Xnms)){
-        nnms <- match(dimnames(R)[[2]], Xnms)
-        R <- R[nnms, nnms]
-        if(returnQ) Q <- Q[, nnms]
-      }
-    }
+  QR2 <- function(X){
+    QR <- suppressWarnings(qr(X))
+    R <- suppressWarnings(qrR(QR))
+    QR <- suppressWarnings(qr(as.matrix(R)))
+    X <- X[,QR$pivot[1:QR$rank]]
+    QR <- suppressWarnings(qr(X))
+    R <- suppressWarnings(qr.R(QR))
+    Q <- suppressWarnings(qr.Q(QR))
+    Q <- drop0(Q, tol = 1e-10)
+    R <- drop0(R, tol = 1e-10)
+    X <- drop0(X, tol = 1e-10) 
+    out <- list(Q = Q, R = R, X = X)
+    out
   }
   
-  if(is.null(rank)) rank <- NCOL(X)
-  if(is.null(pivot)) pivot <- 1:rank
+  QR <- if(use1) QR1(as.matrix(X)) else QR2(X)
   
-  out <- list(Q = Q, R = R, X = X,
-              rank = rank, fixed = fix, S4 = S4)
+  QR$rank <- NCOL(QR$X)
+  if(sum(QR$R) == 0) QR$rank <- 0
+  QR$S4 <- isS4(QR$X)
   
-  out$dimnames <- list(dimnames(Q)[[1]], dimnames(R)[[2]])
+  if(!returnQ)
+    QR$Q <- NULL
   
-  class(out) <- "QR"
-  out
-  
+  class(QR) <- "QR"
+  QR
 }
