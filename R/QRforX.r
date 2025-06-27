@@ -93,11 +93,14 @@ QRforX <- function(X, returnQ = TRUE,
   QR2 <- function(X){
     QR <- suppressWarnings(qr(X))
     R <- suppressWarnings(qrR(QR))
-    QR <- suppressWarnings(qr(as.matrix(R)))
-    X <- X[,QR$pivot[1:QR$rank]]
-    QR <- suppressWarnings(qr(X))
-    R <- suppressWarnings(qrR(QR))
     Q <- suppressWarnings(qr.Q(QR))
+    QR <- suppressWarnings(qr(as.matrix(R)))
+    if(QR$rank < NCOL(X)) {
+      X <- X[,QR$pivot[1:QR$rank]]
+      QR <- suppressWarnings(qr(X))
+      R <- suppressWarnings(qrR(QR))
+      Q <- suppressWarnings(qr.Q(QR))
+    }
     Q <- drop0(Q, tol = 1e-10)
     R <- drop0(R, tol = 1e-10)
     X <- drop0(X, tol = 1e-10) 
