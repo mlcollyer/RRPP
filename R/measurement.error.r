@@ -342,7 +342,7 @@ measurement.error <- function(data,
     SSCP.ME.product.std<- as.matrix(t(sscp.sqrt) %*% 
                                       SSCP$replicates %*% sscp.sqrt)
     
-  } else  SSCP.ME.product <- SSCP.ME.product.std <- NULL
+  } else  SSCP.ME.product <- SSCP.ME.product.std <- SSCP <- NULL
   
   out$SSCP <- SSCP
   rm(SSCP)
