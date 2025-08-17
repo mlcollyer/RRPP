@@ -1,5 +1,11 @@
 # CHANGES IN RRPP 2.1.2.999
 
+### NEW FEATURES
++ New function, `lmm.rrpp`, which fits mixed models with RRPP.
++ New functions, `coef.lmm.rrpp`, `fixef.lmm.rrpp`, `ranef.lmm.rrpp`, to use
+with `lmm.rrpp`.
++ Updates to most S3 functions for `lm.rrpp` to accommodate `lmm.rrpp` objects.
+
 ### BUG FIXES
 + Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation.
 
