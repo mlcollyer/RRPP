@@ -60,6 +60,14 @@
 #'  This statistic is probably 
 #'  better for more types of models (like generalized least squares fits).
 #' }
+#' \subsection{coef.lmm.rrpp}{
+#' The coef.lmm.rrpp function computes 
+#' combined fixed and random effects by subject for 
+#' \code{\link{lmm.rrpp}} model fits. This function does not operate the same as
+#' \code{\link{coef.lm.rrpp}}, for which coefficients and fixed effects are the same,
+#' and tests can be performed on fixed effects.  It is merely a wrapper to combine 
+#' the results of \code{\link{ranef.lmm.rrpp}} and \code{\link{fixef.lmm.rrpp}}.  
+#' }
 #' @param object Object from \code{\link{lm.rrpp}}
 #' @param SE Whether to include standard errors of coefficients.  Standard
 #' errors are muted if test = TRUE.
@@ -204,3 +212,56 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
   
   out
 }
+
+#' coef for lmm.rrpp model fits
+#'
+#' @description The coef.lmm.rrpp function computes 
+#' combined fixed and random effects by subject for 
+#' \code{\link{lmm.rrpp}} model fits. This function does not operate the same as
+#' \code{\link{coef.lm.rrpp}}, for which coefficients and fixed effects are the same,
+#' and tests can be performed on fixed effects.  It is merely a wrapper to combine 
+#' the results of \code{\link{ranef.lmm.rrpp}} and \code{\link{fixef.lmm.rrpp}}.
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param type Whether to combine coefficients in a matrix or a list by variable.
+#' @param ... Other arguments (currently none)
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+coef.lmm.rrpp <- function(object, 
+                          type = c("matrix",
+                                   "list"),
+                          ...){
+  type <- match.arg(type)
+  Bf <- as.matrix(object$LM$coefficients[
+    object$LM$coef.fixed,
+  ])
+  resr <- ranef.lmm.rrpp(object, type = "list")
+  ns <- NROW(resr[[1]])
+  fix <- lapply(1:ncol(Bf), function(j){
+    r <- t(matrix(Bf[,j], nrow(Bf), ns))
+    colnames(r) <- rownames(Bf)
+    r
+  })
+  
+  res <- Map(function(r, f){
+    addto <- which(colnames(f) %in% colnames(r))
+    f[, addto] <- f[, addto] + r
+    f
+  }, resr, fix)
+  
+  names(res) <- names(resr)
+  if(type == "matrix"){
+    rnms <- rep(colnames(res[[1]]), ns)
+    subjLevels <- levels(object$subjects)
+    rnms[which(rnms == "(Intercept)")] <- subjLevels
+    res <- sapply(res, function(m){
+      as.vector(t(m))
+    })
+    
+    dimnames(res) <- list(rnms, colnames(Bf))
+    
+  }
+  class(res) <- "coef.lm.rrpp"
+  res
+}
+

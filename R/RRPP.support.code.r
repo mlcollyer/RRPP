@@ -2346,3 +2346,81 @@ looPCAll<-function(fit, ...) {
   res <- ordinate(res, ord$x, rank. = max(k))
   list(raw = ord, cv = res)
 }
+
+## lmm.rrpp helper functions
+
+
+
+# Not used but could in the future
+getSubBlocks <- function(flmer){
+  Zt <- getME(flmer, "Ztlist")[[1]]
+  block <- as.factor(Zt@i + 1)
+  block
+}
+
+# Not used but could in the future
+indexZtoX <- function(X, Z){
+  Z <- Z0 <- as.matrix(Z)
+  kx <- ncol(X)
+  kz <- ncol(Z)
+  nx <- nrow(X)
+  nz <- nrow(Z)
+  if(kx != kz || nx != nz)
+    stop("Dimensions of matrices do not match.\n",
+         call. = FALSE)
+  res <- array(NA, kx)
+  z.index <- 1:kz
+  
+  for(i in seq_len(kx)){
+    x <- X[, i]
+    r <- sapply(1:kz, function(j){
+      identical(x, Z[, j])
+    })
+    a <- which(r)
+    res[i] <- z.index[a]
+    Z <- as.matrix(Z[, -a])
+    z.index <- z.index[-a]
+    kz <- kz - 1
+  }
+  
+  res
+}
+
+
+subjPartition <- function(kt, ns){ # kt = ncol(Z)
+  # ns = n subjects
+  step <- kt/ns
+  ones <- seq(1, kt - step + 1, step)
+  list(subjTerm = ones,
+       slopeTerm = seq_len(kt)[-ones])
+}
+
+# Not used but could in the future
+ZL_list <- function(init.fit, Y){
+  Y <- as.matrix(Y)
+  p <- NCOL(Y)
+  Z <- getME(init.fit, "Z")
+  result <- lapply(1:p, function(j){
+    y <- Y[, j]
+    ft <- suppressMessages(
+      suppressWarnings(refit(init.fit, y)))
+    Z %*% getME(ft, "Lambda")
+  })
+  
+  result
+  
+}
+
+getLMM_Hb <- function(X, Z = NULL){
+  XX <- crossprod(X)
+  if(!is.null(Z)) {
+    ZZ <- crossprod(Z)
+    ZZ <- ZZ + diag(nrow(ZZ))
+    XZ <- crossprod(X, Z)
+    ZX <- crossprod(Z, X)
+    big <- rbind(cbind(XX, XZ), cbind(ZX, ZZ))
+  } else 
+    big <- XX
+  
+  fast.solve(big) %*% t(cbind(X, Z))
+}

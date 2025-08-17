@@ -3815,3 +3815,91 @@ print.summary.betaTest <- function(x,
   print(x$table)
   cat("\n\n")
 }
+
+
+
+## lmm.rrpp-specific functions
+
+
+#' fixef for lmm.rrpp model fits
+#'
+#' @description Returns fixed effects from a lmm.rrpp object.
+#'
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param ... Other arguments passed.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+fixef.lmm.rrpp <- function(object, ...){
+  out <- object$LM$coefficients[object$LM$coef.fixed,]
+  class(out) <- "fixef.lmm.rrpp"
+  out
+}
+
+#' fixed.effects for lmm.rrpp model fits
+#'
+#' @description Returns fixed effects from a lmm.rrpp object.  Alias for fixef.lmm.rrpp.
+#' 
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param ... Other arguments passed.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+fixed.effects.lmm.rrpp <- function(object, ...){
+  fixef.lmm.rrpp(object, ...)
+}
+
+#' ranef for lmm.rrpp model fits
+#'
+#' @description Returns random effects from a lmm.rrpp object.
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param type Whether to combine random effects into one matrix or print a list
+#' by variable.
+#' @param ... Other arguments passed.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+ranef.lmm.rrpp <- function(object, 
+                           type = c("matrix",
+                                    "list"), ...){
+  type <- match.arg(type)
+  Brand <- as.matrix(object$LM$coefficients[object$LM$coef.random,])
+  Brand <- as.matrix(object$LM$Lambda %*% Brand)
+  
+  if(type == "list"){
+    subjLevels <- levels(object$subjects)
+    sp <- subjPartition(nrow(Brand), length(subjLevels))
+    res <- lapply(1:ncol(Brand), function(j){
+      b <- Brand[, j]
+      m <- cbind(b[sp$subjTerm], b[sp$slopeTerm])
+      dimnames(m) <- list(subjLevels,
+                          object$LM$cnms[[1]])
+      m
+    })
+    names(res) <- colnames(Brand)
+    if(length(res) == 1) 
+      names(res)[[1]] <- object$subjects.var
+  } else {
+    res <- Brand
+    dimnames(res) <- list(subjLevels,
+                          colnames(object$LM$coefficients))
+  }
+  
+  class(res) <- "ranef.lmm.rrpp"
+  res
+}
+
+#' random.effects for lmm.rrpp model fits
+#'
+#' @description Returns random effects from a lmm.rrpp object.  Alias for ranef.lmm.rrpp.
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param type Whether to combine random effects into one matrix or print a list
+#' by variable.
+#' @param ... Other arguments passed.
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+random.effects.lmm.rrpp <- function(x, type, ...){
+  ranef.lmm.rrpp(x, type, ...)
+}
+

@@ -74,7 +74,9 @@
 #' 
 predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
                             confidence = 0.95, ...) {
-  if(!inherits(object, "lm.rrpp")) stop("Object is not class lm.rrpp")
+  if(!inherits(object, "lm.rrpp")) stop("Object is not class lm.rrpp\n")
+  if(isTRUE(object$LM$LMM))
+    stop("predict.lm.rrpp is currently not available for lmm.rrpp objects.\n", call. = FALSE)
   Terms <- object$LM$Terms
   trms <- object$LM$term.labels
   k <- length(trms)

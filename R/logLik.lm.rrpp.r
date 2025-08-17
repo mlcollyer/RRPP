@@ -32,6 +32,10 @@ logLik.lm.rrpp <- function(object, tol = NULL,
                             verbose = FALSE,
                             gls.null = FALSE, ...){
   
+  if(isTRUE(object$LM$LMM))
+    stop("A log-likelihood for lmm.rrpp objects is not yet available.\n",
+         call. = FALSE)
+  
   ll <- .logLik.lm.rrpp(object, tol = NULL,
                         pc.no = NULL, Z = FALSE,
                         verbose = FALSE,
