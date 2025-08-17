@@ -242,7 +242,7 @@ lmm.rrpp <- function(fixed,
     
     if(p > 1){
       H <- tcrossprod(QR$Q)
-      yp <- ordinate(Y, A = H, rank = 1)$x
+      yp <- ordinate(Y, A = H, rank. = 1)$x
       ft <- refit(init.rand.fit, yp)
     } else ft <- init.rand.fit
     

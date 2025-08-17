@@ -4,7 +4,7 @@
 \alias{fixef.lmm.rrpp}
 \title{fixef for lmm.rrpp model fits}
 \usage{
-fixef.lmm.rrpp(object, ...)
+\method{fixef}{lmm.rrpp}(object, ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lmm.rrpp}}}

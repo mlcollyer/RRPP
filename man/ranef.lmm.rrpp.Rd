@@ -4,7 +4,7 @@
 \alias{ranef.lmm.rrpp}
 \title{ranef for lmm.rrpp model fits}
 \usage{
-ranef.lmm.rrpp(object, type = c("matrix", "list"), ...)
+\method{ranef}{lmm.rrpp}(object, type = c("matrix", "list"), ...)
 }
 \arguments{
 \item{object}{Object from \code{\link{lmm.rrpp}}}

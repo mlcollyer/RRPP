@@ -30,6 +30,7 @@
 #' @import parallel
 #' @import ggplot2 
 #' @import Matrix
+#' @import lme4
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @importFrom ape collapse.singles
