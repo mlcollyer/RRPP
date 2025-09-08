@@ -636,7 +636,7 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
         as.matrix(X[, - rmove])
       })
       
-    } else if(SS.type == "II" || SS.type == "IIws"){
+    } else if(SS.type != "I"){
       fac <- as.matrix(crossprod(attr(Terms, "factor")))
       
       Xrs <- lapply(1:NROW(fac), function(j){
