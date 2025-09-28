@@ -41,7 +41,7 @@ d6ddec777fca3bb4f087a347e629f513 *man/interSubVar.Rd
 b0aa4d9de5c4d6d8b2b678a6d073ddc0 *man/kcomp.Rd
 aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
 555f907037cac3c887621c48e90832c0 *man/lm.rrpp.ws.Rd
-3b6a323bf97c59dd778d45137e29717e *man/lmm.rrpp.Rd
+080bc3658523387469790a35b45472d9 *man/lmm.rrpp.Rd
 a1f1c9340aefb6eec463a383ab7cfbb2 *man/logLik.lm.rrpp.Rd
 9e1881d4b99173ac1661e741caf4c295 *man/looCV.Rd
 af82b850a553db8eaab3a0951b854d2b *man/lr_test.Rd
@@ -141,7 +141,7 @@ c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
 a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
-0549db2b9f1ffe34263714634e7cf89b *R/lmm.rrpp.r
+4fb23c2e95724afd2759fb826f86eb94 *R/lmm.rrpp.r
 0ff3be1b82cba5208bb89fc756bf6ed7 *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R

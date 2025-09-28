@@ -210,7 +210,7 @@ These limitations might be addressed with future versions of this function, as t
  }
 }
 \seealso{
-\code{\link{lm.rrpp}}; \code{\link{measurement.error}}
+\code{\link{lm.rrpp}}; \code{\link{lm.rrpp.ws}}; \code{\link{measurement.error}}
 }
 \author{
 Michael Collyer
