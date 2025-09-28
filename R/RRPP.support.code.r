@@ -36,7 +36,7 @@
 #' @importFrom ape collapse.singles
 #' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
 #' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
-#' resid sd spline var model.frame
+#' resid sd spline var model.frame terms reformulate
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @importFrom stats pnorm
@@ -70,6 +70,10 @@
 #' @export print.betaTest
 #' @export summary.betaTest
 #' @export print.summary.betaTest
+#' @export ranef.lmm.rrpp
+#' @export fixef.lmm.rrpp
+
+
 NULL
 
 #' @section RRPP TOC:
@@ -544,7 +548,7 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
         as.matrix(X[, - rmove])
       })
       
-    } else if(SS.type == "II" || SS.type == "IIws"){
+    } else if(SS.type != "I"){
       fac <- as.matrix(crossprod(attr(Terms, "factor")))
       
       Xrs <- lapply(1:NROW(fac), function(j){
@@ -1450,6 +1454,15 @@ aov.single.model <- function(object, ...,
     AN <- NULL
   }
   
+  est <- if(object$LM$ols)  "OLS" else "GLS"
+  
+  if(isTRUE(object$LM$LMM)){
+    effect.type <- "F"
+    fixed.est <- est
+    est <- "mixed"
+    random.est <- object$LM$estimation
+  } else fixed.est <- random.est <- NULL
+  
   if(is.null(x$Fs)) x$Fs <- x$F
   df <- x$df
   k <- length(df)-2
@@ -1502,7 +1515,6 @@ aov.single.model <- function(object, ...,
     effect.type <- match.arg(effect.type)
     
     if(object$LM$gls) {
-      est <- "GLS"
       
       if(effect.type == "SS") {
         
@@ -1528,7 +1540,7 @@ aov.single.model <- function(object, ...,
         
         effect.type = "F"
       }
-    } else est <- "OLS"
+    } 
     
     ow <- options()$warn
     options(warn = -1)
@@ -1569,7 +1581,9 @@ aov.single.model <- function(object, ...,
     options(warn = ow)
     
     out <- list(table = tab, perm.method = pm, perm.number = perms,
-                est.method = est, SS.type = SS.type, effect.type = effect.type,
+                est.method = est, fixed.est = fixed.est, 
+                random.est = random.est, SS.type = SS.type, 
+                effect.type = effect.type,
                 call = object$call)
     
       } else {

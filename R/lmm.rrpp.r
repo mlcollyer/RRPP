@@ -11,7 +11,7 @@
 #' restricted to occur with subject blocks for any model terms other than subjects.  
 #' Most functionality should resemble that of \code{\link{lm.rrpp}} and \code{\link{lm.rrpp.ws}},  
 #' with some caveats.  First, estimation of random effects uses the methodology of the 
-#' \code{\link{lme4::lmer}} function (Bates et al., 2015), 
+#' \code{\link[lme4]{lmer}} function (Bates et al., 2015), 
 #' for only one random term based on a subjects designation.  
 #' Second, this means that a "random slopes" model involves an interaction between subjects and a numeric 
 #' variable (not a categorical variable).  Third, although any number of fixed effects can be used,
@@ -104,9 +104,85 @@
 #' @references Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
 #' Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
 #' doi:10.18637/jss.v067.i01.
+#' 
+#' \subsection{Limitations}{
+#' This function currently only works for "Random Intercepts" and "Random slopes" models,
+#' where the intercepts or slopes of a single subject term (random effect) are free to vary.  
+#' If a Random Slopes model is used, a single covariate (numeric variable) must be specified for slopes.  
+#' Generally, this is term that is also among the fixed effects.  These limitations are imposed
+#' to allow ML or REML estimation.  More complex models can be entertained with \code{lmm.rrpp.ws},
+#' but using only "LS" estimation.  If "LS" estimation is used in this function, results should be the same
+#' with a comparable formula, using \code{lmm.rrpp.ws}
+#' 
+#' If a ML or REML fit is near singular (one or more covariance parameters are 0), the analysis will be arrested
+#' rather than continued with some random effects rendered as 0.  This should be an indication that the model
+#' is over-fit with the type of estimation used. 
+#' 
+#' These limitations might be addressed with future versions of this function, as theoretical advances are made.
+#'  }
 
 #' @examples 
-#' TBD
+#' \dontrun{
+#' # Random intercepts models
+#' 
+#' data(ReptAbund)
+#' fit_ls <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+#' subjects = "Site",      
+#' type = "intercepts", 
+#' estimation = "LS", 
+#' data = ReptAbund)
+#' 
+#' fit_ml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+#' subjects = "Site",      
+#' type = "intercepts", 
+#' estimation = "ML", 
+#' data = ReptAbund)
+#'
+#' fit_reml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+#' subjects = "Site",      
+#' type = "intercepts", 
+#' estimation = "REML", 
+#' data = ReptAbund) 
+#' 
+#' anova(fit_ls, error = c("Site", "Residuals"))
+#' anova(fit_ml, error = c("Site", "Residuals"))
+#' anova(fit_reml, error = c("Site", "Residuals"))
+#' 
+#' coef(fit_ls, type = "list")
+#' coef(fit_ml, type = "list")
+#' coef(fit_reml, type = "list")
+#' 
+#' # Random slopes models
+#' 
+#' fit_ls <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+#' subjects = "Site",      
+#' type = "slopes",
+#' slopeTerm = "Year", 
+#' estimation = "LS", 
+#' data = ReptAbund)
+#' 
+#' fit_ml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+#' subjects = "Site",      
+#' type = "slopes",
+#' slopeTerm = "Year", 
+#' estimation = "ML", 
+#' data = ReptAbund)
+#'
+#' # should not work!
+#' 
+#' fit_reml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+#' subjects = "Site",      
+#' type = "slopes",
+#' slopeTerm = "Year",  
+#' estimation = "REML", 
+#' data = ReptAbund) 
+#' 
+#' anova(fit_ls, error = c("Year:Site", "Year:Site", "Residuals"))
+#' anova(fit_ml, error = c("Year:Site", "Year:Site", "Residuals"))
+#' 
+#' coef(fit_ls, type = "list")
+#' coef(fit_ml, type = "list")
+#'  }
 
 lmm.rrpp <- function(fixed,
                      subjects,
@@ -159,9 +235,9 @@ lmm.rrpp <- function(fixed,
                           termlabels = c(trms, rands))
   randform <- update(randform, resp ~ .)
   
-  init.rand.fit <- lmer(randform, 
+  init.rand.fit <- suppressMessages(suppressWarnings(lmer(randform, 
                         REML = (estimation == "REML"),
-                        data = dat)
+                        data = dat)))
   
   Y <- dat$Y
   dims <- dim(Y)
@@ -200,9 +276,9 @@ lmm.rrpp <- function(fixed,
   
   for(i in 1:2){
     reduced <- lapply(Xs$reduced, 
-                      function(x) x$X)
+                      function(x) as.matrix(x$X))
     full <- lapply(Xs$full, 
-                   function(x) x$X)
+                   function(x) as.matrix(x$X))
   }
   Xs$reduced <- reduced
   Xs$full <- full
@@ -220,16 +296,18 @@ lmm.rrpp <- function(fixed,
         slopeTerm, subjects, sep = ":")
   }
   
-  Ztlist <- getME(init.rand.fit, 
-                  "Ztlist")
-  
-  Zsub <- t(Ztlist[[1]])
-  Zslope <- if(type == "slopes")
-    t(Ztlist[[2]]) else NULL
   Zall <- getME(init.rand.fit, 
                 "Z")
+  if(type == "slopes"){
+    nzc <- ncol(Zall)
+    Zslope <- Zall[, seq(2, nzc, 2)]
+    Zsub <- Zall[, seq(1, nzc - 1, 2)]
+  } else {
+    Zsub <- Zall
+    Zslope <- NULL
+  }
   
-  Snames <- rand.coef.names <- dimnames(Ztlist[[1]])[[1]]
+  Snames <- rand.coef.names <- dimnames(Zsub)[[2]]
   if(type == "slopes"){
     rand.coef.names <-paste(
       rep(Snames, each = 2), 
@@ -245,6 +323,10 @@ lmm.rrpp <- function(fixed,
       yp <- ordinate(Y, A = H, rank. = 1)$x
       ft <- refit(init.rand.fit, yp)
     } else ft <- init.rand.fit
+    
+    if(isSingular(ft))
+      stop("Model is near-singular.  Try a different estimation method or a simpler model.\n",
+           call. = FALSE)
     
     Lambda <- getME(ft, "Lambda")
     
@@ -262,58 +344,61 @@ lmm.rrpp <- function(fixed,
     Lambda <- Lambda_sub <- Lambda_slopes <- NULL
   }
   
-  Hbs.reduced <- lapply(
-    Xs$reduced, function(x){
-      getLMM_Hb(x, Zsub)
-    })
-  Hbs.full <- lapply(
-    Xs$full, function(x){
-      getLMM_Hb(x, Zsub)
-    })
+  Hbs.reduced <- Hbs.full <- XZs.reduced <- XZs.full <- 
+    Qs.reduced <- Qs.full <- list()
+  
+  for(i in 1:k){
+    Hbs.reduced[[i]] <- getLMM_Hb(Xs$reduced[[i]], Zsub) 
+    Hbs.full[[i]] <- getLMM_Hb(Xs$full[[i]], Zsub)
+    XZs.reduced[[i]] <- cbind(Xs$reduced[[i]], Zsub)
+    XZs.full[[i]] <- cbind(Xs$full[[i]], Zsub)
+    Qs.reduced[[i]] <- getLMMQ(XZs.reduced[[i]], Hbs.reduced[[i]])
+    Qs.full[[i]] <- getLMMQ(XZs.full[[i]], Hbs.full[[i]])
+  }
+  
+  
+  # If Intercepts model
   
   if(type == "intercepts"){
-    Hbs.reduced[[k + 1]] <- 
-      getLMM_Hb(Xs$reduced[[k + 1]])
+    Hbs.reduced[[k+1]] <- getLMM_Hb(Xs$full[[k]])
+    XZs.reduced[[k+1]] <- Xs$full[[k]]
+    Hbs.full[[k+1]] <- getLMM_Hb(Xs$full[[k]], Zsub)
+    XZs.full[[k+1]] <- cbind(Xs$full[[k]], Zsub)
+    Qs.reduced[[k+1]] <- getLMMQ(XZs.reduced[[k+1]], 
+                                 Hbs.reduced[[k+1]])
+    Qs.full[[k+1]] <- getLMMQ(XZs.full[[k+1]], 
+                                 Hbs.full[[k+1]])
   }
+  
+  # If slopes model
   
   if(type == "slopes"){
-    Hbs.reduced[[k + 1]] <- 
-      getLMM_Hb(Xs$reduced[[k + 1]], Zslope)
-    Hbs.full[[k + 1]] <- 
-      getLMM_Hb(Xs$full[[k + 1]], Zall)
-    Hbs.full[[k + 2]] <- 
-      getLMM_Hb(Xs$full[[k + 2]], Zall)
+    Hbs.reduced[[k+1]] <- getLMM_Hb(Xs$full[[k]], Zslope)
+    XZs.reduced[[k+1]] <- cbind(Xs$full[[k]], Zslope)
+    Hbs.full[[k+1]] <- getLMM_Hb(Xs$full[[k]], Zall)
+    XZs.full[[k+1]] <- cbind(Xs$full[[k]], Zall)
+    Hbs.reduced[[k+2]] <- getLMM_Hb(Xs$full[[k]], Zsub)
+    XZs.reduced[[k+2]] <- cbind(Xs$full[[k]], Zsub)
+    Hbs.full[[k+2]] <- getLMM_Hb(Xs$full[[k]], Zall)
+    XZs.full[[k+2]] <- cbind(Xs$full[[k]], Zall)
+    
+    Qs.reduced[[k+1]] <- getLMMQ(XZs.reduced[[k+1]], 
+                                 Hbs.reduced[[k+1]])
+    Qs.full[[k+1]] <- getLMMQ(XZs.full[[k+1]], 
+                              Hbs.full[[k+1]])
+    Qs.reduced[[k+2]] <- getLMMQ(XZs.reduced[[k+2]], 
+                                 Hbs.reduced[[k+2]])
+    Qs.full[[k+2]] <- getLMMQ(XZs.full[[k+2]], 
+                              Hbs.full[[k+2]])
   }
   
-  XZs.reduced <- lapply(Xs$reduced, function(x){
-    cbind(x, Zsub)
+
+  Fitted <- lapply(Qs.reduced, function(q){
+    fastFit(q, Y, n, p)
   })
-  XZs.full <- lapply(Xs$full, function(x){
-    cbind(x, Zsub)
-  })
   
-  if(type == "intercepts") {
-    XZs.reduced[[k + 1]] <- Xs$reduced[[k + 1]]
-  }
-  
-  if(type == "slopes"){
-    XZs.reduced[[k + 1]] <- cbind(Xs$reduce[[k + 1]], Zslope)
-    XZs.full[[k + 1]] <- cbind(Xs$full[[k + 1]], Zall)
-    XZs.full[[k + 2]] <- cbind(Xs$full[[k + 2]], Zall)
-  }
-  
-  Bs.reduced <- lapply(Hbs.reduced, 
-                       function(h) h %*% Y)
-  Fitted <- Map(function(x, b){
-    as.matrix(x %*% b)}, XZs.reduced, Bs.reduced)
   Resid <- lapply(Fitted, function(f) Y - f)
   
-  Qs.full <- Map(function(x, h){
-    QRforX(x %*%h)
-  }, XZs.full, Hbs.full)
-  Qs.reduced <- Map(function(x, h){
-    QRforX(x %*%h)
-  }, XZs.reduced, Hbs.reduced)
   
   ### start RRPP
   
@@ -332,7 +417,8 @@ lmm.rrpp <- function(fixed,
   QRnull <- QRforX(matrix(1, n, 1))
   Hb_null <- getHb(QRnull)
   Qnull <- QRnull$Q
-  Qfull <- QRforX(XZ_full %*% Hb_full)
+  QRfull <- QRforX(XZ_full %*% Hb_full)
+  Qfull <- QRfull$Q[, 1:QRfull$rank]
   
   B <- as.matrix(Hb_full %*% Y)
   dimnames(B) <- list(c(colnames(fixed.fit$LM$X),
@@ -343,59 +429,59 @@ lmm.rrpp <- function(fixed,
   if(inherits(UtU_det, "try-error"))
     UtU_det <- NA
   
-  sub_no <- which(names(XZs.full) == subjects)
+  sub_no <- which(names(Xs$full) == subjects)
   
   Result <- as.list(array(NA, perms))
   names(Result) <- names(ind)
+  
+  ss <- function(qf, qr, y) {
+    ssr <- sum(crossprod(qr, y)^2)
+    ssf <- sum(crossprod(qf, y)^2)
+    ssm <- sum(y^2) - sum(crossprod(Qfull, y)^2)
+    c(ssf - ssr, ssm)
+  } 
+  
+  trmnms <- names(Xs$full)
   
   for(i in 1:perms){
     s <- ind[[i]]
     Y_i <- lapply(1:kk, function(j){
       sj <- if(j == sub_no) ind_s[[i]] else s
-      Fitted[[j]] + as.matrix(Resid[[j]][s, ])
+      Fitted[[j]] + as.matrix(Resid[[j]][sj, ])
     })
     yy <- Y[s, ]
-    Brs <- Map(function(h, y){
-      h %*% y}, Hbs.reduced, Y_i)
-    Bfs <- Map(function(h, y){
-      h %*% y}, Hbs.full, Y_i)
-    Frs <- Map(function(x, b){
-      x %*% b}, XZs.reduced, Brs)
-    Ffs <- Map(function(x, b){
-      x %*% b}, XZs.full, Bfs)
-    Balls <- Map(function(y){
-      Hb_full %*% y},  Y_i)
-    Falls <- Map(function(b){
-      XZ_full %*% b}, Balls)
+    
+    res <- vapply(1:max(1, kk), function(j){
+      ss(Qs.full[[j]], Qs.reduced[[j]], Y_i[[j]])
+    }, numeric(2))
+    
+    dimnames(res) <- list(c("SS", "RSS"), trmnms)
+    
+    Falls <- Map(function(y){
+      fastFit(Qfull, y, n, p)}, Y_i)
     Ralls <- Map(function(y, f){
       y - f}, Y_i, Falls)
     
-    SS <- unlist(Map(
-      function(f, r){
-        sum(f^2) - sum(r^2)
-      }, Ffs, Frs))
-    
     RSS <- sapply(Ralls, function(r) sum(r^2))
     
-    Bm <- Hb_full %*% yy
-    Fm <- XZ_full %*% Bm
+    Fm <- fastFit(Qfull, yy, n, p)
     Rm <- yy - Fm
     RSS.model <- sum(Rm^2)
-    B0 <- Hb_null %*% yy
-    F0 <- XZ_null %*% B0
+    F0 <- fastFit(Qnull, yy, n, p)
     R0 <- yy - F0
     TSS <- sum(R0^2)
     Result[[i]] <- list(
-      SS = SS,
-      RSS = RSS,
+      SS = res,
       RSS.model = RSS.model,
       TSS = TSS
     )
     
   }
   
-  SS <- sapply(Result, function(x) x$SS)
-  RSS <- sapply(Result, function(x) x$RSS)
+  
+  
+  SS <- sapply(Result, function(x) x$SS[1,])
+  RSS <- sapply(Result, function(x) x$SS[2,])
   RSS.model <- sapply(Result, function(x) x$RSS.model)
   RSS.model <- matrix(RSS.model, kk, perms, byrow = TRUE)
   TSS <- sapply(Result, function(x) x$TSS)
@@ -430,6 +516,7 @@ lmm.rrpp <- function(fixed,
   
   fit$ANOVA$SS <- SS
   fit$ANOVA$RSS <- RSS
+  fit$ANOVA$RSS.model <- RSS.model
   fit$ANOVA$TSS <- TSS
   fit$ANOVA$Rsq <- Rsq
   
@@ -440,6 +527,12 @@ lmm.rrpp <- function(fixed,
   fit
 }
 
+
+getLMMQ <- function(XZ, Hb){
+  QR <- QRforX(XZ %*% Hb)
+  Q <- QR$Q[, 1:QR$rank]
+  Q
+}
 
 # Not used but could in the future
 getSubBlocks <- function(flmer){

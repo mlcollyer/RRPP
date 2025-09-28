@@ -947,3 +947,116 @@ test_that("getResCov4.works", {
   
   succeed(getResCov(fitGLS, useDf = FALSE, standardize = TRUE))
 })
+
+
+### lmm.rrpp
+
+test_that("lmm.rrpp1.works", {
+  library(RRPP)
+  data("ReptAbund")
+  fit <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+           subjects = "Site",      
+           type = "intercepts", 
+           estimation = "LS", 
+           data = ReptAbund,
+           iter = 3)
+  
+  succeed(coef(fit, type = "matrix"))
+  succeed(coef(fit, type = "list"))
+  succeed(fixef(fit))
+  succeed(ranef(fit, type = "matrix"))
+  succeed(ranef(fit, type = "list"))
+  succeed(model.matrix(fit))
+  succeed(anova(fit))
+  succeed(fitted(fit))
+  succeed(resid(fit))
+  succeed(getModels(fit, "all"))
+  succeed(terms(fit))
+  succeed(getTerms(fit))
+  succeed(ICCstats(fit, subjects = "Site"))
+  succeed(betaTest(fit))
+  succeed(betaTest(fit, Beta = 1))
+})
+
+test_that("lmm.rrpp2.works", {
+  library(RRPP)
+  data("ReptAbund")
+  fit <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+                  subjects = "Site",      
+                  type = "intercepts", 
+                  estimation = "ML", 
+                  data = ReptAbund,
+                  iter = 3)
+  
+  succeed(coef(fit, type = "matrix"))
+  succeed(coef(fit, type = "list"))
+  succeed(fixef(fit))
+  succeed(ranef(fit, type = "matrix"))
+  succeed(ranef(fit, type = "list"))
+  succeed(model.matrix(fit))
+  succeed(anova(fit))
+  succeed(fitted(fit))
+  succeed(resid(fit))
+  succeed(getModels(fit, "all"))
+  succeed(terms(fit))
+  succeed(getTerms(fit))
+  succeed(ICCstats(fit, subjects = "Site"))
+  succeed(betaTest(fit))
+  succeed(betaTest(fit, Beta = 1))
+})
+
+test_that("lmm.rrpp3.works", {
+  library(RRPP)
+  data("ReptAbund")
+  fit <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+                  subjects = "Site",      
+                  type = "intercepts", 
+                  estimation = "REML", 
+                  data = ReptAbund,
+                  iter = 3)
+  
+  succeed(coef(fit, type = "matrix"))
+  succeed(coef(fit, type = "list"))
+  succeed(fixef(fit))
+  succeed(ranef(fit, type = "matrix"))
+  succeed(ranef(fit, type = "list"))
+  succeed(model.matrix(fit))
+  succeed(anova(fit))
+  succeed(fitted(fit))
+  succeed(resid(fit))
+  succeed(getModels(fit, "all"))
+  succeed(terms(fit))
+  succeed(getTerms(fit))
+  succeed(ICCstats(fit, subjects = "Site"))
+  succeed(betaTest(fit))
+  succeed(betaTest(fit, Beta = 1))
+})
+
+test_that("lmm.rrpp4.works", {
+  library(RRPP)
+  data("ReptAbund")
+  fit <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+                  subjects = "Site",      
+                  type = "slopes", 
+                  slopeTerm = "Year",
+                  estimation = "LS", 
+                  data = ReptAbund,
+                  iter = 3)
+  
+  succeed(coef(fit, type = "matrix"))
+  succeed(coef(fit, type = "list"))
+  succeed(fixef(fit))
+  succeed(ranef(fit, type = "matrix"))
+  succeed(ranef(fit, type = "list"))
+  succeed(model.matrix(fit))
+  succeed(anova(fit))
+  succeed(fitted(fit))
+  succeed(resid(fit))
+  succeed(getModels(fit, "all"))
+  succeed(terms(fit))
+  succeed(getTerms(fit))
+  succeed(ICCstats(fit, subjects = "Site"))
+  succeed(betaTest(fit))
+  succeed(betaTest(fit, Beta = 1))
+  
+})

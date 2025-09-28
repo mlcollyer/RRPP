@@ -88,7 +88,7 @@ number of random permutations of the data, but the permutations are mostly
 restricted to occur with subject blocks for any model terms other than subjects.  
 Most functionality should resemble that of \code{\link{lm.rrpp}} and \code{\link{lm.rrpp.ws}},  
 with some caveats.  First, estimation of random effects uses the methodology of the 
-\code{\link{lme4::lmer}} function (Bates et al., 2015), 
+\code{\link[lme4]{lmer}} function (Bates et al., 2015), 
 for only one random term based on a subjects designation.  
 Second, this means that a "random slopes" model involves an interaction between subjects and a numeric 
 variable (not a categorical variable).  Third, although any number of fixed effects can be used,
@@ -126,12 +126,88 @@ the within-subject blocking for tests, plus the requirement for type II SS
 for within-subject effects.
 }
 \examples{
-TBD
+\dontrun{
+# Random intercepts models
+
+data(ReptAbund)
+fit_ls <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+subjects = "Site",      
+type = "intercepts", 
+estimation = "LS", 
+data = ReptAbund)
+
+fit_ml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+subjects = "Site",      
+type = "intercepts", 
+estimation = "ML", 
+data = ReptAbund)
+
+fit_reml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+subjects = "Site",      
+type = "intercepts", 
+estimation = "REML", 
+data = ReptAbund) 
+
+anova(fit_ls, error = c("Site", "Residuals"))
+anova(fit_ml, error = c("Site", "Residuals"))
+anova(fit_reml, error = c("Site", "Residuals"))
+
+coef(fit_ls, type = "list")
+coef(fit_ml, type = "list")
+coef(fit_reml, type = "list")
+
+# Random slopes models
+
+fit_ls <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+subjects = "Site",      
+type = "slopes",
+slopeTerm = "Year", 
+estimation = "LS", 
+data = ReptAbund)
+
+fit_ml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+subjects = "Site",      
+type = "slopes",
+slopeTerm = "Year", 
+estimation = "ML", 
+data = ReptAbund)
+
+# should not work!
+
+fit_reml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
+subjects = "Site",      
+type = "slopes",
+slopeTerm = "Year",  
+estimation = "REML", 
+data = ReptAbund) 
+
+anova(fit_ls, error = c("Year:Site", "Year:Site", "Residuals"))
+anova(fit_ml, error = c("Year:Site", "Year:Site", "Residuals"))
+
+coef(fit_ls, type = "list")
+coef(fit_ml, type = "list")
+ }
 }
 \references{
 Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
 Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
 doi:10.18637/jss.v067.i01.
+
+\subsection{Limitations}{
+This function currently only works for "Random Intercepts" and "Random slopes" models,
+where the intercepts or slopes of a single subject term (random effect) are free to vary.  
+If a Random Slopes model is used, a single covariate (numeric variable) must be specified for slopes.  
+Generally, this is term that is also among the fixed effects.  These limitations are imposed
+to allow ML or REML estimation.  More complex models can be entertained with \code{lmm.rrpp.ws},
+but using only "LS" estimation.  If "LS" estimation is used in this function, results should be the same
+with a comparable formula, using \code{lmm.rrpp.ws}
+
+If a ML or REML fit is near singular (one or more covariance parameters are 0), the analysis will be arrested
+rather than continued with some random effects rendered as 0.  This should be an indication that the model
+is over-fit with the type of estimation used. 
+
+These limitations might be addressed with future versions of this function, as theoretical advances are made.
+ }
 }
 \seealso{
 \code{\link{lm.rrpp}}; \code{\link{measurement.error}}

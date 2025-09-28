@@ -261,7 +261,7 @@ coef.lmm.rrpp <- function(object,
     dimnames(res) <- list(rnms, colnames(Bf))
     
   }
-  class(res) <- "coef.lm.rrpp"
+  
   res
 }
 
