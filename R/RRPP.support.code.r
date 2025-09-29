@@ -1131,8 +1131,22 @@ getXfromNewData <- function(fit, newdata){
   nd_vars <- names(newdata)
   factors <- attr(Terms, "factors")
   X <- fit$LM$X
-  if(is.null(attr(X, "assign")))
-     X <- model.matrix(Terms, mf)
+  if(is.null(attr(X, "assign"))){
+    X <- try(model.matrix(Terms, mf),
+             silent = TRUE)
+    if(inherits(X, "try-error"))
+      X <- try(model.matrix(Terms, newdata))
+    if(inherits(X, "try-error"))
+      stop("\n Could not construct a model matrix from new data.",
+           call. = FALSE)
+  }
+  X <- try(model.matrix(Terms, mf),
+           silent = TRUE)
+  if(inherits(X, "try-error"))
+    X <- try(model.matrix(Terms, newdata))
+  if(inherits(X, "try-error"))
+    stop("\n Could not construct a model matrix from new data.",
+         call. = FALSE)
   asn <- attr(X, "assign")
   m <- colMeans(X)
   
