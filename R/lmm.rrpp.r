@@ -324,7 +324,7 @@ lmm.rrpp <- function(fixed,
       ft <- refit(init.rand.fit, yp)
     } else ft <- init.rand.fit
     
-    if(isSingular(ft, tol = 1e-7))
+    if(isSingular(ft, tol = 1e-4))
       stop("Model is near-singular.  Try a different estimation method or a simpler model.\n",
            call. = FALSE)
     
