@@ -480,7 +480,7 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
       x <- as.matrix(x.s)
     }
   osx <- length(x)
-  osxs <- length(x.s@x)
+  osxs <- if(inherits(x.s, "Matrix")) length(x.s@x) else osx
   X <- if(osx < osxs) x else x.s
   x <- x.s <- NULL
   Q <- QRforX(X, tol = tol)

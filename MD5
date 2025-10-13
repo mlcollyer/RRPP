@@ -151,14 +151,14 @@ a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
 65e8783022a4dfe38f187d0f7fc9afd3 *R/model.comparison.r
 aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
 9c3b3d8bed7698ef561ee04d8be63ea1 *R/pairwise.model.Z.r
-2dcef7d8c04ecc4adf7678b406657044 *R/pairwise.r
+8e1a3679c8de77fd08a051a47b8b1de6 *R/pairwise.r
 fa245740ee0283b77b8f8b2c17e4f571 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 2e7d39a829e89267d2e8d02d23b1fd1e *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
-04d7c6ba13b15f89b6b1c12cf0c5e15c *R/RRPP.support.code.r
+f72b0be4a4ecd9cbbf1f557f8e353d00 *R/RRPP.support.code.r
 2830544e0fce4e2d1d59cfbbe57c7079 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 986fa536ea6f0420a0e35790bed0bb36 *R/shared.support.code.r
