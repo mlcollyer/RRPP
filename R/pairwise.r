@@ -340,6 +340,10 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
     }
   }
   
+  X.s <- drop0(Matrix(X, sparse = TRUE), 1e-10)
+  if(length(X.s@x) < length(X)) X <- X.s
+  rm(X.s)
+  
   if(k > 0) {
     lmf <- LM.fit(X, Y)
     fitted <-lmf$fitted.values
