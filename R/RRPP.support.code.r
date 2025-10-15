@@ -2440,16 +2440,17 @@ ZL_list <- function(init.fit, Y){
   
 }
 
-getLMM_Hb <- function(X, Z = NULL){
-  XX <- crossprod(X)
-  if(!is.null(Z)) {
-    ZZ <- crossprod(Z)
-    ZZ <- ZZ + diag(nrow(ZZ))
-    XZ <- crossprod(X, Z)
-    ZX <- crossprod(Z, X)
-    big <- rbind(cbind(XX, XZ), cbind(ZX, ZZ))
-  } else 
-    big <- XX
-  
-  fast.solve(big) %*% t(cbind(X, Z))
+getLMM_Hb <- function(X, Z = NULL) {
+  big <- !is.null(Z)
+  k1 <- ncol(X)
+  k2 <- if(big) ncol(Z) else 0
+  k <- k1 + k2
+  XZ <- if(big) cbind(X, Z) else X
+  out <- crossprod(XZ)
+  if(big){
+    D <- diag(k)
+    diag(D)[1:k1] <- 0
+    out <- out + D
+  }
+  tcrossprod(fast.solve(out), XZ)
 }

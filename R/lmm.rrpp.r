@@ -298,6 +298,8 @@ lmm.rrpp <- function(fixed,
   
   Zall <- getME(init.rand.fit, 
                 "Z")
+  
+  
   if(type == "slopes"){
     nzc <- ncol(Zall)
     Zslope <- Zall[, seq(2, nzc, 2)]
@@ -329,31 +331,30 @@ lmm.rrpp <- function(fixed,
            call. = FALSE)
     
     Lambda <- getME(ft, "Lambda")
-    
-    if(!is.null(Zslope)){
-      subs <- seq(1, nrow(Lambda) - 1, 2)
-      Lambda_sub <- Lambda[subs, subs]
-      Lambda_slopes <- Lambda[-subs, -subs]
-    } else Lambda_sub <- Lambda
-    
-    Zsub <- Zsub %*% Lambda_sub
     Zall <- Zall %*% Lambda
-    if(!is.null(Zslope)) Zslope <- Zslope %*% Lambda_slopes
+    
+    if(type == "slopes"){
+      nzc <- ncol(Zall)
+      Zslope <- Zall[, seq(2, nzc, 2)]
+      Zsub <- Zall[, seq(1, nzc - 1, 2)]
+    } else {
+      Zsub <- Zall
+      Zslope <- NULL
+    }
     
   } else {
     Lambda <- Lambda_sub <- Lambda_slopes <- NULL
   }
   
-  Hbs.reduced <- Hbs.full <- XZs.reduced <- XZs.full <- 
-    Qs.reduced <- Qs.full <- list()
+  Hbs.reduced <- Hbs.full <- 
+    XZs.reduced <- XZs.full <- list()
   
   for(i in 1:k){
     Hbs.reduced[[i]] <- getLMM_Hb(Xs$reduced[[i]], Zsub) 
     Hbs.full[[i]] <- getLMM_Hb(Xs$full[[i]], Zsub)
     XZs.reduced[[i]] <- cbind(Xs$reduced[[i]], Zsub)
     XZs.full[[i]] <- cbind(Xs$full[[i]], Zsub)
-    Qs.reduced[[i]] <- getLMMQ(XZs.reduced[[i]], Hbs.reduced[[i]])
-    Qs.full[[i]] <- getLMMQ(XZs.full[[i]], Hbs.full[[i]])
+
   }
   
   
@@ -364,10 +365,6 @@ lmm.rrpp <- function(fixed,
     XZs.reduced[[k+1]] <- Xs$full[[k]]
     Hbs.full[[k+1]] <- getLMM_Hb(Xs$full[[k]], Zsub)
     XZs.full[[k+1]] <- cbind(Xs$full[[k]], Zsub)
-    Qs.reduced[[k+1]] <- getLMMQ(XZs.reduced[[k+1]], 
-                                 Hbs.reduced[[k+1]])
-    Qs.full[[k+1]] <- getLMMQ(XZs.full[[k+1]], 
-                                 Hbs.full[[k+1]])
   }
   
   # If slopes model
@@ -381,20 +378,20 @@ lmm.rrpp <- function(fixed,
     XZs.reduced[[k+2]] <- cbind(Xs$full[[k]], Zsub)
     Hbs.full[[k+2]] <- getLMM_Hb(Xs$full[[k]], Zall)
     XZs.full[[k+2]] <- cbind(Xs$full[[k]], Zall)
-    
-    Qs.reduced[[k+1]] <- getLMMQ(XZs.reduced[[k+1]], 
-                                 Hbs.reduced[[k+1]])
-    Qs.full[[k+1]] <- getLMMQ(XZs.full[[k+1]], 
-                              Hbs.full[[k+1]])
-    Qs.reduced[[k+2]] <- getLMMQ(XZs.reduced[[k+2]], 
-                                 Hbs.reduced[[k+2]])
-    Qs.full[[k+2]] <- getLMMQ(XZs.full[[k+2]], 
-                              Hbs.full[[k+2]])
+
   }
   
+  
+  Hs.full <- Map(function(x, h){
+    x %*% h
+  }, XZs.full, Hbs.full)
+  
+  Hs.reduced <- Map(function(x, h){
+    x %*% h
+  }, XZs.reduced, Hbs.reduced)
 
-  Fitted <- lapply(Qs.reduced, function(q){
-    fastFit(q, Y, n, p)
+  Fitted <- lapply(Hs.reduced, function(h){
+    as.matrix(h %*% Y)
   })
   
   Resid <- lapply(Fitted, function(f) Y - f)
@@ -417,8 +414,6 @@ lmm.rrpp <- function(fixed,
   QRnull <- QRforX(matrix(1, n, 1))
   Hb_null <- getHb(QRnull)
   Qnull <- QRnull$Q
-  QRfull <- QRforX(XZ_full %*% Hb_full)
-  Qfull <- QRfull$Q[, 1:QRfull$rank]
   
   B <- as.matrix(Hb_full %*% Y)
   dimnames(B) <- list(c(colnames(fixed.fit$LM$X),
@@ -434,10 +429,14 @@ lmm.rrpp <- function(fixed,
   Result <- as.list(array(NA, perms))
   names(Result) <- names(ind)
   
-  ss <- function(qf, qr, y) {
-    ssr <- sum(crossprod(qr, y)^2)
-    ssf <- sum(crossprod(qf, y)^2)
-    ssm <- sum(y^2) - sum(crossprod(Qfull, y)^2)
+  H_residual <- XZ_full %*% Hb_full 
+  H_residual <- H_residual - diag(n)
+  
+  ss <- function(hf, hr, y) {
+    ssr <- sum(crossprod(hr, y)^2)
+    ssf <- sum(crossprod(hf, y)^2)
+    r <- H_residual %*% y
+    ssm <- sum(r^2)
     c(ssf - ssr, ssm)
   } 
   
@@ -452,20 +451,17 @@ lmm.rrpp <- function(fixed,
     yy <- Y[s, ]
     
     res <- vapply(1:max(1, kk), function(j){
-      ss(Qs.full[[j]], Qs.reduced[[j]], Y_i[[j]])
+      ss(Hs.full[[j]], Hs.reduced[[j]], Y_i[[j]])
     }, numeric(2))
     
     dimnames(res) <- list(c("SS", "RSS"), trmnms)
-    
-    Falls <- Map(function(y){
-      fastFit(Qfull, y, n, p)}, Y_i)
-    Ralls <- Map(function(y, f){
-      y - f}, Y_i, Falls)
+
+    Ralls <- Map(function(y){
+      H_residual %*% y}, Y_i)
     
     RSS <- sapply(Ralls, function(r) sum(r^2))
     
-    Fm <- fastFit(Qfull, yy, n, p)
-    Rm <- yy - Fm
+    Rm <- H_residual %*% yy 
     RSS.model <- sum(Rm^2)
     F0 <- fastFit(Qnull, yy, n, p)
     R0 <- yy - F0
