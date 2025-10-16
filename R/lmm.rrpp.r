@@ -218,42 +218,92 @@ lmm.rrpp <- function(fixed,
   if(useLS){
     fit <- suppressWarnings(do.call(lm.rrpp.ws, 
                                     lm.rrpp.args))
-    fit$call <- match.call()
   } else {
     lm.rrpp.args$iter <- 0
     fit <- suppressWarnings(do.call(lm.rrpp.ws, 
                                     lm.rrpp.args))
   }
   
+  B <- fit$LM$coefficients
+  lm.rrpp.args$f1 <- fixed
+  
+  fixed.fit <- suppressWarnings(do.call(lm.rrpp.ws, 
+                                        lm.rrpp.args))
+  
+  fit$call <- match.call()
+  dat <- fit$LM$data
+  dat$resp <- as.matrix(dat$Y[,1])
+  Y <- dat$Y
+  dims <- dim(Y)
+  n <- dims[1]
+  p <- dims[2]
+  
+  rands <- if(type == "intercepts")
+    paste("(1|", subjects, ")", sep = "") else
+      paste("(", slopeTerm, "|", subjects, ")", sep = "")
+  
+  randform <- reformulate(response = response, 
+                          termlabels = c(trms, rands))
+  randform <- update(randform, resp ~ .)
+  
+  init.rand.fit <- suppressMessages(
+    suppressWarnings(lmer(randform, 
+                          REML = (estimation == "REML"),
+                          data = dat)))
+  
+  Zall <- getME(init.rand.fit, 
+                "Z")
+  if(type == "slopes"){
+    nzc <- ncol(Zall)
+    Zslope <- Zall[, seq(2, nzc, 2)]
+    Zsub <- Zall[, seq(1, nzc - 1, 2)]
+  } else {
+    Zsub <- Zall
+    Zslope <- NULL
+  }
+  
+  Snames <- rand.coef.names <- dimnames(Zsub)[[2]]
+  if(type == "slopes"){
+    a <- rep(Snames, each = 2)
+    b <- rep(c("(Intercept)", slopeTerm), length(Snames))
+    rand.coef.names <- paste(a, b, sep = ":")
+  }
+  
+  Xff <- model.matrix(fixed.fit)
+  kf <- NCOL(Xff)
+  zeros <- matrix(0, 1, NCOL(Y))
+  if(type == "slopes")
+    zeros <- rbind(zeros, 0)
+  B <- rbind(as.matrix(B[1:kf,]), zeros, as.matrix(B[-(1:kf),]))
+  dimnames(B) <- list(
+    c(colnames(Xff), rand.coef.names),
+    colnames(Y)
+  )
+  
+  if(p > 1){
+    H <- tcrossprod(QR$Q)
+    yp <- ordinate(Y, A = H, rank. = 1)$x
+    ft <- refit(init.rand.fit, yp)
+  } else ft <- init.rand.fit
+  
+  if(isSingular(ft, tol = 1e-4))
+    stop("Model is near-singular.  Try a different estimation method or a simpler model.\n",
+         call. = FALSE)
+  
+  Lambda <- getME(ft, "Lambda")
+  Zall <- Zall %*% Lambda
+  
+  if(type == "slopes"){
+    nzc <- ncol(Zall)
+    Zslope <- Zall[, seq(2, nzc, 2)]
+    Zsub <- Zall[, seq(1, nzc - 1, 2)]
+  } else {
+    Zsub <- Zall
+    Zslope <- NULL
+  }
   
   if(!useLS){
     
-    lm.rrpp.args$f1 <- fixed
-    
-    fixed.fit <- suppressWarnings(do.call(lm.rrpp.ws, 
-                                          lm.rrpp.args))
-    
-    fit$call <- match.call()
-    dat <- fit$LM$data
-    dat$resp <- as.matrix(dat$Y[,1])
-    
-    rands <- if(type == "intercepts")
-      paste("(1|", subjects, ")", sep = "") else
-        paste("(", slopeTerm, "|", subjects, ")", sep = "")
-    
-    randform <- reformulate(response = response, 
-                            termlabels = c(trms, rands))
-    randform <- update(randform, resp ~ .)
-    
-    init.rand.fit <- suppressMessages(
-      suppressWarnings(lmer(randform, 
-                            REML = (estimation == "REML"),
-                            data = dat)))
-    
-    Y <- dat$Y
-    dims <- dim(Y)
-    n <- dims[1]
-    p <- dims[2]
     
     if(fit$LM$gls) {
       if(!is.null(fit$LM$Cov)) {
@@ -267,7 +317,7 @@ lmm.rrpp <- function(fixed,
     
     subjFactor <- unlist(dat[[which(names(dat) == subjects)]])
     ns <- nlevels(subjFactor)
-    subbjLevels <- levels(subjFactor)
+    subjLevels <- levels(subjFactor)
     
     if(type == "slopes") {
       slopeVar <- unlist(dat[[which(names(dat) == slopeTerm)]])
@@ -307,49 +357,6 @@ lmm.rrpp <- function(fixed,
           slopeTerm, subjects, sep = ":")
     }
     
-    Zall <- getME(init.rand.fit, 
-                  "Z")
-    
-    
-    if(type == "slopes"){
-      nzc <- ncol(Zall)
-      Zslope <- Zall[, seq(2, nzc, 2)]
-      Zsub <- Zall[, seq(1, nzc - 1, 2)]
-    } else {
-      Zsub <- Zall
-      Zslope <- NULL
-    }
-    
-    Snames <- rand.coef.names <- dimnames(Zsub)[[2]]
-    if(type == "slopes"){
-      rand.coef.names <-paste(
-        rep(Snames, each = 2), 
-        c("", paste(":", slopeTerm, sep = "")), sep = "")
-      
-    }
-    
-    if(p > 1){
-      H <- tcrossprod(QR$Q)
-      yp <- ordinate(Y, A = H, rank. = 1)$x
-      ft <- refit(init.rand.fit, yp)
-    } else ft <- init.rand.fit
-    
-    if(isSingular(ft, tol = 1e-4))
-      stop("Model is near-singular.  Try a different estimation method or a simpler model.\n",
-           call. = FALSE)
-    
-    Lambda <- getME(ft, "Lambda")
-    Zall <- Zall %*% Lambda
-    
-    if(type == "slopes"){
-      nzc <- ncol(Zall)
-      Zslope <- Zall[, seq(2, nzc, 2)]
-      Zsub <- Zall[, seq(1, nzc - 1, 2)]
-    } else {
-      Zsub <- Zall
-      Zslope <- NULL
-    }
-    
     Hbs.reduced <- Hbs.full <- 
       XZs.reduced <- XZs.full <- list()
     
@@ -360,6 +367,7 @@ lmm.rrpp <- function(fixed,
       XZs.full[[i]] <- cbind(Xs$full[[i]], Zsub)
       
     }
+    
     
     # If Intercepts model
     
@@ -419,6 +427,7 @@ lmm.rrpp <- function(fixed,
     Qnull <- QRnull$Q
     
     B <- as.matrix(Hb_full %*% Y)
+    
     dimnames(B) <- list(c(colnames(fixed.fit$LM$X),
                           rand.coef.names),
                         colnames(Y))
@@ -488,29 +497,6 @@ lmm.rrpp <- function(fixed,
     MS <- SS / Df[1:kk]
     Rsq <- SS / TSS
     
-    fit$LM$LMM <- TRUE
-    fit$LM$X <- fixed.fit$LM$X
-    fit$LM$Z <- getME(init.rand.fit, "Z")
-    fit$LM$Lambda <- Lambda
-    fit$LM$QR <- NULL
-    fit$LM$coefficients <- B
-    fit$LM$coef.fixed <- seq_len(ncol(fixed.fit$LM$X))
-    fit$LM$coef.random <- seq_len(NROW(B))[-fit$LM$coef.fixed]
-    if(fit$LM$gls) 
-      fit$L$gls.fitted <- XZ_full %*% fit$LM$coefficients else 
-        fit$LM$fitted <- XZ_full %*% fit$LM$coefficients
-    if(fit$LM$gls) 
-      fit$L$gls.residuals <- Y - fit$LM$fitted else 
-        fit$LM$residuals <- Y - fit$LM$fitted
-    fit$LM$fixed <- fixed
-    fit$LM$estimation <- estimation
-    fit$LM$ranef.type <- type
-    fit$LM$ranef.slopeTerm <- slopeTerm
-    fit$LM$lm_form <- form
-    fit$LM$lmer_form <- randform
-    fit$LM$cnms <- init.rand.fit@cnms
-    fit$LM$UtU_det <- UtU_det
-    
     fit$ANOVA$SS <- SS
     fit$ANOVA$RSS <- RSS
     fit$ANOVA$RSS.model <- RSS.model
@@ -519,9 +505,40 @@ lmm.rrpp <- function(fixed,
     
     fit$PermInfo$perms <- perms
     
-    class(fit) <- c("lmm.rrpp", class(fit))
-    fit$call <- match.call()
   }
+  
+  fit$LM$LMM <- TRUE
+  fit$LM$X <- fixed.fit$LM$X
+  fit$LM$Z <- getME(init.rand.fit, "Z")
+  fit$LM$Lambda <- Lambda
+  fit$LM$QR <- NULL
+  fit$LM$coefficients <- B
+  
+  fit$LM$coef.fixed <- seq_len(ncol(fixed.fit$LM$X))
+  fit$LM$coef.random <- seq_len(NROW(B))[-fit$LM$coef.fixed]
+
+  
+  if(!useLS){
+    if(fit$LM$gls) {
+      fit$L$gls.fitted <- XZ_full %*% fit$LM$coefficients
+      fit$L$gls.residuals <- Y - fit$LM$gls.fitted
+    } else {
+      fit$LM$fitted <- XZ_full %*% fit$LM$coefficients
+      fit$LM$residuals <- Y - fit$LM$fitted
+    }
+  } 
+
+  fit$LM$fixed <- fixed
+  fit$LM$estimation <- estimation
+  fit$LM$ranef.type <- type
+  fit$LM$ranef.slopeTerm <- slopeTerm
+  fit$LM$lm_form <- form
+  fit$LM$lmer_form <- randform
+  fit$LM$cnms <- init.rand.fit@cnms
+  fit$LM$UtU_det <- if(!useLS) UtU_det else NULL
+  
+  class(fit) <- c("lmm.rrpp", class(fit))
+  fit$call <- match.call()
   
   fit
 }
