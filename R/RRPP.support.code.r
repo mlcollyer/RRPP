@@ -316,10 +316,14 @@ makeDF <- function(form, data, n, nms) {
   
 lm.args.from.formula <- function(cl){
   
-  lm.args <- list(formula = NULL, data = NULL, subset = NULL, weights = NULL,
-                  na.action = na.omit, method = "qr", model = TRUE, 
+  lm.args <- list(formula = NULL, data = NULL, 
+                  subset = NULL, weights = NULL,
+                  na.action = na.omit, 
+                  method = "qr", model = TRUE, 
                   qr = TRUE,
-                  singular.ok = TRUE, contrasts = NULL, offset = NULL, tol = 1e-7)
+                  singular.ok = TRUE, 
+                  contrasts = NULL, offset = NULL, 
+                  tol = 1e-7)
   
   lm.nms <- names(lm.args)
   
@@ -329,9 +333,13 @@ lm.args.from.formula <- function(cl){
   lm.args$x <- lm.args$y <- TRUE
   
   form <- lm.args$formula
+  ko <- cl$keep.order
+  
   if(is.null(form))
     stop("The formula is either missing or not formatted correctly.\n", 
          call. = FALSE)
+  form <- formula(terms.formula(form, keep.order = ko),
+                  keep.order = ko)
   
   Dy <- NULL
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
@@ -352,7 +360,10 @@ lm.args.from.formula <- function(cl){
       Dy <- Y <- as.dist(Y)
       if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
                            call. = FALSE)
-      lm.args$formula <- update(lm.args$formula, Y ~ .)
+      lm.args$formula <- update(form, Y ~ .)
+      lm.args$formula <- terms.formula(terms(form, keep.order = ko),
+                                       keep.order = ko)
+      
     } else Dy <- NULL
   }
   
@@ -371,7 +382,9 @@ lm.args.from.formula <- function(cl){
     xs <- paste(names(lm.args$data), collapse = "+")
     form <- as.formula(noquote(c("~", xs)))
   }
-  form <- update(form, Y ~.,)
+  form <- update(form, Y ~.)
+  form <- terms.formula(terms(form, keep.order = ko), 
+                        keep.order = ko)
   lm.args$formula <- form
   n <- NROW(Y)
   
@@ -392,11 +405,13 @@ lm.args.from.formula <- function(cl){
   
   lm.args$data$Y <- Y
   
+  Terms <- try(terms.formula(form, data = lm.args$data,
+                             keep.order = ko),
+               silent = TRUE)
   
-  model <- try(model.frame(form, data = lm.args$data),
+  model <- try(model.frame(Terms, data = lm.args$data),
                silent = TRUE)
-  Terms <- try(attr(model, "terms"),
-               silent = TRUE)
+  
   
   if(inherits(model, "try-error") || inherits(Terms, "try-error"))
   stop("Variables or data might be missing from either the data frame or 
@@ -410,8 +425,6 @@ lm.args.from.formula <- function(cl){
     if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
     out$D <- as.dist(d)
   }
-  
-  
   
   out
 }

@@ -3896,8 +3896,9 @@ ranef.lmm.rrpp <- function(object,
     res <- lapply(1:ncol(Brand), function(j){
       b <- Brand[, j]
       m <- cbind(b[sp$subjTerm], b[sp$slopeTerm])
-      dimnames(m) <- list(subjLevels,
-                          object$LM$cnms[[1]])
+      try(dimnames(m) <- list(subjLevels,
+                          object$LM$cnms[[1]]),
+                         silent = TRUE)
       m
     })
     names(res) <- colnames(Brand)

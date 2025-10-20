@@ -131,7 +131,7 @@ e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
-5748c683538052d447473702c4dbdd2f *R/base_lm.rrpp.r
+835393fbca9c5dab9ac47d056ac2f272 *R/base_lm.rrpp.r
 888dbb4d9405035f9b646eebb90239b5 *R/betaTest.r
 2d63717a575c026ddf2d556bd69a7220 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
@@ -141,7 +141,7 @@ c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
 a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
-28f3f155c3071cf0a4c42766c41fb186 *R/lmm.rrpp.r
+eb230154d83ed74f4ae03c887e97dd68 *R/lmm.rrpp.r
 0ff3be1b82cba5208bb89fc756bf6ed7 *R/logLik.lm.rrpp.r
 11e059c8656b9d08df3506113278674b *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
@@ -158,8 +158,8 @@ b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
-d68dca6ec929cb029bb376a08c0afd4d *R/RRPP.support.code.r
-2830544e0fce4e2d1d59cfbbe57c7079 *R/RRPP.utils.r
+2af4caa1777c24220d9154fe370e48c1 *R/RRPP.support.code.r
+d6bf8777299ca27d745dcb19d8f883b2 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 986fa536ea6f0420a0e35790bed0bb36 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r

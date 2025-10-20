@@ -199,15 +199,18 @@ lmm.rrpp <- function(fixed,
   names(lm.rrpp.args) <- lm.rrpp.args[largs %in% names(dots)]
   
   response <- as.character(fixed[[2]])
-  trms <- attr(terms(fixed), "term.labels")
+  trms <- attr(terms(fixed, keep.order = TRUE), "term.labels")
   form <- if(type == "intercepts") 
     reformulate(response = response, 
                 termlabels = c(trms, subjects)) else
                   reformulate(response = response, 
                               termlabels = c(trms, subjects,
                                              paste(slopeTerm, subjects, sep = ":")))
+  
   useLS <- (estimation == "LS")
   
+  form <- formula(terms(form, keep.order = TRUE),
+                  keep.order = TRUE)
   lm.rrpp.args$f1 <- form
   lm.rrpp.args$subjects <- subjects
   lm.rrpp.args$verbose <- FALSE
@@ -215,6 +218,8 @@ lmm.rrpp <- function(fixed,
   if(isTRUE(dots$print.progress)){
     cat("\nInitial lm.rrpp.ws fit:\n ")
   }
+  lm.rrpp.args$int.first <- TRUE
+  
   if(useLS){
     fit <- suppressWarnings(do.call(lm.rrpp.ws, 
                                     lm.rrpp.args))
@@ -222,9 +227,11 @@ lmm.rrpp <- function(fixed,
     lm.rrpp.args$iter <- 0
     fit <- suppressWarnings(do.call(lm.rrpp.ws, 
                                     lm.rrpp.args))
+    lm.rrpp.args$iter <- iter
   }
   
   B <- fit$LM$coefficients
+  
   lm.rrpp.args$f1 <- fixed
   
   fixed.fit <- suppressWarnings(do.call(lm.rrpp.ws, 
@@ -262,6 +269,9 @@ lmm.rrpp <- function(fixed,
     Zslope <- NULL
   }
   
+  nsub <- NCOL(Zsub)
+  Xff <- model.matrix(fixed.fit)
+  kf <- NCOL(Xff)
   Snames <- rand.coef.names <- dimnames(Zsub)[[2]]
   if(type == "slopes"){
     a <- rep(Snames, each = 2)
@@ -269,16 +279,28 @@ lmm.rrpp <- function(fixed,
     rand.coef.names <- paste(a, b, sep = ":")
   }
   
-  Xff <- model.matrix(fixed.fit)
-  kf <- NCOL(Xff)
-  zeros <- matrix(0, 1, NCOL(Y))
-  if(type == "slopes")
-    zeros <- rbind(zeros, 0)
-  B <- rbind(as.matrix(B[1:kf,]), zeros, as.matrix(B[-(1:kf),]))
-  dimnames(B) <- list(
-    c(colnames(Xff), rand.coef.names),
-    colnames(Y)
-  )
+  sub1 <- paste(subjects, levels(fit$subjects), sep = "")
+  sub2 <- if(type == "slopes") 
+    paste(slopeTerm, sub1, sep = ":") else NULL
+  xnames <- c(colnames(Xff), sub1, sub2)
+  
+  Bfill <- matrix(0, nrow = length(xnames), 
+            ncol = p)
+  dimnames(Bfill) <- list(xnames, colnames(dat$resp))
+  
+  Bfill[rownames(Bfill) %in% rownames(B), ] <- B
+  B <- Bfill
+  rm(Bfill)
+  
+  if(type == "slopes"){
+    Bff <- as.matrix(B[1:kf,])
+    Bs <- as.matrix(B[-(1:kf),])
+    ks <- NROW(Bs)
+    sseq <- NULL
+    for(i in 1:(ks/2)) sseq <- c(sseq, c(i, i + ks/2))
+    Bs <- as.matrix(Bs[sseq,])
+    B <- as.matrix(rbind(Bff, Bs))
+  }
   
   if(p > 1){
     H <- tcrossprod(QR$Q)
