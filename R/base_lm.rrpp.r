@@ -108,10 +108,11 @@
   
   if(!identical(attr(tTerms, "term.labels"),
                 attr(Terms, "term.labels"))) {
-    nform <- reformulate(termlabels = attr(terms(f1, 
-                                                 keep.order = int.first),
-                                           "term.labels"),
-                         response = "Y",)
+    trms <- attr(terms(f1, keep.order = int.first),
+                 "term.labels")
+    if(length(trms) > 0)
+    nform <- reformulate(termlabels = trms,
+                         response = "Y") else nform <- update(f1, Y ~ .)
     Terms <- try(terms(nform, data = lm.args$data,
                                keep.order = int.first),
                  silent = TRUE)

@@ -375,9 +375,11 @@ lm.args.from.formula <- function(cl){
     xs <- paste(names(lm.args$data), collapse = "+")
     form <- as.formula(noquote(c("~", xs)))
   }
-
-  form <- reformulate(attr(terms(form, keep.order = ko), "term.labels"),
-                      response = "Y")
+  
+  trms <- attr(terms(form, keep.order = ko), "term.labels")
+  if(length(trms) > 1)
+    form <- reformulate(trms,
+                      response = "Y") else form <- update(form, Y ~ .)
   lm.args$formula <- form
   n <- NROW(Y)
   
@@ -519,6 +521,7 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
                   model, subjects.term = NULL) {
   
   X <- model.matrix(Terms, data = model)
+  n <- NROW(X)
   X.k <- X.k.obs <- attr(X, "assign")
   X.n.k.obs <- length(X.k.obs)
   Xred <- removeRedundant(X)
@@ -551,7 +554,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
       Xfs <- lapply(2:length(uk), function(j)  if(fix) X[, -delete] else X)
       Xrs <- lapply(2:length(uk), function(j){
         rmove <- c(which(X.k == (j - 1)), delete)
-        as.matrix(X[, - rmove])
+        Xout <- as.matrix(X[, -rmove])
+        if(length(Xout) == 0) Xout <- matrix(0, n, 1)
+        Xout
       })
       
     } else if(SS.type != "I"){
@@ -563,7 +568,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
         ind <-  as.logical(ifelse(c(0, index) < m, 1, 0))
         rmove <- which(!X.k %in% uk[ind])
         rmove <- unique(c(rmove, delete))
-        as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove])
+        if(length(Xout) == 0) Xout <- matrix(0, n, 1)
+        Xout
       })
       
       Xfs <- lapply(1:NROW(fac), function(j){
@@ -581,7 +588,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
       Xrs <- lapply(2:length(uk), function(j){
         rmove <- which(!X.k %in% uk[1:(j - 1)])
         rmove <- unique(c(rmove, delete))
-        as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove])
+        if(length(Xout) == 0) Xout <- matrix(0, n, 1)
+        Xout
       })
       
       Xfs <- lapply(2:length(uk), function(j){
