@@ -198,7 +198,7 @@ lmm.rrpp <- function(fixed,
   lm.rrpp.args <- dots[names(dots) %in% largs]
   names(lm.rrpp.args) <- lm.rrpp.args[largs %in% names(dots)]
   
-  response <- as.character(fixed[[2]])
+  response <- fixed[[2]]
   trms <- attr(terms(fixed, keep.order = TRUE), "term.labels")
   form <- if(type == "intercepts") 
     reformulate(response = response, 

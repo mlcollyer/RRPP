@@ -334,12 +334,9 @@ lm.args.from.formula <- function(cl){
   
   form <- lm.args$formula
   ko <- cl$keep.order
-  
   if(is.null(form))
     stop("The formula is either missing or not formatted correctly.\n", 
          call. = FALSE)
-  form <- formula(terms.formula(form, keep.order = ko),
-                  keep.order = ko)
   
   Dy <- NULL
   Y <- try(eval(lm.args$formula[[2]], lm.args$data, parent.frame()),
@@ -360,10 +357,6 @@ lm.args.from.formula <- function(cl){
       Dy <- Y <- as.dist(Y)
       if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
                            call. = FALSE)
-      lm.args$formula <- update(form, Y ~ .)
-      lm.args$formula <- terms.formula(terms(form, keep.order = ko),
-                                       keep.order = ko)
-      
     } else Dy <- NULL
   }
   
@@ -382,9 +375,9 @@ lm.args.from.formula <- function(cl){
     xs <- paste(names(lm.args$data), collapse = "+")
     form <- as.formula(noquote(c("~", xs)))
   }
-  form <- update(form, Y ~.)
-  form <- terms.formula(terms(form, keep.order = ko), 
-                        keep.order = ko)
+
+  form <- reformulate(attr(terms(form, keep.order = ko), "term.labels"),
+                      response = "Y")
   lm.args$formula <- form
   n <- NROW(Y)
   
