@@ -3885,20 +3885,23 @@ ranef.lmm.rrpp <- function(object,
                                     "list"), ...){
   type <- match.arg(type)
   Brand <- as.matrix(object$LM$coefficients[object$LM$coef.random,])
+  subjLevels <- levels(object$subjects)
+  varNames <- colnames(object$LM$Y)
+  effectNames <- object$LM$cnms[[1]]
+  
   if(object$LM$estimation != "LS")
     Brand <- as.matrix(object$LM$Lambda %*% Brand)
   
-  subjLevels <- levels(object$subjects)
+  sp <- subjPartition(nrow(Brand), length(subjLevels))
   
   if(type == "list"){
     
-    sp <- subjPartition(nrow(Brand), length(subjLevels))
     res <- lapply(1:ncol(Brand), function(j){
       b <- Brand[, j]
-      m <- cbind(b[sp$subjTerm], b[sp$slopeTerm])
-      try(dimnames(m) <- list(subjLevels,
-                          object$LM$cnms[[1]]),
-                         silent = TRUE)
+      m <- if(length(b[sp$slopeTerm]) > 0) cbind(b[sp$subjTerm], 
+                                                 b[sp$slopeTerm]) else as.matrix(b)
+      dimnames(m) <- list(subjLevels,
+                          effectNames)
       m
     })
     names(res) <- colnames(Brand)
@@ -3906,6 +3909,11 @@ ranef.lmm.rrpp <- function(object,
       names(res)[[1]] <- object$subjects.var
   } else {
     res <- Brand
+    if(length(res[sp$slopeTerm]) > 0) {
+      rownames(res)[sp$subjTerm] <- subjLevels
+      rownames(res)[sp$slopeTerm] <- paste(
+        object$LM$ranef.slopeTerm, subjLevels, sep = ":")
+    } else rownames(res) <- subjLevels
   }
   
   class(res) <- "ranef.lmm.rrpp"

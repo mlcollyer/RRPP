@@ -237,6 +237,8 @@ coef.lmm.rrpp <- function(object,
   ])
   resr <- ranef.lmm.rrpp(object, type = "list")
   ns <- NROW(resr[[1]])
+  subjLevels <- levels(object$subjects)
+  
   fix <- lapply(1:ncol(Bf), function(j){
     r <- t(matrix(Bf[,j], nrow(Bf), ns))
     colnames(r) <- rownames(Bf)
@@ -246,6 +248,7 @@ coef.lmm.rrpp <- function(object,
   res <- Map(function(r, f){
     addto <- which(colnames(f) %in% colnames(r))
     f[, addto] <- f[, addto] + r
+    rownames(f) <- subjLevels
     f
   }, resr, fix)
   
