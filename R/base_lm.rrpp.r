@@ -20,9 +20,10 @@
   # 2 = Cov matches subjects in name and length
   # 3 = Cov matches subjects in name, but needs expansion
   
-  tTerms <- terms.formula(f1, keep.order = int.first)
-  f1 <- formula(tTerms,
-                      keep.order = int.first)
+  tTerms <- if(inherits(f1, "lm")) 
+    terms.formula(f1$terms, keep.order = int.first) else
+      terms.formula(f1, keep.order = int.first)
+  
   cov.type <- 0
   if(!is.null(Cov) && is.null(subjects))
     cov.type <- 1
@@ -92,6 +93,9 @@
     if("weights" %in% names(exchange.args))
       names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
     Terms <- f1$terms
+  } else {
+    f1 <- formula(tTerms,
+                  keep.order = int.first)
   }
   
   if(inherits(f1, "formula")) {
