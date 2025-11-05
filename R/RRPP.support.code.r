@@ -39,7 +39,7 @@
 #' resid sd spline var model.frame terms reformulate
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
-#' @importFrom stats pnorm
+#' @importFrom stats pnorm terms.formula
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp
