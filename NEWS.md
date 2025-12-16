@@ -2,6 +2,7 @@
 
 ### BUG FIXES
 + Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation,
++ Fixed issue with double GLS-transformation in pairwise.
 
 # CHANGES IN RRPP 2.1.2
 

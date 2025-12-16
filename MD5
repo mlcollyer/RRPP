@@ -106,7 +106,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 0e55552a72706118250c74e1cf42fe2d *NAMESPACE
-7c54fb96a79dc1379c07092560b0f27d *NEWS.md
+5774e4119e2bff180c52661096a5c49a *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -129,14 +129,14 @@ a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
 46f17450d95e9a8f2367d85693d102a6 *R/model.comparison.r
 aceb85086874b3861fcc1cca25740c53 *R/ordinate.r
 9c3b3d8bed7698ef561ee04d8be63ea1 *R/pairwise.model.Z.r
-8e1a3679c8de77fd08a051a47b8b1de6 *R/pairwise.r
+e071b70f58a9631642d531227693fd91 *R/pairwise.r
 2c5512dbfd9eb4b010362602ad019e84 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 6ae8ef9b80689054e9a7f2289a343dae *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 5e50615afd15be625168881cf48989c3 *R/RRPP.support.code.r
-42ba94af04b55b84086adfe13ded6ae6 *R/RRPP.utils.r
+c90c36e5e587e418445cd197f13a5d57 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 986fa536ea6f0420a0e35790bed0bb36 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
