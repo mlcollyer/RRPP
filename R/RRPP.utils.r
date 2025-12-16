@@ -1384,6 +1384,8 @@ summary.pairwise <- function(object, stat.table = TRUE,
       if(stat.table) tab <- makePWDTable(L)
     }
     if(test.type == "mdist") {
+      if(is.null(x$mah.means.dist))
+        stop("Mahalanobis distance tests require verbose = TRUE in pairwise.\n")
       L <- d.summary.from.list(x$mah.means.dist, confidence = confidence)
       if(stat.table) tab <- makePWDTable(L)
     }

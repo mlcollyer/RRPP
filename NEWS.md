@@ -8,6 +8,7 @@ with `lmm.rrpp`.
 
 ### BUG FIXES
 + Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation.
++ Fixed issue with double GLS-transformation in pairwise.
 
 ### OTHER CHANGES
 + Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
