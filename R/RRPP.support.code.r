@@ -831,7 +831,8 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
-  intercept <- rep(int, n)
+  intercept <- matrix(rep(int, n), n, 1)
+  colnames(intercept) <- "(Intercept)"
   Qint <- if(!is.null(Pcov))
     QRforX(Pcov %*% intercept) else if(!is.null(w))
       QRforX(intercept * sqrt(w)) else

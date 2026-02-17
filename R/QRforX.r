@@ -62,7 +62,7 @@ QRforX <- function(X, returnQ = TRUE,
   cs <- colSums(as.matrix(X))
   
   if(NCOL(X) > 1 && any(cs == 0))
-    X <- X[, cs != 0]
+    X <- X[, cs != 0, drop = FALSE]
   
   if(!isS4(X) && NCOL(X) > 1){
     if(length(which(X != 0)) <= 0.9 * length(X))
@@ -85,7 +85,7 @@ QRforX <- function(X, returnQ = TRUE,
     QR <- qr(X)
     Q <- qr.Q(QR)
     R <- qr.R(QR)
-    X <- X[, QR$pivot[1:QR$rank]]
+    X <- X[, QR$pivot[1:QR$rank], drop = FALSE]
     out <- list(Q = Q, R = R, X = X)
     out
   }
@@ -96,7 +96,7 @@ QRforX <- function(X, returnQ = TRUE,
     Q <- suppressWarnings(qr.Q(QR))
     QR <- suppressWarnings(qr(as.matrix(R)))
     if(QR$rank < NCOL(X)) {
-      X <- X[,QR$pivot[1:QR$rank]]
+      X <- X[,QR$pivot[1:QR$rank], drop = FALSE]
       QR <- suppressWarnings(qr(X))
       R <- suppressWarnings(qrR(QR))
       Q <- suppressWarnings(qr.Q(QR))
@@ -108,12 +108,12 @@ QRforX <- function(X, returnQ = TRUE,
     out
   }
   
-  QR <- try(if(use1) QR1(as.matrix(X)) else QR2(X),
+  QR <- try(if(use1) QR1(X) else QR2(X),
             silent = TRUE)
   if(inherits(QR, "try-error")) {
   
     qrt <- qr(as.matrix(X))
-    X <- X[, qrt$pivot[1:qrt$rank]]
+    X <- X[, qrt$pivot[1:qrt$rank], drop = FALSE]
     if(length(which(X != 0)) <= 0.9 * length(X))
       X <- Matrix(X, sparse = TRUE)
     if(NCOL(X) > 1 && isS4(X)) use1 <- FALSE
