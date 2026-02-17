@@ -30,15 +30,16 @@
 #' @import parallel
 #' @import ggplot2 
 #' @import Matrix
+#' @import lme4
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @importFrom ape collapse.singles
 #' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
 #' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
-#' resid sd spline var model.frame
+#' resid sd spline var model.frame terms reformulate
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
-#' @importFrom stats pnorm
+#' @importFrom stats pnorm terms.formula
 #' @export print.lm.rrpp
 #' @export summary.lm.rrpp
 #' @export print.summary.lm.rrpp
@@ -64,6 +65,15 @@
 #' @export summary.pairwise.model.Z
 #' @export plot.ordinate
 #' @export plot.kcomp
+#' @export print.ICCstats
+#' @export summary.ICCstats
+#' @export print.betaTest
+#' @export summary.betaTest
+#' @export print.summary.betaTest
+#' @export ranef.lmm.rrpp
+#' @export fixef.lmm.rrpp
+
+
 NULL
 
 #' @section RRPP TOC:
@@ -71,100 +81,6 @@ NULL
 #' RRPP-package
  
 NULL
-
-#' Landmarks on pupfish
-#'
-#' @name Pupfish
-#' @docType data
-#' @author Michael Collyer
-#' @keywords datasets
-#' @description Landmark data from Cyprinodon pecosensis body shapes, with 
-#' indication of Sex and
-#' Population from which fish were sampled (Marsh or Sinkhole).
-#' @details These data were previously aligned with GPA.  Centroid size (CS) 
-#' is also provided.  
-#' See the \pkg{geomorph} package for details.
-#' 
-#' @references Collyer, M.L., D.J. Sekora, and D.C. Adams. 2015. A method for 
-#' analysis of phenotypic
-#' change for phenotypes described by high-dimensional data. Heredity. 113: 
-#' doi:10.1038/hdy.2014.75.
-NULL
-
-#' Landmarks on pupfish heads
-#'
-#' @name PupfishHeads
-#' @docType data
-#' @author Michael Collyer
-#' @description Landmark data from Cyprinodon pecosensis head shapes, with 
-#' variables for 
-#' sex, month and year sampled, locality, head size, and coordinates of 
-#' landmarks for head shape,
-#' per specimen.  These data are a subset of a larger data set.
-#' @details The variable, "coords", are data that were previously aligned
-#' with GPA.  The variable, "headSize", is the Centroid size of each vector 
-#' of coordinates.
-#' See the \pkg{geomorph} package for details.
-#' @references Gilbert, M.C. 2016. Impacts of habitat fragmentation on the 
-#' cranial morphology of a 
-#' threatened desert fish (Cyprinodon pecosensis). Masters Thesis, 
-#' Western Kentucky University.
-NULL
-
-#' Plethodon comparative morphological data 
-#'
-#' @name PlethMorph
-#' @docType data
-#' @author Michael Collyer and Dean Adams
-#' @keywords datasets
-#' @description Data for 37 species of plethodontid salamanders.  
-#' Variables include snout to vent length
-#' (SVL) as species size, tail length, head length, snout to eye length, 
-#' body width, forelimb length,
-#' and hind limb length, all measured in mm.  A grouping variable is also 
-#' included for functional guild size.  A variable for species names is also 
-#' included.
-#' The data set also includes a phylogenetic covariance matrix based on a 
-#' Brownian model of evolution, to assist in 
-#' generalized least squares (GLS) estimation.
-#' @details The covariance matrix was estimated with the vcv.phylo function 
-#' of the R package, ape, based on the tree
-#' described in Adams and Collyer (2018).
-#' @references Adams, D.C and Collyer, M.L. 2018. Multivariate phylogenetic 
-#' anova: group-clade aggregation, biological 
-#' challenges, and a refined permutation procedure. Evolution, 72: 1204-1215.
-NULL
-
-#' Simulated motion paths
-#'
-#' @name motionpaths
-#' @docType data
-#' @author Dean Adams
-#' @references Adams, D. C., and M. L. Collyer. 2009. A general framework for 
-#' the analysis of phenotypic
-#'   trajectories in evolutionary studies. Evolution 63:1143-1154.
-#' @keywords datasets
-NULL
-
-#' Simulated fish data for measurement error analysis
-#'
-#' @name fishy
-#' @docType data
-#' @author Michael Collyer
-#' @references Collyer, M.L, and D.C. Adams. 2024. 
-#' Interrogating random and systematic measurement 
-#' error in morphometric data. Evolutionary Biology. 
-#' In press.
-#' @details Data as simulated in Collyer and Adams (2024),
-#' resembling a fish shape, comprising Procrustes coordinates
-#' for 11 anatomical landmarks.  Data represent 120 
-#' configurations for 60 subjects, each with two replicates of
-#' measurement.  The 60 subjects represent 20 subjects each 
-#' from three groups.
-#' @keywords datasets
-NULL
-
-
 
 #####----------------------------------------------------------------------------------------------------
 
@@ -400,10 +316,14 @@ makeDF <- function(form, data, n, nms) {
   
 lm.args.from.formula <- function(cl){
   
-  lm.args <- list(formula = NULL, data = NULL, subset = NULL, weights = NULL,
-                  na.action = na.omit, method = "qr", model = TRUE, 
+  lm.args <- list(formula = NULL, data = NULL, 
+                  subset = NULL, weights = NULL,
+                  na.action = na.omit, 
+                  method = "qr", model = TRUE, 
                   qr = TRUE,
-                  singular.ok = TRUE, contrasts = NULL, offset = NULL, tol = 1e-7)
+                  singular.ok = TRUE, 
+                  contrasts = NULL, offset = NULL, 
+                  tol = 1e-7)
   
   lm.nms <- names(lm.args)
   
@@ -413,6 +333,7 @@ lm.args.from.formula <- function(cl){
   lm.args$x <- lm.args$y <- TRUE
   
   form <- lm.args$formula
+  ko <- cl$keep.order
   if(is.null(form))
     stop("The formula is either missing or not formatted correctly.\n", 
          call. = FALSE)
@@ -436,7 +357,6 @@ lm.args.from.formula <- function(cl){
       Dy <- Y <- as.dist(Y)
       if(any(Dy < 0)) stop("Distances in distance matrix cannot be less than 0\n",
                            call. = FALSE)
-      lm.args$formula <- update(lm.args$formula, Y ~ .)
     } else Dy <- NULL
   }
   
@@ -455,7 +375,11 @@ lm.args.from.formula <- function(cl){
     xs <- paste(names(lm.args$data), collapse = "+")
     form <- as.formula(noquote(c("~", xs)))
   }
-  form <- update(form, Y ~.,)
+  
+  trms <- attr(terms(form, keep.order = ko), "term.labels")
+  if(length(trms) > 1)
+    form <- reformulate(trms,
+                      response = "Y") else form <- update(form, Y ~ .)
   lm.args$formula <- form
   n <- NROW(Y)
   
@@ -476,11 +400,13 @@ lm.args.from.formula <- function(cl){
   
   lm.args$data$Y <- Y
   
+  Terms <- try(terms.formula(form, data = lm.args$data,
+                             keep.order = ko),
+               silent = TRUE)
   
-  model <- try(model.frame(form, data = lm.args$data),
+  model <- try(model.frame(Terms, data = lm.args$data),
                silent = TRUE)
-  Terms <- try(attr(model, "terms"),
-               silent = TRUE)
+  
   
   if(inherits(model, "try-error") || inherits(Terms, "try-error"))
   stop("Variables or data might be missing from either the data frame or 
@@ -494,8 +420,6 @@ lm.args.from.formula <- function(cl){
     if(nrow(d) != NROW(out$Y)) d <- d[rownames(Y), rownames(Y)]
     out$D <- as.dist(d)
   }
-  
-  
   
   out
 }
@@ -580,12 +504,8 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
 }
 
 removeRedundant <- function(X){
-  if(NCOL(X) > 1){
-    QR <- QRforX(X, returnQ = FALSE,
-                 reduce = TRUE, reQR = FALSE)
-    X <- QR$X
-  }
-  as.matrix(X)
+  QRforX(X)$X
+
 }
 
 getPivot <- function(Xf, Xr){
@@ -601,6 +521,7 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
                   model, subjects.term = NULL) {
   
   X <- model.matrix(Terms, data = model)
+  n <- NROW(X)
   X.k <- X.k.obs <- attr(X, "assign")
   X.n.k.obs <- length(X.k.obs)
   Xred <- removeRedundant(X)
@@ -633,7 +554,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
       Xfs <- lapply(2:length(uk), function(j)  if(fix) X[, -delete] else X)
       Xrs <- lapply(2:length(uk), function(j){
         rmove <- c(which(X.k == (j - 1)), delete)
-        as.matrix(X[, - rmove])
+        Xout <- as.matrix(X[, -rmove])
+        if(length(Xout) == 0) Xout <- matrix(0, n, 1)
+        Xout
       })
       
     } else if(SS.type != "I"){
@@ -645,7 +568,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
         ind <-  as.logical(ifelse(c(0, index) < m, 1, 0))
         rmove <- which(!X.k %in% uk[ind])
         rmove <- unique(c(rmove, delete))
-        as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove])
+        if(length(Xout) == 0) Xout <- matrix(0, n, 1)
+        Xout
       })
       
       Xfs <- lapply(1:NROW(fac), function(j){
@@ -663,7 +588,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
       Xrs <- lapply(2:length(uk), function(j){
         rmove <- which(!X.k %in% uk[1:(j - 1)])
         rmove <- unique(c(rmove, delete))
-        as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove])
+        if(length(Xout) == 0) Xout <- matrix(0, n, 1)
+        Xout
       })
       
       Xfs <- lapply(2:length(uk), function(j){
@@ -822,6 +749,54 @@ getHb <- function(Q) {
   
 }
 
+# checkDD
+# helper function to determine if double decomposition should
+# be used in checkers
+checkDD <- function(Uf, Ur){
+  
+  DD <- matdiff(Ur, Uf)
+  lf <- if(isS4(Uf)) length(Uf@x) else length(Uf)
+  lr <- if(isS4(Ur)) length(Ur@x) else length(Ur)
+  ld <- if(isS4(DD)) length(DD@x) else length(DD)
+  ld <- length(DD)
+  
+  extend <- ((lf + lr) < ld)
+  
+  res <- if(extend) 
+    list(Uf = Uf, Ur = Ur) else
+      list(Uf = DD, Ur = NA)
+  res
+  
+}
+  
+# matdff
+# helper function to find U difference between Ur and Uf
+# used in checkers/CheckDD 
+matdiff <- function(U1, U2){
+  dims1 <- dim(U1)
+  dims2 <- dim(U2)
+  if(dims1[1] != dims2[1])
+    stop("Different numbers of rows in each matrix\n",
+         call. = FALSE)
+  ps <- c(dims1[2], dims2[2])
+  if(ps[2] > ps[1]) {
+    Uf <- U2
+    Ur <- U1
+  } else {
+    Uf <- U1
+    Ur <- U2
+    ps <- ps[c(2,1)]
+  }
+  
+  checkS <- colSums(round(as.matrix(crossprod(Ur, Uf)), 7))
+  keep <- which(checkS == 0)
+  
+  res <- if(length(keep) > 0) 
+    as.matrix(Uf[, keep]) else NA
+  res
+
+}
+
 
 # checkers
 # algorithms to facilitate RRPP iteration stats calculations
@@ -858,13 +833,24 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   int <- attr(Terms, "intercept")
   intercept <- rep(int, n)
   Qint <- if(!is.null(Pcov))
-    QRforX(Pcov %*% intercept, reduce = FALSE) else if(!is.null(w))
-      QRforX(intercept * sqrt(w), reduce = FALSE) else
-        QRforX(intercept, reduce = FALSE)
+    QRforX(Pcov %*% intercept) else if(!is.null(w))
+      QRforX(intercept * sqrt(w)) else
+        QRforX(intercept)
 
   Hbnull <- tcrossprod(fast.solve(Qint$R), Qint$Q) 
   
-  out <- list(Y = Y, Ur = Ur, Uf = Uf, Unull = Qint$Q, Ufull = Ufull,
+  # criteria SS U matrices
+  
+  Uss <- list()
+  for(i in 1:max(1,k)) {
+    us <- checkDD(Uf[[i]], Ur[[i]])
+    if(all(is.na(us[[1]])))
+      us <- list(Uf = Uf[[i]], Ur = Ur[[i]])
+    Uss[[i]] <- us
+  }
+  names(Uss) <- attr(Terms, "term.labels")
+  
+  out <- list(Y = Y, Uss = Uss, Ur = Ur, Uf = Uf, Unull = Qint$Q, Ufull = Ufull,
               Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qs, k = k,
               realized.trms = names(Xs$Xfs))
   
@@ -904,6 +890,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
   
   Ur <- checkrs$Ur
   Uf <- checkrs$Uf
+  Uss <- checkrs$Uss
   Unull <- checkrs$Unull
   Ufull <- checkrs$Ufull
   FR <- checkrs$FR
@@ -933,8 +920,13 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
   }
   
   
-  ss <- function(ur, uf, y) c(sum(crossprod(ur, y)^2), sum(crossprod(uf, y)^2), 
-                              sum(y^2) - sum(crossprod(Ufull, y)^2))
+  ss <- function(u, y) {
+    useUr <- !all(is.na(u[[2]]))
+    ssu <- if(useUr) sum(crossprod(u[[2]], y)^2) else 0
+    ssf <- sum(crossprod(u[[1]], y)^2)
+    ssm <- sum(y^2) - sum(crossprod(Ufull, y)^2)
+    c(ssu, ssf, ssm)
+  } 
   
   pbbar <- FALSE
   if(print.progress && no_cores > 1){
@@ -955,7 +947,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       yy <- sum(y^2)
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+          ss(Uss[[j]], Yi[[j]])
         }, numeric(3))
         
         SSr <- res[1, ]
@@ -982,7 +974,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       yy <- sum(y^2)
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+          ss(Uss[[j]], Yi[[j]])
         }, numeric(3))
         
         SSr <- res[1, ]
@@ -1012,7 +1004,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
-          ss(Ur[[j]], Uf[[j]], Yi[[j]])
+          ss(Uss[[j]], Yi[[j]])
         }, numeric(3))
         
         SSr <- res[1, ]
@@ -1154,8 +1146,22 @@ getXfromNewData <- function(fit, newdata){
   nd_vars <- names(newdata)
   factors <- attr(Terms, "factors")
   X <- fit$LM$X
-  if(is.null(attr(X, "assign")))
-     X <- model.matrix(Terms, mf)
+  if(is.null(attr(X, "assign"))){
+    X <- try(model.matrix(Terms, mf),
+             silent = TRUE)
+    if(inherits(X, "try-error"))
+      X <- try(model.matrix(Terms, newdata))
+    if(inherits(X, "try-error"))
+      stop("\n Could not construct a model matrix from new data.",
+           call. = FALSE)
+  }
+  X <- try(model.matrix(Terms, mf),
+           silent = TRUE)
+  if(inherits(X, "try-error"))
+    X <- try(model.matrix(Terms, newdata))
+  if(inherits(X, "try-error"))
+    stop("\n Could not construct a model matrix from new data.",
+         call. = FALSE)
   asn <- attr(X, "assign")
   m <- colMeans(X)
   
@@ -1477,6 +1483,15 @@ aov.single.model <- function(object, ...,
     AN <- NULL
   }
   
+  est <- if(object$LM$ols)  "OLS" else "GLS"
+  
+  if(isTRUE(object$LM$LMM)){
+    effect.type <- "F"
+    fixed.est <- est
+    est <- "mixed"
+    random.est <- object$LM$estimation
+  } else fixed.est <- random.est <- NULL
+  
   if(is.null(x$Fs)) x$Fs <- x$F
   df <- x$df
   k <- length(df)-2
@@ -1529,7 +1544,6 @@ aov.single.model <- function(object, ...,
     effect.type <- match.arg(effect.type)
     
     if(object$LM$gls) {
-      est <- "GLS"
       
       if(effect.type == "SS") {
         
@@ -1555,7 +1569,7 @@ aov.single.model <- function(object, ...,
         
         effect.type = "F"
       }
-    } else est <- "OLS"
+    } 
     
     ow <- options()$warn
     options(warn = -1)
@@ -1596,7 +1610,9 @@ aov.single.model <- function(object, ...,
     options(warn = ow)
     
     out <- list(table = tab, perm.method = pm, perm.number = perms,
-                est.method = est, SS.type = SS.type, effect.type = effect.type,
+                est.method = est, fixed.est = fixed.est, 
+                random.est = random.est, SS.type = SS.type, 
+                effect.type = effect.type,
                 call = object$call)
     
       } else {
@@ -1692,7 +1708,7 @@ aov.multi.model <- function(object, lm.list,
       sqrt(refModel$LM$weights)
   } else int <- rep(int, n)
   
-  Qint <- QRforX(int, reduce = FALSE)
+  Qint <- QRforX(int)
   U0 <- Qint$Q
   yh0 <- as.matrix(fastFit(U0, Y, n, p))
   r0 <- as.matrix(Y) - yh0
@@ -1880,7 +1896,7 @@ getLSmeans <- function(fit, g){
   } 
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g + 0)
-  Q <- QRforX(Xn, reduce = FALSE)
+  Q <- QRforX(Xn)
   H <- tcrossprod(fast.solve(Q$R), Q$Q)
   getCoef <- function(f) as.matrix(H %*% f)
   means <- lapply(fitted, getCoef)
@@ -2373,4 +2389,83 @@ looPCAll<-function(fit, ...) {
   
   res <- ordinate(res, ord$x, rank. = max(k))
   list(raw = ord, cv = res)
+}
+
+## lmm.rrpp helper functions
+
+
+
+# Not used but could in the future
+getSubBlocks <- function(flmer){
+  Zt <- getME(flmer, "Ztlist")[[1]]
+  block <- as.factor(Zt@i + 1)
+  block
+}
+
+# Not used but could in the future
+indexZtoX <- function(X, Z){
+  Z <- Z0 <- as.matrix(Z)
+  kx <- ncol(X)
+  kz <- ncol(Z)
+  nx <- nrow(X)
+  nz <- nrow(Z)
+  if(kx != kz || nx != nz)
+    stop("Dimensions of matrices do not match.\n",
+         call. = FALSE)
+  res <- array(NA, kx)
+  z.index <- 1:kz
+  
+  for(i in seq_len(kx)){
+    x <- X[, i]
+    r <- sapply(1:kz, function(j){
+      identical(x, Z[, j])
+    })
+    a <- which(r)
+    res[i] <- z.index[a]
+    Z <- as.matrix(Z[, -a])
+    z.index <- z.index[-a]
+    kz <- kz - 1
+  }
+  
+  res
+}
+
+
+subjPartition <- function(kt, ns){ # kt = ncol(Z)
+  # ns = n subjects
+  step <- kt/ns
+  ones <- seq(1, kt - step + 1, step)
+  list(subjTerm = ones,
+       slopeTerm = seq_len(kt)[-ones])
+}
+
+# Not used but could in the future
+ZL_list <- function(init.fit, Y){
+  Y <- as.matrix(Y)
+  p <- NCOL(Y)
+  Z <- getME(init.fit, "Z")
+  result <- lapply(1:p, function(j){
+    y <- Y[, j]
+    ft <- suppressMessages(
+      suppressWarnings(refit(init.fit, y)))
+    Z %*% getME(ft, "Lambda")
+  })
+  
+  result
+  
+}
+
+getLMM_Hb <- function(X, Z = NULL) {
+  big <- !is.null(Z)
+  k1 <- ncol(X)
+  k2 <- if(big) ncol(Z) else 0
+  k <- k1 + k2
+  XZ <- if(big) cbind(X, Z) else X
+  out <- crossprod(XZ)
+  if(big){
+    D <- diag(k)
+    diag(D)[1:k1] <- 0
+    out <- out + D
+  }
+  tcrossprod(fast.solve(out), XZ)
 }

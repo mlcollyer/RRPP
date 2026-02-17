@@ -20,6 +20,10 @@
   # 2 = Cov matches subjects in name and length
   # 3 = Cov matches subjects in name, but needs expansion
   
+  tTerms <- if(inherits(f1, "lm")) 
+    terms.formula(f1$terms, keep.order = int.first) else
+      terms.formula(f1, keep.order = int.first)
+  
   cov.type <- 0
   if(!is.null(Cov) && is.null(subjects))
     cov.type <- 1
@@ -32,7 +36,7 @@
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
   
-  if(int.first) ko = TRUE else ko = FALSE
+  L$int.first <- int.first
   SS.type <- L$SS.type
   full.resid <- L$full.resid
   
@@ -89,16 +93,44 @@
     if("weights" %in% names(exchange.args))
       names(exchange.args)[which(names(exchange.args) == "weights")] <- "w"
     Terms <- f1$terms
+  } else {
+    f1 <- formula(tTerms,
+                  keep.order = int.first)
   }
   
   if(inherits(f1, "formula")) {
+    L$formula <- f1
+    L$keep.order <- int.first
     exchange.args <- lm.args.from.formula(L)
     if(!is.null(exchange.args$D)) D <- exchange.args$D
     exchange.args <- exchange.args[c("Terms", "Y", "model")]
     exchange.args$tol <- 1e-7
     exchange.args$SS.type <- SS.type
-    Terms <- exchange.args$Terms
+    Terms <- exchange.args$Terms 
     Y <- as.matrix(exchange.args$Y)
+  }
+  
+  if(!identical(attr(tTerms, "term.labels"),
+                attr(Terms, "term.labels"))) {
+    trms <- attr(terms(f1, keep.order = int.first),
+                 "term.labels")
+    if(length(trms) > 0)
+    nform <- reformulate(termlabels = trms,
+                         response = "Y") else nform <- update(f1, Y ~ .)
+    Terms <- try(terms(nform, data = lm.args$data,
+                               keep.order = int.first),
+                 silent = TRUE)
+    
+    model <- try(model.frame(Terms, data = lm.args$data),
+                 silent = TRUE)
+    
+    if(inherits(model, "try-error") || inherits(Terms, "try-error"))
+      stop("Variables or data might be missing from either the data frame or 
+           global environment, or a linear model fit just does not work...\n", 
+           call. = FALSE)
+    
+    exchange.args$Terms <- Terms
+    exchange.args$model <- model
   }
   
   id <- get.names(Y)
@@ -439,7 +471,7 @@
     rownames(coefficients) <- rownames(Hb)
   R <- U <- QR <- NULL
   
-  LM <- list(form = formula(Terms), 
+  LM <- list(form = formula(Terms, keep.order = int.first), 
              coefficients = coefficients,
              ols = ols,
              gls = gls,

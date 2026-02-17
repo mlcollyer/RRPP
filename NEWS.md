@@ -1,20 +1,33 @@
 # CHANGES IN RRPP 2.1.2.999
 
+### NEW FEATURES
++ New function, `lmm.rrpp`, which fits mixed models with RRPP.
++ New functions, `coef.lmm.rrpp`, `fixef.lmm.rrpp`, `ranef.lmm.rrpp`, to use
+with `lmm.rrpp`.
++ Updates to most S3 functions for `lm.rrpp` to accommodate `lmm.rrpp` objects.
+
 ### BUG FIXES
+
 + Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation,
 + Fixed issue with double GLS-transformation in pairwise.
+
+### OTHER CHANGES
++ Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
+change means SS can often be calculated with one U matrix instead of two.
++ Updated `QRforX` to be more efficient.
+
 
 # CHANGES IN RRPP 2.1.2
 
 ### BUG FIXES
-+ Updated, `summary.betaTest` and `print.summary.betaTest`, to correct screen printing 
++ Updated, `summary.betaTest` and `print.summary.betaTest`, to correct screen printing
 for one of the objects returned by `summary.betaTest`.
 
 # CHANGES IN RRPP 2.1.1
 + New function, `print.summary.betaTest`, to complement `summary.betaTest`.
 
 ### BUG FIXES
-+ Updated, `summary.betaTest`, to provide invisible output, so that the summary 
++ Updated, `summary.betaTest`, to provide invisible output, so that the summary
 table could be extracted without screen printing.
 + Added error catch for `.lm.rrpp` for mismatched numbers of subjects and data.
 
@@ -84,7 +97,7 @@ to visualize how variation between replicate measures, within subjects, can affe
 
 ### BUG FIXES
 *  Fixed SSCP issue in `summary.lm.rrpp` that produces matrices of 0s.  The issue was inherent to `lm.rrpp`, from erroneous assignment of models, only for output (not for mechanics).
-* Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices. 
+* Attempted fix of `predict.lm.rrpp` for QR-truncated design matrices.
 * Fixed illogical `print.progess` conditions in `pairwise`.
 * Fixed potential problem with reliance on `Matrix::qrQ`, using rather, `Matrix::qr.Q`.
 * Fixed GLS estimation issue with `pairwise`.
@@ -183,7 +196,7 @@ type III SS, only.
 * Added option to flip axes in `plot.ordinate`.
 * Updated `predict.lm.rrpp` so that functions in formulae are permissible.
 
-### OTHER CHANGES 
+### OTHER CHANGES
 * Adapted `summary.pairwise` to perform degree transformations rather than `print.summary.pairwise`, so that objects saved are the same as objects printed.
 * Removed error trap from pairwise for n = 1 groups.
 
@@ -216,18 +229,18 @@ type III SS, only.
 * Updated support functions for `lm.rrpp` to provide better flexibility for different formulas.  
 * Changed `$LM$data` in `lm.rrpp` to be a model frame rather than a data frame, consistent with `$model` from `lm`.
 
-### BUG FIXES 
+### BUG FIXES
 * Fixed issue with transformation of dependent variable -- e.g., log(y) -- in formula for lm.rrpp. The bug was a failure to transform the variable(s).
 
 # CHANGES IN RRPP 0.5.2 (Patch Release)
 
-### BUG FIXES 
+### BUG FIXES
 * Fixed issue with GLS estimation of coefficients in pairwise (used GLS residuals instead of
 transformed residuals, by mistake).
 
 # CHANGES IN RRPP 0.5.1 (Patch Release)
 
-### BUG FIXES 
+### BUG FIXES
 * Fixed data.frame error in lm.rrpp for within-formula transformations (like log or poly).
 * Arranged effect.type argument options in lm.rrpp to match anova.lm.rrpp).
 
@@ -241,7 +254,7 @@ transformed residuals, by mistake).
 * Changed the output structure for lm.rrpp objects.  Either OLS or GLS statistics are returned, not both.  There is no longer differentiation between GLS and weighted stats, as weighted stats are GLS estimated stats.  The difference is obvious with the inclusion of weights or Cov matrix.
 * No longer a `verbose` option with `manova.update`.  The function was optimized to provide verbose output without having to slow down computation time.
 
-### BUG FIXES 
+### BUG FIXES
 * Fixed some issues with linear model weights and offset, throughout many functions.
 * Sweeping changes to be CRAN 4.0 compliant
 
@@ -253,7 +266,7 @@ transformed residuals, by mistake).
 
 ### OTHER CHANGES
 
-### BUG FIXES 
+### BUG FIXES
 * Fixed a parallel processing issue with internal function, `SS.iter` (produced incorrect RSS).
 * Fixed multi-model anova TSS issue.
 * Fixed an issue with the centering of trajectories in `trajectoty.analysis`.
@@ -269,7 +282,7 @@ transformed residuals, by mistake).
 ### OTHER CHANGES
 * Added `tol` and `pc.no` arguments to `model.comparison` (were fixed before) so that users have more control of the analysis.
 
-### BUG FIXES 
+### BUG FIXES
 * Tweaked logL tolerance calculation to be consistent with `prcomp`.
 * Tweaked support code for `lm.rrpp` to work better with missing data frames.
 * Fixed absolute eigenvalue issue with Cov.proj.
@@ -287,10 +300,10 @@ transformed residuals, by mistake).
 ### OTHER CHANGES
 * Updated source in Description.
 
-### BUG FIXES 
+### BUG FIXES
 * Fixed univariate data issue with `model.comparison`
 * Fixed xlab flexibility issue for regression plots in `plot.procD.lm`
-    
+
 ------
 
 # CHANGES IN RRPP VERSION 0.4.0 (Minor release)
@@ -304,9 +317,9 @@ transformed residuals, by mistake).
 ### OTHER CHANGES
 * Added a pairwise variance comparison for the `pairwise` function.
 
-### BUG FIXES 
+### BUG FIXES
 * Tuned F-stat calculations to allow for model-specific residual variances, for multiple terms.
-* Updated `procD.lm` to better work with data in the global environment rather than a data frame. 
+* Updated `procD.lm` to better work with data in the global environment rather than a data frame.
 
 ------
 
@@ -321,17 +334,17 @@ transformed residuals, by mistake).
 
 * Added an update to allow classify to work on univariate data.
 
-### BUG FIXES 
+### BUG FIXES
 
 * Tuned criterion for assessing whether generalized inverse should be performed.
 * Fixed bug with GLS variance estimation in pairwise.
 * Fixed some issues with univariate data for `classify`.
 * Fixed some issues with univariate data for `pairwise`.
-* Fixed the logL function within model.comparisons for GLS determinants 
+* Fixed the logL function within model.comparisons for GLS determinants
     (was returning 0).
 * Fixed some issues with the aov.multimodel subfunction of `anova.lm.rrpp`, related to GLS permutations and intercept only models.  
 * Added random SS output to aov.multimodel subfunction of `anova.lm.rrpp`, so that it can be called by other functions/packages.
-    
+
 ------
 
 # CHANGES IN RRPP VERSION 0.2.0 (Minor release)
@@ -339,18 +352,18 @@ transformed residuals, by mistake).
 ### NEW FEATURES
 
 * `pairwise function`: allows pairwise comparison of means or slopes for a `lm.rrpp fit`.
-* A vignette for using RRPP, which is the same as Appendix S2 in Collyer and Adams 
-    (2008). RRPP: An R package for fitting linear models to high-dimensional data using 
+* A vignette for using RRPP, which is the same as Appendix S2 in Collyer and Adams
+    (2008). RRPP: An R package for fitting linear models to high-dimensional data using
     residual randomization. Methods in Ecology and Evolution.  (submitted)
 
 ### OTHER CHANGES
 
 * Added multi-model inference capability to `anova.lm.rrpp`
-    
-### BUG FIXES 
+
+### BUG FIXES
 
 * Fixed issue for `coef.lm.rrpp` tests when type II or type III SS is chosen, to make sure that appropriate coefficients are used.
- 
+
 ------
 
 # CHANGES IN RRPP VERSION 0.1.0 (Major release)

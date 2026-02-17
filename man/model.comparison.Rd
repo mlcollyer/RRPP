@@ -12,6 +12,7 @@ model.comparison(
   tol = NULL,
   pc.no = NULL,
   gls.null = FALSE,
+  mod.names = TRUE,
   verbose = FALSE
 )
 }
@@ -44,6 +45,9 @@ used with the null (intercept) model, for calculating Z scores via RRPP of
 log-likelihoods.  This should be FALSE if comparing different GLS estimations
 of covariance matrices.  It should be TRUE if comparing different model fits
 with the same GLS-estimated covariance matrix.}
+
+\item{mod.names}{A logical value for whether to label models by their object names (TRUE)
+or formulas (FALSE).}
 
 \item{verbose}{A logical value for whether to include distributions of
 random log-likelihoods, if applicable.}

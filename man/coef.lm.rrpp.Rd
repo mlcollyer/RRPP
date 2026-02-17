@@ -84,6 +84,14 @@ would expect from the full model (like when using type III SS).
  This statistic is probably 
  better for more types of models (like generalized least squares fits).
 }
+\subsection{coef.lmm.rrpp}{
+The coef.lmm.rrpp function computes 
+combined fixed and random effects by subject for 
+\code{\link{lmm.rrpp}} model fits. This function does not operate the same as
+\code{\link{coef.lm.rrpp}}, for which coefficients and fixed effects are the same,
+and tests can be performed on fixed effects.  It is merely a wrapper to combine 
+the results of \code{\link{ranef.lmm.rrpp}} and \code{\link{fixef.lmm.rrpp}}.  
+}
 }
 \examples{
 \dontrun{

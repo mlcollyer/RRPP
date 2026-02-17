@@ -94,6 +94,8 @@
 #' log-likelihoods.  This should be FALSE if comparing different GLS estimations
 #' of covariance matrices.  It should be TRUE if comparing different model fits
 #' with the same GLS-estimated covariance matrix.
+#' @param mod.names A logical value for whether to label models by their object names (TRUE)
+#' or formulas (FALSE).
 #' @param verbose A logical value for whether to include distributions of
 #' random log-likelihoods, if applicable. 
 #' 
@@ -200,11 +202,17 @@
 
 model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"), 
                             predictor = NULL, tol = NULL, pc.no = NULL,
-                            gls.null = FALSE, verbose = FALSE) {
+                            gls.null = FALSE, 
+                            mod.names = TRUE,
+                              verbose = FALSE) {
   
   dots <- list(...)
   check <- unlist(lapply(dots, inherits, "lm.rrpp"))
   if(any(!check)) stop("\nObjects must be lm.rrpp fits\n.")
+  Call <- match.call()
+  Call$type <- Call$predictor <- Call$tol <- Call$pc.no <- Call$gls.null <-
+    Call$mod.names <- Call$verbose <- NULL
+  Mod.names <- as.character(Call)[-1L]
   dot.names <- lapply(dots, function(x) x$LM$Terms[[3]])
   if(length(unique(dot.names)) < length(dot.names)) {
     cat("Models do not have unique term combinations.\n")
@@ -252,7 +260,7 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
   if(type == "Z") {
     res <- lapply(1:length(dots), function(j){
       f <- dots[[j]]
-      LL <- logLik(f, Z = TRUE, tol = tol, 
+      LL <- .logLik.lm.rrpp(f, Z = TRUE, tol = tol, 
                    pc.no = pc.no, gls.null = gls.null,
                    verbose = verbose)
       z <- LL$Z
@@ -294,11 +302,15 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
     names(out)[which(names(out) == "predictor")] <- deparse(substitute(predictor))
   }
    
-  rownames(out) <- unlist(dot.names)
+  rownames(out) <- if(mod.names) unlist(Mod.names) else
+    unlist(dot.names)
   out <- list(table = out, names = dot.names)
+  if(mod.names)
+    out$names <- Mod.names
+  
   if(verbose) {
     out$random.logL <- random.logL
-    names(out$random.logL) <- dot.names
+    names(out$random.logL) <- if(mod.names) Mod.names else dot.names
   }
   
   attr(out, "class") <- "model.comparison"

@@ -28,6 +28,29 @@
 #' @keywords utilities
 
 logLik.lm.rrpp <- function(object, tol = NULL, 
+                            pc.no = NULL, Z = TRUE,
+                            verbose = FALSE,
+                            gls.null = FALSE, ...){
+  
+  if(isTRUE(object$LM$LMM))
+    stop("A log-likelihood for lmm.rrpp objects is not yet available.\n",
+         call. = FALSE)
+  
+  ll <- .logLik.lm.rrpp(object, tol = NULL,
+                        pc.no = NULL, Z = FALSE,
+                        verbose = FALSE,
+                        gls.null = FALSE, ...)
+  val <- ll$logL
+  k <- attr(ll, "k") 
+  p <- attr(ll, "p")
+  attr(val, "df") <- p * k + 0.5 * p* (p + 1)
+  attr(val, "nall") <- attr(ll, "nall") 
+  attr(val, "nobs") <- attr(ll, "nobs") 
+  class(val) <- "logLik"
+  val
+}
+
+.logLik.lm.rrpp <- function(object, tol = NULL, 
                            pc.no = NULL, Z = TRUE,
                            verbose = FALSE,
                            gls.null = FALSE, ...){
@@ -97,6 +120,11 @@ logLik.lm.rrpp <- function(object, tol = NULL,
     if(verbose) ll <- list(ll = ll, Z = z, 
                            random.logL = ll.list)
   }
+  
+  attr(ll, "k") <- ncol(X)
+  attr(ll, "p") <- p
+  attr(ll, "nall") <- n
+  attr(ll, "nobs") <- n
   
   return(ll)
     

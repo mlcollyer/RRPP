@@ -101,6 +101,23 @@ print.lm.rrpp <- function(x, ...){
   cat(paste("\nNumber of observations:", LM$n))
   cat(paste("\nNumber of dependent variables:", LM$p, dv))
   cat(paste("\nData space dimensions:", LM$p.prime, dv))
+  
+  est <- if(isTRUE(x$LM$LMM)) "mixed" else if(x$LM$gls) "gls" else "ols"
+  if(est == "mixed") {
+    cat("\nEstimation: Mixed Model")
+    fixed.est <- if(x$LM$gls) "Generalized Least Squares" else 
+      "Ordinary Least Squares"
+    random.est <- if(x$LM$estimation == "LS") fixed.est else
+      if(x$LM$estimation == "ML") "Maximum Likelihood" else
+        "Restricted Maximum Likelihood "
+    cat("\n    Fixed Effects:", fixed.est)
+    cat("\n   Random Effects:", random.est)
+  }
+  if(est == "gls")
+    cat("\nEstimation: Generalized Least Squares (via OLS projection)")
+  if(est == "ols")
+    cat("\nEstimation: Ordinary Lease Squares")
+  
   if(!is.null(AN$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", 
                                      AN$SS.type))
   if(!is.null(PI)) cat(paste("\nNumber of permutations:", PI$perms))
@@ -141,8 +158,9 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     SS <- AN$SS
     SSM.obs <- SS[,1]
     RSS <- AN$RSS
-    TSS <- AN$TSS
+    TSS <- AN$TSS[nrow(AN$RSS.model),]
     RSS.model <- AN$RSS.model[nrow(AN$RSS.model),]
+
     if(is.null(RSS)) RSS <- RSS.model
     if(is.null(RSS)) TSS <- RSS.model
     SS.type <- AN$SS.type
@@ -158,7 +176,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       df <- AN$df
       dfe <- df[k+1]
       dfM <- sum(df[1:k])
-      SSM <- (TSS[1,] - RSS.model)
+      SSM <- (TSS- RSS.model)
       SSM.obs <- SSM[1]
       Rsq <- SSM.obs/TSS[1]
       Fs <- (SSM/dfM)/(RSS.model/dfe)
@@ -184,6 +202,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
                             "F",
                             "Z (from F)",
                             "Pr(>F)")
+    
+    if(isTRUE(x$LM$LMM)) formula <- FALSE
     if(formula) dimnames(tab)[[1]] <- deparse(formula(x$call$f1)[[3]]) else
       dimnames(tab)[[1]] <- deparse(substitute(object))
     
@@ -319,7 +339,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
     out <- list(table = tab, SSCP = SSCP, n = n, p = p, p.prime = p.prime, k = k, 
                 perms = perms, dv = dv, SS = SS, SS.type = SS.type, 
                 redundancy = redund,
-                eigenvalues = eigs, gls = x$LM$gls)
+                eigenvalues = eigs, gls = x$LM$gls, fit = x)
     class(out) <- "summary.lm.rrpp"
   }
   out
@@ -335,15 +355,7 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
 #' @keywords utilities
 #' 
 print.summary.lm.rrpp <- function(x, ...) {
-  cat("\nLinear Model fit with lm.rrpp\n")
-  cat(paste("\nNumber of observations:", x$n))
-  if(!is.null(x$dv)) dv <- "(dimensions of data after PCoA of distance matrix)" else
-    dv <- " "
-  cat(paste("\nNumber of dependent variables:", x$p, dv))
-  cat(paste("\nData space dimensions:", x$p.prime, dv))
-  if(!is.null(x$SS.type)) cat(paste("\nSums of Squares and Cross-products: Type", 
-                                    x$SS.type))
-  cat(paste("\nNumber of permutations:", x$perms))
+  print.lm.rrpp(x$fit, ...)
   cat("\n\nFull Model Analysis of Variance\n\n")
   print(x$table)
   cat("\n\nRedundancy Analysis (PCA on fitted values and residuals)\n\n")
@@ -405,8 +417,14 @@ model.frame.lm.rrpp <- function(formula, ...) {
 #' @author Michael Collyer
 #' @keywords utilities
 
-model.matrix.lm.rrpp <- function(object, ...) return(object$LM$X)
-
+model.matrix.lm.rrpp <- function(object, ...) {
+  res <- if(isTRUE(object$LM$LMM)){
+    list(fixed = object$LM$X,
+         random = object$LM$Z)
+  } else object$LM$X
+  
+  return(res)
+}
 
 ## coef.lm.rrpp
 
@@ -534,14 +552,28 @@ print.anova.lm.rrpp <- function(x, ...) {
     if(pm == "FMRP") pm <- "Randomization of the full model residuals" else 
       pm <- ("Randomization of raw values (residuals of mean)")
   
-  if(est == "GLS") est <- "Generalized Least-Squares (via OLS projection)" else
-    est <- "Ordinary Least Squares"
+  if(est == "mixed") est <- "Mixed Model" else
+    if(est == "GLS") 
+      est <- "Generalized Least-Squares (via OLS projection)" else
+        est <- "Ordinary Least Squares"
+  if(est == "Mixed Model") {
+    est.fixed <- if(x$fixed.est == "GLS")
+      "Generalized Least-Squares (via OLS projection)" else
+        "Ordinary Least Squares"
+    est.random<- if(x$random.est == "ML")
+      "Maximum Likelihood" else if(x$random.est == "REML")
+        "Restricted Maximum Likelihood" else "Least Squares"
+  }
   
   if(!is.null(SS.type)) {
     cat("\nAnalysis of Variance, using Residual Randomization\n")
     cat(paste("Permutation procedure:", pm, "\n"))
     cat(paste("Number of permutations:", perms, "\n"))
     cat(paste("Estimation method:", est, "\n"))
+    if(est == "Mixed Model"){
+      cat(paste("    Fixed effects:", est.fixed, "\n"))
+      cat(paste("   Random effects:", est.random, "\n"))
+    }
     cat(paste("Sums of Squares and Cross-products: Type", SS.type, "\n"))
     cat(paste("Effect sizes (Z) based on", effect.type, "distributions\n\n"))
     print(tab)
@@ -3388,6 +3420,7 @@ getPermInfo <- function(fit, attribute = c("perms", "perm.method",
   
   PermInfo <- fit$PermInfo
   perms <- PermInfo$perms
+  perms <- max(c(perms, 2))
   perm.method <- PermInfo$perm.method
   block <- PermInfo$block
   perm.seed <- PermInfo$perm.seed
@@ -3395,7 +3428,6 @@ getPermInfo <- function(fit, attribute = c("perms", "perm.method",
   n <- fit$LM$n
   
   if(is.null(perm.schedule)) {
-    if(perms == 1) perms <- 2
     perm.schedule <- perm.index(n, perms - 1, block = block, 
                                 seed = perm.seed)
   }
@@ -3817,3 +3849,78 @@ print.summary.betaTest <- function(x,
   print(x$table)
   cat("\n\n")
 }
+
+
+
+## lmm.rrpp-specific functions
+
+
+#' fixef for lmm.rrpp model fits
+#'
+#' @description Returns fixed effects from a lmm.rrpp object.
+#'
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param ... Other arguments passed.
+#' @method fixef lmm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+fixef.lmm.rrpp <- function(object, ...){
+  out <- object$LM$coefficients[object$LM$coef.fixed,]
+  class(out) <- "fixef.lmm.rrpp"
+  out
+}
+
+#' ranef for lmm.rrpp model fits
+#'
+#' @description Returns random effects from a lmm.rrpp object.
+#' @param object Object from \code{\link{lmm.rrpp}}
+#' @param type Whether to combine random effects into one matrix or print a list
+#' by variable.
+#' @param ... Other arguments passed.
+#' @method ranef lmm.rrpp
+#' @export
+#' @author Michael Collyer
+#' @keywords utilities
+ranef.lmm.rrpp <- function(object, 
+                           type = c("matrix",
+                                    "list"), ...){
+  type <- match.arg(type)
+  Brand <- as.matrix(object$LM$coefficients[object$LM$coef.random,])
+  subjLevels <- levels(object$subjects)
+  varNames <- colnames(object$LM$Y)
+  effectNames <- object$LM$cnms[[1]]
+  
+  if(object$LM$estimation != "LS")
+    Brand <- as.matrix(object$LM$Lambda %*% Brand)
+  
+  sp <- subjPartition(nrow(Brand), length(subjLevels))
+  
+  if(type == "list"){
+    
+    res <- lapply(1:ncol(Brand), function(j){
+      b <- Brand[, j]
+      m <- if(length(b[sp$slopeTerm]) > 0) cbind(b[sp$subjTerm], 
+                                                 b[sp$slopeTerm]) else as.matrix(b)
+      dimnames(m) <- list(subjLevels,
+                          effectNames)
+      m
+    })
+    names(res) <- colnames(Brand)
+    if(length(res) == 1) 
+      names(res)[[1]] <- object$subjects.var
+  } else {
+    res <- Brand
+    if(length(res[sp$slopeTerm]) > 0) {
+      rownames(res)[sp$subjTerm] <- subjLevels
+      rownames(res)[sp$slopeTerm] <- paste(
+        object$LM$ranef.slopeTerm, subjLevels, sep = ":")
+    } else rownames(res) <- subjLevels
+  }
+  
+  class(res) <- "ranef.lmm.rrpp"
+  res
+}
+
+
+
