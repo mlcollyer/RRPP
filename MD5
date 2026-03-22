@@ -43,7 +43,7 @@ aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
 555f907037cac3c887621c48e90832c0 *man/lm.rrpp.ws.Rd
 0433d29e30ca93c5613f4fc805af57fb *man/lmm.rrpp.Rd
 a1f1c9340aefb6eec463a383ab7cfbb2 *man/logLik.lm.rrpp.Rd
-ae743ad411a1597e6c3d6250f37810a2 *man/looCV.Rd
+8fcc15251e774e4bd4e780e18b267534 *man/looCV.Rd
 af82b850a553db8eaab3a0951b854d2b *man/lr_test.Rd
 6939227167a65fe3aec0f9026a749f15 *man/mahal_dist.Rd
 540245bd9235c4dfd05670dc9c427106 *man/mammalHR.Rd
@@ -143,7 +143,7 @@ a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 405525dacb57ed4bd46125d146436e44 *R/lmm.rrpp.r
 0ff3be1b82cba5208bb89fc756bf6ed7 *R/logLik.lm.rrpp.r
-db6be99abc2b77d6ba3244c61a7fb48e *R/looCV.r
+45e3b05705e0d423241a0162f7e725ab *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 f7f3d25e9e221746c9696b95db128457 *R/mahal_dist.R
 a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
@@ -159,7 +159,7 @@ d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
 882cbf2fa5ac1174f66cc8fd02992995 *R/RRPP.support.code.r
-f94091ee5a03fcbaaee56dfc4d57966b *R/RRPP.utils.r
+f741617705d5aabeae7495a27a1b2676 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 d6a81c9416a2f02527fad33510057596 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r

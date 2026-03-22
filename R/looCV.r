@@ -1,10 +1,10 @@
 #' Diagnostic cross-validation tool for ordination based on fitted values
 #'
-#' Function performs a leave-one-out cross-validation estimate (method == "fit")
+#' Function performs a leave-one-out cross-validation estimate (method = "fit")
 #' or ordination scores from estimates (method = "PC").  
 #' The latter can be helpful for determining if apparent
-#' "group differences"
-#' in ordination plots arise merely from data dimensionality.  The choice of method
+#' group differences in ordination plots arise merely from data dimensionality.  
+#' The choice of method
 #' essentially chooses one of two functions.
 #' 
 #' The fit method is standard, using n - 1 observations as training
@@ -74,12 +74,18 @@
 #' # Example with real group differences
 #' 
 #' data(Pupfish)
-#' fit <- lm.rrpp(coords ~ Pop*Sex, data = Pupfish, iter = 0)
-#' CV1 <- looCV(fit)
+#' fit <- lm.rrpp(coords ~ Pop * Sex, 
+#' data = Pupfish, iter = 0)
+#' CV1f <- looCV(fit)
 #' 
-#' summary(CV1)
+#' summary(CV1f)
+#' 
+#' CV1p <- looCV(fit, method = "PC")
+#' 
+#' summary(CV1p)
+#' 
 #' group <- interaction(Pupfish$Pop, Pupfish$Sex)
-#' plot(CV1, flip = 1, pch = 19, col = group)
+#' plot(CV1p, flip = 1, pch = 19, col = group)
 #' 
 #' # Example with apparent but not real group differences
 #' 
@@ -88,11 +94,12 @@
 #' set.seed(1001)
 #' Yr <- matrix(rnorm(n * p), n, p) # random noise
 #' 
-#' fit2 <-lm.rrpp(Yr ~ Pop*Sex, data = Pupfish, iter = 0)
-#' CV2 <- looCV(fit2)
-#' summary(CV2)
+#' fit2 <-lm.rrpp(Yr ~ Pop * Sex, 
+#' data = Pupfish, iter = 0)
+#' CV2p <- looCV(fit2, method = "PC")
+#' summary(CV2p)
 #' group <- interaction(Pupfish$Pop, Pupfish$Sex)
-#' plot(CV2, pch = 19, col = group) 
+#' plot(CV2p, pch = 19, col = group) 
 #' 
 looCV <- function(fit, method = c("fit", "PC"),
                   ...){
@@ -102,8 +109,16 @@ looCV <- function(fit, method = c("fit", "PC"),
               residuals = NULL, cv_residuals = NULL,
               RSS = NULL, cv_RSS = NULL,
               MSE = NULL, cv_MSE = NULL,
-              d = NULL, scores = NULL
-       )
+              d = NULL, scores = NULL,
+              df_model = NULL, df_residual = NULL,
+              method = method, 
+              model = NULL)
+       
+  out$model <- deparse(substitute(fit))
+  Df <- fit$ANOVA$df
+  dfl <- length(Df)
+  df_residual <- out$df_residual <- Df[dfl - 1]
+  df_model <- out$df_model <- sum(Df[-c(dfl - 1, dfl)])
   
   if(method == "PC"){
     res <- looPCAll(fit, ...)
@@ -125,21 +140,20 @@ looCV <- function(fit, method = c("fit", "PC"),
     
     yhat <- fitted(fit)
     cv_yhat <- looCVAll(fit)
-    res <- fit$LM$Y - yhat
+    res <- resid(fit)
     cv_res <- fit$LM$Y - cv_yhat
     RSS <- if(gls) sum((Pcov %*% res)^2) else
       sum(res^2)
     cv_RSS <- if(gls) sum((Pcov %*% cv_res)^2) else
       sum(cv_res^2)
-    k <- NCOL(fit$LM$X)
     out$fitted <- yhat
     out$cv_fitted <- cv_yhat
     out$residuals <- res
     out$cv_residuals <- cv_res
     out$RSS <- RSS
     out$cv_RSS <- cv_RSS
-    out$MSE <- RSS / k
-    out$cv_MSE <- cv_RSS / k
+    out$MSE <- RSS / df_residual
+    out$cv_MSE <- cv_RSS / df_residual
     
   }
 

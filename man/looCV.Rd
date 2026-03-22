@@ -19,11 +19,11 @@ the following
 for observed and cross-validated cases.}
 }
 \description{
-Function performs a leave-one-out cross-validation estimate (method == "fit")
+Function performs a leave-one-out cross-validation estimate (method = "fit")
 or ordination scores from estimates (method = "PC").  
 The latter can be helpful for determining if apparent
-"group differences"
-in ordination plots arise merely from data dimensionality.  The choice of method
+group differences in ordination plots arise merely from data dimensionality.  
+The choice of method
 essentially chooses one of two functions.
 }
 \details{
@@ -75,12 +75,18 @@ could cause problems in analyses that substitute cross-validated scores as data.
 # Example with real group differences
 
 data(Pupfish)
-fit <- lm.rrpp(coords ~ Pop*Sex, data = Pupfish, iter = 0)
-CV1 <- looCV(fit)
+fit <- lm.rrpp(coords ~ Pop * Sex, 
+data = Pupfish, iter = 0)
+CV1f <- looCV(fit)
 
-summary(CV1)
+summary(CV1f)
+
+CV1p <- looCV(fit, method = "PC")
+
+summary(CV1p)
+
 group <- interaction(Pupfish$Pop, Pupfish$Sex)
-plot(CV1, flip = 1, pch = 19, col = group)
+plot(CV1p, flip = 1, pch = 19, col = group)
 
 # Example with apparent but not real group differences
 
@@ -89,11 +95,12 @@ p <- NCOL(Pupfish$coords)
 set.seed(1001)
 Yr <- matrix(rnorm(n * p), n, p) # random noise
 
-fit2 <-lm.rrpp(Yr ~ Pop*Sex, data = Pupfish, iter = 0)
-CV2 <- looCV(fit2)
-summary(CV2)
+fit2 <-lm.rrpp(Yr ~ Pop * Sex, 
+data = Pupfish, iter = 0)
+CV2p <- looCV(fit2, method = "PC")
+summary(CV2p)
 group <- interaction(Pupfish$Pop, Pupfish$Sex)
-plot(CV2, pch = 19, col = group) 
+plot(CV2p, pch = 19, col = group) 
 
 }
 \references{

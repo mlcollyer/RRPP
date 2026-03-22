@@ -2777,9 +2777,22 @@ plot.kcomp <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
 #' @keywords utilities
 #' 
 print.looCV <- function(x, ...){
-  cat("Cross-validated scores for", length(x$d$cv), "components,\n")
-  cat("based on", NROW(x$scores$cv), "observations.\n\n")
-  cat("Cross-validated scores should not be used as data in subsequent analyses.\n")
+  
+  cat("Cross-validated results for", x$model, "\n")
+  
+  if(x$method == "PC"){
+    
+    cat("Results include cross-validated scores for", length(x$d$cv), "components,\n")
+    cat("based on", NROW(x$scores$cv), "observations.\n\n")
+    cat("Cross-validated scores should not be used as data in subsequent analyses.\n")
+
+      } else {
+    
+    cat("Results include cross-validated fitted values, residuals,\n")
+    cat("and RSS and MSE statistics\n")
+    
+  }
+  
 } 
 
 #' Print/Summary Function for RRPP
@@ -2792,29 +2805,44 @@ print.looCV <- function(x, ...){
 #' @keywords utilities
 #' 
 summary.looCV <- function(object, ...){
+  
   x <- object
   print.looCV(x, ...)
-  dobs <- x$d$obs
-  dcv <- x$d$cv
-  pobs <- dobs/sum(dobs)
-  cpobs <- cumsum(dobs)/sum(dobs)
-  pcv <- dcv/sum(dcv)
-  cpcv <- cumsum(dcv)/sum(dcv)
   
-  robs <- as.data.frame(rbind(dobs, pobs, cpobs))
-  robs <- robs[, 1:min(length(dobs), NCOL(x$scores$obs), NCOL(robs))]
+  if(x$method == "PC"){
+    
+    dobs <- x$d$obs
+    dcv <- x$d$cv
+    pobs <- dobs/sum(dobs)
+    cpobs <- cumsum(dobs)/sum(dobs)
+    pcv <- dcv/sum(dcv)
+    cpcv <- cumsum(dcv)/sum(dcv)
+    
+    robs <- as.data.frame(rbind(dobs, pobs, cpobs))
+    robs <- robs[, 1:min(length(dobs), NCOL(x$scores$obs), NCOL(robs))]
+    
+    rcv <- as.data.frame(rbind(dcv, pcv, cpcv))
+    rcv <- rcv[, 1:min(length(dcv), NCOL(x$scores$cv), NCOL(rcv))]
+    
+    colnames(robs) <- colnames(rcv) <- colnames(x$x)[1:NCOL(robs)]
+    rownames(robs) <- rownames(rcv) <- c("Eigenvalue", 
+                                         "Proportion of Variance", "Cumulative Proportion")
+    
+    cat("\nObserved eigenvalues")
+    print(robs)
+    cat("\nCross-validated eigenvalues")
+    print(rcv)
+  } else {
+    
+    cat("\n")
+    tab <- as.table(matrix(
+      c(x$RSS, x$MSE, x$cv_RSS, x$cv_MSE), 2, 2))
+    dimnames(tab) <- list(c("RSS", "MSE"),
+                          c("Observed", "Cross-validated"))
+    print(tab)
+    
+  }
   
-  rcv <- as.data.frame(rbind(dcv, pcv, cpcv))
-  rcv <- rcv[, 1:min(length(dcv), NCOL(x$scores$cv), NCOL(rcv))]
-  
-  colnames(robs) <- colnames(rcv) <- colnames(x$x)[1:NCOL(robs)]
-  rownames(robs) <- rownames(rcv) <- c("Eigenvalue", 
-                   "Proportion of Variance", "Cumulative Proportion")
-  
-  cat("\nObserved eigenvalues")
-  print(robs)
-  cat("\nCross-validated eigenvalues")
-  print(rcv)
   
 }
 
@@ -2842,6 +2870,7 @@ summary.looCV <- function(object, ...){
 #' @keywords visualization
 plot.looCV<- function(x, axis1 = 1, axis2 = 2, 
                       flip = NULL, ...) {
+  owarn <- options()$warn
   options(warn = -1)
   if(NCOL(x$scores$obs) == 1) 
     stop("Only one component.  No plotting capability with this function.\n", 
@@ -2851,6 +2880,10 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
   
   if(axis1 > length(x$d$obs) || axis2 > length(x$d$obs))
     stop("Choice of at least one axis exceeds total axes possible.\n",
+         call. = FALSE)
+  
+  if(is.null(x$d))
+    stop("Plotting for class looCV requires ordination scores (change method argument).\n",
          call. = FALSE)
   
   par(mfrow = c(1, 3))
@@ -2907,6 +2940,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
         cex.main = 0.6)
   abline(0, 1, lty = 3)
  
+  options(warn = owarn)
   par(opars)
 }
 
