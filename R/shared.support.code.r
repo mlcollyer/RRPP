@@ -551,7 +551,8 @@ pic.prep <- function(phy, nx, px){
 
 ace.pics <- function(ntip, nnode, edge1, edge2, edge_len, phe, contr,
                      var_contr, tip.label, i.seq, x) {
-  phe[1:ntip,] <- if (is.null(rownames(x))) x else x[tip.label,]
+  phe[1:ntip, ] <- if (is.null(rownames(x))) x else 
+    x[tip.label, , drop = FALSE]
   N <- ntip + nnode
   for(ii in 1:nnode) {
     anc <- edge1[i.seq[ii]]
@@ -565,7 +566,8 @@ ace.pics <- function(ntip, nnode, edge1, edge2, edge_len, phe, contr,
     ya <- (phe[d1,] - phe[d2,])/sqrt(sumbl)
     contr[ic, ] <- ya
     var_contr[ic] <- sumbl
-    phe[anc,] <- (phe[d1, ] * edge_len[j] + phe[d2, ] * edge_len[i])/sumbl
+    phe[anc,] <- (phe[d1, , drop = FALSE] * edge_len[j] + 
+                    phe[d2, , drop = FALSE] * edge_len[i])/sumbl
     k <- which(edge2 == anc)
     edge_len[k] <- edge_len[k] + edge_len[i] * edge_len[j] / sumbl
   }
@@ -580,10 +582,10 @@ anc.BM <- function(phy, Y){
   phy <- reorder.phy(phy)
   Y <- as.matrix(Y)
   N <- length(phy$tip.label)
-  Y <- as.matrix(Y[phy$tip.label, ])
+  Y <- as.matrix(Y[phy$tip.label, , drop = FALSE])
   edge <- cbind(phy$edge, phy$edge.length)
   ind <-rank(edge[,1], ties.method = "last")
-  edge <- edge[order(ind, decreasing = TRUE), ]
+  edge <- edge[order(ind, decreasing = TRUE), , drop = FALSE]
   ev <- edge[,3]
   anc <- edge[, 1]
   des <- edge[, 2]
@@ -605,18 +607,18 @@ anc.BM <- function(phy, Y){
     
     if(d <= N){
       p[d] <- 1 / len
-      Z[d, ] <- Y[d, ]
+      Z[d, ] <- Y[d, , drop = FALSE]
     } else {
       pA <- p[d]
-      Z[d, ] <- Z[d, ] / pA
+      Z[d, ] <- Z[d, , drop = FALSE] / pA
       p[d] <- pA / (1 + len * pA)
     }
     
     p[a] <- p[a] + p[d]
-    Z[a, ] <- Z[a, ] + Z[d, ] * p[d]
+    Z[a, ] <- Z[a, , drop = FALSE] + Z[d, , drop = FALSE] * p[d]
   }
   
-  Z[a, ] <- Z[a, ] / p[a]
+  Z[a, ] <- Z[a, , drop = FALSE] / p[a]
   
   for(i in ne:1){
     a <- anc[i] 
@@ -624,8 +626,8 @@ anc.BM <- function(phy, Y){
     len <- ev[i]
     
     if(d > N) {
-      Z[d, ] <-  Z[d, ] * p[d] * len + 
-        Z[a, ] - Z[a, ] * p[d] * len
+      Z[d, ] <-  Z[d, , drop = FALSE] * p[d] * len + 
+        Z[a, ] - Z[a, , drop = FALSE] * p[d] * len
     }
   }
   Z <- Z[-(1:N), , drop = FALSE]

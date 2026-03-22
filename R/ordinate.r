@@ -286,7 +286,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
       stop("The row names of A are not the same as the row names of Y\n",
            call. = FALSE)
     if(isSymmetric(A)) A <- A[id, id] else
-      A <- A[id,]
+      A <- A[id, , drop = FALSE]
   }
   
   X <- matrix(1, n)
@@ -324,7 +324,7 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   } else RV <- NULL
   
   j <- seq_len(k)
-  s$v <- s$v[,j]
+  s$v <- s$v[,j , drop = FALSE]
   s$d <- s$d[j]
   
   sy <- if(tf || is.null(Cov)) sum(svd(Z)$d^2) else 

@@ -250,8 +250,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       svd.Y <- svd(Cy)
       keep <- which(zapsmall(svd.Y$d) > 0)
       pca.total$sdev <- sqrt(svd.Y$d[keep])
-      pca.total$rotation <- as.matrix(svd.Y$v[, keep])
-      pca.total$x <- RT %*% as.matrix(svd.Y$v[, keep])
+      pca.total$rotation <- as.matrix(svd.Y$v[, keep, drop = FALSE])
+      pca.total$x <- RT %*% as.matrix(svd.Y$v[, keep, drop = FALSE])
       
       svd.f <- svd(Cf)
       keep <- which(zapsmall(svd.f$d) > 0)
@@ -266,8 +266,8 @@ summary.lm.rrpp <- function(object, formula = TRUE, ...){
       svd.r <- svd(Cr)
       keep <- which(zapsmall(svd.r$d) > 0)
       pca.residuals$sdev <- sqrt(svd.r$d[keep])
-      pca.residuals$rotation <- as.matrix(svd.r$v[, keep])
-      pca.residuals$x <- RM %*% as.matrix(svd.r$v[, keep])
+      pca.residuals$rotation <- as.matrix(svd.r$v[, keep, drop = FALSE])
+      pca.residuals$x <- RM %*% as.matrix(svd.r$v[, keep, drop = FALSE])
       
     }
     
@@ -850,7 +850,7 @@ plot_het <- function(r,f){
     options(warn = 0)
   }
   lfr <- cbind(lfr$x, lfr$y, lfr$fitted)
-  lfr <- lfr[order(lfr[,1]),]
+  lfr <- lfr[order(lfr[,1]), , drop = FALSE]
   plot(lfr, pch=19,  
        xlab = "Euclidean Distance Fitted Values",
        ylab = "Standardized Euclidean Distance Residuals", 
@@ -1367,7 +1367,7 @@ summary.pairwise <- function(object, stat.table = TRUE,
   vars <- object$vars
   if(type == "var") {
     var.diff <- lapply(1:NCOL(vars), function(j){
-      v <- as.matrix(vars[,j])
+      v <- as.matrix(vars[,j, drop = FALSE])
       as.matrix(dist(v))
     })
     L <- d.summary.from.list(var.diff, confidence = confidence)
@@ -2777,9 +2777,22 @@ plot.kcomp <- function(x, axis1 = 1, axis2 = 2, flip = NULL,
 #' @keywords utilities
 #' 
 print.looCV <- function(x, ...){
-  cat("Cross-validated scores for", length(x$d$cv), "components,\n")
-  cat("based on", NROW(x$scores$cv), "observations.\n\n")
-  cat("Cross-validated scores should not be used as data in subsequent analyses.\n")
+  
+  cat("Cross-validated results for", x$model, "\n")
+  
+  if(x$method == "PC"){
+    
+    cat("Results include cross-validated scores for", length(x$d$cv), "components,\n")
+    cat("based on", NROW(x$scores$cv), "observations.\n\n")
+    cat("Cross-validated scores should not be used as data in subsequent analyses.\n")
+
+      } else {
+    
+    cat("Results include cross-validated fitted values, residuals,\n")
+    cat("and RSS and MSE statistics\n")
+    
+  }
+  
 } 
 
 #' Print/Summary Function for RRPP
@@ -2792,29 +2805,44 @@ print.looCV <- function(x, ...){
 #' @keywords utilities
 #' 
 summary.looCV <- function(object, ...){
+  
   x <- object
   print.looCV(x, ...)
-  dobs <- x$d$obs
-  dcv <- x$d$cv
-  pobs <- dobs/sum(dobs)
-  cpobs <- cumsum(dobs)/sum(dobs)
-  pcv <- dcv/sum(dcv)
-  cpcv <- cumsum(dcv)/sum(dcv)
   
-  robs <- as.data.frame(rbind(dobs, pobs, cpobs))
-  robs <- robs[, 1:min(length(dobs), NCOL(x$scores$obs), NCOL(robs))]
+  if(x$method == "PC"){
+    
+    dobs <- x$d$obs
+    dcv <- x$d$cv
+    pobs <- dobs/sum(dobs)
+    cpobs <- cumsum(dobs)/sum(dobs)
+    pcv <- dcv/sum(dcv)
+    cpcv <- cumsum(dcv)/sum(dcv)
+    
+    robs <- as.data.frame(rbind(dobs, pobs, cpobs))
+    robs <- robs[, 1:min(length(dobs), NCOL(x$scores$obs), NCOL(robs))]
+    
+    rcv <- as.data.frame(rbind(dcv, pcv, cpcv))
+    rcv <- rcv[, 1:min(length(dcv), NCOL(x$scores$cv), NCOL(rcv))]
+    
+    colnames(robs) <- colnames(rcv) <- colnames(x$x)[1:NCOL(robs)]
+    rownames(robs) <- rownames(rcv) <- c("Eigenvalue", 
+                                         "Proportion of Variance", "Cumulative Proportion")
+    
+    cat("\nObserved eigenvalues")
+    print(robs)
+    cat("\nCross-validated eigenvalues")
+    print(rcv)
+  } else {
+    
+    cat("\n")
+    tab <- as.table(matrix(
+      c(x$RSS, x$MSE, x$cv_RSS, x$cv_MSE), 2, 2))
+    dimnames(tab) <- list(c("RSS", "MSE"),
+                          c("Observed", "Cross-validated"))
+    print(tab)
+    
+  }
   
-  rcv <- as.data.frame(rbind(dcv, pcv, cpcv))
-  rcv <- rcv[, 1:min(length(dcv), NCOL(x$scores$cv), NCOL(rcv))]
-  
-  colnames(robs) <- colnames(rcv) <- colnames(x$x)[1:NCOL(robs)]
-  rownames(robs) <- rownames(rcv) <- c("Eigenvalue", 
-                   "Proportion of Variance", "Cumulative Proportion")
-  
-  cat("\nObserved eigenvalues")
-  print(robs)
-  cat("\nCross-validated eigenvalues")
-  print(rcv)
   
 }
 
@@ -2842,6 +2870,7 @@ summary.looCV <- function(object, ...){
 #' @keywords visualization
 plot.looCV<- function(x, axis1 = 1, axis2 = 2, 
                       flip = NULL, ...) {
+  owarn <- options()$warn
   options(warn = -1)
   if(NCOL(x$scores$obs) == 1) 
     stop("Only one component.  No plotting capability with this function.\n", 
@@ -2851,6 +2880,10 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
   
   if(axis1 > length(x$d$obs) || axis2 > length(x$d$obs))
     stop("Choice of at least one axis exceeds total axes possible.\n",
+         call. = FALSE)
+  
+  if(is.null(x$d))
+    stop("Plotting for class looCV requires ordination scores (change method argument).\n",
          call. = FALSE)
   
   par(mfrow = c(1, 3))
@@ -2907,6 +2940,7 @@ plot.looCV<- function(x, axis1 = 1, axis2 = 2,
         cex.main = 0.6)
   abline(0, 1, lty = 3)
  
+  options(warn = owarn)
   par(opars)
 }
 
@@ -3790,10 +3824,10 @@ summary.betaTest <- function(object,
     length(x$random.stats[[1]])
 
   Result <- lapply(x$random.stats, function(y){
-    d <- if(include.md) y[1,] else y
+    d <- if(include.md) y[1, ] else y
     dUCL = quantile(d, confidence)
     if(include.md){
-      md <- y[2,]
+      md <- y[2, ]
       mdUCL = quantile(md, confidence)
     }
     
@@ -3866,7 +3900,7 @@ print.summary.betaTest <- function(x,
 #' @author Michael Collyer
 #' @keywords utilities
 fixef.lmm.rrpp <- function(object, ...){
-  out <- object$LM$coefficients[object$LM$coef.fixed,]
+  out <- object$LM$coefficients[object$LM$coef.fixed, , drop = FALSE]
   class(out) <- "fixef.lmm.rrpp"
   out
 }
@@ -3886,7 +3920,7 @@ ranef.lmm.rrpp <- function(object,
                            type = c("matrix",
                                     "list"), ...){
   type <- match.arg(type)
-  Brand <- as.matrix(object$LM$coefficients[object$LM$coef.random,])
+  Brand <- as.matrix(object$LM$coefficients[object$LM$coef.random, , drop = FALSE])
   subjLevels <- levels(object$subjects)
   varNames <- colnames(object$LM$Y)
   effectNames <- object$LM$cnms[[1]]

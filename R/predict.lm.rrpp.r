@@ -148,7 +148,7 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
                      perms -1, block, seed)
   betas <- beta.boot.iter(object, indb)
   
-  predM <- function(b) as.matrix(nX[, rownames(b)] %*% b)
+  predM <- function(b) as.matrix(nX[, rownames(b), drop = FALSE] %*% b)
   preds <- lapply(betas, predM)
   
   alpha = 1 - confidence
@@ -186,13 +186,13 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
   } else {
     pca <- prcomp(preds[[1]])
     d <- length(which(zapsmall(pca$sdev) > 0))
-    R <- pca$rotation[,1:d]
+    R <- pca$rotation[, 1:d, drop = FALSE]
     rotate <- function(x) center(x) %*% R
     pc.preds <- lapply(preds, rotate)
     pc.meanV <- Reduce("+", pc.preds)/length(pc.preds)
     pcLCL <- as.matrix(sapply(1:n, function(j){
       x <- sapply(1:length(pc.preds), function(jj){
-        pc.preds[[jj]][j,]
+        pc.preds[[jj]][j, , drop = FALSE]
       })
       if(!is.matrix(x)) z <- lcl(x) else z <- apply(x, 1, lcl)
       z
@@ -200,7 +200,7 @@ predict.lm.rrpp <- function(object, newdata = NULL, block = NULL,
     
     pcUCL <- as.matrix(sapply(1:n, function(j){
       x <- sapply(1:length(pc.preds), function(jj){
-        pc.preds[[jj]][j,]
+        pc.preds[[jj]][j, , drop = FALSE]
       })
       if(!is.matrix(x)) z <- ucl(x) else z <- apply(x, 1, ucl)
       z

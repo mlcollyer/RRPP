@@ -155,14 +155,14 @@ coef.lm.rrpp <- function(object, SE = FALSE, test = FALSE, confidence = 0.95, ..
         }
       }
       
-      X0 <- X[, -rmove]
+      X0 <- X[, -rmove, drop = FALSE]
       Q0 <- QRforX(X0)$Q
       Hb <- as.matrix(getHb(QRforX(X)))
       Ft <- fastFit(Q0, Y, n, p)
       Re <- as.matrix(Y - Ft)
 
       result <- sapply(indb, function(x)
-        as.matrix(Hb %*% (Ft + Re[x,]))[rmove,])
+        as.matrix(Hb %*% (Ft + Re[x, , drop = FALSE]))[rmove, , drop = FALSE])
       
       if(is.vector(result)) result <- matrix(result, 1, perms)
       ri <- as.matrix(result - rowMeans(result))

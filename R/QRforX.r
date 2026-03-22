@@ -108,11 +108,12 @@ QRforX <- function(X, returnQ = TRUE,
     out
   }
   
-  QR <- try(if(use1) QR1(X) else QR2(X),
+  QR <- try(if(use1) QR1(as.matrix(X)) else QR2(X),
             silent = TRUE)
   if(inherits(QR, "try-error")) {
-  
-    qrt <- qr(as.matrix(X))
+    
+    X <- as.matrix(X)
+    qrt <- qr(X)
     X <- X[, qrt$pivot[1:qrt$rank], drop = FALSE]
     if(length(which(X != 0)) <= 0.9 * length(X))
       X <- Matrix(X, sparse = TRUE)

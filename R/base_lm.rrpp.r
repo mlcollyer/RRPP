@@ -117,11 +117,11 @@
     if(length(trms) > 0)
     nform <- reformulate(termlabels = trms,
                          response = "Y") else nform <- update(f1, Y ~ .)
-    Terms <- try(terms(nform, data = lm.args$data,
+    Terms <- try(terms(nform, data = exchange.args$data,
                                keep.order = int.first),
                  silent = TRUE)
     
-    model <- try(model.frame(Terms, data = lm.args$data),
+    model <- try(model.frame(Terms, data = exchange.args$data),
                  silent = TRUE)
     
     if(inherits(model, "try-error") || inherits(Terms, "try-error"))
@@ -158,7 +158,7 @@
   ols <- TRUE
   
   if(!is.null(w)) {
-    if(NROW(w) != n)
+    if(length(w) != n)
       stop("The number of weights does not match the number of observations.  This could be because of missing data.\n",
            call. = FALSE)
     gls <- TRUE
@@ -280,8 +280,14 @@
     ols <- FALSE
   } else {
     Pcov <- NULL
-    ols <- TRUE
-    gls <- FALSE
+    if(is.null(w)) {
+      ols <- TRUE
+      gls <- FALSE
+    } else {
+      ols <- FALSE
+      gls <- TRUE
+    }
+    
   }
 
   X.args <- exchange.args[c("Terms", "Y", "SS.type", "tol", "model")]
@@ -461,7 +467,7 @@
   obs.fit <- lm.rrpp.fit(X, Y, Pcov = Pcov, w = w, offset = o, 
                          tol = exchange.args$tol)
   
-  QR <- obs.fit$qr
+  QR <- QRforX(X)
   X <- QR$X
   Hb <- as.matrix(tcrossprod(fast.solve(QR$R), QR$Q))
   if(!identical(colnames(X), colnames(QR$R)))

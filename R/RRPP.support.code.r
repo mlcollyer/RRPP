@@ -36,7 +36,7 @@
 #' @importFrom ape collapse.singles
 #' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
 #' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
-#' resid sd spline var model.frame terms reformulate
+#' resid sd spline var model.frame terms reformulate fitted resid
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @importFrom stats pnorm terms.formula
@@ -447,11 +447,11 @@ lm.args.from.formula <- function(cl){
       k2 <- mod.k[-1]
       fac <- crossprod(attr(Terms, "factor"))
       modr <- lapply(as.list(k2), function(j){
-        ind <- as.logical(ifelse(fac[j,] < fac[j,j], 1, 0))
+        ind <- as.logical(ifelse(fac[j, ] < fac[j,j], 1, 0))
         Terms[ind]
       })
       modf <- lapply(as.list(k2), function(j){
-        ind <- ifelse(fac[j,] < fac[j,j], 1, 0)
+        ind <- ifelse(fac[j, ] < fac[j,j], 1, 0)
         ind[j] <- 1
         ind <- as.logical(ind)
         Terms[ind]
@@ -551,10 +551,11 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
   if(k > 0){
     if(SS.type == "III"){
       fix <- !(length(delete) == 0)
-      Xfs <- lapply(2:length(uk), function(j)  if(fix) X[, -delete] else X)
+      Xfs <- lapply(2:length(uk), function(j)  if(fix) 
+        X[, -delete, drop = FALSE] else X)
       Xrs <- lapply(2:length(uk), function(j){
         rmove <- c(which(X.k == (j - 1)), delete)
-        Xout <- as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove, drop = FALSE])
         if(length(Xout) == 0) Xout <- matrix(0, n, 1)
         Xout
       })
@@ -563,32 +564,32 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
       fac <- as.matrix(crossprod(attr(Terms, "factor")))
       
       Xrs <- lapply(1:NROW(fac), function(j){
-        index <- fac[, j]
+        index <- fac[, j, drop = FALSE]
         m <- max(index)
         ind <-  as.logical(ifelse(c(0, index) < m, 1, 0))
         rmove <- which(!X.k %in% uk[ind])
         rmove <- unique(c(rmove, delete))
-        Xout <- as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove, drop = FALSE])
         if(length(Xout) == 0) Xout <- matrix(0, n, 1)
         Xout
       })
       
       Xfs <- lapply(1:NROW(fac), function(j){
-        index <- fac[, j]
+        index <- fac[, j, drop = FALSE]
         m <- max(index)
         ind <-  as.logical(ifelse(c(0, index) < m, 1, 0))
         ind[j + 1] <- TRUE
         rmove <- which(!X.k %in% uk[ind])
         rmove <- unique(c(rmove, delete))
         fix <- !(length(rmove) == 0)
-        if(fix) as.matrix(X[, -rmove]) else X
+        if(fix) as.matrix(X[, -rmove, drop = FALSE]) else X
       })
       
     } else {
       Xrs <- lapply(2:length(uk), function(j){
         rmove <- which(!X.k %in% uk[1:(j - 1)])
         rmove <- unique(c(rmove, delete))
-        Xout <- as.matrix(X[, -rmove])
+        Xout <- as.matrix(X[, -rmove, drop = FALSE])
         if(length(Xout) == 0) Xout <- matrix(0, n, 1)
         Xout
       })
@@ -597,7 +598,7 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
         rmove <- which(!X.k %in% uk[1:j])
         rmove <- unique(c(rmove, delete))
         fix <- !(length(rmove) == 0)
-        if(fix) as.matrix(X[, -rmove]) else X
+        if(fix) as.matrix(X[, -rmove, drop = FALSE]) else X
       })
     }
     names(Xrs) <- names(Xfs) <- term.labels
@@ -606,9 +607,9 @@ getXs <- function(Terms, Y, SS.type, tol = 1e-7,
   }
   
   if(!is.null(subjects.term)) {
-    Xfs[[subjects.term]] <- if(fix) X[, -delete] else X
+    Xfs[[subjects.term]] <- if(fix) X[, -delete, drop = FALSE] else X
     rmove <- c(which(X.k == subjects.term), delete)
-    Xrs[[subjects.term]] <- as.matrix(X[, - rmove])
+    Xrs[[subjects.term]] <- as.matrix(X[, - rmove, drop = FALSE])
   }
   
   list(Xrs = Xrs, Xfs = Xfs)
@@ -741,7 +742,7 @@ getHb <- function(Q) {
   
   if(length(Rs) > 1 && !is.null(rownames(res)) &&
      !identical(rownames(Rs), Qnames))
-    res <- res[Qnames, ]
+    res <- res[Qnames, , drop = FALSE]
   
   if(is.null(rownames(res))) rownames(res) <- Qnames
  
@@ -792,7 +793,7 @@ matdiff <- function(U1, U2){
   keep <- which(checkS == 0)
   
   res <- if(length(keep) > 0) 
-    as.matrix(Uf[, keep]) else NA
+    as.matrix(Uf[, keep, drop = FALSE]) else NA
   res
 
 }
@@ -831,8 +832,7 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   Ufull <- Uf[[max(1, k)]]
   
   int <- attr(Terms, "intercept")
-  intercept <- matrix(rep(int, n), n, 1)
-  colnames(intercept) <- "(Intercept)"
+  intercept <- rep(int, n)
   Qint <- if(!is.null(Pcov))
     QRforX(Pcov %*% intercept) else if(!is.null(w))
       QRforX(intercept * sqrt(w)) else
@@ -913,10 +913,10 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
                     STerm = STerm)
   
   rrpp <- function(FR, ind.i, ind_s.i, subTest, STerm) {
-    result <- lapply(FR, function(x) x$fitted + x$residuals[ind.i, ])
+    result <- lapply(FR, function(x) x$fitted + x$residuals[ind.i, , drop = FALSE])
     if(subTest)
       result[[STerm]] <- FR[[STerm]]$fitted + 
-        FR[[STerm]]$residuals[ind_s.i,]
+        FR[[STerm]]$residuals[ind_s.i, , drop = FALSE]
     result
   }
   
@@ -944,7 +944,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       rrpp.args$ind.i <- x
       if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
-      y <- as.matrix(yh0 + r0[x,])
+      y <- as.matrix(yh0 + r0[x, , drop = FALSE])
       yy <- sum(y^2)
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
@@ -971,7 +971,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       rrpp.args$ind.i <- x
       if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
-      y <- as.matrix(yh0 + r0[x,])
+      y <- as.matrix(yh0 + r0[x, , drop = FALSE])
       yy <- sum(y^2)
       if(k > 0) {
         res <- vapply(1:max(1, k), function(j){
@@ -1000,7 +1000,7 @@ SS.iter.main <- function(checkrs, ind, ind_s, subTest, STerm,
       rrpp.args$ind.i <- x
       if(subTest) rrpp.args$ind_s.i <- ind_s[[j]]
       Yi <- do.call(rrpp, rrpp.args)
-      y <- as.matrix(yh0 + r0[x,])
+      y <- as.matrix(yh0 + r0[x, , drop = FALSE])
       yy <- sum(y^2)
       
       if(k > 0) {
@@ -1172,7 +1172,7 @@ getXfromNewData <- function(fit, newdata){
                         mf_vars)
   mfn[, mf_vars %in% nd_vars] <- newdata[, nd_vars]
   
-  NA_id <- which(is.na(mfn[1,]))
+  NA_id <- which(is.na(mfn[1, , drop = FALSE]))
   if(length(NA_id) > 0) {
     for(i in 1:length(NA_id)) mfn[, NA_id[i]] <- mf[1, NA_id[i]]
   }
@@ -1183,15 +1183,15 @@ getXfromNewData <- function(fit, newdata){
   attr(mfnn, "terms") <- Terms
   
   fix <- which(!mf_vars %in% nd_vars)
-  term_fix <- which(colSums(as.matrix(factors[fix,])) > 0)
+  term_fix <- which(colSums(as.matrix(factors[fix, , drop = FALSE])) > 0)
   asn_fix <- which(asn %in% term_fix)
   
   b_ind <- rep(1, length(asn))
   b_ind[asn_fix] <- 0
   m_ind <- 1 - b_ind
   
-  nXb <- model.matrix(Terms, mfnn)[-(1:N),]
-  mfnn <- mfnn[-(1:N),]
+  nXb <- model.matrix(Terms, mfnn)[-(1:N), , drop = FALSE]
+  mfnn <- mfnn[-(1:N), , drop = FALSE]
   b_mat <- matrix(b_ind, NROW(mfnn), length(asn), byrow = TRUE)
   m_mat <- matrix(m_ind, NROW(mfnn), length(asn), byrow = TRUE)
   nXm <- matrix(m, NROW(mfnn), length(asn), byrow = TRUE)
@@ -1239,14 +1239,15 @@ beta.boot.iter <- function(fit, ind) {
                     residuals = as.matrix(res),
                     ind.i = NULL)
   
-  rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + residuals[ind.i,])
+  rrpp <- function(fitted, residuals, ind.i) as.matrix(fitted + 
+                                                         residuals[ind.i, , drop = FALSE])
   
   Hf <- tcrossprod(fast.solve(Qf$R), Qf$Q)
   Hfs <- Matrix(round(Hf, 15), sparse = TRUE)
   if(object.size(Hfs) < object.size(Hf)) Hf <- Hfs
   b <- if(gls) fit$LM$gls.coefficients else
     fit$LM$coefficients
-  Hf <- Hf[rownames(b),]
+  Hf <- Hf[rownames(b), , drop = FALSE]
   
   betas <- lapply(1:perms, function(j){
     x <-ind[[j]]
@@ -1331,11 +1332,11 @@ beta.iter.main <- function(checkrs, ind, ind_s, subTest,
   
   rrpp <- function(FR, ind.i, ind_s.i, subTest, STerm, offst, o) {
     result <- if(offst)
-      lapply(FR, function(x) x$fitted + x$residuals[ind.i, ] - o) else
-        lapply(FR, function(x) x$fitted + x$residuals[ind.i, ]) 
+      lapply(FR, function(x) x$fitted + x$residuals[ind.i, , drop = FALSE] - o) else
+        lapply(FR, function(x) x$fitted + x$residuals[ind.i, , drop = FALSE]) 
     if(subTest) {
       result[[STerm]] <- FR[[STerm]]$fitted + 
-        FR[[STerm]]$residuals[ind_s.i,]
+        FR[[STerm]]$residuals[ind_s.i, , drop = FALSE]
       if(offst) result[[STerm]] <- result[[STerm]] - o
     }
     result
@@ -1426,7 +1427,7 @@ beta.iter.main <- function(checkrs, ind, ind_s, subTest,
   if(is.matrix(d.out) && any(rownames(d.out) == "(Intercept)")){
     rmove <- which(rownames(d.out) == "(Intercept)")
     dnames <- rownames(d.out)[-rmove]
-    d.out <- d.out[-rmove, ]
+    d.out <- d.out[-rmove, , drop = FALSE]
     if(is.vector(d.out)){
       d.out <- matrix(d.out, 1, length(d.out))
       colnames(d.out) <- names(ind)
@@ -1451,7 +1452,7 @@ ellipse.points <- function(m, pr, conf) {
   del <- lapply(pr, function(x) x[,1:p] - m)
   vcv <- lapply(1:NROW(m), function(j){
     x <- sapply(1:length(del), function(jj){
-      del[[jj]][j,]
+      del[[jj]][j, , drop = FALSE]
     })
     tcrossprod(x)/ncol(x)
   })
@@ -1459,7 +1460,7 @@ ellipse.points <- function(m, pr, conf) {
   ellP <- lapply(R, function(x) ell %*% x)
   np <- NROW(ellP[[1]])
   ellP <- lapply(1:length(ellP), function(j){
-    x <- m[j,]
+    x <- m[j,, drop = FALSE]
     mm <- matrix(rep(x, each = np), np, length(x))
     mm + ellP[[j]]
   })
@@ -1538,7 +1539,7 @@ aov.single.model <- function(object, ...,
     
     if(!is.null(MSEmatch)){
       Fmatch <- which(MSEmatch <= k)
-      Fs[Fmatch,] <- MS[Fmatch,]/MS[MSEmatch[Fmatch],]
+      Fs[Fmatch, ] <- MS[Fmatch,]/MS[MSEmatch[Fmatch],]
       F.effect.adj <- apply(Fs, 1, effect.size)
     }
     
@@ -1605,7 +1606,7 @@ aov.single.model <- function(object, ...,
     
     if(any(tab$Df == 0)){
       rmove <- which(tab$Df == 0)
-      tab <- tab[-rmove,]
+      tab <- tab[-rmove, , drop = FALSE]
     }
     
     options(warn = ow)
@@ -1714,8 +1715,8 @@ aov.multi.model <- function(object, lm.list,
   yh0 <- as.matrix(fastFit(U0, Y, n, p))
   r0 <- as.matrix(Y) - yh0
   
-  rY <- function(ind.i) Yh + R[ind.i,]
-  rY0 <- function(ind.i) yh0 + r0[ind.i,]
+  rY <- function(ind.i) Yh + R[ind.i, , drop = FALSE]
+  rY0 <- function(ind.i) yh0 + r0[ind.i, , drop = FALSE]
   
   RSS <- function(ind.i, U0, U, Ul, K, n, p, Y, yh0, r0) {
     y <- as.matrix(rY(ind.i))
@@ -1744,15 +1745,15 @@ aov.multi.model <- function(object, lm.list,
     do.call(RSS, rss.list)
   })
   
-  RSSy <- as.matrix(RSSp[nrow(RSSp),])
-  RSSp <- as.matrix(RSSp[-(nrow(RSSp)),])
+  RSSy <- as.matrix(RSSp[nrow(RSSp), , drop = FALSE])
+  RSSp <- as.matrix(RSSp[-(nrow(RSSp)), , drop = FALSE])
   RSSy <- as.matrix(matrix(RSSy, nrow(RSSp), perms, byrow = TRUE))
   
   fit.names <- c(refModel$call[[2]], lapply(1:K, function(j) 
     lm.list[[j]]$call[[2]]))
   rownames(RSSp) <- rownames(RSSy) <- fit.names
   
-  SS <- rep(RSSp[1,], each = K + 1) - RSSp
+  SS <- rep(RSSp[1, , drop = FALSE], each = K + 1) - RSSp
   
   Rsq <-  SS / RSSy
   
@@ -1799,16 +1800,23 @@ aov.multi.model <- function(object, lm.list,
                     Rsq = Rsq.obs, F = F.obs, Z = Z, P = Pvals)
   tab$DF[1] <- NA
   tab$Rsq <- zapsmall(tab$Rsq, digits = 8)
-  tab <-  rbind(tab, c(n-1, NA, RSSy[1], NA, NA, NA, NA, NA, NA, NA))
-  rownames(tab)[NROW(tab)] <- "Total"
+
   
   if(effect.type == "SS") p.type <- "Pr(>SS)" else
     if(effect.type == "MS") p.type <- "Pr(>MS)" else
       if(effect.type == "Rsq") p.type <- "Pr(>Rsq)" else
         if(effect.type == "cohenf") p.type <- "Pr(>cohenf)" else 
           p.type <- "Pr(>F)" 
-  names(tab)[length(names(tab))] <- p.type
+  names(tab)[which(names(tab) == "P")] <- p.type
   rownames(tab)[1] <- paste(rownames(tab)[1], "(Null)")
+  tab <- tab[, 1:9]
+  tab <- rbind(tab, NA)
+  
+  nt <- nrow(tab)
+  rownames(tab)[nt] <- "Total"
+  tab$RSS[nt] <- RSSy[1]
+  tab[nt, 1] <- n - 1
+  
   class(tab) <- c("anova", class(tab))
   
   step <- perms + 5
@@ -1851,7 +1859,7 @@ getSlopes <- function(fit, x, g){
   n <- fit$LM$n
   p <- fit$LM$p
   X <- fit$LM$X
-  X <- X[, colnames(X)  %in% rownames(beta[[1]])]
+  X <- X[, colnames(X)  %in% rownames(beta[[1]]), drop = FALSE]
   getFitted <- function(b) X %*% b
   fitted <- lapply(beta, getFitted)
   Xn <- model.matrix(~ g * x + 0)
@@ -1862,8 +1870,9 @@ getSlopes <- function(fit, x, g){
   group.slopes <- function(B){ # B of form ~ group * x + 0
     gp <- QRforX(model.matrix(~g))$rank
     gnames <- rownames(B)[1:gp]
-    B <- as.matrix(B[-(1:gp),])
-    B[2:gp, ] <- B[2:gp, ] + matrix(rep(B[1,], each = gp -1), gp -1, p)
+    B <- as.matrix(B[-(1:gp), , drop = FALSE])
+    B[2:gp, ] <- B[2:gp, , drop = FALSE] + 
+      matrix(rep(B[1,], each = gp -1), gp -1, p)
     rownames(B) <- gnames
     B
   }
@@ -1890,9 +1899,9 @@ getLSmeans <- function(fit, g){
   for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") 
     dat[[i]] <- mean(dat[[i]])
   L <- model.matrix(fit$LM$Terms, data = dat)
-  L <- L[, colnames(L)  %in% rownames(beta[[1]])]
+  L <- L[, colnames(L)  %in% rownames(beta[[1]]), drop = FALSE]
   getFitted <- function(b) {
-    b <- b[rownames(b) %in% colnames(L),]
+    b <- b[rownames(b) %in% colnames(L), , drop = FALSE]
     L %*% b
   } 
   fitted <- lapply(beta, getFitted)
@@ -2057,10 +2066,10 @@ makePWCorTable <- function(L){
 # set-up for jackknife classification
 # used in classify
 leaveOneOut <- function(X, Y, n.ind) {
-  x <- X[-n.ind,]
+  x <- X[-n.ind, , drop = FALSE]
   QR <- QRforX(x)
   H <- tcrossprod(fast.solve(QR$R), QR$Q)
-  y <- Y[-n.ind,]
+  y <- Y[-n.ind, , drop = FALSE]
   H %*% y
 }
 
@@ -2167,7 +2176,7 @@ z.test <- function(aov.mm){
   perms <- ncol(stat)
   m <- nrow(stat)
   stat.c <- sapply(1:m, function(j){
-    s <- stat[j,]
+    s <- stat[j, , drop = FALSE]
     center(s)
   })
   
@@ -2321,9 +2330,9 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
     if(PC.no < length(d)) d <- 1:PC.no
   }
   
-  PCA$rotation <- PCA$rotation[, d]
+  PCA$rotation <- PCA$rotation[, d, drop = FALSE]
   PCA$sdev <- PCA$sdev[d]
-  PCA$x <- as.matrix(PCA$x[, d])
+  PCA$x <- as.matrix(PCA$x[, d, drop = FALSE])
   colnames(PCA$x) <- colnames(PCA$rotation) <- paste("PC", d, sep = "")
   
   Yn <- PCA$x
@@ -2344,19 +2353,83 @@ lda.prep <- function(fit, tol = 1e-7, PC.no = NULL, newdata = NULL){
   
 }
 
+# looCVOne
+# finds one predicted value from n-1 training
+# values.  Used in looCV
+
+looCVOne <-function(fit, n.ind, Pcov = NULL) {
+  gls <- fit$LM$gls
+  if(gls && is.null(Pcov)){
+    Pcov <- try(getModelCov(fit, type = "Pcov"),
+                silent = TRUE)
+    if(gls && inherits(Pcov, "try-error")){
+      w <- sqrt(fit$LM$weights)
+      Pcov <- diag(1/w)
+    }
+  }
+  
+  X <- fit$LM$X
+  Y <- fit$LM$Y
+  x <- X[n.ind, , drop = FALSE]
+  y <- Y[n.ind, , drop = FALSE]
+  X <- X[-n.ind, , drop = FALSE]
+  Y <- Y[-n.ind, , drop = FALSE]
+  
+  if(gls) Pcov <- Pcov[-n.ind, -n.ind, drop = FALSE]
+  
+  QR <- if(gls) QRforX(Pcov %*% X) else QRforX(X)
+  H <- tcrossprod(fast.solve(QR$R), QR$Q)
+  B <- if(gls)  H %*% (Pcov %*% Y) else
+    H %*% Y
+  x %*% B
+  
+}
+
+looCVAll <- function(fit){
+  gls <- fit$LM$gls
+  Pcov <- try(getModelCov(fit, type = "Pcov"),
+              silent = TRUE)
+  if(gls && inherits(Pcov, "try-error")){
+    w <- sqrt(fit$LM$weights)
+    Pcov <- diag(1/w)
+  }
+  n <- fit$LM$n
+  res <- lapply(1:n, function(j){
+    r <- if(gls)
+      looCVOne(fit, n.ind = j, 
+               Pcov = Pcov) else
+                 looCVOne(fit, n.ind = j)
+    as.vector(r)
+  })
+  res <- if(length(res[[1]]) == 1) unlist(res) else
+    do.call(rbind, res)
+  return(res)
+}
+
 # looPCOne
 # finds one PC vector via cross-validation
 # used in looCV
 
 looPCOne <-function(fit, n.ind) {
+  
+  gls <- fit$LM$gls
+  Pcov <- try(getModelCov(fit, type = "Pcov"),
+              silent = TRUE)
+  if(gls && inherits(Pcov, "try-error")){
+    w <- sqrt(fit$LM$weights)
+    Pcov <- diag(1/w)
+  }
+  
+  
   X <- fit$LM$X
   Y <- fit$LM$Y
-  x <- X[n.ind,]
-  y <- Y[n.ind,]
-  X <- X[-n.ind,]
-  Y <- Y[-n.ind,]
-  gls <- fit$LM$gls
-  Pcov <- if(gls) fit$LM$Pcov[-n.ind, -n.ind] else NULL
+  x <- X[n.ind, , drop = FALSE]
+  y <- Y[n.ind, , drop = FALSE]
+  X <- X[-n.ind, , drop = FALSE]
+  Y <- Y[-n.ind, , drop = FALSE]
+  
+  if(gls) Pcov <- Pcov[-n.ind, -n.ind, drop = FALSE]
+  
   QR <- if(gls) QRforX(Pcov %*% X) else QRforX(X)
   H <- tcrossprod(fast.solve(QR$R), QR$Q)
   B <- if(gls)  H %*% (Pcov %*% Y) else
@@ -2377,12 +2450,17 @@ looPCAll<-function(fit, ...) {
   QR <- getModels(fit, "qr")
   QR <- QR$full[[length(QR$full)]]
   ord.args$A <- tcrossprod(QR$Q)
-  if(is.null(ord.args$tol)) ord.args$tol <- 1e-6
+  if(is.null(ord.args$tol)) 
+    ord.args$tol <- 1e-6
   
   ord <- do.call(ordinate, ord.args)
   k <- 1:length(ord$d)
   
-  res <- t(sapply(1:n, function(j) looPCOne(fit, j)))
+  res <- sapply(1:n, function(j) 
+    looPCOne(fit, j))
+  res <- if(is.matrix(res)) t(res) else
+    matrix(res, length(res), 1)
+  
   dimnames(res) <- if(gls) dimnames(fit$LM$gls.fitted) else
     dimnames(fit$LM$fitted)
   d <- svd(fit$LM$fitted)$d
@@ -2417,13 +2495,13 @@ indexZtoX <- function(X, Z){
   z.index <- 1:kz
   
   for(i in seq_len(kx)){
-    x <- X[, i]
+    x <- X[, i, drop = FALSE]
     r <- sapply(1:kz, function(j){
-      identical(x, Z[, j])
+      identical(x, Z[, j, drop = FALSE])
     })
     a <- which(r)
     res[i] <- z.index[a]
-    Z <- as.matrix(Z[, -a])
+    Z <- as.matrix(Z[, -a, drop = FALSE])
     z.index <- z.index[-a]
     kz <- kz - 1
   }
@@ -2446,7 +2524,7 @@ ZL_list <- function(init.fit, Y){
   p <- NCOL(Y)
   Z <- getME(init.fit, "Z")
   result <- lapply(1:p, function(j){
-    y <- Y[, j]
+    y <- Y[, j, drop = FALSE]
     ft <- suppressMessages(
       suppressWarnings(refit(init.fit, y)))
     Z %*% getME(ft, "Lambda")

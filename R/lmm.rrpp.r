@@ -153,6 +153,7 @@
 #' coef(fit_reml, type = "list")
 #' 
 #' # Random slopes models
+#' # none should not work!
 #' 
 #' fit_ls <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
 #' subjects = "Site",      
@@ -168,7 +169,6 @@
 #' estimation = "ML", 
 #' data = ReptAbund)
 #'
-#' # should not work!
 #' 
 #' fit_reml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
 #' subjects = "Site",      
@@ -239,11 +239,16 @@ lmm.rrpp <- function(fixed,
   
   fit$call <- match.call()
   dat <- fit$LM$data
-  dat$resp <- as.matrix(dat$Y[,1])
+  dat$resp <- as.matrix(dat$Y[, 1, drop = FALSE])
   Y <- dat$Y
   dims <- dim(Y)
   n <- dims[1]
   p <- dims[2]
+  
+  Xs <- suppressWarnings(
+    getModels(fixed.fit, "qr"))
+  k <- length(Xs$full)
+  QR <- Xs$full[[k]]
   
   rands <- if(type == "intercepts")
     paste("(1|", subjects, ")", sep = "") else
@@ -262,8 +267,8 @@ lmm.rrpp <- function(fixed,
                 "Z")
   if(type == "slopes"){
     nzc <- ncol(Zall)
-    Zslope <- Zall[, seq(2, nzc, 2)]
-    Zsub <- Zall[, seq(1, nzc - 1, 2)]
+    Zslope <- Zall[, seq(2, nzc, 2), drop = FALSE]
+    Zsub <- Zall[, seq(1, nzc - 1, 2), drop = FALSE]
   } else {
     Zsub <- Zall
     Zslope <- NULL
@@ -293,12 +298,12 @@ lmm.rrpp <- function(fixed,
   rm(Bfill)
   
   if(type == "slopes"){
-    Bff <- as.matrix(B[1:kf,])
-    Bs <- as.matrix(B[-(1:kf),])
+    Bff <- as.matrix(B[1:kf, , drop = FALSE])
+    Bs <- as.matrix(B[-(1:kf), , drop = FALSE])
     ks <- NROW(Bs)
     sseq <- NULL
     for(i in 1:(ks/2)) sseq <- c(sseq, c(i, i + ks/2))
-    Bs <- as.matrix(Bs[sseq,])
+    Bs <- as.matrix(Bs[sseq, , drop = FALSE])
     B <- as.matrix(rbind(Bff, Bs))
   }
   
@@ -308,7 +313,7 @@ lmm.rrpp <- function(fixed,
     ft <- refit(init.rand.fit, yp)
   } else ft <- init.rand.fit
   
-  if(isSingular(ft, tol = 1e-4))
+  if(isSingular(ft, tol = 1e-7))
     stop("Model is near-singular.  Try a different estimation method or a simpler model.\n",
          call. = FALSE)
   
@@ -317,8 +322,8 @@ lmm.rrpp <- function(fixed,
   
   if(type == "slopes"){
     nzc <- ncol(Zall)
-    Zslope <- Zall[, seq(2, nzc, 2)]
-    Zsub <- Zall[, seq(1, nzc - 1, 2)]
+    Zslope <- Zall[, seq(2, nzc, 2), drop = FALSE]
+    Zsub <- Zall[, seq(1, nzc - 1, 2), drop = FALSE]
   } else {
     Zsub <- Zall
     Zslope <- NULL
@@ -352,10 +357,6 @@ lmm.rrpp <- function(fixed,
       }
     }
     
-    Xs <- suppressWarnings(
-      getModels(fixed.fit, "qr"))
-    k <- length(Xs$full)
-    QR <- Xs$full[[k]]
     
     for(i in 1:2){
       reduced <- lapply(Xs$reduced, 
@@ -442,7 +443,7 @@ lmm.rrpp <- function(fixed,
     kk <- length(XZs.full)
     
     XZ_full <- XZs.full[[kk]]
-    XZ_null <- XZ_full[, 1] # need to consider no intercept
+    XZ_null <- XZ_full[, 1, drop = FALSE] # need to consider no intercept
     Hb_full <- Hbs.full[[kk]]
     QRnull <- QRforX(matrix(1, n, 1))
     Hb_null <- getHb(QRnull)
@@ -453,7 +454,7 @@ lmm.rrpp <- function(fixed,
     dimnames(B) <- list(c(colnames(fixed.fit$LM$X),
                           rand.coef.names),
                         colnames(Y))
-    U <- as.matrix(B[-seq_len(ncol(fixed.fit$LM$X)), ])
+    U <- as.matrix(B[-seq_len(ncol(fixed.fit$LM$X)), , drop = FALSE])
     UtU_det <- try(det(crossprod(U)), silent = TRUE)
     if(inherits(UtU_det, "try-error"))
       UtU_det <- NA
@@ -480,9 +481,9 @@ lmm.rrpp <- function(fixed,
       s <- ind[[i]]
       Y_i <- lapply(1:kk, function(j){
         sj <- if(j == sub_no) ind_s[[i]] else s
-        Fitted[[j]] + as.matrix(Resid[[j]][sj, ])
+        Fitted[[j]] + as.matrix(Resid[[j]][sj, , drop = FALSE])
       })
-      yy <- Y[s, ]
+      yy <- Y[s, , drop = FALSE]
       
       res <- vapply(1:max(1, kk), function(j){
         ss(Hs.full[[j]], Hs.reduced[[j]], Y_i[[j]])
@@ -568,7 +569,7 @@ lmm.rrpp <- function(fixed,
 
 getLMMQ <- function(XZ, Hb){
   QR <- QRforX(XZ %*% Hb)
-  Q <- QR$Q[, 1:QR$rank]
+  Q <- QR$Q[, 1:QR$rank, drop = FALSE]
   Q
 }
 
@@ -593,13 +594,13 @@ indexZtoX <- function(X, Z){
   z.index <- 1:kz
   
   for(i in seq_len(kx)){
-    x <- X[, i]
+    x <- X[, i, drop = FALSE]
     r <- sapply(1:kz, function(j){
       identical(x, Z[, j])
     })
     a <- which(r)
     res[i] <- z.index[a]
-    Z <- as.matrix(Z[, -a])
+    Z <- as.matrix(Z[, -a, drop = FALSE])
     z.index <- z.index[-a]
     kz <- kz - 1
   }

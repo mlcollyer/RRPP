@@ -2,12 +2,15 @@
 % Please edit documentation in R/looCV.r
 \name{looCV}
 \alias{looCV}
-\title{Diagnostic cross-validation tool for ordination based on fitted values}
+\title{Diagnostic cross-validation tool including ordination based on fitted values}
 \usage{
-looCV(fit, ...)
+looCV(fit, method = c("fit", "PC"), ...)
 }
 \arguments{
 \item{fit}{A \code{\link{lm.rrpp}} fit.}
+
+\item{method}{Whether to find cross-validated fitted values (fit) or 
+principal component scores (PC) of fitted values.}
 
 \item{...}{Arguments passed to \code{\link{ordinate}}}
 }
@@ -19,12 +22,20 @@ the following
 for observed and cross-validated cases.}
 }
 \description{
-Function performs a leave-one-out cross-validation estimate of ordination
-scores, which is helpful for determining if apparent "group differences"
-in ordination plots arise merely from data dimensionality.
+Function performs a leave-one-out cross-validation estimate (method = "fit")
+or ordination scores from estimates (method = "PC").  
+The latter can be helpful for determining if apparent
+group differences in ordination plots arise merely from data dimensionality.  
+The choice of method
+essentially chooses one of two functions.
 }
 \details{
-The function uses the strategy of Thioulouse et al. (2021) to perform N
+The fit method is standard, using n - 1 observations as training
+data, and estimating the response for 1 datum, not included in the training
+data, based on the model design of an original model fit.  This method
+provides alternative fitted values than the original fit.
+
+The PC method uses the strategy of Thioulouse et al. (2021) to perform N
 ordinations for N observations, in which each of the N observations are left
 out of the estimation of linear model coefficients, but the vector of data for
 the left-out observation is projected on the eigenvectors of the fitted values 
@@ -67,11 +78,18 @@ could cause problems in analyses that substitute cross-validated scores as data.
 # Example with real group differences
 
 data(Pupfish)
-fit <- lm.rrpp(coords ~ Pop*Sex, data = Pupfish, iter = 0)
-CV1 <- looCV(fit)
-summary(CV1)
+fit <- lm.rrpp(coords ~ Pop * Sex, 
+data = Pupfish, iter = 0)
+CV1f <- looCV(fit)
+
+summary(CV1f)
+
+CV1p <- looCV(fit, method = "PC")
+
+summary(CV1p)
+
 group <- interaction(Pupfish$Pop, Pupfish$Sex)
-plot(CV1, flip = 1, pch = 19, col = group)
+plot(CV1p, flip = 1, pch = 19, col = group)
 
 # Example with apparent but not real group differences
 
@@ -80,11 +98,12 @@ p <- NCOL(Pupfish$coords)
 set.seed(1001)
 Yr <- matrix(rnorm(n * p), n, p) # random noise
 
-fit2 <-lm.rrpp(Yr ~ Pop*Sex, data = Pupfish, iter = 0)
-CV2 <- looCV(fit2)
-summary(CV2)
+fit2 <-lm.rrpp(Yr ~ Pop * Sex, 
+data = Pupfish, iter = 0)
+CV2p <- looCV(fit2, method = "PC")
+summary(CV2p)
 group <- interaction(Pupfish$Pop, Pupfish$Sex)
-plot(CV2, pch = 19, col = group) 
+plot(CV2p, pch = 19, col = group) 
 
 }
 \references{
@@ -97,7 +116,8 @@ where there are none: spurious patterns from between-group PCA.
 Evolutionary Biology, 46(4), 303-316.
 }
 \seealso{
-\code{\link{summary.looCV}}, \code{\link{plot.looCV}}
+\code{\link{summary.looCV}}, 
+\code{\link{plot.looCV}}, \code{\link{looCV_table}}
 }
 \author{
 Michael Collyer

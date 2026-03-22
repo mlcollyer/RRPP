@@ -157,6 +157,7 @@ coef(fit_ml, type = "list")
 coef(fit_reml, type = "list")
 
 # Random slopes models
+# none should not work!
 
 fit_ls <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
 subjects = "Site",      
@@ -172,7 +173,6 @@ slopeTerm = "Year",
 estimation = "ML", 
 data = ReptAbund)
 
-# should not work!
 
 fit_reml <- lmm.rrpp(fixed = reptile_abundance ~ Year, 
 subjects = "Site",      

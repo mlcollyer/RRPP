@@ -356,8 +356,8 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   rrpp.args$o <- o
   
   rrpp <- function(fitted, residuals, ind.i, offset = FALSE, o = NULL) {
-    if(offset) fitted + residuals[ind.i,] - o else
-      fitted + residuals[ind.i,]
+    if(offset) fitted + residuals[ind.i, , drop = FALSE] - o else
+      fitted + residuals[ind.i, , drop = FALSE]
   }
   
   rrpp.args$o <- if(!is.null(fitf$LM$offset)) fitf$LM$offset else NULL
@@ -508,7 +508,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   disp.args <- list(res = as.matrix(res), ind.i = NULL, x = model.matrix(~groups + 0))
   if(gls) disp.args$x <- fitf$LM$Pcov %*% disp.args$x
   g.disp <- function(res, ind.i, x) {
-    r <- res[ind.i,]
+    r <- res[ind.i, , drop = FALSE]
     if(NCOL(r) > 1) d <- apply(r, 1, function(x) sum(x^2)) else
       d <- r^2
     coef(lm.fit(as.matrix(x), d))

@@ -271,8 +271,8 @@ measurement.error <- function(data,
   
   if(multivariate){
     suppressWarnings(mAOV <- summary(fit)$stats.table)
-    mAOV <- mAOV[rownames(mAOV) %in% rownames(AOVo),]
-    mAOV <- mAOV[-NROW(mAOV),]
+    mAOV <- mAOV[rownames(mAOV) %in% rownames(AOVo), , drop = FALSE]
+    mAOV <- mAOV[-NROW(mAOV), , drop = FALSE]
     rownames(mAOV)[which(
       rownames(mAOV) == "subjects")] <- "Subjects / Random ME"
     rownames(mAOV)[which(
@@ -282,7 +282,7 @@ measurement.error <- function(data,
     rownames(mAOV)[which(
       rownames(mAOV) == "groups:replicates")] <- 
       "Systematic ME:Groups / Random ME"
-    mAOV <- mAOV[, -(1:2)]
+    mAOV <- mAOV[, -(1:2), drop = FALSE]
   } else mAOV <- NULL
   
   rm(AOVo)
@@ -297,7 +297,7 @@ measurement.error <- function(data,
   SNR <- ANOVA$SS / fit$ANOVA$RSS
   rmove <- which(Df == 0)
   if(length(rmove) > 0)
-    SNR <- SNR[-rmove, ]
+    SNR <- SNR[-rmove, , drop = FALSE]
   
   AOV$EtaSq.ME <- NA
   AOV$EtaSq.ME[which(rownames(AOV) == "Systematic ME")] <- 

@@ -177,9 +177,9 @@ ICCstats <- function(fit,
   type <- 1
   if(!identical(with_in_no, resid_no)) type <- 2
   
-  sub.line <- AOV[sub_no,]
-  w.lines <- AOV[unique(c(with_in_no, resid_no)),]
-  res.line <- AOV[resid_no,]
+  sub.line <- AOV[sub_no, , drop = FALSE]
+  w.lines <- AOV[unique(c(with_in_no, resid_no)), , drop = FALSE]
+  res.line <- AOV[resid_no, , drop = FALSE]
   
   MSBS <- sub.line[3]
   if(type == 2)

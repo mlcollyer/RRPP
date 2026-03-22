@@ -5,17 +5,18 @@
 + New functions, `coef.lmm.rrpp`, `fixef.lmm.rrpp`, `ranef.lmm.rrpp`, to use
 with `lmm.rrpp`.
 + Updates to most S3 functions for `lm.rrpp` to accommodate `lmm.rrpp` objects.
++ Updated `looCV` to either find fitted values or PC scores.
++ Added `looCV_table` function, to comapre `looCv` objects.
 
 ### BUG FIXES
-
-+ Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation,
++ Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation.
 + Fixed issue with double GLS-transformation in pairwise.
++ Fixed some lingering issues with matrix/vector auto-drops.
 
 ### OTHER CHANGES
 + Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
 change means SS can often be calculated with one U matrix instead of two.
 + Updated `QRforX` to be more efficient.
-
 
 # CHANGES IN RRPP 2.1.2
 

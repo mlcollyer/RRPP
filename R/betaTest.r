@@ -302,7 +302,8 @@ betaTest <- function(fit, X.null = NULL,
   }
   
   if(!userNULL){
-      Qr.list <- lapply(1:kk, function(j) Q = Qf[, -(coef.no[j])])
+      Qr.list <- lapply(1:kk, function(j) 
+        Q = Qf[, -(coef.no[j]), drop = FALSE])
   }
 
   getBstats <- function(coef.no, Beta, Hb, Qr, Y, n, p, 
@@ -312,10 +313,10 @@ betaTest <- function(fit, X.null = NULL,
     Resid <- Y - Fitted
     Result <- sapply(1:length(ind), function(j) {
       x <- ind[[j]]
-      yp <- Fitted + Resid[x,]
+      yp <- Fitted + Resid[x, , drop = FALSE]
       B <- as.matrix(Hb %*% yp)
       R <- yp - fastFit(Qf, yp, n, p)
-      b <- B[coef.no,]
+      b <- B[coef.no, ]
       if(j == 1) b <- b - Beta
       d <- sqrt(sum(b^2))
       if(include.md){

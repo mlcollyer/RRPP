@@ -1,10 +1,18 @@
-#' Diagnostic cross-validation tool for ordination based on fitted values
+#' Diagnostic cross-validation tool including ordination based on fitted values
 #'
-#' Function performs a leave-one-out cross-validation estimate of ordination
-#' scores, which is helpful for determining if apparent "group differences"
-#' in ordination plots arise merely from data dimensionality.
+#' Function performs a leave-one-out cross-validation estimate (method = "fit")
+#' or ordination scores from estimates (method = "PC").  
+#' The latter can be helpful for determining if apparent
+#' group differences in ordination plots arise merely from data dimensionality.  
+#' The choice of method
+#' essentially chooses one of two functions.
 #' 
-#' The function uses the strategy of Thioulouse et al. (2021) to perform N
+#' The fit method is standard, using n - 1 observations as training
+#' data, and estimating the response for 1 datum, not included in the training
+#' data, based on the model design of an original model fit.  This method
+#' provides alternative fitted values than the original fit.
+#' 
+#' The PC method uses the strategy of Thioulouse et al. (2021) to perform N
 #' ordinations for N observations, in which each of the N observations are left
 #' out of the estimation of linear model coefficients, but the vector of data for
 #' the left-out observation is projected on the eigenvectors of the fitted values 
@@ -44,6 +52,8 @@
 #' 
 #' 
 #' @param fit A \code{\link{lm.rrpp}} fit.
+#' @param method Whether to find cross-validated fitted values (fit) or 
+#' principal component scores (PC) of fitted values.
 #' @param ... Arguments passed to \code{\link{ordinate}}
 #' @keywords analysis
 #' @export
@@ -60,17 +70,25 @@
 #' where there are none: spurious patterns from between-group PCA. 
 #' Evolutionary Biology, 46(4), 303-316.
 #' 
-#' @seealso \code{\link{summary.looCV}}, \code{\link{plot.looCV}}
+#' @seealso \code{\link{summary.looCV}}, 
+#' \code{\link{plot.looCV}}, \code{\link{looCV_table}}
 #' @examples
 #' 
 #' # Example with real group differences
 #' 
 #' data(Pupfish)
-#' fit <- lm.rrpp(coords ~ Pop*Sex, data = Pupfish, iter = 0)
-#' CV1 <- looCV(fit)
-#' summary(CV1)
+#' fit <- lm.rrpp(coords ~ Pop * Sex, 
+#' data = Pupfish, iter = 0)
+#' CV1f <- looCV(fit)
+#' 
+#' summary(CV1f)
+#' 
+#' CV1p <- looCV(fit, method = "PC")
+#' 
+#' summary(CV1p)
+#' 
 #' group <- interaction(Pupfish$Pop, Pupfish$Sex)
-#' plot(CV1, flip = 1, pch = 19, col = group)
+#' plot(CV1p, flip = 1, pch = 19, col = group)
 #' 
 #' # Example with apparent but not real group differences
 #' 
@@ -79,19 +97,131 @@
 #' set.seed(1001)
 #' Yr <- matrix(rnorm(n * p), n, p) # random noise
 #' 
-#' fit2 <-lm.rrpp(Yr ~ Pop*Sex, data = Pupfish, iter = 0)
-#' CV2 <- looCV(fit2)
-#' summary(CV2)
+#' fit2 <-lm.rrpp(Yr ~ Pop * Sex, 
+#' data = Pupfish, iter = 0)
+#' CV2p <- looCV(fit2, method = "PC")
+#' summary(CV2p)
 #' group <- interaction(Pupfish$Pop, Pupfish$Sex)
-#' plot(CV2, pch = 19, col = group) 
+#' plot(CV2p, pch = 19, col = group) 
 #' 
-looCV <- function(fit, ...){
-  res <- looPCAll(fit, ...)
-  d <- list(obs = res$raw$d, cv = res$cv$d)
-  scores <- list(obs = res$raw$x, cv = res$cv$x)
-  out <- list(d = d, scores = scores)
+looCV <- function(fit, method = c("fit", "PC"),
+                  ...){
+  method <- match.arg(method)
+  
+  out <- list(fitted = NULL, cv_fitted = NULL,
+              residuals = NULL, cv_residuals = NULL,
+              RSS = NULL, cv_RSS = NULL,
+              MSE = NULL, cv_MSE = NULL,
+              d = NULL, scores = NULL,
+              df_model = NULL, df_residual = NULL,
+              method = method, 
+              model = NULL)
+       
+  out$model <- deparse(substitute(fit))
+  Df <- fit$ANOVA$df
+  dfl <- length(Df)
+  df_residual <- out$df_residual <- Df[dfl - 1]
+  df_model <- out$df_model <- sum(Df[-c(dfl - 1, dfl)])
+  
+  if(method == "PC"){
+    res <- looPCAll(fit, ...)
+    d <- list(obs = res$raw$d, cv = res$cv$d)
+    scores <- list(obs = res$raw$x, cv = res$cv$x)
+    out$d <- d
+    out$scores <- scores
+  }
+  
+  if(method == "fit"){
+    gls <- fit$LM$gls
+    Pcov <- try(getModelCov(fit, type = "Pcov"),
+                silent = TRUE)
+    if(gls && inherits(Pcov, "try-error")){
+      w <- sqrt(fit$LM$weights)
+      Pcov <- diag(1/w)
+    }
+    n <- fit$LM$n
+    
+    yhat <- fitted(fit)
+    cv_yhat <- looCVAll(fit)
+    res <- resid(fit)
+    cv_res <- fit$LM$Y - cv_yhat
+    RSS <- if(gls) sum((Pcov %*% res)^2) else
+      sum(res^2)
+    cv_RSS <- if(gls) sum((Pcov %*% cv_res)^2) else
+      sum(cv_res^2)
+    out$fitted <- yhat
+    out$cv_fitted <- cv_yhat
+    out$residuals <- res
+    out$cv_residuals <- cv_res
+    out$RSS <- RSS
+    out$cv_RSS <- cv_RSS
+    out$MSE <- RSS / df_residual
+    out$cv_MSE <- cv_RSS / df_residual
+    
+  }
+
   class(out) <- "looCV"
   out
 }
 
+#' Table for looCV comparisons
+#'
+#' Function simply produces a table of MSE and cross-validated
+#' MSE for any number of compared models.  The table is sorted
+#' from lowest to highest cross-validated MSE.  The looCV objects
+#' must use method = 'fit' or a table cannot be generated.
 
+#' @param ... Any number of \code{\link{looCV}} objects
+#' @keywords analysis
+#' @export
+#' @author Michael Collyer
+
+#' @seealso \code{\link{looCV}}, \code{\link{model.comparison}}
+#' @examples
+#' 
+#' # Example with snakeHS data
+#' 
+#' data(snakeHS)
+#' fitS <- lm.rrpp(HS ~ SVL, data = snakeHS,
+#'                 iter = 0)
+#' fitSR <- lm.rrpp(HS ~ SVL + Region, data = snakeHS,
+#'                  iter = 0)
+#' fitSxR <- lm.rrpp(HS ~ SVL * Region, data = snakeHS,
+#'                   iter = 0)
+#' 
+#' CVS <- looCV(fitS)
+#' CVSR <- looCV(fitSR)
+#' CVSxR <- looCV(fitSxR)
+#' 
+#' summary(CVS)
+#' summary(CVSR)
+#' summary(CVSxR)
+#' 
+#' looCV_table(CVS, CVSR, CVSxR)
+#' 
+looCV_table <- function(...){
+  dots <- list(...)
+  isfit <- function(x) is.null(x$d)
+  check <- unlist(lapply(dots, inherits, "looCV"))
+  if(any(!check)) stop("\nObjects must be looCV of lm.rrpp fits.\n")
+  check <- unlist(lapply(dots, isfit))
+  if(any(!check)) stop("\nAll looCV objects must use method = 'fit'.\n")
+  
+  dot.names <- lapply(dots, function(x) x$model)
+  
+  getMSE <- function(x) {
+    res <- c(x$df_model, x$df_residual,
+             x$MSE, x$cv_MSE)
+    names(res) <- c("Df Model", "Df Residual",
+                    "Observed MSE",
+                    "Cross-validated MSE")
+    res
+  }
+    
+  out <- as.data.frame(
+    t(sapply(dots, getMSE)))
+  rownames(out) <- dot.names
+  
+  out <- out[order(out[, 4]), ]
+  out
+}
