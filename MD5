@@ -17,7 +17,7 @@ f8e536ef3a48114dc3c790532c6c963e *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
-78396282d43399ec6e9c78890c0f89e4 *man/anova.lm.rrpp.Rd
+eaff224dd35a485abb83f04d6a2ced0c *man/anova.lm.rrpp.Rd
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
 3ea4a6ec3366bf9224f2a60e04cff4f6 *man/betaTest.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
@@ -130,7 +130,7 @@ e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 bd236049a9042ab0335bf1b918d400c6 *NAMESPACE
 83eeec8264e40fde4ba59c572ce7c26e *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
-98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
+e507d6afdc07936a83f409c71e3621c9 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 b53e719691960ce9014c9228d0fbbf73 *R/base_lm.rrpp.r
 526aa0c5dfe0337aa7a0a1a7a7f84348 *R/betaTest.r

@@ -7,7 +7,7 @@
 \method{anova}{lm.rrpp}(
   object,
   ...,
-  effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
+  effect.type = c("F", "cohenf", "SS", "MS", "Rsq", "LR"),
   error = NULL,
   print.progress = TRUE
 )
@@ -18,7 +18,9 @@
 \item{...}{Additional lm.rrpp model fits or other arguments passed to anova.}
 
 \item{effect.type}{One of "F", "cohenf", "SS", "MS", "Rsq" to choose from 
-which distribution of statistics to calculate effect sizes (Z).  
+which distribution of statistics to calculate effect sizes (Z).  "LR" can
+be chosen to include a log-likelihood ratio, for multi-model comparisons.  If
+"LR" is used, the effect type is automatoically "F".
 See \code{\link{lm.rrpp}}.}
 
 \item{error}{An optional character string to define MS error term for 

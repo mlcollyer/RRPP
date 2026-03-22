@@ -16,7 +16,9 @@
 #' @param object Object from \code{\link{lm.rrpp}}
 #' @param ... Additional lm.rrpp model fits or other arguments passed to anova. 
 #' @param effect.type One of "F", "cohenf", "SS", "MS", "Rsq" to choose from 
-#' which distribution of statistics to calculate effect sizes (Z).  
+#' which distribution of statistics to calculate effect sizes (Z).  "LR" can
+#' be chosen to include a log-likelihood ratio, for multi-model comparisons.  If
+#' "LR" is used, the effect type is automatoically "F".
 #' See \code{\link{lm.rrpp}}.
 #' @param error An optional character string to define MS error term for 
 #' calculation of F values. See \code{\link{lm.rrpp}} for examples.
@@ -58,8 +60,11 @@
 #' }
 #' 
 anova.lm.rrpp <- function(object, ...,
-                          effect.type = c("F", "cohenf", "SS", "MS", "Rsq"),
+                          effect.type = c("F", "cohenf", 
+                                          "SS", "MS", 
+                                          "Rsq", "LR"),
                           error = NULL, print.progress = TRUE) {
+  
   effect.type <- match.arg(effect.type)
   if(object$PermInfo$full.resid && effect.type != "F") {
     effect.type = "F"
@@ -72,8 +77,17 @@ anova.lm.rrpp <- function(object, ...,
       noBreaks. = TRUE, call. = FALSE, immediate. = TRUE) 
   }
   
+  doLR <- effect.type == "LR"
+  
   dots <- list(...)
   lm.check <- sapply(dots, inherits, "lm.rrpp")
+  
+  if(!any(lm.check) && effect.type == "LR")
+    stop(c("\nThe likelihood ratio test can only be performed ",
+    "with multiple models.\n"), call. = FALSE)
+  
+  if(doLR) effect.type <- "F"
+  
   if(any(lm.check)) {
     lm.list <- dots[lm.check]
     out <- aov.multi.model(object, lm.list, 
@@ -83,6 +97,20 @@ anova.lm.rrpp <- function(object, ...,
                           effect.type = effect.type,
                           full.resid = object$PermInfo$full.resid,
                           error = error)
+  if(any(lm.check) && doLR) {
+    Tab <- out$table
+    n <- max(Tab$ResDf) + 1
+    Tab$logLR <- rep(NA, nrow(Tab))
+    lr_rows <- 2:(nrow(Tab) - 1)
+    
+    for(i in lr_rows){
+      Df <- Tab[i, 1:2]
+      LR <- n / 2 * log(Tab$F[i] * Df[2] / Df[1] + 1)
+      Tab$logLR[i] <- LR
+    }
+    out$table <- Tab
+  }
+    
   out
 }
   
