@@ -169,12 +169,12 @@ looCV <- function(fit, method = c("fit", "PC"),
 #' from lowest to highest cross-validated MSE.  The looCV objects
 #' must use method = 'fit' or a table cannot be generated.
 
-#' @param ... Any number of \code{\link{looCv}} objects
+#' @param ... Any number of \code{\link{looCV}} objects
 #' @keywords analysis
 #' @export
 #' @author Michael Collyer
 
-#' @seealso \code{\link{looCV}}, \code{\link{model.comparisons}}
+#' @seealso \code{\link{looCV}}, \code{\link{model.comparison}}
 #' @examples
 #' 
 #' # Example with snakeHS data

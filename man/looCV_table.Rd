@@ -7,7 +7,7 @@
 looCV_table(...)
 }
 \arguments{
-\item{...}{Any number of \code{\link{looCv}} objects}
+\item{...}{Any number of \code{\link{looCV}} objects}
 }
 \description{
 Function simply produces a table of MSE and cross-validated
@@ -39,7 +39,7 @@ looCV_table(CVS, CVSR, CVSxR)
 
 }
 \seealso{
-\code{\link{looCV}}, \code{\link{model.comparisons}}
+\code{\link{looCV}}, \code{\link{model.comparison}}
 }
 \author{
 Michael Collyer
