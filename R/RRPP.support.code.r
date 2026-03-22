@@ -1800,8 +1800,7 @@ aov.multi.model <- function(object, lm.list,
                     Rsq = Rsq.obs, F = F.obs, Z = Z, P = Pvals)
   tab$DF[1] <- NA
   tab$Rsq <- zapsmall(tab$Rsq, digits = 8)
-  tab <-  rbind(tab, c(n-1, NA, RSSy[1], NA, NA, NA, NA, NA, NA))
-  rownames(tab)[NROW(tab)] <- "Total"
+
   
   if(effect.type == "SS") p.type <- "Pr(>SS)" else
     if(effect.type == "MS") p.type <- "Pr(>MS)" else
@@ -1810,6 +1809,14 @@ aov.multi.model <- function(object, lm.list,
           p.type <- "Pr(>F)" 
   names(tab)[which(names(tab) == "P")] <- p.type
   rownames(tab)[1] <- paste(rownames(tab)[1], "(Null)")
+  tab <- tab[, 1:9]
+  tab <- rbind(tab, NA)
+  
+  nt <- nrow(tab)
+  rownames(tab)[nt] <- "Total"
+  tab$RSS[nt] <- RSSy[1]
+  tab[nt, 1] <- n - 1
+  
   class(tab) <- c("anova", class(tab))
   
   step <- perms + 5
