@@ -1,4 +1,4 @@
-#' Diagnostic cross-validation tool for ordination based on fitted values
+#' Diagnostic cross-validation tool including ordination based on fitted values
 #'
 #' Function performs a leave-one-out cross-validation estimate (method = "fit")
 #' or ordination scores from estimates (method = "PC").  
@@ -68,7 +68,8 @@
 #' where there are none: spurious patterns from between-group PCA. 
 #' Evolutionary Biology, 46(4), 303-316.
 #' 
-#' @seealso \code{\link{summary.looCV}}, \code{\link{plot.looCV}}
+#' @seealso \code{\link{summary.looCV}}, 
+#' \code{\link{plot.looCV}}, \code{\link{looCV_table}}
 #' @examples
 #' 
 #' # Example with real group differences
@@ -161,4 +162,64 @@ looCV <- function(fit, method = c("fit", "PC"),
   out
 }
 
+#' Table for looCV comparisons
+#'
+#' Function simply produces a table of MSE and cross-validated
+#' MSE for any number of compared models.  The table is sorted
+#' from lowest to highest cross-validated MSE.  The looCV objects
+#' must use method = 'fit' or a table cannot be generated.
 
+#' @param ... Any number of \code{\link{looCv}} objects
+#' @keywords analysis
+#' @export
+#' @author Michael Collyer
+
+#' @seealso \code{\link{looCV}}, \code{\link{model.comparisons}}
+#' @examples
+#' 
+#' # Example with snakeHS data
+#' 
+#' data(snakeHS)
+#' fitS <- lm.rrpp(HS ~ SVL, data = snakeHS,
+#'                 iter = 0)
+#' fitSR <- lm.rrpp(HS ~ SVL + Region, data = snakeHS,
+#'                  iter = 0)
+#' fitSxR <- lm.rrpp(HS ~ SVL * Region, data = snakeHS,
+#'                   iter = 0)
+#' 
+#' CVS <- looCV(fitS)
+#' CVSR <- looCV(fitSR)
+#' CVSxR <- looCV(fitSxR)
+#' 
+#' summary(CVS)
+#' summary(CVSR)
+#' summary(CVSxR)
+#' 
+#' looCV_table(CVS, CVSR, CVSxR)
+#' 
+looCV_table <- function(...){
+  dots <- list(...)
+  isfit <- function(x) is.null(x$d)
+  check <- unlist(lapply(dots, inherits, "looCV"))
+  if(any(!check)) stop("\nObjects must be looCV of lm.rrpp fits.\n")
+  check <- unlist(lapply(dots, isfit))
+  if(any(!check)) stop("\nAll looCV objects must use method = 'fit'.\n")
+  
+  dot.names <- lapply(dots, function(x) x$model)
+  
+  getMSE <- function(x) {
+    res <- c(x$df_model, x$df_residual,
+             x$MSE, x$cv_MSE)
+    names(res) <- c("Df Model", "Df Residual",
+                    "Observed MSE",
+                    "Cross-validated MSE")
+    res
+  }
+    
+  out <- as.data.frame(
+    t(sapply(dots, getMSE)))
+  rownames(out) <- dot.names
+  
+  out <- out[order(out[, 4]), ]
+  out
+}

@@ -2449,7 +2449,11 @@ looPCAll<-function(fit, ...) {
   ord <- do.call(ordinate, ord.args)
   k <- 1:length(ord$d)
   
-  res <- t(sapply(1:n, function(j) looPCOne(fit, j)))
+  res <- sapply(1:n, function(j) 
+    looPCOne(fit, j))
+  res <- if(is.matrix(res)) t(res) else
+    matrix(res, length(res), 1)
+  
   dimnames(res) <- if(gls) dimnames(fit$LM$gls.fitted) else
     dimnames(fit$LM$fitted)
   d <- svd(fit$LM$fitted)$d

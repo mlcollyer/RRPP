@@ -2,7 +2,7 @@
 % Please edit documentation in R/looCV.r
 \name{looCV}
 \alias{looCV}
-\title{Diagnostic cross-validation tool for ordination based on fitted values}
+\title{Diagnostic cross-validation tool including ordination based on fitted values}
 \usage{
 looCV(fit, method = c("fit", "PC"), ...)
 }
@@ -113,7 +113,8 @@ where there are none: spurious patterns from between-group PCA.
 Evolutionary Biology, 46(4), 303-316.
 }
 \seealso{
-\code{\link{summary.looCV}}, \code{\link{plot.looCV}}
+\code{\link{summary.looCV}}, 
+\code{\link{plot.looCV}}, \code{\link{looCV_table}}
 }
 \author{
 Michael Collyer
