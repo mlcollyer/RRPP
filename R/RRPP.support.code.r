@@ -1808,7 +1808,7 @@ aov.multi.model <- function(object, lm.list,
       if(effect.type == "Rsq") p.type <- "Pr(>Rsq)" else
         if(effect.type == "cohenf") p.type <- "Pr(>cohenf)" else 
           p.type <- "Pr(>F)" 
-  names(tab)[length(names(tab))] <- p.type
+  names(tab)[which(names(tab) == "P")] <- p.type
   rownames(tab)[1] <- paste(rownames(tab)[1], "(Null)")
   class(tab) <- c("anova", class(tab))
   
