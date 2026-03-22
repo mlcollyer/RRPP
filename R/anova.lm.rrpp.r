@@ -106,8 +106,9 @@ anova.lm.rrpp <- function(object, ...,
     for(i in lr_rows){
       Df <- Tab[i, 1:2]
       LR <- n / 2 * log(Tab$F[i] * Df[2] / Df[1] + 1)
-      Tab$logLR[i] <- LR
+      Tab$logLR[i] <- as.numeric(unlist(LR))
     }
+    
     out$table <- Tab
   }
     
