@@ -9,6 +9,9 @@ looCV(fit, method = c("fit", "PC"), ...)
 \arguments{
 \item{fit}{A \code{\link{lm.rrpp}} fit.}
 
+\item{method}{Whether to find cross-validated fitted values (fit) or 
+principal component scores (PC) of fitted values.}
+
 \item{...}{Arguments passed to \code{\link{ordinate}}}
 }
 \value{

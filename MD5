@@ -44,7 +44,7 @@ aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
 0433d29e30ca93c5613f4fc805af57fb *man/lmm.rrpp.Rd
 a1f1c9340aefb6eec463a383ab7cfbb2 *man/logLik.lm.rrpp.Rd
 2626c57a1146e889a273ca6f7afb8773 *man/looCV_table.Rd
-7e419fa50f8ba7001253b74fa5eb37bb *man/looCV.Rd
+8a3d1cbf56cdf20842b36579300ebbab *man/looCV.Rd
 af82b850a553db8eaab3a0951b854d2b *man/lr_test.Rd
 6939227167a65fe3aec0f9026a749f15 *man/mahal_dist.Rd
 540245bd9235c4dfd05670dc9c427106 *man/mammalHR.Rd
@@ -132,7 +132,7 @@ bd236049a9042ab0335bf1b918d400c6 *NAMESPACE
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 98f40648cb24f25ab45f7b27d36e6d80 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
-5e24075c825bf7bd1dd2cdc3a79ab0bf *R/base_lm.rrpp.r
+b53e719691960ce9014c9228d0fbbf73 *R/base_lm.rrpp.r
 526aa0c5dfe0337aa7a0a1a7a7f84348 *R/betaTest.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
@@ -144,7 +144,7 @@ a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 405525dacb57ed4bd46125d146436e44 *R/lmm.rrpp.r
 0ff3be1b82cba5208bb89fc756bf6ed7 *R/logLik.lm.rrpp.r
-5e489b8f78f5b33e409cc9bd2ff548f5 *R/looCV.r
+af7026d96d4ebbcc219537db53e36c53 *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 f7f3d25e9e221746c9696b95db128457 *R/mahal_dist.R
 a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r

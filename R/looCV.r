@@ -52,6 +52,8 @@
 #' 
 #' 
 #' @param fit A \code{\link{lm.rrpp}} fit.
+#' @param method Whether to find cross-validated fitted values (fit) or 
+#' principal component scores (PC) of fitted values.
 #' @param ... Arguments passed to \code{\link{ordinate}}
 #' @keywords analysis
 #' @export

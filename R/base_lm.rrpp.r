@@ -117,11 +117,11 @@
     if(length(trms) > 0)
     nform <- reformulate(termlabels = trms,
                          response = "Y") else nform <- update(f1, Y ~ .)
-    Terms <- try(terms(nform, data = lm.args$data,
+    Terms <- try(terms(nform, data = exchange.args$data,
                                keep.order = int.first),
                  silent = TRUE)
     
-    model <- try(model.frame(Terms, data = lm.args$data),
+    model <- try(model.frame(Terms, data = exchange.args$data),
                  silent = TRUE)
     
     if(inherits(model, "try-error") || inherits(Terms, "try-error"))
