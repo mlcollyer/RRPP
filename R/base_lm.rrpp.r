@@ -467,8 +467,10 @@
   obs.fit <- lm.rrpp.fit(X, Y, Pcov = Pcov, w = w, offset = o, 
                          tol = exchange.args$tol)
   
-  QR <- QRforX(X)
-  X <- QR$X
+  TX <- if(!is.null(Pcov)) Pcov %*% X else
+    if(!is.null(w)) X / sqrt(w) else X
+  QR <- QRforX(TX)
+  
   Hb <- as.matrix(tcrossprod(fast.solve(QR$R), QR$Q))
   if(!identical(colnames(X), colnames(QR$R)))
     Hb <- Hb[colnames(X),]
