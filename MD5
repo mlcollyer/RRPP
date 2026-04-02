@@ -130,9 +130,9 @@ e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 bd236049a9042ab0335bf1b918d400c6 *NAMESPACE
 83eeec8264e40fde4ba59c572ce7c26e *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
-e507d6afdc07936a83f409c71e3621c9 *R/anova.lm.rrpp.r
+268b573d4ba16cd083c6ad9e3bab2f5f *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
-b53e719691960ce9014c9228d0fbbf73 *R/base_lm.rrpp.r
+6c2a97f55fd41dfa59dfe17c1ce0efeb *R/base_lm.rrpp.r
 526aa0c5dfe0337aa7a0a1a7a7f84348 *R/betaTest.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
