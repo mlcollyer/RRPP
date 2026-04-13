@@ -122,7 +122,8 @@ print.lm.rrpp <- function(x, ...){
                                      AN$SS.type))
   if(!is.null(PI)) cat(paste("\nNumber of permutations:", PI$perms))
   cat("\nCall: ")
-  cat(deparse(x$call), fill=TRUE)
+  cat(strsplit(deparse1(x$call), " ")[[1]], 
+      fill = 40)
   invisible(x)
 }
 
@@ -578,7 +579,8 @@ print.anova.lm.rrpp <- function(x, ...) {
     cat(paste("Effect sizes (Z) based on", effect.type, "distributions\n\n"))
     print(tab)
     cat("\nCall: ")
-    cat(deparse(x$call), fill=TRUE)
+    cat(strsplit(deparse1(x$call), " ")[[1]], 
+        fill = 40)
   } else {
     cat("\nAnalysis of Variance, using Residual Randomization\n")
     cat(paste("Permutation procedure:", pm, "\n"))
@@ -590,7 +592,8 @@ print.anova.lm.rrpp <- function(x, ...) {
     print(tab)
     if(NCOL(tab) == 7) {
       cat("\nCall: ")
-      cat(deparse(x$call), fill=TRUE)
+      cat(strsplit(deparse1(x$call), " ")[[1]], 
+          fill = 40)
     }
   }
 }
