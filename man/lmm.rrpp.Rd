@@ -74,6 +74,8 @@ of residual randomization (perm.method), and each permutation's sampling
 frame (perm.schedule), which
 is a list of reordered sequences of 1:n, for how residuals were 
 randomized.}
+\item{devcomp}{Deviance components, a list of components used
+in deviance and likelihood calculations.}
 }
 \description{
 Function performs a mixed linear model fit over many random permutations of 

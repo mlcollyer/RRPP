@@ -248,13 +248,19 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
       }
     }
     
-    ll.args <- list(fit = dots[[1]], tol = tol, pc.no = pc.no)
-    temp <- sapply(1:length(dots), function(j){
-      ll.args$fit <- dots[[j]]
-      do.call(logL, ll.args)
+    ll.args <- list(object = dots[[1]], 
+                    tol = tol, pc.no = pc.no,
+                    gls.null = gls.null)
+    temp <- lapply(1:length(dots), function(j){
+      ll.args$object <- dots[[j]]
+      do.call(logLik, ll.args)
     }) 
-    res <- unlist(temp[1,])
-    rank <- unlist(temp[2,])
+    res <- sapply(temp, as.numeric)
+    rank <- sapply(dots, function(x){
+      d <- ordinate(as.matrix(resid(x)), 
+                    tol = tol, rank. = pc.no)$d
+      length(d)
+    })
   } else res <- sapply(dots, cov.trace) 
   
   if(type == "Z") {
@@ -276,20 +282,32 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
     res <- sapply(res, function (x) x$z)
   }
   
-  par.pen <- function(f){
-    pcn <- if(!is.null(pc.no)) pc.no else f$LM$p
-    p <- min(f$LM$p.prime, pcn)
-    QR <- getModels(f, "qr")$full
-    QR <- QR[[length(QR)]]
-    k <- QR$rank
-    rm(QR)
-    2 * (p * k + 0.5 * p* (p + 1))
+  par.pen <- function(x){
+   ll <- logLik(x, tol = tol, pc.no = pc.no, 
+                gls.null = gls.null, Z = FALSE)
+   p <- attr(ll, "p")
+   k <- attr(ll, "df")
+   2 * (p * k + 0.5 * p* (p + 1))
+   
+  }
+  
+  estim <- function(x){
+    if(!is.null(x$LM$LMM) && x$LM$LMM){
+      res <- paste("LMM", x$LM$estimation, sep = "-")
+    } else {
+      res <- if(x$LM$gls) "LM-GLS" else "LM-OLS"
+    }
   }
   pp <- sapply(dots, par.pen)
+  estimation <- sapply(dots, estim)
   
   if(type == "logLik") {
-    out <- as.data.frame(cbind(res, rank, pp, -2*res + pp))
-    names(out) <- c("logLik", "residual.pc.no", "penalty", "AIC")
+    out <- data.frame(logLik = as.numeric(res), 
+                               estimation = estimation,
+                               residual.pc.no = as.numeric(rank), 
+                               penalty = as.numeric(pp), 
+                               AIC = as.numeric(-2*res + pp))
+
   } else if(type == "cov.trace") {
     out <- as.data.frame(cbind(res, pp))
     names(out) <- c("cov.trace", "penalty")
