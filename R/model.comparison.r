@@ -302,7 +302,7 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
   estimation <- sapply(dots, estim)
   
   if(type == "logLik") {
-    out <- as.data.frame(logLik = as.numeric(res), 
+    out <- data.frame(logLik = as.numeric(res), 
                                estimation = estimation,
                                residual.pc.no = as.numeric(rank), 
                                penalty = as.numeric(pp), 
