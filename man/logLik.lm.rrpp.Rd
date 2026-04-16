@@ -38,10 +38,15 @@ estimations for a covariance matrices}
 }
 \description{
 \code{logLik.lm.rrpp} returns the log-likelihood of
-an \code{lm.rrpp} object.  Ridge regularization will be performed for 
+an \code{lm.rrpp} object or an \code{lmm.rrpp} object.  
+Ridge regularization will be performed for 
 ill-conditioned or singular residual covariance matrices, but dimension
 reduction could be augmented via projection, using the arguments, tol
 and pc.no.  See \code{\link{ordinate}} for details.
+}
+\details{
+Note that options are limited for \code{lmm.rrpp} objects.  It is currently
+not possible to use RRPP to find Z scores.
 }
 \author{
 Michael Collyer

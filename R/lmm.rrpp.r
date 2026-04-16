@@ -100,6 +100,8 @@
 #' frame (perm.schedule), which
 #' is a list of reordered sequences of 1:n, for how residuals were 
 #' randomized.}
+#' \item{devcomp}{Deviance components, a list of components used
+#' in deviance and likelihood calculations.}
 #' @seealso \code{\link{lm.rrpp}}; \code{\link{lm.rrpp.ws}}; \code{\link{measurement.error}}
 #' @references Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear
 #' Mixed-Effects Models Using lme4. Journal of Statistical Software, 67(1), 1-48.
@@ -559,8 +561,51 @@ lmm.rrpp <- function(fixed,
   fit$LM$lm_form <- form
   fit$LM$lmer_form <- randform
   fit$LM$cnms <- init.rand.fit@cnms
-  fit$LM$UtU_det <- if(!useLS) UtU_det else NULL
   
+  # deviance component list
+  fit$devcomp <- list()
+  fit$devcomp$UtU_det <- if(!useLS) 
+    UtU_det else NA
+  
+  X <- QRforX(fit$LM$X)$X
+  nX <- NCOL(X)
+  if(!is.null(fit$LM$weights)) X <- X / sqrt(fit$LM$weights)
+  Pcov <- try(getModelCov(fit, "Pcov"), silent = TRUE)
+  if(!inherits(Pcov, "try-error")) X <- Pcov %*% X
+  
+  ZX_full <- cbind(fit$LM$Z %*% fit$LM$Lambda, X)
+  R <- resid(fit)
+  if(!inherits(Pcov, "try-error")) R <- Pcov %*% R
+  if(!is.null(fit$LM$weights)) R <- R / sqrt(fit$LM$weights)
+  
+  Omega <- if(!inherits(Pcov, "try-error")) 
+    fast.solve(tcrossprod(Pcov)) else 
+      if(!is.null(fit$LM$weights)) diag(fit$LM$weights) else
+        diag(n)
+  ldO <- log(det(Omega))
+  
+  nZX <- ncol(ZX_full) 
+  nZ <- nZX - nX
+  
+  RtR_det <- try(det(crossprod(R)), silent = TRUE)
+  if(inherits(RtR_det, "try-error")) RtR_det <- NA
+  fit$devcomp$RtR_det <- RtR_det
+  
+  cpZX_full <- crossprod(ZX_full)
+  cpZX_full[1:nZ, 1:nZ] <- cpZX_full[1:nZ, 1:nZ] +
+    diag(nZ)
+  Ch <- try(chol(cpZX_full), silent = TRUE)
+  if(inherits(Ch, "try-error")) Ch <- NA
+  if(!all(is.na(Ch))) {
+    fit$devcomp$ldLZ <- 2 * log(det(Ch[1:nZ, 1:nZ]))
+    cpX <- crossprod(ZX_full[, -(1:nZ)]) -
+      crossprod(Ch[1:nZ, -(1:nZ)])
+    fit$devcomp$ldLX <- log(det(cpX))
+  } else fit$devcomp$ldLZ <- fit$devcomp$ldLX <- NA
+  fit$devcomp$ldO <- ldO
+  
+  
+  # out
   class(fit) <- c("lmm.rrpp", class(fit))
   fit$call <- match.call()
   
