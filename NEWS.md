@@ -6,12 +6,14 @@
 with `lmm.rrpp`.
 + Updates to most S3 functions for `lm.rrpp` to accommodate `lmm.rrpp` objects.
 + Updated `looCV` to either find fitted values or PC scores.
-+ Added `looCV_table` function, to comapre `looCv` objects.
++ Added `looCV_table` function, to compare `looCV` objects.
 
 ### BUG FIXES
 + Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation.
 + Fixed issue with double GLS-transformation in pairwise.
 + Fixed some lingering issues with matrix/vector auto-drops.
++ Fixed some issues with box-cox transformations.
++ Fixed an issues with `ordinate` not respecting `rank.` input.
 
 ### OTHER CHANGES
 + Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 

@@ -2089,57 +2089,12 @@ RiReg <- function(Cov, residuals){
   })
   logL <- sapply(1:length(leads), function(j){
     C <- Covs[[j]]
-    N*p*log(2*pi) + N * determinant(C, logarithm = TRUE)$modulus[1] + sum(diag(
+    N*p*log(2*pi) + N * log(det(C)) + sum(diag(
       residuals %*% fast.solve(C) %*% t(residuals) 
     ))
   })
   
   Covs[[which.min(logL)]]
-  
-}
-
-
-logL <- function(fit, tol = NULL, pc.no = NULL){
-  if(is.null(tol)) tol = 0
-  gls <- fit$LM$gls
-  n <- fit$LM$n
-  p <- fit$LM$p.prime
-  X <- as.matrix(fit$LM$X)
-  Y <- as.matrix(fit$LM$Y)
-  R <- if(gls) fit$LM$gls.residuals else fit$LM$residuals
-  PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
-  rnk <- length(PCA$d)
-  w <- fit$LM$weights
-  Cov <- fit$LM$Cov
-  Pcov <- NULL
-  if(gls) {
-    Pcov <- try(getModelCov(fit, "Pcov"), 
-                silent = TRUE)
-    if(inherits(Pcov, "try-error")) Pcov <- NULL
-  }
-  
-  R <- if(gls) {
-    if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
-  } else R
-  
-  R <- as.matrix(R)
-  
-  if(!is.null(w)) {
-    excl <- w <= 0
-    logdetC <- sum(log(w[!excl]))
-  } else {
-    logdetC <- if(gls) determinant(Cov, logarithm = TRUE)$modulus else 0
-  }
-  
-  if(NCOL(R) > rnk) R <- ordinate(R, rank. = rnk)$x
-  Sig <- as.matrix(crossprod(R) / n)
-  if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, R)
-  logdetSig <- determinant(Sig, logarithm = TRUE)$modulus
-  
-  ll <- -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
-                  n * logdetSig + n * rnk) 
-  
-  list(logL = ll, rank = rnk)
   
 }
 

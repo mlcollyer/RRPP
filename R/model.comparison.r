@@ -64,10 +64,6 @@
 #' Results can also be plotted using the generic \code{\link{plot}} 
 #' function.
 #' 
-#' Caution: For models with GLS estimation, the number of 
-#' parameters used to estimate the covariance matrix
-#' is not taken into consideration.  A generalized information 
-#' criterion is currently in development.
 #' 
 #' 
 #' 
@@ -270,7 +266,6 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
                    pc.no = pc.no, gls.null = gls.null,
                    verbose = verbose)
       z <- LL$Z
-      if(is.na(z)) z <- 0
       if(verbose) {
         random.logL <- LL$random.logL
       } else random.logL <- NULL

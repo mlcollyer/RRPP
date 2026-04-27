@@ -38,22 +38,23 @@ logLik.lm.rrpp <- function(object, tol = NULL,
                             gls.null = FALSE, ...){
   
   ll <- if(isTRUE(object$LM$LMM))
-    .logLik.lmm.rrpp(object, tol = NULL,
-                     pc.no = NULL, Z = FALSE,
-                     verbose = FALSE,
-                     gls.null = FALSE, ...) else
-            .logLik.lm.rrpp(object, tol = NULL,
-                        pc.no = NULL, Z = FALSE,
-                        verbose = FALSE,
-                        gls.null = FALSE, ...)
-  
+    .logLik.lmm.rrpp(object, tol = tol,
+                     pc.no = pc.no, Z = Z,
+                     verbose = verbose,
+                     gls.null = gls.null, ...) else
+            .logLik.lm.rrpp(object, tol = tol,
+                            pc.no = pc.no, Z = Z,
+                            verbose = verbose,
+                            gls.null = gls.null, ...)
+  Z <- ll$Z
   if(is.list(ll)) val <- ll[[1]] else val <- as.numeric(ll)
   k <- attr(ll, "k") 
   p <- attr(ll, "p")
-  attr(val, "df") <- p * k + 0.5 * p* (p + 1)
+  attr(val, "df") <- k * p
   attr(val, "nall") <- attr(ll, "nall") 
   attr(val, "nobs") <- attr(ll, "nobs") 
   attr(val, "p") <- attr(ll, "p") 
+  attr(val, "Z") <- Z
   class(val) <- "logLik"
   val
 }
@@ -74,6 +75,7 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   Y <- as.matrix(object$LM$Y)
   R <- if(gls) object$LM$gls.residuals else object$LM$residuals
   PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
+  p <- ncol(PCA$x)
   rnk <- length(PCA$d)
   w <- object$LM$weights
   Cov <- object$LM$Cov  
@@ -95,7 +97,7 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   
   TY <- if(gls.null) PY else Y
   
-  ll <- logL(object) 
+  ll <- logL(object, tol = tol, pc.no = pc.no) 
   
   if(Z) {
     
@@ -105,7 +107,7 @@ logLik.lm.rrpp <- function(object, tol = NULL,
       excl <- w <= 0
       logdetC <- sum(log(w[!excl]))
     } else {
-      logdetC <- if(gls) determinant(Cov, logarithm = TRUE)$modulus else 0
+      logdetC <- if(gls) log(det(Cov)) else 0
     }
     
     ll.list <- sapply(1:perms, function(j){
@@ -115,12 +117,8 @@ logLik.lm.rrpp <- function(object, tol = NULL,
         r <- ty - fastFit(U, ty, n, rnk)
       } else r <- y - fastFit(U, y, n, rnk)
       r <- as.matrix(r)
-      if(NCOL(r) > rnk) r <- ordinate(r, rank. = rnk)$x
-      Sig <- as.matrix(crossprod(r) / n)
-      if(kappa(Sig) > 1e10) Sig <- RiReg(Sig, r)
-      logdetSig <- determinant(Sig, logarithm = TRUE)$modulus
-      -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
-                n * logdetSig + n * rnk) 
+      logL(fit, tol = tol, pc.no = pc.no,
+           logdetC = logdetC, R = r, rnk = rnk)$logL
     })
      
     z <- effect.size(ll.list)
@@ -129,7 +127,7 @@ logLik.lm.rrpp <- function(object, tol = NULL,
                            random.logL = ll.list)
   }
   
-  attr(ll, "k") <- ncol(X)
+  attr(ll, "k") <- ncol(U)
   attr(ll, "p") <- p
   attr(ll, "nall") <- n
   attr(ll, "nobs") <- n
@@ -238,3 +236,56 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   
   ll
 }
+
+
+
+
+logL <- function(fit, tol = NULL, pc.no = NULL,
+                 logdetC = NULL, R = NULL, rnk = NULL,
+                 useRiReg = TRUE){
+  if(is.null(tol)) tol = 0
+  gls <- fit$LM$gls
+  n <- fit$LM$n
+  p <- fit$LM$p.prime
+  
+  Pcov <- try(getModelCov(fit, "Pcov"),
+              silent = TRUE)
+  if(inherits(Pcov, "try-error")) Pcov <- NULL
+  
+  if(is.null(R)){
+    R <- if(gls) fit$LM$gls.residuals else 
+      fit$LM$residuals
+    R <- if(gls) {
+      if(!is.null(Pcov)) Pcov %*% R else R * sqrt(w)
+    } else R
+  }
+  
+  if(gls && is.null(logdetC)) {
+    if(!is.null(w)) {
+      excl <- w <= 0
+      logdetC <- sum(log(w[!excl]))
+    } else {
+      logdetC <- log(det(C))
+    }
+  } else logdetC <- 0
+  
+  R <- as.matrix(R)
+  if(is.null(rnk)){
+    PCA <- ordinate(R, tol = tol, rank. = min(c(pc.no, p)))
+    rnk <- length(PCA$d)
+  }
+  
+  if(NCOL(R) > rnk) R <- ordinate(R, tol = tol, 
+                                  rank. = rnk)$x
+  Sig <- as.matrix(crossprod(R) / n)
+  if(kappa(Sig) > 1e10 && useRiReg) Sig <- RiReg(Sig, R)
+  
+  logdetSig <- log(det(Sig))
+  
+  ll <- -0.5 * (n * rnk * log(2 * pi) + rnk * logdetC +
+                  n * logdetSig + n * rnk) 
+  
+  list(logL = ll, rank = rnk)
+  
+}
+

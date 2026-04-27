@@ -300,11 +300,11 @@ ordinate <- function(Y, A = NULL, Cov = NULL, transform. = TRUE,
   if (any(sc == 0)) 
     stop("cannot rescale a constant/zero column to unit variance")
   
-  k <- if (!is.null(rank.)) {
-    stopifnot(length(rank.) == 1, is.finite(rank.), as.integer(rank.) > 
-                0)
-    min(as.integer(rank.), n, p)
-  } else min(n, p)
+  if(!is.null(rank.)) {
+    stopifnot(length(rank.) == 1, is.finite(rank.), 
+              as.integer(rank.) > 0)
+    k <- min(as.integer(rank.), n, p)
+  } else k <- min(n, p)
   
   tf <- if(!is.null(Cov) && transform.) TRUE else FALSE
   if(tf) Z <- as.matrix(Pcov %*% Z)
