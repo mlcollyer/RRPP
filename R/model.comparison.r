@@ -246,7 +246,7 @@ model.comparison<- function(..., type = c("cov.trace", "logLik", "Z"),
     
     ll.args <- list(object = dots[[1]], 
                     tol = tol, pc.no = pc.no,
-                    gls.null = gls.null)
+                    gls.null = gls.null, Z = FALSE)
     temp <- lapply(1:length(dots), function(j){
       ll.args$object <- dots[[j]]
       do.call(logLik, ll.args)

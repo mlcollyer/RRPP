@@ -128,7 +128,7 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 bd236049a9042ab0335bf1b918d400c6 *NAMESPACE
-419706bbc26d21bcf1a417dff49fbf17 *NEWS.md
+4f357f4405042dd6647b7f0bba8702f2 *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 268b573d4ba16cd083c6ad9e3bab2f5f *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -143,13 +143,13 @@ c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 320ff45202222c9bd99e3ce1d8f097ea *R/lmm.rrpp.r
-54806cbabe9bf0b97bbb4961957b5512 *R/logLik.lm.rrpp.r
+48a996347ed6fbf884e2d91576d3cf52 *R/logLik.lm.rrpp.r
 af7026d96d4ebbcc219537db53e36c53 *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 f7f3d25e9e221746c9696b95db128457 *R/mahal_dist.R
 a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
 b98e1d09e0b7bc5fa0d112f1ddf41ae8 *R/measurement.error.r
-f8e87f04a352940bde44e9bf97b68647 *R/model.comparison.r
+d230a19b29be8cd11f3d9cdff865ca30 *R/model.comparison.r
 e0cd225d3d90c54a4600d326ce2eb642 *R/ordinate.r
 9c3b3d8bed7698ef561ee04d8be63ea1 *R/pairwise.model.Z.r
 03fa3caca690cb344ac739ddb8517087 *R/pairwise.r
