@@ -117,7 +117,7 @@ logLik.lm.rrpp <- function(object, tol = NULL,
         r <- ty - fastFit(U, ty, n, rnk)
       } else r <- y - fastFit(U, y, n, rnk)
       r <- as.matrix(r)
-      logL(fit, tol = tol, pc.no = pc.no,
+      logL(object, tol = tol, pc.no = pc.no,
            logdetC = logdetC, R = r, rnk = rnk)$logL
     })
      
