@@ -11,8 +11,8 @@ RRPP is a software package for evaluating linear models with residual randomizat
 
 <i> Within R:</i>
 
-<code> install.packages("devtools")</code>
+<code> install.packages("pak")</code>
 
-<code> devtools::install_github("mlcollyer/RRPP")</code>
+<code> pak::pkg_install("mlcollyer/RRPP")</code>
 
 The version on github is updated regularly, especially if errors or programming bugs are discovered.
