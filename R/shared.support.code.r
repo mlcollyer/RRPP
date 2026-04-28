@@ -280,7 +280,7 @@ box.cox.true <- function(y, eps = 0.001){
   
   lambda.opt <- lambda[which.max(loglik)][[1]]
   
-  if(abs(lambda.opt) > 2){
+  if(lambda.opt < -0.5 || lambda.opt > 1.5){
     
     y <- y - min(y) + 0.0001
     y.obs <- y[1] - min(y) + 0.0001
@@ -335,28 +335,6 @@ box.cox.spline <- function(y, eps = 0.001) {
   
   lambda.opt <- lambda[which.max(loglik)][[1]]
   
-  if(abs(lambda.opt) > 2){
-    
-    y <- y - min(y) + 0.0001
-    y.obs <- y[1] - min(y) + 0.0001
-    yy <- y / exp(mean(log(y)))
-    logy <- log(yy)
-    
-    lambda <- seq(-2, 2, 0.001)
-    m <- length(lambda)
-    
-    loglik <- sapply(1:m, function(j){
-      la <- lambda[j]
-      yt <- if(abs(la) > eps) yt <- (yy^la - 1)/la else
-        logy * (1 + (la * logy)/2 * (1 + (la * logy)/3 * (1 + (la * logy)/4)))
-      
-      -n/2 * log(sum(center(yt)^2))
-    })
-    
-    lambda.opt <- lambda[which.max(loglik)][[1]]
-    
-  }
-  
   sp <- spline(lambda, loglik, n = 300)
   lambda.opt <- sp$x[which.max(sp$y)]
   if(abs(lambda.opt) < eps) lambda.opt <- 0
@@ -397,7 +375,7 @@ box.cox.fast <- function(y, eps = 0.001) {
   lambda.opt <- result$maximum
   
   
-  if(abs(lambda.opt) > 2){
+  if(lambda.opt < -0.5 || lambda.opt > 1.5){
     
     y <- y - min(y) + 0.0001
     y.obs <- y[1] - min(y) + 0.0001
