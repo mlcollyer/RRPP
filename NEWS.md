@@ -14,6 +14,7 @@ with `lmm.rrpp`.
 + Fixed some lingering issues with matrix/vector auto-drops.
 + Fixed some issues with box-cox transformations.
 + Fixed an issues with `ordinate` not respecting `rank.` input.
++ Tweaked `box.cox` to be more stable.
 
 ### OTHER CHANGES
 + Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
