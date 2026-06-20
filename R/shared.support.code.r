@@ -354,8 +354,10 @@ box.cox.iter <- function(y, eps = 0.001) {
 
 box.cox.fast <- function(y, eps = 0.001) {
   
+  alpha <- 1 - min(y)
+  
   if(any(y <= 0))
-    y <- y - min(y) + 0.0001
+    y <- y - min(y) + alpha
   y.obs <- y[1]
   y <- y[-1]
   
@@ -375,10 +377,10 @@ box.cox.fast <- function(y, eps = 0.001) {
   lambda.opt <- result$maximum
   
   
-  if(lambda.opt < -0.5 || lambda.opt > 1.5){
+  if(lambda.opt < -1 || lambda.opt > 1.5){
     
-    y <- y - min(y) + 0.0001
-    y.obs <- y[1] - min(y) + 0.0001
+    y <- y - min(y) + alpha
+    y.obs <- y[1] - min(y) + alpha
     yy <- y / exp(mean(log(y)))
     logy <- log(yy)
     
