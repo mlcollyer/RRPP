@@ -20,11 +20,12 @@ f8e536ef3a48114dc3c790532c6c963e *DESCRIPTION
 eaff224dd35a485abb83f04d6a2ced0c *man/anova.lm.rrpp.Rd
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
 3ea4a6ec3366bf9224f2a60e04cff4f6 *man/betaTest.Rd
+d0dae70d7a96997c6aa87737eda90f91 *man/box.cox.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
 44d6ce25d6e41b2c5fc292c108752275 *man/coef.lm.rrpp.Rd
 aa2cb5ef4b8c3a2a9dd888c391f53ea7 *man/coef.lmm.rrpp.Rd
 df91d0b264a0632eec7e808f709481ce *man/convert2ggplot.Rd
-deb20fcd8f3f46106885ba90fd5eaa8f *man/effect.size.Rd
+dae58fdf6e49d57a905d351b8763caef *man/effect.size.Rd
 2e4c3dcc49fa9f793ac3ffef57eb747f *man/fishy.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 d609b6bb5fdef6dfb0fd058242507689 *man/fixef.lmm.rrpp.Rd
@@ -98,7 +99,7 @@ a2c3a95f8bb4ccaea49707237ed41bee *man/print.trajectory.analysis.Rd
 70f9eecbc5aaa472f7b897e78a9ae10e *man/Pupfish.Rd
 9b2cbf2935d3e27db62c34f469daabe7 *man/PupfishHeads.Rd
 480f9d276ea6469def8aa32b125c446a *man/PupfishMR.Rd
-f1d2b1710a92ae4fe0e74570d9d667ea *man/pval.Rd
+7c2cbb3a0208fe63d8a83f6cd175144e *man/pval.Rd
 ae7a035e8d03f88efec2d2da3a358164 *man/QRforX.Rd
 ea62df9c854535a8206c51d2ad5f7eba *man/ranef.lmm.rrpp.Rd
 b6dc2764c99d8cda55b9def1fbd7da37 *man/ReptAbund.Rd
@@ -127,8 +128,8 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 63a84cde4ccd20f033b499e87bc6ee71 *man/terms.lm.rrpp.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
-bd236049a9042ab0335bf1b918d400c6 *NAMESPACE
-d077c090927557a341175b63e03546d6 *NEWS.md
+7e3bf5160aecf3b4004f4b98ee2f8682 *NAMESPACE
+0bd9910c6ac0c6a088160d3abc6e77ea *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 268b573d4ba16cd083c6ad9e3bab2f5f *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -137,6 +138,7 @@ fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
+5e940ae2542baea7f11fef1f0f253fcd *R/effects.r
 79df2fce4476d808c98794546903dee4 *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
@@ -162,7 +164,7 @@ bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
 c2869c110216240a8d1131974c1ee25d *R/RRPP.support.code.r
 5b2f5acb8b5d03df9c5db9a28ce8e2f3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
-c7069074c78696f0058fe8d8603c3725 *R/shared.support.code.r
+fd4a08c387004b76856d22d5c61fec21 *R/shared.support.code.r
 f545528e9442dee4bc480f47378bae94 *R/trajectory.analysis.r
 82d31158b077c1c114e51be8566b3645 *README.md
 21df84a3216e52395ea69fd9347d51dc *RRPP_develop.Rproj
