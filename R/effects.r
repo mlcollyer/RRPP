@@ -178,8 +178,12 @@ box.cox.fast <- function(y, eps = 0.001) {
 
 box.cox <- function(y, eps = 0.001, interp = FALSE) {
   if(length(y) < 100) interp <- TRUE
-  result <- if(interp) box.cox.interp(y, eps = eps) else
+  result <- if(interp) 
+    try(box.cox.interp(y, eps = eps), silent = TRUE) else
     box.cox.fast(y, eps = eps)
+  if(inherits(result, "try-error"))
+    result <- suppressWarnings(
+      box.cox.fast(y, eps = eps))
   return(result)
 }
 
