@@ -31,7 +31,7 @@
     cov.type <- 2
   
   STerm <- sub.lev <- NULL
-  subTest <- useSubjects <- !is.null(subjects)
+  useSubjects <- !is.null(subjects)
   
   L <- c(as.list(environment()), list(...))
   names(L)[which(names(L) == "f1")] <- "formula"
@@ -190,7 +190,28 @@
     }
   }
   
+  ### Subject options
+  
+  # 0 = No subjects
+  # 1 = Subjects for block but not terms
+  # 2 = Subjects as blocks and terms
+  
+  sub.type <- 0
+  useSubjects <- FALSE
+  
   if(!is.null(subjects)) {
+    sub.type <- 1
+    useSubjects <- TRUE
+  }
+  
+  subTest <- FALSE
+  STerm <- which(term.labels == sub.var.name)
+  if(!(length(STerm) == 0)) {
+    sub.type <- 3
+    subTest <- TRUE
+  } else STerm <- NULL
+  
+  if(sub.type > 0) {
     subjects <- as.factor(subjects)
     sub.lev <- levels(subjects)
   } 
@@ -205,12 +226,24 @@
                    "\nlinear model fit by reconstructing your data frame.\n\n", sep = "")
       stop(msg, call. = FALSE)
     }
-    STerm <- which(term.labels == sub.var.name)
-    subTest <- !(length(STerm) == 0)
+
+    
     if(!sub.var.name %in% names(data))
       stop("\nVariable for subjects is not found in the RRPP data frame.\n",
            call. = FALSE)
-    if(!subTest) STerm <- NULL
+  }
+  
+  perms <- iter + 1
+  ind_s <- NULL
+  ind <- perm.index(n, iter = iter, block = block, seed = seed)
+  
+  if(sub.type == 1){
+    ind <- perm.index(n, iter = iter, block = subjects, seed = seed)
+  }
+  
+  if(sub.type == 2){
+    ind <- perm.index(n, iter = iter, block = subjects, seed = seed)
+    ind_s <- perm.index(n, iter = iter, block = block, seed = seed)
   }
   
   Pcov <- CovEx <- NULL
@@ -309,14 +342,6 @@
   })
   
   names(Qs) <- c("reduced", "full")
-  
-  ind <- perm.index(n, iter = iter, block = block, seed = seed)
-  perms <- iter + 1
-  
-  if(subTest) {
-    ind <- perm.index(n, iter = iter, block = subjects, seed = seed)
-    ind_s <- perm.index(n, iter = iter, block = block, seed = seed)
-  } else ind_s <- NULL
 
   checkers.args <- list(Y = Y, Qs = Qs, Xs = Xs,
                         turbo = turbo, Terms = Terms, Pcov = Pcov, w = w)
@@ -352,7 +377,7 @@
         out <- list(fitted = fitted, residuals = residuals)
       })
       
-      if(subTest) {
+      if(sub.type == 2) {
         FR[[STerm]]$fitted <- as.matrix(fastFit(Uf[[STerm]], TY, n , p))
         FR[[STerm]]$residuals <- as.matrix(TY - FR[[STerm]]$fitted)
       }
@@ -367,7 +392,7 @@
         out <- list(fitted = fitted, residuals = residuals)
       })
       
-      if(subTest) {
+      if(sub.type == 2) {
         FR[[STerm]]$fitted <- as.matrix(fastFit(Ur[[STerm]], TY, n , p))
         FR[[STerm]]$residuals <- as.matrix(TY - FR[[STerm]]$fitted)
       }
@@ -415,7 +440,7 @@
           list(fitted = fitted, residuals = residuals)
         })
         
-        if(subTest) {
+        if(sub.type == 2) {
           FR[[STerm]]$fitted <- as.matrix(fastFit(Uf[[STerm]], TYp, n , p))
           FR[[STerm]]$residuals <- as.matrix(TYp - FR[[STerm]]$fitted)
         }
@@ -429,7 +454,7 @@
           list(fitted = fitted, residuals = residuals)
         })
         
-        if(subTest) {
+        if(sub.type == 2) {
           FR[[STerm]]$fitted <- as.matrix(fastFit(Ur[[STerm]], TYp, n , p))
           FR[[STerm]]$residuals <- as.matrix(TYp - FR[[STerm]]$fitted)
         }

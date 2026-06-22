@@ -16,6 +16,8 @@ with `lmm.rrpp`.
 + Fixed some issues with box-cox transformations.
 + Fixed an issues with `ordinate` not respecting `rank.` input.
 + Tweaked `box.cox` to be more stable.
++ Fixed a problem with `lm.rrpp.ws` that excluded within-subject RRPP ifsubjects were not a model term.
+
 
 ### OTHER CHANGES
 + Enhanced `checkers`, creating a new object for U matrices for calculating SS statistics.  This 
