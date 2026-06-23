@@ -86,7 +86,7 @@ pairwise.model.Z <- function(...,
   if(is.null(list.names)) list.names <- seq(1:k)
   sdn <- function(x) sqrt(sum((x - mean(x))^2) / length(x))
   k.combn <- combn(k, 2, simplify = FALSE)
-  bct <- lapply(dists, function(x) box.cox(x)$transformed)
+  bct <- lapply(dists, function(x) powerTrans(x)$transformed)
   tails <- if(two.tailed) 2 else 1
   list.drs <- sapply(1:k, function(j) bct[[j]][1] - mean(bct[[j]])) 
   list.sds <- sapply(1:k, function(j) sdn(bct[[j]]))

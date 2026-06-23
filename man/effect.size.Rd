@@ -4,18 +4,14 @@
 \alias{effect.size}
 \title{Obtain Effect-size from a vector of values}
 \usage{
-effect.size(x, center = TRUE, target = NULL)
+effect.size(x, center = TRUE)
 }
 \arguments{
 \item{x}{The vector of data to use.}
 
 \item{center}{Logical value for whether to center x.}
 
-\item{target}{The value to target in the distribution.  (If null, the first value
-in the vector is used.).  If the target exists outside the range of x,
-very small or very large z-scores are possible.  Additionally, if the target
-is excessively outside of the range of x, it could affect the Box-Cox transformation 
-used to transform x.}
+\item{...}{Arguments passed to \link{powerTrans}.}
 }
 \description{
 A function to find the effect size (Z-score) of a target,

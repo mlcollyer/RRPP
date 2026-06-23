@@ -7,7 +7,7 @@ with `lmm.rrpp`.
 + Updates to most S3 functions for `lm.rrpp` to accommodate `lmm.rrpp` objects.
 + Updated `looCV` to either find fitted values or PC scores.
 + Added `looCV_table` function, to compare `looCV` objects.
-+ Elevated `box.cox` to main function.
++ Elevated `box.cox` to main function, `powerTrans`.
 
 ### BUG FIXES
 + Fixed issue with PCA of GLS-transformed data in `.lm.rrpp`.  PCA is now performed before transformation.

@@ -26,15 +26,10 @@ pval <- function(s, target = NULL, greater = TRUE){
 box.cox.true <- function(y, eps = 0.001){
   
   n <- length(y) - 1
-  yc <- y - mean(y[-1])
-  sy <- sqrt(sum(center(y[-1])^2)/ n)
-  y <- yc / sy
-  y <- y - min(y) + 1
   y.obs <- y[1]
   y <- y[-1]
   
   # Note the code below (to get yy) is short-cut for Jacobian adjustment 
-  n <- length(y)
   yy <- y / exp(mean(log(y)))
   logy <- log(yy)
   
@@ -63,14 +58,9 @@ box.cox.true <- function(y, eps = 0.001){
 box.cox.spline <- function(y, eps = 0.001) {
   
   n <- length(y) - 1
-  yc <- y - mean(y[-1])
-  sy <- sqrt(sum(center(y[-1])^2)/ n)
-  y <- yc / sy
-  y <- y - min(y) + 1
   y.obs <- y[1]
   y <- y[-1]
   
-  n <- length(y)
   yy <- y / exp(mean(log(y)))
   logy <- log(yy)
   m <- 20
@@ -106,10 +96,6 @@ box.cox.interp <- function(y, eps = 0.001) {
 box.cox.fast <- function(y, eps = 0.001) {
   
   n <- length(y) - 1
-  yc <- y - mean(y[-1])
-  sy <- sqrt(sum(center(y[-1])^2)/ n)
-  y <- yc / sy
-  y <- y - min(y) + 1
   y.obs <- y[1]
   y <- y[-1]
 
@@ -133,7 +119,9 @@ box.cox.fast <- function(y, eps = 0.001) {
   list(opt.lambda = lambda.opt, transformed = res, lambda = NULL, loglik = NULL)
 }
 
-#' Box-Cox Power Transformation
+
+
+#' Power Transformation
 #'
 #' A function that transforms a vector in data to be 
 #' approximately normally distributed.
@@ -141,38 +129,42 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' This function uses a Box-Cox power transformation for a vector of values,
 #' (presumably statistics from RRPP) with the following conditions:
 #' 
-#' (1) Values are first transformed as z - min(z) + 1, where z 
-#' is a vector of standard deviates of the original values.  
-#' This assures values are positive
-#' with a minimum value of 1, such that a lambda of 0 returns a 
-#' minimum transformed value of 0.  This also allows transformation of
-#' negative values.
-#' 
+#' (1) If any values are 0 or negative, a Yeo-Johnson transformation is performed
+#' to optimize lambda with only positive values.
 #' 
 #' (2) The lambda parameter is optimized over a range of -2 to +2,
 #' as is typical for most applications.
 #' 
-#' (3) The first value (assumed to be the observed value in a 
+#' (3) The first (or targeted) value (assumed to be the observed value in a 
 #' distribution of random values) is removed from the vector to 
 #' perform optimization of lambda, but is returned to the vector for
 #' transformation.  This assures that large, aberrant values, such
 #' as might be found via RRPP for large effects, do not have 
 #' leverage for the optimization.
 #' 
-#' This function is similar to \link[MASS]{boxcox} in most regards
-#' but uses a consistent initial scaling and shifting of values for comparative
-#' purposes, when calculating effect sizes with \link{effect.size}.  In essence,
-#' it is the same as using the \link[MASS]{boxcox} function, after
-#' first scaling values and adding 1.  However, it also assumes
-#' the first value is an observed value in a vector of random statistics.  It
-#' is intended for RRPP functions, only, but could be used with other results.  
-#' However, one must be aware that the first value will be removed for optimization.
+#' A Yeo-Johnson transformation can be forced, which for positive values
+#' merely shifts the distribution by adding 1.  For most RRPP statistics
+#' (SS. MS, Rsq, F, d), this is not needed for effect sizes, as values are positive.  
+#' However, for log-likelihoods, this might be a good idea for comparisons, 
+#' because values might be strongly positive or strongly negative.
+#' 
+#' Using standard deviates (useStDev) is a good idea for statistics with
+#' aberrant ranges (like 0 to 1, or 1,000 to 2,000).  If used, a Yeo-Johnson
+#' transformation is implicit, since standardizing introduces negative values.
+#' 
 #'
 #' @param y A vector of values to use.
 #' @param eps Tolerance for lambda = 0.
+#' @param target The value to target in the distribution.  (If null, the first value
+#' in the vector is used.)  This will be moved to the first value in results.
 #' @param interp Logical value for whether to spline interpolate lambda 
 #' (ideal for vectors of small length).  This will default if the number
 #' of values is less than 100, as in \link[MASS]{boxcox}.
+#' @param forceYJ A logical value whether to force a Yeo-Johnson transformation for non-negative
+#' values.  Negative values trigger
+#' the transformation, but positive values can be transformed similarly.
+#' @param useStDev A logical value whether to initially use standard deviates of y.
+#' This might be useful if the range of y is restricted, say between 0 and 1.
 #' @return A list containing the following:
 #' \item{opt.lambda}{The optimized lambda parameter.}
 #' \item{transformed}{The power-transformed values.}
@@ -183,15 +175,66 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' @keywords utilities
 #' @references Box, G. E. P. and Cox, D. R. (1964) An analysis of transformations 
 #' (with discussion). Journal of the Royal Statistical Society B, 26, 211–252.
-
-box.cox <- function(y, eps = 0.001, interp = FALSE) {
-  if(length(y) < 100) interp <- TRUE
+#' @references Yeo, I. and Johnson, R. (2000) A new family of power transformations 
+#' to improve normality or symmetry. Biometrika, 87, 954-959.
+powerTrans <- function(y, 
+                       eps = 0.001, 
+                       target = NULL,
+                       interp = FALSE,
+                       forcYJ = FALSE,
+                       useStDev = FALSE) {
+  
+  whichNegs <- NULL
+  which0 <- NULL
+  useYJ <- FALSE
+  
+  if(!is.null(target))
+    y <- c(target, y)
+  
+  if(forcYJ && !useStDev) {
+    useYJ <- TRUE
+    y <- abs(y) + 1
+  }
+    
+  if(any(y <= 0)) {
+    useYJ <- TRUE
+    whichNegs <- which(y < 0)
+    which0 <- which(abs(y) <= eps)
+    y <- abs(y) + 1
+  }
+  
+  if(useStDev){
+    useYJ <- TRUE
+    n <- length(y) - 1
+    yc <- y - mean(y[-1])
+    sy <- sqrt(sum(center(y[-1])^2)/ n)
+    y <- yc / sy
+    whichNegs <- which(y < 0)
+    which0 <- which(abs(y) <= eps)
+    y <- abs(y) + 1
+  }
+  
+  n <- length(y)
+  if(n < 100) interp <- TRUE
   result <- if(interp) 
     try(box.cox.interp(y, eps = eps), silent = TRUE) else
     box.cox.fast(y, eps = eps)
   if(inherits(result, "try-error"))
     result <- suppressWarnings(
       box.cox.fast(y, eps = eps))
+  
+  if(useYJ){
+    tf <- result$transformed
+    lambda <- result$opt.lambda
+    whichPos <- setdiff(1:n, union(whichNegs, which0))
+    tf[whichPos] <- (y[whichPos]^lambda - 1)/lambda
+    tf[which0] <- log(y[which0])
+    if(lambda == 2){
+      tf[whichNegs] <- -log(tf[whichNegs])
+    } else tf[whichNegs] <- 
+      -(y[whichNegs]^(2 - lambda) -1)/(2 - lambda)
+  }
+  
   return(result)
 }
 
@@ -207,21 +250,18 @@ box.cox <- function(y, eps = 0.001, interp = FALSE) {
 #'
 #' @param x The vector of data to use.
 #' @param center Logical value for whether to center x.
-#' @param target The value to target in the distribution.  (If null, the first value
-#' in the vector is used.).  If the target exists outside the range of x,
-#' very small or very large z-scores are possible.  Additionally, if the target
-#' is excessively outside of the range of x, it could affect the Box-Cox transformation 
-#' used to transform x.
+#' @param ... Arguments passed to \link{powerTrans}.
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
-effect.size <- function(x, center = TRUE, target = NULL) {
-  if(is.null(target)) target <- x[1] else x <- c(target, x)
+effect.size <- function(x, center = TRUE, ...) {
+  es.args <- c(list(y = x), list(...))
   if(length(unique(x)) == 1) {
     sdx <- 1
     x <- 0
   } else {
-    x <- box.cox(x)$transformed
+    bc <- do.call(powerTrans, es.args)
+    x <- bc$transformed
     n <- length(x)
     if(center) x <- center(x)
     sdx <- sqrt((sum(x^2)/n))
@@ -229,3 +269,6 @@ effect.size <- function(x, center = TRUE, target = NULL) {
   
   (x[1]- mean(x)) / sdx
 }
+
+
+
