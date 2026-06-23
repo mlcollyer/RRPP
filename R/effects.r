@@ -25,7 +25,10 @@ pval <- function(s, target = NULL, greater = TRUE){
 
 box.cox.true <- function(y, eps = 0.001){
   
-  y <- scale(y)
+  n <- length(y) - 1
+  yc <- y - mean(y[-1])
+  sy <- sqrt(sum(center(y[-1])^2)/ n)
+  y <- yc / sy
   y <- y - min(y) + 1
   y.obs <- y[1]
   y <- y[-1]
@@ -59,7 +62,10 @@ box.cox.true <- function(y, eps = 0.001){
 
 box.cox.spline <- function(y, eps = 0.001) {
   
-  y <- scale(y)
+  n <- length(y) - 1
+  yc <- y - mean(y[-1])
+  sy <- sqrt(sum(center(y[-1])^2)/ n)
+  y <- yc / sy
   y <- y - min(y) + 1
   y.obs <- y[1]
   y <- y[-1]
@@ -99,12 +105,14 @@ box.cox.interp <- function(y, eps = 0.001) {
 
 box.cox.fast <- function(y, eps = 0.001) {
   
-  y <- scale(y)
+  n <- length(y) - 1
+  yc <- y - mean(y[-1])
+  sy <- sqrt(sum(center(y[-1])^2)/ n)
+  y <- yc / sy
   y <- y - min(y) + 1
   y.obs <- y[1]
   y <- y[-1]
-  
-  n <- length(y)
+
   yy <- y / exp(mean(log(y)))
   logy <- log(yy)
   
