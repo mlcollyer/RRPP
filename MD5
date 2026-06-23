@@ -21,12 +21,11 @@ f8e536ef3a48114dc3c790532c6c963e *DESCRIPTION
 eaff224dd35a485abb83f04d6a2ced0c *man/anova.lm.rrpp.Rd
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
 3ea4a6ec3366bf9224f2a60e04cff4f6 *man/betaTest.Rd
-d0dae70d7a96997c6aa87737eda90f91 *man/box.cox.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
 44d6ce25d6e41b2c5fc292c108752275 *man/coef.lm.rrpp.Rd
 aa2cb5ef4b8c3a2a9dd888c391f53ea7 *man/coef.lmm.rrpp.Rd
 df91d0b264a0632eec7e808f709481ce *man/convert2ggplot.Rd
-dae58fdf6e49d57a905d351b8763caef *man/effect.size.Rd
+46cbdac895daf6b5374bc35cc75e500e *man/effect.size.Rd
 2e4c3dcc49fa9f793ac3ffef57eb747f *man/fishy.Rd
 a33c46d63afb68d7f7f8707f06e36ed1 *man/fitted.lm.rrpp.Rd
 d609b6bb5fdef6dfb0fd058242507689 *man/fixef.lmm.rrpp.Rd
@@ -74,6 +73,7 @@ f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 c16aca0ebb2c3596f890c4d77cd39400 *man/plot.predict.lm.rrpp.Rd
 56013c2c951e774a5e07133f645a49e2 *man/plot.trajectory.analysis.Rd
 bc22fa489e583414326818c0500bd346 *man/podarcis.Rd
+db05fae904bdcd8d3facbaea19fd2942 *man/powerTrans.Rd
 6b7ef0147771e24305292d779614468e *man/predict.lm.rrpp.Rd
 6f4b53f12982cc54f3058d989e3893d9 *man/prep.lda.Rd
 b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
@@ -129,8 +129,8 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 63a84cde4ccd20f033b499e87bc6ee71 *man/terms.lm.rrpp.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
-7e3bf5160aecf3b4004f4b98ee2f8682 *NAMESPACE
-ed769d81747efc316fe11c4005143388 *NEWS.md
+e2dc0371740f414f4647bb40aa9bf2d4 *NAMESPACE
+ec7885eea85c09e24f12d838741d5741 *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 268b573d4ba16cd083c6ad9e3bab2f5f *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -139,7 +139,7 @@ fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-fc7a273ea53592b3a1265b2603de1008 *R/effects.r
+cd5656caf51a44e9d5957cd8358e31ac *R/effects.r
 79df2fce4476d808c98794546903dee4 *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
