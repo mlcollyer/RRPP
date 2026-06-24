@@ -842,14 +842,20 @@ checkers <- function(Y, Qs, Xs, turbo = FALSE,
   
   # criteria SS U matrices
   
+  #####
   Uss <- list()
   for(i in 1:max(1,k)) {
-    us <- checkDD(Uf[[i]], Ur[[i]])
-    if(all(is.na(us[[1]])))
-      us <- list(Uf = Uf[[i]], Ur = Ur[[i]])
+    
+    ### Note this is intended but needs to be fixed
+    # us <- checkDD(Uf[[i]], Ur[[i]])
+    # if(all(is.na(us[[1]])))
+    # us <- list(Uf = Uf[[i]], Ur = Ur[[i]])
+    ### so this is defaulted
+    us <- list(Uf = Uf[[i]], Ur = Ur[[i]])
     Uss[[i]] <- us
   }
   names(Uss) <- attr(Terms, "term.labels")
+  ####
   
   out <- list(Y = Y, Uss = Uss, Ur = Ur, Uf = Uf, Unull = Qint$Q, Ufull = Ufull,
               Hbr = Hbr, Hbf = Hbf, Hbnull = Hbnull, QR = Qs, k = k,
