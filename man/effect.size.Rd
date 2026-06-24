@@ -4,7 +4,7 @@
 \alias{effect.size}
 \title{Obtain Effect-size from a vector of values}
 \usage{
-effect.size(x, center = TRUE)
+effect.size(x, center = TRUE, ...)
 }
 \arguments{
 \item{x}{The vector of data to use.}

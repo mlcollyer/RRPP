@@ -40,7 +40,7 @@ A list containing the following:
 \item{loglik}{If spline interpolation is used, the log-liklihoods calculated for lambda.}
 }
 \description{
-A function that transforms a vector in data to be 
+A function that transforms a vector of statistics or data to be 
 approximately normally distributed.
 }
 \details{
