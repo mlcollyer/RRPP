@@ -123,7 +123,7 @@ box.cox.fast <- function(y, eps = 0.001) {
 
 #' Power Transformation
 #'
-#' A function that transforms a vector in data to be 
+#' A function that transforms a vector of statistics or data to be 
 #' approximately normally distributed.
 #' 
 #' This function uses a Box-Cox power transformation for a vector of values,
@@ -237,11 +237,6 @@ powerTrans <- function(y,
   
   return(result)
 }
-
-
-# effect.size
-# Effect sizes (standard deviates) form random outcomes
-# any analytical function
 
 #' Obtain Effect-size from a vector of values
 #'

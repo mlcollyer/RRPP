@@ -73,7 +73,7 @@ f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 c16aca0ebb2c3596f890c4d77cd39400 *man/plot.predict.lm.rrpp.Rd
 56013c2c951e774a5e07133f645a49e2 *man/plot.trajectory.analysis.Rd
 bc22fa489e583414326818c0500bd346 *man/podarcis.Rd
-db05fae904bdcd8d3facbaea19fd2942 *man/powerTrans.Rd
+8d409dbc568e1236c441c3ee7d04f077 *man/powerTrans.Rd
 6b7ef0147771e24305292d779614468e *man/predict.lm.rrpp.Rd
 6f4b53f12982cc54f3058d989e3893d9 *man/prep.lda.Rd
 b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
@@ -139,7 +139,7 @@ fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-cd5656caf51a44e9d5957cd8358e31ac *R/effects.r
+417cb2222fea5861baeaf051fad61841 *R/effects.r
 79df2fce4476d808c98794546903dee4 *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
