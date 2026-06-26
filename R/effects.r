@@ -181,7 +181,7 @@ powerTrans <- function(y,
                        eps = 0.001, 
                        target = NULL,
                        interp = FALSE,
-                       forcYJ = FALSE,
+                       forceYJ = FALSE,
                        useStDev = FALSE) {
   
   whichNegs <- NULL
@@ -191,7 +191,7 @@ powerTrans <- function(y,
   if(!is.null(target))
     y <- c(target, y)
   
-  if(forcYJ && !useStDev) {
+  if(forceYJ && !useStDev) {
     useYJ <- TRUE
     y <- abs(y) + 1
   }
