@@ -72,7 +72,7 @@ f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 c16aca0ebb2c3596f890c4d77cd39400 *man/plot.predict.lm.rrpp.Rd
 56013c2c951e774a5e07133f645a49e2 *man/plot.trajectory.analysis.Rd
 bc22fa489e583414326818c0500bd346 *man/podarcis.Rd
-8d409dbc568e1236c441c3ee7d04f077 *man/powerTrans.Rd
+647031646f91668ab9deceeb5e5031ec *man/powerTrans.Rd
 6b7ef0147771e24305292d779614468e *man/predict.lm.rrpp.Rd
 6f4b53f12982cc54f3058d989e3893d9 *man/prep.lda.Rd
 b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
@@ -138,14 +138,14 @@ fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-417cb2222fea5861baeaf051fad61841 *R/effects.r
+31ec499dcedbb5160be479f3a93ff126 *R/effects.r
 79df2fce4476d808c98794546903dee4 *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
 a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
 320ff45202222c9bd99e3ce1d8f097ea *R/lmm.rrpp.r
-48a996347ed6fbf884e2d91576d3cf52 *R/logLik.lm.rrpp.r
+2b27359cc9e3b98b4d73cc0a7b35e085 *R/logLik.lm.rrpp.r
 af7026d96d4ebbcc219537db53e36c53 *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 f7f3d25e9e221746c9696b95db128457 *R/mahal_dist.R
@@ -161,7 +161,7 @@ b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
-19597a745827f68a1efe80c6aea729e5 *R/RRPP.support.code.r
+a72209878e42bf27e4975c0e32bbdd4c *R/RRPP.support.code.r
 5b2f5acb8b5d03df9c5db9a28ce8e2f3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 fd4a08c387004b76856d22d5c61fec21 *R/shared.support.code.r

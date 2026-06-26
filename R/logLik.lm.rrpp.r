@@ -97,7 +97,8 @@ logLik.lm.rrpp <- function(object, tol = NULL,
   
   TY <- if(gls.null) PY else Y
   
-  ll <- logL(object, tol = tol, pc.no = pc.no) 
+  ll <- logL(object, tol = tol, pc.no = pc.no,
+             C = Cov, w = w) 
   
   if(Z) {
     
@@ -242,7 +243,9 @@ logLik.lm.rrpp <- function(object, tol = NULL,
 
 logL <- function(fit, tol = NULL, pc.no = NULL,
                  logdetC = NULL, R = NULL, rnk = NULL,
-                 useRiReg = TRUE){
+                 useRiReg = TRUE, 
+                 C = NULL, w = NULL
+                 ){
   if(is.null(tol)) tol = 0
   gls <- fit$LM$gls
   n <- fit$LM$n
