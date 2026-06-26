@@ -9,7 +9,7 @@ powerTrans(
   eps = 0.001,
   target = NULL,
   interp = FALSE,
-  forcYJ = FALSE,
+  forceYJ = FALSE,
   useStDev = FALSE
 )
 }
@@ -25,12 +25,12 @@ in the vector is used.)  This will be moved to the first value in results.}
 (ideal for vectors of small length).  This will default if the number
 of values is less than 100, as in \link[MASS]{boxcox}.}
 
-\item{useStDev}{A logical value whether to initially use standard deviates of y.
-This might be useful if the range of y is restricted, say between 0 and 1.}
-
 \item{forceYJ}{A logical value whether to force a Yeo-Johnson transformation for non-negative
 values.  Negative values trigger
 the transformation, but positive values can be transformed similarly.}
+
+\item{useStDev}{A logical value whether to initially use standard deviates of y.
+This might be useful if the range of y is restricted, say between 0 and 1.}
 }
 \value{
 A list containing the following:
