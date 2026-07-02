@@ -18,7 +18,7 @@
 #' only one fixed effect can interaction with subjects. Finally, the function is intended to allow
 #' analysis of variance (ANOVA), like with \code{\link{lm.rrpp.ws}}, but not treated random 
 #' effects as fixed.  
-#' There is not a coefficients test associated eith this function, as with other \code{\link{lm.rrpp}}
+#' There is not a coefficients test associated with this function, as with other \code{\link{lm.rrpp}}
 #' that include only fixed effects.
 #' 
 #' Although this function allows covariance matrices to be used for generalized least squares (GLS)
@@ -58,7 +58,7 @@
 #' The data do not need to have row names but the subjects variable has to be provided.
 #' @param type An indication whether to use random intercepts ("intercepts") or random intercepts 
 #' and slopes ("slopes") for random effects associated with subjects.
-#' @param slopeTerm An otional character value (e.g., "mass") indicating which term in the data frame is to be
+#' @param slopeTerm An optional character value (e.g., "mass") indicating which term in the data frame is to be
 #' used in the estimation of random slopes.  This term should also be in the fixed formula.
 #' @param estimation One of "LS", "ML", or "REML", for guiding how random effects should be estimated.
 #' @param iter Number of iterations for significance testing

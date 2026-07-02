@@ -34,9 +34,7 @@
 #' @importFrom ape multi2di.phylo
 #' @importFrom ape root.phylo
 #' @importFrom ape collapse.singles
-#' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm
-#' lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile 
-#' resid sd spline var model.frame terms reformulate fitted resid
+#' @importFrom stats na.omit anova as.dist as.formula cmdscale coef delete.response dist formula lm lm.fit lm.wfit loess logLik model.frame.default model.matrix optimise prcomp qnorm quantile resid sd spline var model.frame terms reformulate fitted resid
 #' @importFrom graphics abline arrows axis legend lines par plot.default points text title
 #' @importFrom utils combn object.size setTxtProgressBar txtProgressBar
 #' @importFrom stats pnorm terms.formula

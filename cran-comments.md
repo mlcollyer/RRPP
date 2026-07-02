@@ -1,6 +1,7 @@
 ## Resubmission
 
-This is a minor release, 2.2.0, which adds a couple new functions. 
+This is a minor release, 2.2.0, which adds a couple new functions, plus
+fixes a few bugs. 
 The package, `geomorph`, is developed by the same 
 authors as `RRPP`.  The reverse dependency has been addressed during 
 development of this release and any necessary changes would be 

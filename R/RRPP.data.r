@@ -206,10 +206,10 @@ NULL
 #' @name phytoplankton
 #' @docType data
 #' @keywords datasets
-#' @description A data set containing variables for phytoplankton biomass,
+#' @description A data set containing variables for phytoplanton biomass,
 #' phosphorous levels, trophic status, and locations (coordinates) of 70 temperate lakes.
 #' @details The data in this data set are samples from a larger study 
-#' that compared phytoplantkton biomass
+#' that compared phytoplankton biomass
 #' from temperate lakes in Alberta, Canada, with different levels of eutrophication
 #' (Loewen et al., 2020).  These 
 #' data are suitable for considering the spatial non-independence of observations in 
@@ -260,7 +260,7 @@ NULL
 #' Permutational Biometry (Collyer & Adams, 2025).
 #' @references Smith, M. T. and Collyer, M. L. (2008). The biology of rattlesnakes, chapter
 #' Regional variation and sexual dimorphism in head form of the prairie
-#' rattlesnale (Crotalus viridid viridis): Comparisons using new analytical techniques
+#' rattlesnake (Crotalus viridid viridis): Comparisons using new analytical techniques
 #' and collection methods, pages 79–90. Loma Linda University Press.
 #' @references Collyer, M. L., & Adams D. C. (2025). Permutational Biometry: Volume
 #' 1, Univariate Data. Iowa State University Digital Press.  NOT YET PUBLISHED.

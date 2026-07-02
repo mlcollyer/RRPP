@@ -17,7 +17,7 @@ pairwise.model.Z(
 \arguments{
 \item{...}{Either an object of class \code{\link{model.comparison}}, 
 or several objects of class \code{\link{lm.rrpp}}.  If the former, arguments of
-type = 'Z' and verbose = TRUE are required.  If the latter, a model comparsion analysis
+type = 'Z' and verbose = TRUE are required.  If the latter, a model comparison analysis
 will first be performed with these arguments.}
 
 \item{nsamp}{An optional vector containing the sample sizes for each model fit}

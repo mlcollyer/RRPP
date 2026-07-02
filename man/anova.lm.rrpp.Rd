@@ -20,7 +20,7 @@
 \item{effect.type}{One of "F", "cohenf", "SS", "MS", "Rsq" to choose from 
 which distribution of statistics to calculate effect sizes (Z).  "LR" can
 be chosen to include a log-likelihood ratio, for multi-model comparisons.  If
-"LR" is used, the effect type is automatoically "F".
+"LR" is used, the effect type is automatically "F".
 See \code{\link{lm.rrpp}}.}
 
 \item{error}{An optional character string to define MS error term for 

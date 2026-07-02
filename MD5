@@ -1,4 +1,4 @@
-c5a443951f6f6923a9cce171df1d4e26 *cran-comments.md
+f5f60cb284d3a4867e12350648052a9a *cran-comments.md
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 aff0ba51a13e3940e65969ad17c9c156 *data/flower.rda
 4ca7e6ff63c9f6ce6e452396eabc3ffa *data/mammalHR.rda
@@ -13,7 +13,7 @@ b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 cb4bccaa8b4ef5c97c3ed1b17a00e6bb *data/PupfishMR.rda
 de2cfa815f56a835eb532c3e5898cd87 *data/ReptAbund.rda
 62dbdfa4d0e0997b7b6eb82a6960eb95 *data/snakeHS.rda
-f8e536ef3a48114dc3c790532c6c963e *DESCRIPTION
+b3a8aed6ecaf5c0dde3e7225e17c869a *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -105,7 +105,7 @@ ea62df9c854535a8206c51d2ad5f7eba *man/ranef.lmm.rrpp.Rd
 b6dc2764c99d8cda55b9def1fbd7da37 *man/ReptAbund.Rd
 e2f4d3ded41cac1f1baf52d5709ac5fc *man/residuals.lm.rrpp.Rd
 f6985949fae79d175333feb4a95b4396 *man/reveal.model.designs.Rd
-c14c1007d2a3e3117f51ef3b7d510055 *man/RRPP-package.Rd
+e3177dfd6cd7b5f3f074a0230abb4f5f *man/RRPP-package.Rd
 cc19b01056e4bdac93afe5f24695394a *man/rrpp.data.frame.Rd
 51cdf38a81a6e087d43a5910f3dcbb20 *man/scaleCov.Rd
 7a98a2ea96f7ee38935ea4973f6d7899 *man/snakeHS.Rd
@@ -161,7 +161,7 @@ b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
-a72209878e42bf27e4975c0e32bbdd4c *R/RRPP.support.code.r
+c843d687e32bc203b668759923b4006d *R/RRPP.support.code.r
 5b2f5acb8b5d03df9c5db9a28ce8e2f3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 fd4a08c387004b76856d22d5c61fec21 *R/shared.support.code.r
