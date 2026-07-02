@@ -17,7 +17,7 @@ b3a8aed6ecaf5c0dde3e7225e17c869a *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
-eaff224dd35a485abb83f04d6a2ced0c *man/anova.lm.rrpp.Rd
+bcb2de9f01d323fa9912165e4e39695c *man/anova.lm.rrpp.Rd
 a4d2ac3df7e741723c8e71d7468cd205 *man/anova.measurement.error.Rd
 3ea4a6ec3366bf9224f2a60e04cff4f6 *man/betaTest.Rd
 eee872a66eb743a1df7e8551bc54ce73 *man/classify.Rd
@@ -41,7 +41,7 @@ d6ddec777fca3bb4f087a347e629f513 *man/interSubVar.Rd
 b0aa4d9de5c4d6d8b2b678a6d073ddc0 *man/kcomp.Rd
 aff748bce4adca8b307d8cf38d046d05 *man/lm.rrpp.Rd
 555f907037cac3c887621c48e90832c0 *man/lm.rrpp.ws.Rd
-6d32145888126f23a11fe3812b822226 *man/lmm.rrpp.Rd
+4837bee108dba21addab22b41a42504d *man/lmm.rrpp.Rd
 39ac08b5f39532da74a5cfdb9aa2e812 *man/logLik.lm.rrpp.Rd
 2626c57a1146e889a273ca6f7afb8773 *man/looCV_table.Rd
 8a3d1cbf56cdf20842b36579300ebbab *man/looCV.Rd
@@ -57,9 +57,9 @@ bba84312844dd3237eb4ff0bed8ca6c1 *man/measurement.error.Rd
 137ee80cfa863791a7a8f80b79909cdd *man/motionpaths.Rd
 2d4e482f72e3883ab05852e215e58acd *man/na.omit.rrpp.data.frame.Rd
 77eab8dcaa0e96a14c6b52dd396c1b18 *man/ordinate.Rd
-bdc811bc90875ab16d666a94bb462abd *man/pairwise.model.Z.Rd
+cfe175fbcb3c12a7e8a4972b899f73c2 *man/pairwise.model.Z.Rd
 1b957dbd4e054fbaa221f0f0378c936c *man/pairwise.Rd
-16d5442022a810bf644af34ce32c33ce *man/phytoplankton.Rd
+a9678a916a6a2e7c7b7a4cd2289012c3 *man/phytoplankton.Rd
 674bcd7e8e18d475b2e261ff54faeeec *man/PlethCinHoff.Rd
 adb4edf04d8e61228966e48567fb04c2 *man/PlethMorph.Rd
 cbb0d2f1418836cfcecfced099801257 *man/plot.interSubVar.Rd
@@ -108,7 +108,7 @@ f6985949fae79d175333feb4a95b4396 *man/reveal.model.designs.Rd
 e3177dfd6cd7b5f3f074a0230abb4f5f *man/RRPP-package.Rd
 cc19b01056e4bdac93afe5f24695394a *man/rrpp.data.frame.Rd
 51cdf38a81a6e087d43a5910f3dcbb20 *man/scaleCov.Rd
-7a98a2ea96f7ee38935ea4973f6d7899 *man/snakeHS.Rd
+384f038ca9f500d03147be59ba48fc93 *man/snakeHS.Rd
 3feb50b2cd634fb9812fba13a02ff65d *man/summary.anova.lm.rrpp.Rd
 0b2cdb88ceff997c1523231e0f2551e1 *man/summary.betaTest.Rd
 ad97e4ce6e14cb92ac228d0f798d7717 *man/summary.coef.lm.rrpp.Rd
@@ -129,9 +129,9 @@ a81cec6977939fad86be89ba357b4b99 *man/summary.trajectory.analysis.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 e2dc0371740f414f4647bb40aa9bf2d4 *NAMESPACE
-5eb3dce2da3370a51a5f2c7da832834c *NEWS.md
+93f9544665d235c29c83b8f3eece6132 *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
-268b573d4ba16cd083c6ad9e3bab2f5f *R/anova.lm.rrpp.r
+d6d5390b19f0d36fd9194eab1e8a51b8 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 58667bd2f35bfa5abdaf60dff2907aed *R/base_lm.rrpp.r
 526aa0c5dfe0337aa7a0a1a7a7f84348 *R/betaTest.r
@@ -144,7 +144,7 @@ c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
 a091d4d9ee8749ad0cdc201bc797099d *R/lm.rrpp.r
 afbac37760679fea9b22c647e8faaa98 *R/lm.rrpp.ws.r
-320ff45202222c9bd99e3ce1d8f097ea *R/lmm.rrpp.r
+bbccc3698c0b7504f7632e85d543461c *R/lmm.rrpp.r
 2b27359cc9e3b98b4d73cc0a7b35e085 *R/logLik.lm.rrpp.r
 af7026d96d4ebbcc219537db53e36c53 *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
@@ -153,14 +153,14 @@ a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
 b98e1d09e0b7bc5fa0d112f1ddf41ae8 *R/measurement.error.r
 d230a19b29be8cd11f3d9cdff865ca30 *R/model.comparison.r
 e0cd225d3d90c54a4600d326ce2eb642 *R/ordinate.r
-f064a8d64115503d68b689fd04e0ba99 *R/pairwise.model.Z.r
+d8d0b52b77803208eb126d25787954c2 *R/pairwise.model.Z.r
 03fa3caca690cb344ac739ddb8517087 *R/pairwise.r
 076b2a8ffc80a476e467d9a815a6a684 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 888ca2d9655d1747aca8ce3eeb9815d8 *R/QRforX.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
-bdd77b34793ab6d30fd6ba0a43efc65a *R/RRPP.data.r
+518aabdec2610733ed40af2d25c22b9f *R/RRPP.data.r
 c843d687e32bc203b668759923b4006d *R/RRPP.support.code.r
 5b2f5acb8b5d03df9c5db9a28ce8e2f3 *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
