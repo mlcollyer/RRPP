@@ -1894,32 +1894,41 @@ getSlopes <- function(fit, x, g){
 # after constraining covariates to mean values
 # used in pairwise
 getLSmeans <- function(fit, g){
+  
+  Xn <- model.matrix(~ g + 0)
+  Q <- QRforX(Xn)
+  H <- tcrossprod(fast.solve(Q$R), Q$Q)
+  
   beta <- fit$LM$random.coef
   k <- length(beta)
   beta <- beta[[k]]
   n <- fit$LM$n
   dat <- fit$LM$data
   covCheck <- sapply(dat, class)
-  for(i in 1:length(covCheck)) if(covCheck[i] == "numeric") 
+  for (i in 1:length(covCheck)) if (covCheck[i] == "numeric") 
     dat[[i]] <- mean(dat[[i]])
+  
   L <- model.matrix(fit$LM$Terms, data = dat)
-  L <- L[, colnames(L)  %in% rownames(beta[[1]]), drop = FALSE]
-  getFitted <- function(b) {
-    b <- b[rownames(b) %in% colnames(L), , drop = FALSE]
-    L %*% b
-  } 
-  fitted <- lapply(beta, getFitted)
-  Xn <- model.matrix(~ g + 0)
-  Q <- QRforX(Xn)
-  H <- tcrossprod(fast.solve(Q$R), Q$Q)
-  getCoef <- function(f) as.matrix(H %*% f)
-  means <- lapply(fitted, getCoef)
-  rename <- function(x) {
-    dimnames(x)[[1]] <- levels(g)
-    x
-  }
-  means <- lapply(means, rename)
-  names(means) <- c("obs", paste("iter", 1:(length(means) - 1), sep = "."))
+  L <- L[, colnames(L) %in% rownames(beta[[1]]), drop = FALSE]
+  L <- H %*% L
+  
+  keep <- which(rownames(beta[[1]]) %in% colnames(L))
+  if(length(keep) < ncol(L))
+    beta <- lapply(beta, function(b){
+      b <- b[keep, ]
+      b
+    })
+  Ls <- Matrix(L, sparse = TRUE)
+  if(length(Ls@x) < length(L)) L <- Ls
+  
+  means <- lapply(beta, function(b) {
+    m <- as.matrix(L %*% b)
+    dimnames(m)[[1]] <- levels(g)
+    m
+  })
+    
+  names(means) <- c("obs", paste("iter", 1:(length(means) - 
+                                              1), sep = "."))
   means
 }
 
