@@ -135,7 +135,7 @@
 #'  Alternatively, one can adjust the confidence level in \code{\link{summary.pairwise}},
 #'  which is much safer.  For example, one might use a 99.5% confidence limit
 #'  (confidence = 0.995), thus finding confidence limits for statistics for which
-#'  only 0.5% of values are larger.  This is a safe option, regardless of the
+#'  only 0.5 percent of values are larger.  This is a safe option, regardless of the
 #'  number of permutations.
 #'  
 #' }

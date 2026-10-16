@@ -58,7 +58,7 @@ bba84312844dd3237eb4ff0bed8ca6c1 *man/measurement.error.Rd
 2d4e482f72e3883ab05852e215e58acd *man/na.omit.rrpp.data.frame.Rd
 77eab8dcaa0e96a14c6b52dd396c1b18 *man/ordinate.Rd
 cfe175fbcb3c12a7e8a4972b899f73c2 *man/pairwise.model.Z.Rd
-e819df478fd450a16ca7050ce5235205 *man/pairwise.Rd
+a04365aff7edb9b114e28813c070ad3e *man/pairwise.Rd
 a9678a916a6a2e7c7b7a4cd2289012c3 *man/phytoplankton.Rd
 674bcd7e8e18d475b2e261ff54faeeec *man/PlethCinHoff.Rd
 adb4edf04d8e61228966e48567fb04c2 *man/PlethMorph.Rd
@@ -154,7 +154,7 @@ b98e1d09e0b7bc5fa0d112f1ddf41ae8 *R/measurement.error.r
 d230a19b29be8cd11f3d9cdff865ca30 *R/model.comparison.r
 e0cd225d3d90c54a4600d326ce2eb642 *R/ordinate.r
 d8d0b52b77803208eb126d25787954c2 *R/pairwise.model.Z.r
-130e5aebb48ebab434bbb0d59aa9e7bc *R/pairwise.r
+334b0ca1f678282a569d577231b7cec6 *R/pairwise.r
 076b2a8ffc80a476e467d9a815a6a684 *R/predict.lm.rrpp.r
 b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 888ca2d9655d1747aca8ce3eeb9815d8 *R/QRforX.r
