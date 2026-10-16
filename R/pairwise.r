@@ -509,7 +509,7 @@ pairwise <- function(fit, fit.null = NULL, groups, covariate = NULL,
   if(gls) disp.args$x <- fitf$LM$Pcov %*% disp.args$x
   g.disp <- function(res, ind.i, x) {
     r <- res[ind.i, , drop = FALSE]
-    if(NCOL(r) > 1) d <- apply(r, 1, function(x) sum(x^2)) else
+    if(NCOL(r) > 1) d <- rowSums(r^2) else
       d <- r^2
     coef(lm.fit(as.matrix(x), d))
   }
