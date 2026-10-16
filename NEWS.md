@@ -1,4 +1,9 @@
-# CHANGES IN RRPP 2.1.2.999
+# CHANGES IN RRPP 2.2.0.999
+
+### NEW FEATURES
++ Added `p.adjust` to `pairwise` summaries.
+
+# CHANGES IN RRPP 2.2.0
 
 ### NEW FEATURES
 + New function, `lmm.rrpp`, which fits mixed models with RRPP.

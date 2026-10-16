@@ -121,6 +121,24 @@
 #'  performed a pairwise test with "stdist" is a good association; if MANOVA is performed,
 #'  a pairwise test with "mdist" is a good association.
 #' }
+#' 
+#' 
+#'  \subsection{Notes for RRPP 2.2.0 and subsequent versions}{ 
+#'  It is possible to adjust the P-values with \code{\link{p.adjust}}
+#'  when using \code{\link{summary.pairwise}}.  However, one should
+#'  use extreme caution because probabilities calculated with permutations
+#'  are right-censored by the number of permutations.  For example, 
+#'  the smallest P-value using 1,000 permutations is 0.001, even if the true
+#'  P-value is much smaller.  Using P-value adjustments is fraught with inferential
+#'  errors unless one uses a very large number of permutations.
+#'  
+#'  Alternatively, one can adjust the confidence level in \code{\link{summary.pairwise}},
+#'  which is much safer.  For example, one might use a 99.5% confidence limit
+#'  (confidence = 0.995), thus finding confidence limits for statistics for which
+#'  only 0.5% of values are larger.  This is a safe option, regardless of the
+#'  number of permutations.
+#'  
+#' }
 #'  
 #' @param fit A linear model fit using \code{\link{lm.rrpp}}.
 #' @param fit.null An alternative linear model fit to use as a null 
@@ -228,6 +246,17 @@
 #' # distances among means
 #' summary(PW1, confidence = 0.95, test.type = "dist") 
 #' summary(PW1, confidence = 0.95, test.type = "dist", stat.table = FALSE)
+#' 
+#' # using P-value adjustment
+#' summary(PW1, confidence = 0.95, test.type = "dist",
+#' p.adjust.method = "bonferroni") 
+#' summary(PW1, confidence = 0.95, 
+#' test.type = "dist", stat.table = FALSE,
+#' p.adjust.method = "bonferroni")
+#' 
+#' # using 99% confidence
+#' summary(PW1, confidence = 0.99, test.type = "dist") 
+#' summary(PW1, confidence = 0.99, test.type = "dist", stat.table = FALSE)
 #' 
 #' # standardized distances among means
 #' summary(PW1, confidence = 0.95, test.type = "stdist") 

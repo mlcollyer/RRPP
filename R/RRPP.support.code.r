@@ -1954,11 +1954,12 @@ vec.cor.matrix <- function(M) {
 # Pval.list
 # P-values across a list
 # used in pairwise
-Pval.list <- function(M){
-  
+Pval.list <- function(M, p.adjust.method){
+ 
   y <- sapply(M, function(x) as.vector(as.dist(x)))
   if(is.vector(y)) y <- matrix(y, 1, length(y))
   P <- apply(y, 1, pval)
+  P <- p.adjust(P, method = p.adjust.method)
   D <- as.dist(M[[1]])
   D[1:length(D)] <- P
   P <- as.matrix(D)
@@ -1995,8 +1996,8 @@ percentile.list <- function(M, confidence = 0.95){
 # d.summary.from.list
 # find distance statistics from a list
 # used in pairwise
-d.summary.from.list <- function(M, confidence = 0.95){
-  P <- Pval.list(M)
+d.summary.from.list <- function(M, confidence = 0.95, ...){
+  P <- Pval.list(M, ...)
   Z <- effect.list(M)
   CL <- percentile.list(M, confidence)
   list(D=M[[1]], P=P, Z=Z, CL=CL, confidence = confidence)
@@ -2005,7 +2006,7 @@ d.summary.from.list <- function(M, confidence = 0.95){
 # r.summary.from.list
 # find vec correlation statistics from a list
 # used in pairwise
-r.summary.from.list <- function(M, confidence = 0.95){
+r.summary.from.list <- function(M, confidence = 0.95,...){
   options(warn = -1)
   acos.mat <- function(x){
     a <- acos(x)
@@ -2014,7 +2015,7 @@ r.summary.from.list <- function(M, confidence = 0.95){
   }
   A <- lapply(M, acos.mat)
   options(warn = 0)
-  P <- Pval.list(A)
+  P <- Pval.list(A, ...)
   Z <- effect.list(A)
   aCL <- percentile.list(A, confidence)
   angle = A[[1]]
