@@ -127,7 +127,7 @@
 #'  It is possible to adjust the P-values with \code{\link{p.adjust}}
 #'  when using \code{\link{summary.pairwise}}.  However, one should
 #'  use extreme caution because probabilities calculated with permutations
-#'  are right-censored by the number of permutations.  For example, 
+#'  are left-censored by the number of permutations.  For example, 
 #'  the smallest P-value using 1,000 permutations is 0.001, even if the true
 #'  P-value is much smaller.  Using P-value adjustments is fraught with inferential
 #'  errors unless one uses a very large number of permutations.
