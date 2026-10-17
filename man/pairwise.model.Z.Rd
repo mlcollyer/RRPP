@@ -11,7 +11,8 @@ pairwise.model.Z(
   predictor = NULL,
   tol = NULL,
   pc.no = NULL,
-  gls.null = FALSE
+  gls.null = FALSE,
+  p.adjust.method = "none"
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ will first be performed with these arguments.}
 \item{pc.no}{An optional value to be passed to \code{\link{model.comparison}}, if used.}
 
 \item{gls.null}{An optional logical value to be passed to \code{\link{model.comparison}}, if used.}
+
+\item{p.adjust.method}{Optional logical value to adjust P-values,
+based on \code{\link{p.adjust}}.  Defaults to "none".}
 }
 \value{
 A list containing the following

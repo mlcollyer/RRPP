@@ -1347,7 +1347,7 @@ print.pairwise <- function(x, ...){
 #' limit; default = 0.95 (alpha = 0.05)
 #' @param show.vectors Logical value to indicate whether vectors 
 #' should be printed.
-#' @param p.adjust.method Optional argument to adjust P-values,
+#' @param p.adjust.method Optional logical value to adjust P-values,
 #' based on \code{\link{p.adjust}}.  Defaults to "none".
 #' @param ... Other arguments passed onto pairwise
 #' @method summary pairwise
@@ -3785,6 +3785,7 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
   
   rownames(tab1) <- nms
   cat("\nModels:\n\n")
+  
   print(tab1)
   
   if(stats.table){
@@ -3795,7 +3796,9 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
     colnames(tab2)[2] <- if(x$tails == 2) "Pr(>|Z|)" else "Pr(>Z)"
     rownames(tab2) <- unlist(name.list)
     
-    cat("\nPairwise Statistics:\n\n")
+    cat("\nPairwise Statistics:\n")
+    cat("Using P-value adjustment:", 
+        x$p.adjust.method, "\n\n")
     print(tab2)
     cat("\n\n")
     
@@ -3806,6 +3809,8 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
     dimnames(tb) <- list(nms, nms)
     print(tb)
     cat("\nPairwise P:\n")
+    cat("Using P-value adjustment:", 
+        x$p.adjust.method, "\n")
     tb <- as.table(x$pairwise.P)
     dimnames(tb) <- list(nms, nms)
     print(tb)

@@ -34,7 +34,7 @@ limit; default = 0.95 (alpha = 0.05)}
 \item{show.vectors}{Logical value to indicate whether vectors 
 should be printed.}
 
-\item{p.adjust.method}{Optional argument to adjust P-values,
+\item{p.adjust.method}{Optional logical value to adjust P-values,
 based on \code{\link{p.adjust}}.  Defaults to "none".}
 
 \item{...}{Other arguments passed onto pairwise}

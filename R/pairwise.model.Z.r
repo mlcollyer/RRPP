@@ -27,6 +27,8 @@
 #' @param tol An optional value to be passed to \code{\link{model.comparison}}, if used.
 #' @param pc.no An optional value to be passed to \code{\link{model.comparison}}, if used.
 #' @param gls.null An optional logical value to be passed to \code{\link{model.comparison}}, if used.
+#' @param p.adjust.method Optional logical value to adjust P-values,
+#' based on \code{\link{p.adjust}}.  Defaults to "none".
 #' @keywords analysis
 #' @export
 #' @author Dean Adams and Michael Collyer
@@ -63,7 +65,8 @@ pairwise.model.Z <- function(...,
                              predictor = NULL,
                              tol = NULL,
                              pc.no = NULL,
-                             gls.null = FALSE
+                             gls.null = FALSE,
+                             p.adjust.method = "none"
                              ){
   dots <- list(...)
   if(length(dots) == 1){
@@ -116,12 +119,20 @@ pairwise.model.Z <- function(...,
   names(list.zs) <- names(list.sds) <-list.names
   pairwise.z <- as.matrix(z12.pw)
   pairwise.P <- as.matrix(p12.pw)
+  if(p.adjust.method != "none"){
+    pd <- as.dist(pairwise.P)
+    adjp <- p.adjust(as.vector(pd), 
+                     method = p.adjust.method)
+    pd[] <- adjp
+    pairwise.P <- as.matrix(pd)
+  }
   diag(pairwise.P) <- 1
   
   out <- list(sample.z = list.zs,
               pairwise.z = abs(pairwise.z),
               pairwise.P = pairwise.P, 
-              tails = tails)
+              tails = tails, 
+              p.adjust.method = p.adjust.method)
   
   attr(out, "class") <- "pairwise.model.Z"
   out
