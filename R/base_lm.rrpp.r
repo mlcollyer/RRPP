@@ -207,7 +207,7 @@
   subTest <- FALSE
   STerm <- which(term.labels == sub.var.name)
   if(!(length(STerm) == 0)) {
-    sub.type <- 3
+    sub.type <- 2
     subTest <- TRUE
   } else STerm <- NULL
   
