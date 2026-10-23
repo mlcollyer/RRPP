@@ -2069,6 +2069,8 @@ print.trajectory.analysis<- function(x, ...){
 #' expressed in radians or degrees.
 #' @param confidence Confidence level to use for upper confidence limit; 
 #' default = 0.95 (alpha = 0.05)
+#' @param p.adjust.method Optional logical value to adjust P-values,
+#' based on \code{\link{p.adjust}}.  Defaults to "none".
 #' @param show.trajectories Logical value to indicate whether trajectories 
 #' should be printed.
 #' @param ... Other arguments passed onto trajectory.analysis
@@ -2079,7 +2081,9 @@ print.trajectory.analysis<- function(x, ...){
 summary.trajectory.analysis <- function(object, stat.table = TRUE, 
                              attribute = c("MD", "TC", "SD"),
                              angle.type = c("rad", "deg"),
-                             confidence = 0.95, show.trajectories = FALSE, ...) {
+                             confidence = 0.95, 
+                             p.adjust.method = "none",
+                             show.trajectories = FALSE, ...) {
   
   attribute <- match.arg(attribute)
   angle.type <- match.arg(angle.type)
@@ -2091,14 +2095,16 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   SD <- object$SD
   
   if(attribute == "MD"){
-    L <- d.summary.from.list(MD, confidence = confidence)
+    L <- d.summary.from.list(MD, confidence = confidence,
+                             p.adjust.method = p.adjust.method)
     tab <- makePWDTable(L)
   }
   
   if(attribute == "TC"){
     if(is.null(TC)) stop("Trajectory correlations not available\n", 
                          call. = FALSE)
-    L <- r.summary.from.list(TC, confidence = confidence)
+    L <- r.summary.from.list(TC, confidence = confidence,
+                             p.adjust.method = p.adjust.method)
     
     if(angle.type == "deg") {
       options(warn = -1)
@@ -2112,7 +2118,8 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   
   if(attribute == "SD"){
     if(type == "trajectories") {
-      L <- d.summary.from.list(SD, confidence = confidence)
+      L <- d.summary.from.list(SD, confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       tab <- makePWDTable(L)
     } else {
       L <- NULL
