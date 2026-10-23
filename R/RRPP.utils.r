@@ -1347,6 +1347,8 @@ print.pairwise <- function(x, ...){
 #' limit; default = 0.95 (alpha = 0.05)
 #' @param show.vectors Logical value to indicate whether vectors 
 #' should be printed.
+#' @param p.adjust.method Optional logical value to adjust P-values,
+#' based on \code{\link{p.adjust}}.  Defaults to "none".
 #' @param ... Other arguments passed onto pairwise
 #' @method summary pairwise
 #' @export
@@ -1355,7 +1357,10 @@ print.pairwise <- function(x, ...){
 summary.pairwise <- function(object, stat.table = TRUE, 
                              test.type = c("dist", "stdist", "mdist", "VC", "DL", "var"),
                              angle.type = c("rad", "deg"),
-                             confidence = 0.95, show.vectors = FALSE, ...){
+                             confidence = 0.95, show.vectors = FALSE, 
+                             p.adjust.method = "none", ...){
+  
+  
   test.type <- match.arg(test.type)
   angle.type <- match.arg(angle.type)
   x <- object
@@ -1373,28 +1378,37 @@ summary.pairwise <- function(object, stat.table = TRUE,
       v <- as.matrix(vars[,j, drop = FALSE])
       as.matrix(dist(v))
     })
-    L <- d.summary.from.list(var.diff, confidence = confidence)
+    L <- d.summary.from.list(var.diff, confidence = confidence,
+                             p.adjust.method = p.adjust.method)
     tab <- makePWDTable(L)
   }
   
   if(type == "means") {
     if(test.type == "dist") {
-      L <- d.summary.from.list(x$means.dist, confidence = confidence)
+      L <- d.summary.from.list(x$means.dist, 
+                               confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     if(test.type == "stdist") {
-      L <- d.summary.from.list(x$std.means.dist, confidence = confidence)
+      L <- d.summary.from.list(x$std.means.dist, 
+                               confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     if(test.type == "mdist") {
       if(is.null(x$mah.means.dist))
         stop("Mahalanobis distance tests require verbose = TRUE in pairwise.\n")
-      L <- d.summary.from.list(x$mah.means.dist, confidence = confidence)
+      L <- d.summary.from.list(x$mah.means.dist, 
+                               confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     
     if(test.type == "VC") {
-      L <- r.summary.from.list(x$means.vec.cor, confidence = confidence)
+      L <- r.summary.from.list(x$means.vec.cor, 
+                               confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       if(angle.type == "deg") {
         options(warn = -1)
         L$angle <- L$angle * 180 / pi
@@ -1405,7 +1419,9 @@ summary.pairwise <- function(object, stat.table = TRUE,
     }
     
     if(test.type == "DL") {
-      L <- d.summary.from.list(x$means.diff.length, confidence = confidence)
+      L <- d.summary.from.list(x$means.diff.length, 
+                               confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     
@@ -1414,17 +1430,20 @@ summary.pairwise <- function(object, stat.table = TRUE,
   if(type == "slopes") {
 
     if(test.type == "dist") {
-      L <- d.summary.from.list(x$slopes.dist)
+      L <- d.summary.from.list(x$slopes.dist,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     
     if(test.type == "stdist") {
-      L <- d.summary.from.list(x$std.slopes.dist)
+      L <- d.summary.from.list(x$std.slopes.dist,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     
     if(test.type == "VC") {
-      L <- r.summary.from.list(x$slopes.vec.cor) 
+      L <- r.summary.from.list(x$slopes.vec.cor,
+                               p.adjust.method = p.adjust.method) 
       if(angle.type == "deg") {
         options(warn = -1)
         L$angle <- L$angle * 180 / pi
@@ -1435,7 +1454,9 @@ summary.pairwise <- function(object, stat.table = TRUE,
     }
     
     if(test.type == "DL") {
-      L <- d.summary.from.list(x$slopes.diff.length, confidence = confidence)
+      L <- d.summary.from.list(x$slopes.diff.length, 
+                               confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       if(stat.table) tab <- makePWDTable(L)
     }
     
@@ -1458,6 +1479,7 @@ summary.pairwise <- function(object, stat.table = TRUE,
   if(!is.null(vars)) out$vars <- vars else out$vars <- NULL
   out$show.vectors <- show.vectors
   out$x <- x
+  out$p.adjust.method <- p.adjust.method
   
   class(out) <- "summary.pairwise"
   out
@@ -1489,6 +1511,7 @@ print.summary.pairwise <- function(x, ...) {
     
     if(stat.table) {
       cat("\nPairwise distances between variances, plus statistics\n")
+      cat("P-values adjustment:", x$p.adjust.method, "\n")
       print(tab)
     } else {
       cat("\nPairwise distances between variances\n")
@@ -1499,6 +1522,7 @@ print.summary.pairwise <- function(x, ...) {
       cat("\nPairwise effect sizes (Z) between variances\n")
       print(L$Z)
       cat("\nPairwise P-values between variances\n")
+      cat("P-values adjustment:", x$p.adjust.method, "\n")
       print(L$P)
     }
   }
@@ -1512,6 +1536,7 @@ print.summary.pairwise <- function(x, ...) {
     if(test.type == "dist") {
       if(stat.table) {
         cat("\nPairwise distances between means, plus statistics\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise distances between means\n")
@@ -1522,6 +1547,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) between means\n")
         print(L$Z)
         cat("\nPairwise P-values between means\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1529,6 +1555,7 @@ print.summary.pairwise <- function(x, ...) {
     if(test.type == "stdist") {
       if(stat.table) {
         cat("\nPairwise standardized distances between means, plus statistics\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise standardized distances between means\n")
@@ -1539,6 +1566,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) between means\n")
         print(L$Z)
         cat("\nPairwise P-values between means\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1546,6 +1574,7 @@ print.summary.pairwise <- function(x, ...) {
     if(test.type == "mdist") {
       if(stat.table) {
         cat("\nPairwise Mahalanobis distances between means, plus statistics\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise Mahalanobis distances between means\n")
@@ -1556,6 +1585,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) between means\n")
         print(L$Z)
         cat("\nPairwise P-values between means\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1563,6 +1593,7 @@ print.summary.pairwise <- function(x, ...) {
     if(test.type == "VC") {
       if(stat.table) {
         cat("\nPairwise statistics based on mean vector correlations\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise vector correlations between mean vectors\n")
@@ -1575,6 +1606,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) for angles between mean vectors\n")
         print(L$Z)
         cat("\nPairwise P-values for angles between mean vectors\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1583,6 +1615,7 @@ print.summary.pairwise <- function(x, ...) {
       if(stat.table) {
         cat("\nPairwise absolute difference (d) between vector lengths, 
             plus statistics\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise absolute differences (d) between mean vector lengths\n")
@@ -1593,6 +1626,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) between mean vector lengths\n")
         print(L$Z)
         cat("\nPairwise P-values between mean vector lengths\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1609,6 +1643,7 @@ print.summary.pairwise <- function(x, ...) {
       if(stat.table) {
         cat("\nPairwise distances between slope vector 
             (end-points), plus statistics\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise distances between slope vector (end-points\n")
@@ -1619,6 +1654,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) between slopes\n")
         print(L$Z)
         cat("\nPairwise P-values between slopes\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1627,6 +1663,7 @@ print.summary.pairwise <- function(x, ...) {
         if(stat.table) {
           cat("\nStandardized pairwise distances between slope vector 
             (end-points), plus statistics\n")
+          cat("P-values adjustment:", x$p.adjust.method, "\n")
           print(tab)
         } else {
           cat("\nStandardized pairwise distances between slope vector (end-points\n")
@@ -1637,6 +1674,7 @@ print.summary.pairwise <- function(x, ...) {
           cat("\nPairwise effect sizes (Z) between slopes\n")
           print(L$Z)
           cat("\nPairwise P-values between slopes\n")
+          cat("P-values adjustment:", x$p.adjust.method, "\n")
           print(L$P)
         }
       }
@@ -1647,7 +1685,11 @@ print.summary.pairwise <- function(x, ...) {
       cat("\nThe null hypothesis is that r = 1 (parallel vectors).")
       cat("\nThis null hypothesis is better treated as the angle 
           between vectors = 0\n")
-      if(stat.table) print(tab)
+      if(stat.table) {
+        cat("\nPairwise vector correlations between slope vectors\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
+        print(tab)
+      }
         else {
         cat("\nPairwise vector correlations between slope vectors\n")
         print(L$r)
@@ -1659,6 +1701,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) for angles between slope vectors\n")
         print(L$Z)
         cat("\nPairwise P-values for angles between slope vectors\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -1669,6 +1712,7 @@ print.summary.pairwise <- function(x, ...) {
       if(stat.table) {
         cat("\nPairwise absolute difference (d) between vector 
             lengths, plus statistics\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(tab)
       } else {
         cat("\nPairwise absolute differences (d) between slope vector lengths\n")
@@ -1679,6 +1723,7 @@ print.summary.pairwise <- function(x, ...) {
         cat("\nPairwise effect sizes (Z) between slope vector lengths\n")
         print(L$Z)
         cat("\nPairwise P-values between slope vector lengths\n")
+        cat("P-values adjustment:", x$p.adjust.method, "\n")
         print(L$P)
       }
     }
@@ -2024,6 +2069,8 @@ print.trajectory.analysis<- function(x, ...){
 #' expressed in radians or degrees.
 #' @param confidence Confidence level to use for upper confidence limit; 
 #' default = 0.95 (alpha = 0.05)
+#' @param p.adjust.method Optional logical value to adjust P-values,
+#' based on \code{\link{p.adjust}}.  Defaults to "none".
 #' @param show.trajectories Logical value to indicate whether trajectories 
 #' should be printed.
 #' @param ... Other arguments passed onto trajectory.analysis
@@ -2034,7 +2081,9 @@ print.trajectory.analysis<- function(x, ...){
 summary.trajectory.analysis <- function(object, stat.table = TRUE, 
                              attribute = c("MD", "TC", "SD"),
                              angle.type = c("rad", "deg"),
-                             confidence = 0.95, show.trajectories = FALSE, ...) {
+                             confidence = 0.95, 
+                             p.adjust.method = "none",
+                             show.trajectories = FALSE, ...) {
   
   attribute <- match.arg(attribute)
   angle.type <- match.arg(angle.type)
@@ -2046,14 +2095,16 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   SD <- object$SD
   
   if(attribute == "MD"){
-    L <- d.summary.from.list(MD, confidence = confidence)
+    L <- d.summary.from.list(MD, confidence = confidence,
+                             p.adjust.method = p.adjust.method)
     tab <- makePWDTable(L)
   }
   
   if(attribute == "TC"){
     if(is.null(TC)) stop("Trajectory correlations not available\n", 
                          call. = FALSE)
-    L <- r.summary.from.list(TC, confidence = confidence)
+    L <- r.summary.from.list(TC, confidence = confidence,
+                             p.adjust.method = p.adjust.method)
     
     if(angle.type == "deg") {
       options(warn = -1)
@@ -2067,7 +2118,8 @@ summary.trajectory.analysis <- function(object, stat.table = TRUE,
   
   if(attribute == "SD"){
     if(type == "trajectories") {
-      L <- d.summary.from.list(SD, confidence = confidence)
+      L <- d.summary.from.list(SD, confidence = confidence,
+                               p.adjust.method = p.adjust.method)
       tab <- makePWDTable(L)
     } else {
       L <- NULL
@@ -3740,6 +3792,7 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
   
   rownames(tab1) <- nms
   cat("\nModels:\n\n")
+  
   print(tab1)
   
   if(stats.table){
@@ -3750,7 +3803,9 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
     colnames(tab2)[2] <- if(x$tails == 2) "Pr(>|Z|)" else "Pr(>Z)"
     rownames(tab2) <- unlist(name.list)
     
-    cat("\nPairwise Statistics:\n\n")
+    cat("\nPairwise Statistics:\n")
+    cat("Using P-value adjustment:", 
+        x$p.adjust.method, "\n\n")
     print(tab2)
     cat("\n\n")
     
@@ -3761,6 +3816,8 @@ print.pairwise.model.Z <-function(x, stats.table = TRUE, ...){
     dimnames(tb) <- list(nms, nms)
     print(tb)
     cat("\nPairwise P:\n")
+    cat("Using P-value adjustment:", 
+        x$p.adjust.method, "\n")
     tb <- as.table(x$pairwise.P)
     dimnames(tb) <- list(nms, nms)
     print(tb)

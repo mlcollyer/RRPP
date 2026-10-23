@@ -46,6 +46,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Michael Collyer \email{mlcollyer@gmail.com} (\href{https://orcid.org/0000-0003-0238-2201}{ORCID})
   \item Dean Adams (\href{https://orcid.org/0000-0001-9172-7894}{ORCID})
 }
 

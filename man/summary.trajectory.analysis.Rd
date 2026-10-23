@@ -10,6 +10,7 @@
   attribute = c("MD", "TC", "SD"),
   angle.type = c("rad", "deg"),
   confidence = 0.95,
+  p.adjust.method = "none",
   show.trajectories = FALSE,
   ...
 )
@@ -31,6 +32,9 @@ expressed in radians or degrees.}
 
 \item{confidence}{Confidence level to use for upper confidence limit; 
 default = 0.95 (alpha = 0.05)}
+
+\item{p.adjust.method}{Optional logical value to adjust P-values,
+based on \code{\link{p.adjust}}.  Defaults to "none".}
 
 \item{show.trajectories}{Logical value to indicate whether trajectories 
 should be printed.}
