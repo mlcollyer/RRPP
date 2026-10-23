@@ -3,6 +3,10 @@
 ### NEW FEATURES
 + Added `p.adjust` to `pairwise` summaries.
 
+### BUG FIXES
++ Fixed issue with subject permutations in `.lm.rrpp`.
+
+
 # CHANGES IN RRPP 2.2.0
 
 ### NEW FEATURES
