@@ -1,4 +1,13 @@
-# CHANGES IN RRPP 2.1.2.999
+# CHANGES IN RRPP 2.2.0.999
+
+### NEW FEATURES
++ Added `p.adjust` to `pairwise` summaries.
+
+### BUG FIXES
++ Fixed issue with subject permutations in `.lm.rrpp`.
+
+
+# CHANGES IN RRPP 2.2.0
 
 ### NEW FEATURES
 + New function, `lmm.rrpp`, which fits mixed models with RRPP.
@@ -16,7 +25,8 @@ with `lmm.rrpp`.
 + Fixed some issues with box-cox transformations.
 + Fixed an issues with `ordinate` not respecting `rank.` input.
 + Tweaked `box.cox` to be more stable.
-+ Fixed a problem with `lm.rrpp.ws` that excluded within-subject RRPP ifsubjects were not a model term.
++ Fixed a problem with `lm.rrpp.ws` that excluded within-subject RRPP if subjects were not a model term.
+
 
 
 ### OTHER CHANGES
