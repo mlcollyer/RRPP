@@ -5,7 +5,7 @@
 
 ### BUG FIXES
 + Fixed issue with subject permutations in `.lm.rrpp`.
-
++ Addressed some `powerTrans` issues for log-likelihood RRPP results.
 
 # CHANGES IN RRPP 2.2.0
 

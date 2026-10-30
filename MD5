@@ -72,7 +72,7 @@ f8ce4b58b48b33ae16ba5f0986d12781 *man/plot.model.comparison.Rd
 c16aca0ebb2c3596f890c4d77cd39400 *man/plot.predict.lm.rrpp.Rd
 56013c2c951e774a5e07133f645a49e2 *man/plot.trajectory.analysis.Rd
 bc22fa489e583414326818c0500bd346 *man/podarcis.Rd
-647031646f91668ab9deceeb5e5031ec *man/powerTrans.Rd
+2895d11b900035d403c80c2f96968271 *man/powerTrans.Rd
 6b7ef0147771e24305292d779614468e *man/predict.lm.rrpp.Rd
 6f4b53f12982cc54f3058d989e3893d9 *man/prep.lda.Rd
 b1b2bc86ef6ed57ab44badf084182779 *man/print.anova.lm.rrpp.Rd
@@ -128,8 +128,8 @@ c565a8b321acff1d48bb61fe0aa82bbf *man/summary.manova.lm.rrpp.Rd
 63a84cde4ccd20f033b499e87bc6ee71 *man/terms.lm.rrpp.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
-d0d43bbf56b4321c90ffe1d908bef9b3 *NAMESPACE
-06d560fcc07bcbdb681a951c3fe5874f *NEWS.md
+6b799a444c59299b55f70e47ef386489 *NAMESPACE
+2d687bc5a3762acad2677f1a48a4090c *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 d6d5390b19f0d36fd9194eab1e8a51b8 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
@@ -138,7 +138,7 @@ fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
 48035d2216df49a6bdbcba7960714751 *R/deprecated.defunct.R
-31ec499dcedbb5160be479f3a93ff126 *R/effects.r
+f42a9b7323fe0d2b23e581637c1b7b09 *R/effects.r
 79df2fce4476d808c98794546903dee4 *R/ICCstats.r
 32db611afc18bc0cf02c79a97f76108e *R/interSubVar.r
 5d0b08d1fc166bb9287f72aae38c3027 *R/kcomp.r
@@ -161,7 +161,7 @@ b53b46f8f101da913f49472e1a42c291 *R/prep.lda.r
 d244a7773f594992958a7be276d98544 *R/reveal.model.designs.r
 df6cc46bc7fae1a55b713f3d5065b35a *R/RRPP-package.R
 518aabdec2610733ed40af2d25c22b9f *R/RRPP.data.r
-d6e7b260d9d15ed2b9d2a88fa1c389d3 *R/RRPP.support.code.r
+59cd89b40dec3cfb5df3d1616864e9e8 *R/RRPP.support.code.r
 62edb99ea8c3bd5b975c1bf425a7eb1f *R/RRPP.utils.r
 7fc1122d5968187416b478180200ac70 *R/scaleCov.r
 fd4a08c387004b76856d22d5c61fec21 *R/shared.support.code.r

@@ -119,6 +119,19 @@ box.cox.fast <- function(y, eps = 0.001) {
   list(opt.lambda = lambda.opt, transformed = res, lambda = NULL, loglik = NULL)
 }
 
+.powerTrans_bc <- function(y, 
+                        eps = 0.001, 
+                        interp = FALSE) {
+  n <- length(y)
+  if(n < 100) interp <- TRUE
+  result <- if(interp) 
+    try(box.cox.interp(y, eps = eps), silent = TRUE) else
+      box.cox.fast(y, eps = eps)
+  if(inherits(result, "try-error"))
+    result <- suppressWarnings(
+      box.cox.fast(y, eps = eps))
+  result
+}
 
 
 #' Power Transformation
@@ -129,8 +142,12 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' This function uses a Box-Cox power transformation for a vector of values,
 #' (presumably statistics from RRPP) with the following conditions:
 #' 
-#' (1) If any values are 0 or negative, a Yeo-Johnson transformation is performed
-#' to optimize lambda with only positive values.
+#' (1) If any values are 0 or negative, either a Yeo-Johnson transformation 
+#' or a linear transformation of y - min(y) + 1e-7 is performed
+#' to optimize lambda with only positive values.  There might be cases
+#' where one works better than the other.  This function will determine which
+#' produces more normally distributed data, indicating which transformation was used.
+#' 
 #' 
 #' (2) The lambda parameter is optimized over a range of -2 to +2,
 #' as is typical for most applications.
@@ -145,12 +162,12 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' A Yeo-Johnson transformation can be forced, which for positive values
 #' merely shifts the distribution by adding 1.  For most RRPP statistics
 #' (SS. MS, Rsq, F, d), this is not needed for effect sizes, as values are positive.  
-#' However, for log-likelihoods, this might be a good idea for comparisons, 
-#' because values might be strongly positive or strongly negative.
+#' However, for certain distributions, this might be a good idea for comparisons, 
+#' because values might be strongly positive or bimodal in nature.
 #' 
 #' Using standard deviates (useStDev) is a good idea for statistics with
 #' aberrant ranges (like 0 to 1, or 1,000 to 2,000).  If used, a Yeo-Johnson
-#' transformation is implicit, since standardizing introduces negative values.
+#' or linear transformation is implicit, since standardizing introduces negative values.
 #' 
 #'
 #' @param y A vector of values to use.
@@ -170,6 +187,8 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' \item{transformed}{The power-transformed values.}
 #' \item{lambda}{If spline interpolation is used, the values of lambda used.}
 #' \item{loglik}{If spline interpolation is used, the log-liklihoods calculated for lambda.}
+#' \item{additional_trans}{How additional transformation was performed: one
+#' of a linear transformation, a Yeo-Johnson transformation, or none.}
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -186,46 +205,48 @@ powerTrans <- function(y,
   
   whichNegs <- NULL
   which0 <- NULL
-  useYJ <- FALSE
+  negatives <- FALSE
+  useYJ <- forceYJ
   
   if(!is.null(target))
     y <- c(target, y)
   
-  if(forceYJ && !useStDev) {
-    useYJ <- TRUE
-    y <- abs(y) + 1
-  }
-    
-  if(any(y <= 0)) {
-    useYJ <- TRUE
-    whichNegs <- which(y < 0)
-    which0 <- which(abs(y) <= eps)
-    y <- abs(y) + 1
-  }
-  
   if(useStDev){
-    useYJ <- TRUE
     n <- length(y) - 1
     yc <- y - mean(y[-1])
     sy <- sqrt(sum(center(y[-1])^2)/ n)
     y <- yc / sy
-    whichNegs <- which(y < 0)
-    which0 <- which(abs(y) <= eps)
-    y <- abs(y) + 1
+  }
+  
+  yy <- y
+  logL <- (all(y < 0)|| all(y > 1))
+  if(logL) yy <- y - min(y) + 1e-7
+  
+  if(any(yy <= 0)){
+    negatives <- TRUE
+    useYJ <- TRUE
+    whichNegs <- which(yy < 0)
+    which0 <- which(abs(yy) <= eps)
+    yy1 <- abs(yy) + 1
+    yy2 <- yy - min(y) + 1e-7
   }
   
   n <- length(y)
   if(n < 100) interp <- TRUE
-  result <- if(interp) 
-    try(box.cox.interp(y, eps = eps), silent = TRUE) else
-    box.cox.fast(y, eps = eps)
-  if(inherits(result, "try-error"))
-    result <- suppressWarnings(
-      box.cox.fast(y, eps = eps))
   
-  if(useYJ){
-    tf <- result$transformed
-    lambda <- result$opt.lambda
+  if(!negatives)
+    result <- .powerTrans_bc(yy, 
+                       eps = eps, 
+                       interp = interp)
+  if(negatives){
+    result1 <- .powerTrans_bc(yy1, 
+                              eps = eps, 
+                              interp = interp)
+    result2 <- .powerTrans_bc(yy2, 
+                              eps = eps, 
+                              interp = interp)
+    tf <- result1$transformed
+    lambda <- result1$opt.lambda
     whichPos <- setdiff(1:n, union(whichNegs, which0))
     tf[whichPos] <- (y[whichPos]^lambda - 1)/lambda
     tf[which0] <- log(y[which0])
@@ -233,8 +254,29 @@ powerTrans <- function(y,
       tf[whichNegs] <- -log(tf[whichNegs])
     } else tf[whichNegs] <- 
       -(y[whichNegs]^(2 - lambda) -1)/(2 - lambda)
+    result1$transformed <- tf
+    sw1 <- shapiro.test(result1$transformed)$statistic
+    sw2 <- shapiro.test(result2$transformed)$statistic
+    if(is.na(sw1)) sw1 <- 0
+    if(is.na(sw2)) sw2 <- 0
+    if(sw2 > sw1) 
+      result <- result2 else
+        result <- result1
+    if(forceYJ) result <- result1
   }
   
+  additional_trans <- "none"
+  if(!identical(y, yy))
+    additional_trans <- "linear"
+  if(negatives){
+    if(sw2 > sw1)
+      additional_trans <- "linear" else
+        additional_trans <- "YJ"
+  }
+  if(forceYJ) additional_trans <- "YJ"
+  
+  result$additional_trans <- additional_trans
+
   return(result)
 }
 
