@@ -39,7 +39,8 @@ A list containing the following:
 \item{lambda}{If spline interpolation is used, the values of lambda used.}
 \item{loglik}{If spline interpolation is used, the log-liklihoods calculated for lambda.}
 \item{additional_trans}{How additional transformation was performed: one
-of a linear transformation, a Yeo-Johnson transformation, or none.}
+of a linear transformation, a Yeo-Johnson transformation, or none.  The result
+could also indicate whether standard deviates of y were used.}
 }
 \description{
 A function that transforms a vector of statistics or data to be 

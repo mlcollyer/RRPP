@@ -188,7 +188,8 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' \item{lambda}{If spline interpolation is used, the values of lambda used.}
 #' \item{loglik}{If spline interpolation is used, the log-liklihoods calculated for lambda.}
 #' \item{additional_trans}{How additional transformation was performed: one
-#' of a linear transformation, a Yeo-Johnson transformation, or none.}
+#' of a linear transformation, a Yeo-Johnson transformation, or none.  The result
+#' could also indicate whether standard deviates of y were used.}
 #' @export
 #' @author Michael Collyer
 #' @keywords utilities
@@ -255,8 +256,8 @@ powerTrans <- function(y,
     } else tf[whichNegs] <- 
       -(y[whichNegs]^(2 - lambda) -1)/(2 - lambda)
     result1$transformed <- tf
-    sw1 <- shapiro.test(result1$transformed)$statistic
-    sw2 <- shapiro.test(result2$transformed)$statistic
+    sw1 <- shapiro.test(result1$transformed[-1])$statistic
+    sw2 <- shapiro.test(result2$transformed[-1])$statistic
     if(is.na(sw1)) sw1 <- 0
     if(is.na(sw2)) sw2 <- 0
     if(sw2 > sw1) 
@@ -274,6 +275,10 @@ powerTrans <- function(y,
         additional_trans <- "YJ"
   }
   if(forceYJ) additional_trans <- "YJ"
+  
+  if(useStDev)
+    additional_trans <- c("StDev", 
+                          additional_trans)
   
   result$additional_trans <- additional_trans
 
