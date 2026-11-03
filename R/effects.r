@@ -256,8 +256,14 @@ powerTrans <- function(y,
     } else tf[whichNegs] <- 
       -(y[whichNegs]^(2 - lambda) -1)/(2 - lambda)
     result1$transformed <- tf
-    sw1 <- shapiro.test(result1$transformed[-1])$statistic
-    sw2 <- shapiro.test(result2$transformed[-1])$statistic
+    
+    rng <- if(n <= 5000) 1:n else
+      sample(1:n)[1:5000]
+    
+    sw1 <- shapiro.test((
+      result1$transformed[-1])[rng])$statistic
+    sw2 <- shapiro.test((
+      result2$transformed[-1])[rng])$statistic
     if(is.na(sw1)) sw1 <- 0
     if(is.na(sw2)) sw2 <- 0
     if(sw2 > sw1) 
