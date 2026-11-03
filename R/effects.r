@@ -247,14 +247,25 @@ powerTrans <- function(y,
                               eps = eps, 
                               interp = interp)
     tf <- result1$transformed
-    lambda <- result1$opt.lambda
     whichPos <- setdiff(1:n, union(whichNegs, which0))
-    tf[whichPos] <- (y[whichPos]^lambda - 1)/lambda
-    tf[which0] <- log(y[which0])
-    if(lambda == 2){
-      tf[whichNegs] <- -log(tf[whichNegs])
-    } else tf[whichNegs] <- 
-      -(y[whichNegs]^(2 - lambda) -1)/(2 - lambda)
+    lambda <- result1$opt.lambda
+    if(abs(lambda) <= eps){
+      tf[which0] <- log(y[which0] + 1)
+      tf[whichPos] <- log(y[whichPos] + 1)
+    }
+    if(lambda > (2 - eps)){
+      tf[whichNegs] <- -log(-y[whichNegs] + 1)
+    }
+    if(lambda < (0 - eps) || lambda > (0 + eps)){
+      tf[whichPos] <- (y[whichPos]^lambda - 1)/lambda
+      tf[which0] <- (y[which0]^lambda - 1)/lambda
+    }
+    
+    if(lambda < (2 - eps)){
+      tf[whichNegs] <- -((-y[whichNegs] + 1)^(2 - lambda) - 1) / 
+        (2 - lambda)
+    }
+    
     result1$transformed <- tf
     
     rng <- if(n <= 5000) 1:n else
