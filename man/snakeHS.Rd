@@ -20,7 +20,7 @@ Permutational Biometry (Collyer & Adams, 2025).
 \references{
 Smith, M. T. and Collyer, M. L. (2008). The biology of rattlesnakes, chapter
 Regional variation and sexual dimorphism in head form of the prairie
-rattlesnale (Crotalus viridid viridis): Comparisons using new analytical techniques
+rattlesnake (Crotalus viridid viridis): Comparisons using new analytical techniques
 and collection methods, pages 79–90. Loma Linda University Press.
 
 Collyer, M. L., & Adams D. C. (2025). Permutational Biometry: Volume

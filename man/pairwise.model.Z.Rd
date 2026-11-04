@@ -11,13 +11,14 @@ pairwise.model.Z(
   predictor = NULL,
   tol = NULL,
   pc.no = NULL,
-  gls.null = FALSE
+  gls.null = FALSE,
+  p.adjust.method = "none"
 )
 }
 \arguments{
 \item{...}{Either an object of class \code{\link{model.comparison}}, 
 or several objects of class \code{\link{lm.rrpp}}.  If the former, arguments of
-type = 'Z' and verbose = TRUE are required.  If the latter, a model comparsion analysis
+type = 'Z' and verbose = TRUE are required.  If the latter, a model comparison analysis
 will first be performed with these arguments.}
 
 \item{nsamp}{An optional vector containing the sample sizes for each model fit}
@@ -31,6 +32,9 @@ will first be performed with these arguments.}
 \item{pc.no}{An optional value to be passed to \code{\link{model.comparison}}, if used.}
 
 \item{gls.null}{An optional logical value to be passed to \code{\link{model.comparison}}, if used.}
+
+\item{p.adjust.method}{Optional logical value to adjust P-values,
+based on \code{\link{p.adjust}}.  Defaults to "none".}
 }
 \value{
 A list containing the following

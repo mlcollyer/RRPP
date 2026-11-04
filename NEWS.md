@@ -4,8 +4,10 @@
 + Added `p.adjust` to `pairwise` summaries.
 
 ### BUG FIXES
++ Fixed issue with missing model matrix transformation for `pairwise`,
+if covariance matrices were used.
 + Fixed issue with subject permutations in `.lm.rrpp`.
-
++ Addressed some `powerTrans` issues for log-likelihood RRPP results.
 
 # CHANGES IN RRPP 2.2.0
 

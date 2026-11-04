@@ -38,6 +38,9 @@ A list containing the following:
 \item{transformed}{The power-transformed values.}
 \item{lambda}{If spline interpolation is used, the values of lambda used.}
 \item{loglik}{If spline interpolation is used, the log-liklihoods calculated for lambda.}
+\item{additional_trans}{How additional transformation was performed: one
+of a linear transformation, a Yeo-Johnson transformation, or none.  The result
+could also indicate whether standard deviates of y were used.}
 }
 \description{
 A function that transforms a vector of statistics or data to be 
@@ -47,8 +50,12 @@ approximately normally distributed.
 This function uses a Box-Cox power transformation for a vector of values,
 (presumably statistics from RRPP) with the following conditions:
 
-(1) If any values are 0 or negative, a Yeo-Johnson transformation is performed
-to optimize lambda with only positive values.
+(1) If any values are 0 or negative, either a Yeo-Johnson transformation 
+or a linear transformation of y - min(y) + 1e-7 is performed
+to optimize lambda with only positive values.  There might be cases
+where one works better than the other.  This function will determine which
+produces more normally distributed data, indicating which transformation was used.
+
 
 (2) The lambda parameter is optimized over a range of -2 to +2,
 as is typical for most applications.
@@ -63,12 +70,12 @@ leverage for the optimization.
 A Yeo-Johnson transformation can be forced, which for positive values
 merely shifts the distribution by adding 1.  For most RRPP statistics
 (SS. MS, Rsq, F, d), this is not needed for effect sizes, as values are positive.  
-However, for log-likelihoods, this might be a good idea for comparisons, 
-because values might be strongly positive or strongly negative.
+However, for certain distributions, this might be a good idea for comparisons, 
+because values might be strongly positive or bimodal in nature.
 
 Using standard deviates (useStDev) is a good idea for statistics with
 aberrant ranges (like 0 to 1, or 1,000 to 2,000).  If used, a Yeo-Johnson
-transformation is implicit, since standardizing introduces negative values.
+or linear transformation is implicit, since standardizing introduces negative values.
 }
 \references{
 Box, G. E. P. and Cox, D. R. (1964) An analysis of transformations 

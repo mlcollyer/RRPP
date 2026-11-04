@@ -5,12 +5,12 @@
 \alias{phytoplankton}
 \title{Phytoplankton Biomass and Eutrophication}
 \description{
-A data set containing variables for phytoplankton biomass,
+A data set containing variables for phytoplanton biomass,
 phosphorous levels, trophic status, and locations (coordinates) of 70 temperate lakes.
 }
 \details{
 The data in this data set are samples from a larger study 
-that compared phytoplantkton biomass
+that compared phytoplankton biomass
 from temperate lakes in Alberta, Canada, with different levels of eutrophication
 (Loewen et al., 2020).  These 
 data are suitable for considering the spatial non-independence of observations in 

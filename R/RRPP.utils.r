@@ -2322,8 +2322,13 @@ plot.trajectory.analysis <- function(x, ...) {
   
   if(is.null(x$pca) && x$type == "factorial") {
     f <- if(x$fit$LM$gls) x$fit$LM$gls.fitted else x$fit$LM$fitted
-    pca <- prcomp(f)
-    rot <- pca$rotation
+    Pcov <- try(getModelCov(x$fit, type = "Pcov"), 
+                silent = TRUE)
+    if(inherits(Pcov, "try-error")) Pcov <- NULL
+    
+    pca <- if(is.null(Pcov))
+              ordinate(f) else ordinate(Pcov %*% f)
+    rot <- pca$rot
     Y <- x$fit$LM$Y
     Y.cent <- colMeans(Y)
     props <- pca$sdev^2 / sum(pca$sdev^2)
