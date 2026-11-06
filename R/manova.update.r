@@ -196,7 +196,7 @@
 
 manova.update <- function(fit, error = NULL, 
                           tol = 1e-7, PC.no = NULL,
-                          print.progress = FALSE,
+                          print.progress = TRUE,
                           verbose = NULL) {
   
   if(inherits(fit, "manova.lm.rrpp")) 

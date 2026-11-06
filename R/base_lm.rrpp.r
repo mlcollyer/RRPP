@@ -389,7 +389,7 @@
       FR <-lapply(1:max(1, kk), function(j){
         fitted <- as.matrix(fastFit(Ur[[j]], TY, n , p))
         residuals <- as.matrix(TY - fitted)
-        list(fitted = fitted, residuals = residuals)
+        out <- list(fitted = fitted, residuals = residuals)
       })
       
       if(sub.type == 2) {

@@ -82,7 +82,7 @@ lr_test <- function(fit, verbose = FALSE, ...){
     fit <- NULL
     manova.args$error <- NULL
     if(is.null(manova.args$tol)) manova.args$tol <- 1e-07
-    if(is.null(manova.args$print.progess)) manova.args$print.progress <- FALSE
+    if(is.null(manova.args$print.progess)) manova.args$print.progress <- TRUE
     manova.args$verbose <- TRUE
     fit <- do.call(manova.update, manova.args)
   }
