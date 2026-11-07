@@ -1,4 +1,5 @@
 0cae53dbddd05e1fd31f519b324ec768 *cran-comments.md
+9b80f97a0230353237aa67e4ef692d65 *CRAN-SUBMISSION
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 aff0ba51a13e3940e65969ad17c9c156 *data/flower.rda
 4ca7e6ff63c9f6ce6e452396eabc3ffa *data/mammalHR.rda
@@ -49,7 +50,7 @@ af82b850a553db8eaab3a0951b854d2b *man/lr_test.Rd
 6939227167a65fe3aec0f9026a749f15 *man/mahal_dist.Rd
 540245bd9235c4dfd05670dc9c427106 *man/mammalHR.Rd
 99510ea81ed3ccbb86effd36638aa94f *man/mammalHRphy.Rd
-ac41f844d49f9a57835e1db148646c4c *man/manova.update.Rd
+0c30e6b662182bec42c3e0a2ac167705 *man/manova.update.Rd
 bba84312844dd3237eb4ff0bed8ca6c1 *man/measurement.error.Rd
 2aec5c1b62ca37df0ab32c5e704670e2 *man/model.comparison.Rd
 05471ca269ac60530b233dce90a0f3f5 *man/model.frame.lm.rrpp.Rd
@@ -149,7 +150,7 @@ bbccc3698c0b7504f7632e85d543461c *R/lmm.rrpp.r
 af7026d96d4ebbcc219537db53e36c53 *R/looCV.r
 685dbd31c1ca6c0a4705d8ffdc82601a *R/lr_test.R
 f7f3d25e9e221746c9696b95db128457 *R/mahal_dist.R
-a968b3314b6198b8f0e0e61c084658c8 *R/manova.update.r
+a13da583b5caa1c43e6e2e9717df45ab *R/manova.update.r
 b98e1d09e0b7bc5fa0d112f1ddf41ae8 *R/measurement.error.r
 d230a19b29be8cd11f3d9cdff865ca30 *R/model.comparison.r
 e0cd225d3d90c54a4600d326ce2eb642 *R/ordinate.r
