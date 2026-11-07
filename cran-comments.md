@@ -1,6 +1,6 @@
 ## Resubmission
 
-This is a patch release, 2.2.1, which adds one argyment to a 
+This is a patch release, 2.2.5, which adds one argyment to a 
 function and addresses some coding errors. 
 The package, `geomorph`, is developed by the same 
 authors as `RRPP`.  The reverse dependency has been addressed during 
