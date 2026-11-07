@@ -15,8 +15,7 @@ bibentry(
   	journal = "Methods in Ecology and Evolution",
   	volume = "9",
   	issue = "2",
-  	pages = "1772-1779",
-  	url = "https://doi.org/10.1111/2041-210X.13029")
+  	pages = "1772-1779")
 	
 
 citFooter("Please cite both references, noting version number for RRPP package (first citation), as the RRPP package will evolve quickly.")

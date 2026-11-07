@@ -39,7 +39,7 @@ the following
 \item{scores}{The projected scores of data onto the eigenvectors.}
 }
 \description{
-Function performs a K-comonent analysis, which is an eigen decomposition
+Function performs a K-component analysis, which is an eigen decomposition
 of a ratio of ordinary least-squares (OLS) to generalized least squares (GLS)
 covariance matrices.
 }
