@@ -1,4 +1,4 @@
-# CHANGES IN RRPP 2.2.1
+# CHANGES IN RRPP 2.2.1-2
 
 ### NEW FEATURES
 + Added `p.adjust` to `pairwise` summaries.
