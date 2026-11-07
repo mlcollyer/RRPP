@@ -1,4 +1,4 @@
-f5f60cb284d3a4867e12350648052a9a *cran-comments.md
+07134fa3326e2c9a1f584cf8a1a5a3eb *cran-comments.md
 bebc8b3e8572570ca05203d8d9093285 *data/fishy.rda
 aff0ba51a13e3940e65969ad17c9c156 *data/flower.rda
 4ca7e6ff63c9f6ce6e452396eabc3ffa *data/mammalHR.rda
@@ -13,7 +13,7 @@ b7ceda4ee18eb3d0d3f966360dc02936 *data/PupfishHeads.rda
 cb4bccaa8b4ef5c97c3ed1b17a00e6bb *data/PupfishMR.rda
 de2cfa815f56a835eb532c3e5898cd87 *data/ReptAbund.rda
 62dbdfa4d0e0997b7b6eb82a6960eb95 *data/snakeHS.rda
-290d94b31fb3b12ba3c6023bd27b3613 *DESCRIPTION
+bacfc5774fe964ee80409a3029e4a947 *DESCRIPTION
 8aa4e8c241f021e307609d6d922d8a51 *inst/CITATION
 900a0d327b1a7ce565521a2fe92bbf78 *man/add.trajectories.Rd
 16069c5b9771b2daa94872dbc5f20b74 *man/add.tree.Rd
@@ -129,7 +129,7 @@ c565a8b321acff1d48bb61fe0aa82bbf *man/summary.manova.lm.rrpp.Rd
 1e7b2fe61069820fc4f3f04034db7936 *man/trajectory.analysis.Rd
 e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 6b799a444c59299b55f70e47ef386489 *NAMESPACE
-55e88363194b83ac1ee52da4a670423f *NEWS.md
+42634760ea31a63446e0336ce706a9ce *NEWS.md
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 d6d5390b19f0d36fd9194eab1e8a51b8 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
