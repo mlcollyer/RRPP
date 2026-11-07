@@ -38,6 +38,7 @@ effects can also be evaluated.
 Useful links:
 \itemize{
   \item \url{https://github.com/mlcollyer/RRPP}
+  \item Report bugs at \url{https://github.com/mlcollyer/RRPP/issues}
 }
 
 }
