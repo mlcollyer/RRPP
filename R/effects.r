@@ -186,7 +186,7 @@ box.cox.fast <- function(y, eps = 0.001) {
 #' \item{opt.lambda}{The optimized lambda parameter.}
 #' \item{transformed}{The power-transformed values.}
 #' \item{lambda}{If spline interpolation is used, the values of lambda used.}
-#' \item{loglik}{If spline interpolation is used, the log-liklihoods calculated for lambda.}
+#' \item{loglik}{If spline interpolation is used, the log-likelihoods calculated for lambda.}
 #' \item{additional_trans}{How additional transformation was performed: one
 #' of a linear transformation, a Yeo-Johnson transformation, or none.  The result
 #' could also indicate whether standard deviates of y were used.}

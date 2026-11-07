@@ -9,7 +9,7 @@ manova.update(
   error = NULL,
   tol = 1e-07,
   PC.no = NULL,
-  print.progress = FALSE,
+  print.progress = TRUE,
   verbose = NULL
 )
 }
