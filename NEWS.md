@@ -1,3 +1,9 @@
+# RRPP 2.2.5.999
+
+### OTHER CHANGES
++ Removed superfluous (redundant) dimensions in PCA performed
+in `trajectory.analysis` to enhance RRPP computations
+
 # RRPP 2.2.5
 
 # CHANGES IN RRPP 2.2.1-5

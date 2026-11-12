@@ -194,8 +194,10 @@ trajectory.analysis <- function(fit, fit.null = NULL, groups,
   
   means <- PW$LS.means
   if(is.null(tp) && pca) {
-    PCA <- if(fit$LM$gls) prcomp(fit$LM$gls.fitted) else prcomp(fit$LM$fitted)
-    rot <- PCA$rotation
+    PCA <- if(fit$LM$gls) 
+      ordinate(fit$LM$gls.fitted, tol = 1e-4) else 
+      ordinate(fit$LM$fitted, tol = 1e-4)
+    rot <- PCA$rot
     mu <- if(fit$LM$gls) fit$LM$gls.mean else fit$LM$mean
       
     Y.cent <- matrix(mu, NROW(means[[1]]), 
