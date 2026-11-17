@@ -59,10 +59,11 @@
 QRforX <- function(X, returnQ = TRUE,
                    ...){
   
-  cs <- colSums(as.matrix(X))
+  col_check <- apply(X <- as.matrix(X), 2, 
+                     function(x) all(x == 0))
   
-  if(NCOL(X) > 1 && any(cs == 0))
-    X <- X[, cs != 0, drop = FALSE]
+  if(NCOL(X) > 1 && any(col_check))
+    X <- X[, !col_check, drop = FALSE]
   
   if(!isS4(X) && NCOL(X) > 1){
     if(length(which(X != 0)) <= 0.9 * length(X))
