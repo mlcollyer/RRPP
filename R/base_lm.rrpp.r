@@ -10,6 +10,9 @@
                      delta, gamma, 
                      print.progress, Parallel, 
                      verbose, ...) {
+  rs <- if (exists(".Random.seed", .GlobalEnv)) 
+    .GlobalEnv$.Random.seed else NULL
+  op <- options()
   
   Parallel.args <- Parallel.setup(Parallel)
   
@@ -409,6 +412,8 @@
   
   cks$FR <- FR
   
+  obs.beta <- 
+  
   if(!turbo) {
     cks$offset <- o
     cks$Y <- TY
@@ -492,20 +497,10 @@
   obs.fit <- lm.rrpp.fit(X, Y, Pcov = Pcov, w = w, offset = o, 
                          tol = exchange.args$tol)
   
-  TX <- if(!is.null(Pcov)) Pcov %*% X else
-    if(!is.null(w)) X / sqrt(w) else X
-  QR <- QRforX(TX)
-  
-  Hb <- as.matrix(tcrossprod(fast.solve(QR$R), QR$Q))
-  if(!identical(colnames(X), colnames(QR$R)))
-    Hb <- Hb[colnames(X),]
-  coefficients <- as.matrix(Hb %*% TY)
-  if(is.null(rownames(coefficients)))  
-    rownames(coefficients) <- rownames(Hb)
   R <- U <- QR <- NULL
   
   LM <- list(form = formula(Terms, keep.order = int.first), 
-             coefficients = coefficients,
+             coefficients = obs.fit$coefficients,
              ols = ols,
              gls = gls,
              Y = Y,  
@@ -603,8 +598,12 @@
   out$subjects.var <- sub.var.name
   out$subTest <- subTest
   
-  class(out) = "lm.rrpp"
+  if (!is.null(rs)) {
+    .GlobalEnv$.Random.seed <- rs
+  } 
+  options(op)
   
+  class(out) = "lm.rrpp"
   out
   
 }

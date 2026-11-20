@@ -497,7 +497,10 @@ LM.fit <- function(x, y, offset = NULL, tol = 1e-07) {
   fitted.values <- fastFit (Q$Q, y, n, p)
   residuals <- y - fitted.values
   if(!is.null(offset)) fitted.values <- fitted.values + offset
-  list(qr = Q, fitted.values = as.matrix(fitted.values),
+  Hb <- getHb(Q)
+  list(qr = Q, 
+       coefficients = Hb %*% y,
+       fitted.values = as.matrix(fitted.values),
        residuals = as.matrix(residuals))
 }
 
