@@ -12,6 +12,7 @@
                      verbose, ...) {
   rs <- if (exists(".Random.seed", .GlobalEnv)) 
     .GlobalEnv$.Random.seed else NULL
+  op <- options()
   
   Parallel.args <- Parallel.setup(Parallel)
   
@@ -600,6 +601,7 @@
   if (!is.null(rs)) {
     .GlobalEnv$.Random.seed <- rs
   } 
+  options(op)
   
   class(out) = "lm.rrpp"
   out

@@ -133,7 +133,7 @@ e52a8af2dc8b337878160602b227ab75 *man/vec.cor.matrix.Rd
 e2e8e6314a30b2e350cda1d7be569f7f *R/add.tree.r
 d6d5390b19f0d36fd9194eab1e8a51b8 *R/anova.lm.rrpp.r
 fadbeaac15ff4eda109f584d9525209b *R/anova.measurement.error.r
-fbf92be1cbdccd4ea2dcfeb0e568b653 *R/base_lm.rrpp.r
+cad1ee5f6eafbc7252e6a3b6516bf49c *R/base_lm.rrpp.r
 526aa0c5dfe0337aa7a0a1a7a7f84348 *R/betaTest.r
 484ee6f98740867bb74d1f70e0116633 *R/coef.lm.rrpp.r
 c24367945407b34e12b015ecee0a8aaf *R/convert2ggplot.r
