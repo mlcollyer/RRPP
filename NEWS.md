@@ -1,8 +1,15 @@
-# RRPP 2.2.5.999
+# RRPP 2.2.6
+
+### BUG FIXES
++ Fixed `QRforX` to use vectors of 0s rather than vector sums of 0
+to determine redundant dimensions.
++ Added a restoration of random seed to `.lm.rrpp`.
++ Fixed issue with coefficients in `.lm.rrpp` if weights are used,
+performed with an update internal `lm.rrpp.fit` function.
 
 ### OTHER CHANGES
 + Removed superfluous (redundant) dimensions in PCA performed
-in `trajectory.analysis` to enhance RRPP computations
+in `trajectory.analysis` to enhance RRPP computations.
 
 # RRPP 2.2.5
 
